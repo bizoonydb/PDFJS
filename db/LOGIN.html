@@ -1,335 +1,117 @@
-
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Perfil</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <style>
-        /* Resetando margens e paddings */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <title>LOGIN</title>
+  <style>
+    /* Estiliza o cabeçalho fixo */
+    .header-wrap {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: #333; /* Cor de fundo mais neutra */
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 10px 0;
+    }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #ffffff;
-            padding: 20px;
-        }
-
-        /* Estilo do modal */
-        .modal {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            visibility: hidden;
-            opacity: 0;
-            transition: visibility 0s, opacity 0.3s ease;
-        }
-
-        .modal.active {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        /* Conteúdo do modal */
-        .modal-content {
-          background-color: #ffffff;
-          width: 100%;
-          max-width: 800px;
-          max-height: 80vh;  /* Ajusta a altura máxima para 80% da altura da tela */
-          border-radius: 15px;
-          box-shadow: 0 6px 100px rgba(9, 123, 210, 0.767);
-          overflow-y: auto;  /* Permite a rolagem quando o conteúdo exceder */
-          padding: 20px;
-          animation: fadeIn 0.3s ease;
-          border: 6px solid  #00a6ff;
-          position: relative; /* Adicionei esta linha */
-      }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        
-        .close-btn {
-          font-size: 2.5rem;
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #ff0000;
-          position: absolute;
-          top: 40px;
-          right: 20px;
-      }
-
-      .profile-container {
+    /* Centraliza e ajusta os botões */
+    .topbar {
         display: flex;
-        flex-direction: column;
-        align-items: center; /* Centraliza o conteúdo horizontalmente */
-        text-align: center; /* Garante que o texto também fique centralizado */
-        gap: 10px;
-    }
-    
-    .profile-image {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        border: 3px solid #1394d4;
-        margin-bottom: -10px;
+        align-items: center;
+        justify-content: center; /* Centraliza os botões */
+        padding: 0 20px;
     }
 
-        .profile-name {
-            font-size: 1.1rem;
-            font-weight: 60;
-            color: #333;
-            text-align: center; /* Garante que o texto também fique centralizado */
-        }
-
-        
-
-
-
-
-        /* Botões de ação */
-        .action-buttons {
-            display: flex;
-            justify-content: space-around;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .action-buttons button {
-            padding: 12px 25px;
-            font-size: 1.1rem;
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .action-buttons button:hover {
-            background-color: #1e88e5;
-        }
-
-        /* Botão para abrir o modal */
-        #openModalBtn {
-            position: fixed; /* Fixa o botão na posição */
-            top: 70px; /* Define a distância do topo */
-            right: 410px; /* Define a distância do lado direito */
-            text-decoration: none;
-            color: rgb(255, 255, 255);
-            border: 2px solid rgb(0, 162, 255);
-            padding: 10px 15px; /* Aumenta o espaço interno (largura e altura do botão) */
-            font-size: 1.0rem; /* Aumenta o tamanho da fonte */
-            border-radius: 5px;
-            background-color: rgba(171, 185, 194, 0.359);
-            transition: background-color 0.3s, color 0.3s;
-            pointer-events: auto;
-            margin: 0 10px;
-            z-index: 1000; /* Garante que o botão fique acima de outros elementos */
-            
-        }
-        
-        #openModalBtn:hover {
-            background-color: #535353;
-        }
-       
-        .user-item {
-          background-color: #d3d3d3;
-          padding: 15px;
-          border-radius: 8px;
-          box-shadow: 0 6px 15px rgba(9, 123, 210, 0.767);
-          transition: transform 0.2s, box-shadow 0.2s;
-          font-size: 1rem;
-          color: #555;
-          margin-bottom: 15px;
-          border: 3px solid;
-          border-color: #008cff;
-      }
-      
-      .user-item:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 4px 10px rgba(0, 4, 255, 0.942);
-      }
-      
-      .user-item label {
-        font-size: 1.3rem; /* Aumenta o tamanho da fonte */
-        color: #0968ed; /* Cor verde para destacar o label */
-        display: inline-block;
-        margin-right: 10px;
-        font-weight: bold; /* Deixa a fonte mais negrito */
-        padding: 5px 10px; /* Adiciona espaço dentro da borda */
-       
-        
+    .buttons {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Espaço entre os botões */
     }
-      
-      .user-item span {
-        font-size: 1.0rem; /* Aumenta o tamanho da fonte */
-        color: #000000; /* Cor verde para destacar o label */
-        display: inline-block;
-        margin-right: 10px;
-        font-weight: bold; /* Deixa a fonte mais negrito */
-        
-      }
-      
-      .user-item i {
-          color: #0035c6;
-          margin-left: 5px;
-      }
-      
-      .user-item br {
-          margin-bottom: 10px;
-      }
-       
-      .link-button {
-        display: inline-block;
-        background-color: #525252;
-        color: white;
-        text-decoration: none;
-        padding: 10px 10px;
-        font-size: 15px;
+
+    .button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 12px;
+        font-size: 14px;
+        color: #ffffff;
+        background-color: transparent;
+        border: 2px solid #0000FF;
         border-radius: 5px;
-        text-align: center;
-        position: relative;
-      }
-      .link-button:hover {
-        background-color: #000000;
-      }
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap; /* Evita que os botões quebrem linha */
+    }
 
-/* Ocultar barra de rolagem no WebKit para o modal */
-.modal-content::-webkit-scrollbar {
-  display: none; /* Oculta a barra de rolagem */
-}
+    .button img {
+        width: 20px;
+        height: auto;
+        margin-left: 8px;
+    }
 
-/* Garante a funcionalidade da rolagem mesmo sem exibir */
-.modal-content {
-  -ms-overflow-style: none;  /* Para o Internet Explorer 10+ */
-  overflow-y: scroll; /* Garante a rolagem, mas sem a barra visível */
-}
-/* Estilo para a imagem fixa */
-.modal-header img {
-    display: block;
-    margin: 0 auto; /* Centraliza horizontalmente */
-    max-width: 100%;
-    max-height: 150px; /* Limita a altura da imagem */
-    border: 1px solid #00a6ff; /* Borda azul */
-    border-radius: 10px; /* Bordas arredondadas */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Sombra para destacar */
-    margin-bottom: 10px; /* Espaço abaixo da imagem */
-}
+    .button:hover {
+        background-color: #add8e6;
+        color: #ffffff;
+    }
 
+    /* Para evitar que o conteúdo fique encoberto pelo cabeçalho fixo */
+    .main-wrap {
+        margin-top: 80px; /* Ajuste conforme necessário */
+    }
 
-    </style>
+    /* Responsividade para telas menores */
+    @media (max-width: 600px) {
+        .buttons {
+            flex-wrap: wrap; /* Permite que os botões quebrem linha em telas pequenas */
+            justify-content: center;
+        }
+
+        .button {
+            font-size: 12px;
+            padding: 5px 10px;
+        }
+    }
+  </style>
 </head>
-<body>
 
-    <button id="openModalBtn">
-        <i class="fas fa-user"></i> PERFIL
-    </button>
-    
+<body class='header-page wsite-theme-light'>
 
-    <!-- Modal -->
-    <div class="modal" id="userModal">
-        
-        <div class="modal-content">
-            <button class="close-btn" id="closeModalBtn">&times;</button>
-            <div class="modal-header"></div>
-            <div class="modal-header">
-                <img src="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/picsart_25-01-02_15-25-42-155.jpg" alt="Imagem Fixa">
-            </div>
-            <div class="profile-container">
-                <img src="https://irmaosfb.weebly.com/uploads/1/3/6/9/136931568/editor/picsart-24-05-22-17-02-16-964.jpg?1737867126" alt="Foto de Perfil" class="profile-image">
-                <h1>BEM VINDO</h1>
-                
-                
-                </div><hr>
-                <div class="profile-name"><strong> OS USUARIOS CADASTRADOS NESTE PC ESTÃO, LISTADOS ABAIXO</strong></div>
-                <div class="user-list" id="userList">
-                  <!-- Usuários serão listados aqui -->
-              </div>
-              <hr>
-            
-          
-                <div class="action-buttons">
-                    
-                    <a href="https://cursobc.weebly.com" class="link-button"><span style="font-weight: bold; color: rgb(255, 0, 0);">LOGOUT</span></a><a href="https://wa.me/message/6X46IDVVWEIQM1" class="link-button"><span style="font-weight: bold; color: rgb(57, 255, 8);">SUPORTE</span></a>
-                </div>
-            </div>
-        </div>
-        
+<div class="wrapper">
+  <div class="header-wrap">
+    <div id="topBar" class="topbar">
+      <div class="buttons">
+        <a href="https://wa.me/message/6X46IDVVWEIQM1" class="button">SUPORTE
+          <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-21-43-961_orig.png" alt="WhatsApp">
+        </a>
+        <a href="https://bizoonycell.weebly.com/db.html" class="button">COMPRAR ACESSO
+          <img src="https://images.vexels.com/media/users/3/136534/isolated/lists/c93f32e11dbf6b5fe3efc5be5554ec50-icone-de-cadeado.png" alt="Cadeado">
+        </a>
+        <a href="https://CURSOBC.WEEBLY.COM/LOGIN.html" class="button">LOGIN ADMIN
+          <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-27-23-35-22-945_orig.png" alt="">
+        </a>
+        <a href="https://www.facebook.com/DigitalBoardoficial" class="button">FACEBOOK
+          <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-22-12-589_orig.png" alt="Facebook">
+        </a>
+        <a href="https://cursobc.weebly.com/instagran" class="button">INSTAGRAM
+          <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-22-47-486_orig.png" alt="Instagram">
+        </a>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // Função para abrir o modal
-        const openModalBtn = document.getElementById('openModalBtn');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const modal = document.getElementById('userModal');
+  <div class="main-wrap">
 
-        openModalBtn.addEventListener('click', () => {
-            modal.classList.add('active');
-        });
+  </div>
+</div>
 
-        closeModalBtn.addEventListener('click', () => {
-            modal.classList.remove('active');
-        });
-
-        // Função para carregar os dados dos usuários
-        function loadUserData() {
-          const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
-          
-          // Se não houver usuários cadastrados
-          if (usuariosCadastrados.length === 0) {
-              document.getElementById('userList').innerHTML = '<p>Nenhum usuário cadastrado.</p>';
-              return;
-          }
-
-          usuariosCadastrados.reverse(); // Exibe o mais recente primeiro
-
-          let userListHTML = '';
-          usuariosCadastrados.forEach((user, index) => {
-              userListHTML += `
-                  <div class="user-item">
-                      <strong>USER ${index + 1}:</strong><br>
-                      <label>E-MAIL:</label><span>${user.email}</span><br> <!-- Exibindo o e-mail cadastrado -->
-                      <label>USUARIO<i class="fas fa-user"></i>:</label><span>${user.username}</span><br>
-                      <label>SENHA<i class="fas fa-key"></i>:</label><span>${user.password}</span>
-                      <br>
-                      <label>DATA DE CADASTRO:</label><span>${user.registrationDate}</span><br>
-                      <label>DADOS DE EXPIRAÇÃO:</label><span>${user.expirationDate}</span><br> <!-- Exibindo a dados de expiração --><br>
-                     
-               <label><p>ATIVAÇÃO:</p></label><span>DBED****</span>
-                     
-                  </div>
-              `;
-          });
-
-          document.getElementById('userList').innerHTML = userListHTML;
-      }
-
-      // Carregar os dados assim que o modal for aberto
-      openModalBtn.addEventListener('click', loadUserData);
-    </script>
-
-</body>A
+</body>
 </html>
+
+
 
 <!DOCTYPE html>
 <html lang="pt-br">
