@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A14 SM-A145m</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            background-color: #000000;
+            color: #00000000;
+        }
+
+        header {
+            background-color: rgba(0, 0, 0, 0);
+            color: rgb(0, 0, 0);
+            padding: 10px;
+            text-align: center;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 320px;
+            left: 0;
+            height: calc(100vh - 60px); /* Ajustado para ocupar a altura da janela de visualização menos a altura do cabeçalho */
+            border: 2px solid #002aff;
+            padding: 10px;
+            width: 220px;
+            overflow-y: auto; /* Permitir rolagem quando necessário */
+            background-color: #000; /* Fundo preto para a barra lateral */
+            color: rgb(236, 24, 24); /* Cor do texto na barra lateral */
+            z-index: 9999;    /* Garante que a imagem fique sobre outros elementos */
+            
+        }
+
+        
+        .sidebar a {
+            color: #96f6ff;
+            text-decoration: none;
+        }
+        /* Ocultar barra de rolagem no WebKit */
+.sidebar::-webkit-scrollbar {
+    display: none; /* Oculta a barra de rolagem */
+}
+
+/* Garante a funcionalidade da rolagem mesmo sem exibir */
+.sidebar {
+    -ms-overflow-style: none;  
+ }
+        .main-content {
+            
+            flex: 1;
+            margin-left: 245px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #00000000;
+            height: 100vh;
+            object-fit: contain; /* Faz a imagem se ajustar proporcionalmente */
+        }
+
+        .display {
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        details {
+            margin-bottom: 10px;
+            padding-left: 10px; /* Recuo para os detalhes secundários */
+            border-left: 1px solid #ff0000; /* Linha lateral para indicar recuo */
+        }
+
+        summary {
+            cursor: pointer;
+            color: #ffffff;
+        }
+
+        .file {
+            display: block;
+            margin-left: 15px;
+            color: rgb(193, 12, 12); /* Cor do texto nos links de arquivo */
+            text-decoration: none; /* Remover sublinhado padrão */
+        }
+        .file:hover {
+            text-decoration: underline; /* Adicionar sublinhado ao passar o mouse */
+            color: rgb(255, 0, 0) !important;
+        }
+
+        .file i {
+            background-color: rgb(0, 0, 0); /* Fundo vermelho */
+            color: rgb(255, 0, 204) !important; /* Cor vermelha para ícones de arquivo */
+            border-radius: 2%; /* Torna o fundo do ícone redondo */
+            padding: -1px; /* Espaçamento interno para o ícone */
+        }
+        .folder {
+            background-color: rgba(58, 58, 58, 0.757); /* Fundo vermelho */
+            color: rgb(210, 19, 19) !important; /* Cor vermelha para ícones de arquivo */
+            border-radius: 2%; /* Torna o fundo do ícone redondo */
+            padding: -1px; /* Espaçamento interno para o ícone */
+            
+        }
+        .folder i {
+            color: #ddc868ed; /* Cor  ícones de pasta */
+            
+        }
+        .fa-folder-plus:hover {
+          text-decoration:underline ; /* Adicionar sublinhado ao passar o mouse */
+          color: rgb(255, 0, 0) !important;
+      }
+      .fa-folder-plus {
+        
+        color: rgb(0, 166, 255) !important;
+    }
+    .fa-folder-open {
+      
+      color: rgb(0, 123, 255) !important;
+  }
+  .file-image i {
+    background-color: rgba(0, 255, 42, 0.275); /* Fundo vermelho */
+    color: rgb(0, 149, 255) !important; /* Cor vermelha para ícones de arquivo */
+    border-radius: 2%; /* Torna o fundo do ícone redondo */
+    padding: 1px; /* Espaçamento interno para o ícone */
+
+}
+.file-image{
+    display: block;
+    margin-left: 15px;
+    color: rgb(170, 50, 50); /* Cor do texto nos links de arquivo */
+    text-decoration: none; /* Remover sublinhado padrão */
+}
+.highlight {
+  background-color: rgba(0, 72, 255, 0.649);  /* Exemplo de destaque */
+}
+
+        #search {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            border: 2px solid #ff0000;
+            color: #ffe600;
+            background-color: #262726;
+        }
+
+        #displayNumber {
+            position: fixed;
+            top: 80px;
+            left: 0px;
+            width: 200px;
+            height: 175px;
+            background-image: url('https://cursobc.weebly.com/uploads/1/3/6/9/136931568/picsart_25-01-24_19-10-33-883.jpg');
+            background-size: cover;
+            background-position: center;
+            text-align: center;
+            color: rgb(88, 86, 86);
+            font-size: 24px;
+            padding: 22px;
+            z-index: 55;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #displayNumber > span {
+            font-size: 36px;
+        }
+
+        #selectedFileName {
+            padding: 10px;
+            background-color: #262726;
+            color: #eaff00;
+            box-sizing: border-box;
+            z-index: 999;
+            position: fixed;
+            top: 70px;
+            left: 0px;
+            width: 245px;
+            border: 2px solid #0022ff;
+            z-index: 9999;    /* Garante que a imagem fique sobre outros elementos */
+        }
+
+        /* Novo estilo para a imagem que vai sobrepor a tela */
+        #overlayImage {
+            position: fixed;  /* Fixa a posição da imagem */
+            top: 70px;
+            left: 245px;    /* Garante que a imagem fique no canto esquerdo */
+            width: calc(100vw - 245px); /* Ajusta a largura para não ultrapassar os limites */
+            height: 100vh;  /* Usa a altura total da tela */
+            z-index: 1;    /* Garante que a imagem fique sobre outros elementos */
+            background-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            object-fit: contain; /* Ajusta a imagem sem deformá-la */
+        }
+        
+        #overlayImage img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Ajusta a imagem sem deformá-la */
+        }
+        
+        
+
+        #image-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #00000000;
+            padding: 10px;
+            height: 100vh;
+            max-height: 100vh;
+            width: 100%;
+            object-fit: contain; /* Faz a imagem se ajustar proporcionalmente */
+        }
+
+        #displayed-image {/* imagem de centro DB */
+            position:fixed;
+            top: 50%;
+            left: 55%;
+            transform: translate(-50%, -50%);
+          
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            background-color: #00000000;
+        }
+         /* Estilo para o spinner de carregamento */
+         .spinner {
+            position: fixed;
+            top: 50%;
+            left: 55%;
+            width: 45px;
+            height: 45px;
+            border: 5px solid #5e5e5e; /* Cor do fundo */
+            border-top: 5px solid #db3434; /* Cor da bolinha */
+            border-radius: 50%;
+            animation: spin 1s linear infinite; /* Animação de rotação */
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            display: none; /* Inicialmente escondido */
+        }
+
+        /* Animação de rotação */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .button {
+            position: fixed;
+            top: 320px;
+            left: 0;
+            height: calc(100vh - 60px); /* Ajustado para ocupar a altura da janela de visualização menos a altura do cabeçalho */
+            display: inline-block;
+            background-color: #9e9e9335;
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            font-size: 15px;
+            border: 2px solid #44ff00;
+            text-align: center;
+            border-radius: 0%;
+            
+            
+          }
+        .link-button {
+            display: inline-block;
+            background-color: #9e9e9335;
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            font-size: 15px;
+            border: 2px solid #44ff00;
+            text-align: center;
+            border-radius: 50%;
+            
+            
+          }
+          .link-button:hover {
+            background-color: #eaff0000;
+          }
+          @keyframes piscar {
+            0% { background-color: rgba(242, 255, 0, 0); }
+            20% { background-color: rgb(242, 255, 0); }
+            50% { background-color:#fff700 ; }
+            70% { background-color: rgb(255, 234, 0); }
+            100% { background-color: rgba(255, 234, 0, 0); }
+        }
+        
+        .piscando {
+            animation: piscar 1s infinite;
+        }
+        .whatsapp-icon  {
+            background-color: rgba(97, 196, 15, 0.419); /* Fundo vermelho */
+            color: rgb(255, 255, 255) !important; /* Cor vermelha para ícones de arquivo */
+            padding: 5px 10px;
+            font-size: 15px;
+            border: 2px solid #00a2ff;
+            text-align: center;
+            border-radius: 15%;
+        }
+        .whatsapp-icon i {
+            background-color: rgba(0, 0, 0, 0.686); /* Fundo vermelho */
+            color: rgb(47, 255, 0) !important; /* Cor vermelha para ícones de arquivo */
+   
+       
+        .facebook-icon i{
+        background-color: rgba(0, 0, 0, 0); /* Fundo vermelho */
+        color: rgb(59, 93, 203) !important; /* Cor vermelha para ícones de arquivo */
+        border-radius: 2%; /* Torna o fundo do ícone redondo */
+        padding: -1px; /* Espaçamento interno para o ícone */
+        
+    }.instagram-icon i{
+        background-color: rgba(0, 0, 0, 0); /* Fundo vermelho */
+        color: rgb(235, 81, 189) !important; /* Cor vermelha para ícones de arquivo */
+        border-radius: 2%; /* Torna o fundo do ícone redondo */
+        padding: -1px; /* Espaçamento interno para o ícone */
+    }
+    
+
+    </style>
+</head>
+<body>
+    
+<!-- Spinner de carregamento -->
+<div id="loadingSpinner" class="spinner EXIBINDO VALOR NO DISPLAY"> </div>
+
+<p id="displayNumber"><span>0</span></p>
+
+<div class="sidebar">
+    
+    <!-- MODELO DO CELULAR -->
+    <span style="font-weight: bold; color: rgb(0, 255, 251);">  A14 SM-A145m
+    </span></a><br><hr>
+
+    <!-- LED BIP -->
+    <a class="link-button"><span style="font-weight: bold; color: rgb(255, 0, 0);">BIP</span></a>
+    <a href="https://api.whatsapp.com/send?phone=5533984444376&text=preciso%20de%20uma%20solucao%20hardware,%20ou%20um%20arquivo" class="whatsapp-icon"><i class="fab fa-whatsapp"></i> SOLICITAR</a> <hr>
+
+
+
+
+
+
+    <input type="text" id="search" placeholder="BUSCAR MALHA...">
+
+  <details class="folder">
+    <summary><i class="fas fa-folder"></i> BOARDVIEW ✔️</summary>
+    <a href="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/picsart_25-01-29_01-42-58-079__1_.jpg" class="file"><i class="far fa-file-image"></i> SOLUÇÃO HARDWARE</a>
+    
+ 
+  </details>
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> COMPONENTES ✔️ </summary>
+        <a href="https://irmaosfb.weebly.com/uploads/1/3/6/9/136931568/picsart_25-02-02_14-01-54-568.jpg" class="file"><i class="far fa-file"></i> COMP A</a>
+<a href="https://irmaosfb.weebly.com/uploads/1/3/6/9/136931568/picsart_25-02-02_14-12-59-261.jpg" class="file"><i class="far fa-file"></i> COMP B</a>
+      
+    
+      </details>
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> ON OFF VOL ✔️ </summary>
+        <a href="https://irmaosfb.weebly.com/uploads/1/3/6/9/136931568/picsart_25-01-31_20-33-39-804.jpg" class="file"><i class="far fa-file-image"></i> SOLUÇÃO HARDWARE</a>
+        <a href="6" class="file"><i class="far fa-file-image"></i> POWER_KEY</a>
+        <a href="7" class="file"><i class="far fa-file-image"></i> VOL_UP</a>
+        <a href="8" class="file"><i class="far fa-file-image"></i> VOL_DN</a>
+        <a href="16" class="file"><i class="far fa-file-image"></i> GND</a>
+        
+        
+       </details>
+  
+  
+  <details class="folder">
+    <summary><i class="fas fa-folder"></i> CARGA E DADOS ✔️ </summary>
+    <a href="https://irmaosfb.weebly.com/uploads/1/3/6/9/136931568/picsart_25-02-01_15-29-34-407.jpg" class="file"><i class="far fa-file-image"></i> SOLUÇÃO HARDWARE</a>
+<a href="9" class="file"><i class="far fa-file-image"></i> VBATTERY_CON</a>
+<a href="10" class="file"><i class="far fa-file-image"></i> CC1</a>
+<a href="11" class="file"><i class="far fa-file-image"></i> CC2</a>
+<a href="12" class="file"><i class="far fa-file-image"></i> VBUS_OVP</a>
+<a href="13" class="file"><i class="far fa-file-image"></i> MUIC_D_P</a>
+<a href="14" class="file"><i class="far fa-file-image"></i> MUIC_D_N</a>
+<a href="15" class="file"><i class="far fa-file-image"></i> VPH_PWR</a>
+<a href="16" class="file"><i class="far fa-file-image"></i> GND</a>
+    
+    
+  </details>
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> DOCK CARGA </summary>
+        
+        
+      </details>
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> THERMISTOR ✔️ </summary>
+        <a href="https://irmaosfb.weebly.com/uploads/1/3/6/9/136931568/picsart_25-02-02_14-41-19-224.jpg" class="file"><i class="far fa-file-image"></i> SOLUÇÃO HARDWARE</a>
+        <a href="TH" class="file"><i class="far fa-file"></i> TH(AP_THM)</a>
+<a href="TH" class="file"><i class="far fa-file"></i> TH(LRST_THM)</a>
+<a href="TH" class="file"><i class="far fa-file"></i> TH(TR_THM)</a>
+<a href="" class="file"><i class="far fa-file"></i> GND</a>
+        
+      </details>
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> WIFI </summary>
+        
+        
+      </details>
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> TOUSCHSCREEN </summary>
+        
+        
+        
+      </details>
+      
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> BACKLIGHT ✔️ </summary>
+        <a href="https://irmaosfb.weebly.com/uploads/1/3/6/9/136931568/picsart_25-01-31_20-03-44-605.jpg" class="file"><i class="far fa-file-image"></i> SOLUÇÃO HARDWARE</a>
+        <a href="2" class="file"><i class="far fa-file-image"></i> VBATT</a>
+        <a href="3" class="file"><i class="far fa-file-image"></i> LED_A_24P</a>
+        <a href="4" class="file"><i class="far fa-file-image"></i> LCD_PWM_CON</a>
+        <a href="5" class="file"><i class="far fa-file-image"></i> LED_K1</a>
+        <a href="5" class="file"><i class="far fa-file-image"></i> LED_K2</a>
+        <a href="16" class="file"><i class="far fa-file-image"></i> GND</a>
+        
+                
+        
+        
+      </details>
+          <details class="folder">
+            <summary><i class="fas fa-folder"></i> TENSÕES </summary>
+            
+            
+          </details>
+          
+          <details class="folder">
+            <summary><i class="fas fa-folder"></i> .</summary>
+            
+            
+          </details>
+          <details class="folder">
+            <summary><i class="fas fa-folder"></i> .</summary>
+            
+            
+          </details>
+       
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> .</summary>
+        
+        
+      </details>
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> .</summary>
+        
+        
+      </details>
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> .</summary>
+        
+        
+      </details>
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> .</summary>
+        
+        
+      </details>
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> .</summary>
+        
+        
+      </details>
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> .</summary>
+        
+        
+      </details>
+      <details class="folder">
+        <summary><i class="fas fa-folder"></i> .</summary>
+        
+        
+      </details>
+   
+  <details class="folder">
+    <summary><i class="fas fa-folder"></i> .</summary>
+    <a href="https://cursobc.weebly.com/instagran.html" class="instagram-icon"><i class="fab fa-instagram"></i> INST</a>
+    <a href="https://www.facebook.com/DigitalBoardoficial/" class="facebook-icon"><i class="fab fa-facebook"></i> FB</a>
+    
+    
+  </details>
+</div>
+
+<div class="main-content">
+    
+    <div id="image-container">
+        <!-- Imagem será exibida aqui -->
+        <img id="displayed-image" src="https://irmaosfb.weebly.com/uploads/1/3/6/9/136931568/picsart_25-01-28_22-55-01-013.png" alt="DIGITAL BOARD ">
+        
+    </div>
+    <div id="selectedFileName" class="display"></div>
+    <div id="searchResult" class="display"></div>
+</div>
+<div id="selectedFileURL" class="display"></div>
+
+
+<audio id="bipSound">
+    <source src="https://cdn.freesound.org/previews/618/618191_12172648-lq.mp3" type="audio/wav">
+</audio>
+
+<script>
+
+
+    
+  // Seleciona os links de arquivos e o contêiner de imagem
+const fileLinks = document.querySelectorAll('.file');
+const overlayImage = document.createElement('img'); // Criando a imagem para sobrepor
+
+// Define a posição da imagem sobre a tela
+overlayImage.id = "overlayImage"; // Adicionando id para a imagem
+overlayImage.loading = "lazy"; // Adiciona lazy loading para a imagem
+document.body.appendChild(overlayImage); // Adicionando imagem ao corpo do documento
+
+// Adiciona evento de clique para exibir imagem no contêiner
+fileLinks.forEach(link => {
+    link.addEventListener('click', function(event) {
+        event.preventDefault();
+        const imageUrl = this.getAttribute('href');
+         // Verifica se a URL começa com 'http'
+  if (!imageUrl.startsWith('http')) {
+    console.warn('URL inválida:', imageUrl);
+    return; // Sai da função sem carregar a URL
+}
+        
+        // Exibe o spinner de carregamento
+        loadingSpinner.style.display = 'block';
+
+        // Pré-carregando a imagem
+        const imgPreload = new Image();
+        imgPreload.src = imageUrl;
+
+        imgPreload.onload = function() {
+            // Esconde o spinner de carregamento
+            loadingSpinner.style.display = 'none';
+
+            // Exibe a imagem após o carregamento
+            overlayImage.src = imageUrl;
+        };
+    });
+});
+// Seleciona o botão "BIP"
+const bipButton = document.querySelector('.link-button');
+
+// Seleciona o áudio do "BIP"
+const bipSound = document.getElementById('bipSound');
+
+// Adiciona um evento para tocar o som quando o botão for clicado
+bipButton.addEventListener('click', function() {
+    bipSound.currentTime = 0; // Reseta o som para o início
+    bipSound.play();
+});
+
+// Adiciona um evento para mudar a cor do botão e fazer ele piscar quando o som começar
+bipSound.addEventListener('play', function() {
+    bipButton.classList.add('piscando'); // Adiciona a classe para piscar
+
+    // Depois de 3 segundos, remove a classe piscando, independentemente do som
+    setTimeout(function() {
+        bipButton.classList.remove('piscando'); // Remove a classe para parar o piscar
+    }, 1000); // 3000ms = 3 segundos
+});
+
+// Evento "ended" para garantir que o botão pare de piscar quando o som terminar (mas sem interferir no timeout)
+bipSound.addEventListener('ended', function() {
+    // Não faz nada aqui, pois o timeout já cuidará do fim do piscar
+});
+    
+
+// Função de zoom
+let zoomLevel = 1;
+overlayImage.addEventListener('wheel', function(event) {
+    event.preventDefault();
+    if (event.deltaY < 0) {
+        zoomLevel += 0.1;
+    } else {
+        zoomLevel -= 0.1;
+    }
+    zoomLevel = Math.min(Math.max(zoomLevel, 0.5), 8);
+
+
+    // Aplica o zoom à imagem
+    overlayImage.style.transform = `scale(${zoomLevel})`;
+});
+// Variáveis para controle do movimento
+let isDragging = false;
+let offsetX = 0;
+let offsetY = 0;
+
+// Função que é ativada ao pressionar o botão do mouse 
+overlayImage.addEventListener('mousedown', function(event) {
+    isDragging = true;
+    offsetX = event.clientX - overlayImage.offsetLeft;
+    offsetY = event.clientY - overlayImage.offsetTop;
+
+    // Impede o comportamento padrão do navegador (como arrastar para salvar)
+    event.preventDefault();
+
+    // Alterar o cursor para "grabbing" (mão segurando)
+    document.body.style.cursor = 'grabbing';
+    overlayImage.style.cursor = 'grabbing';
+});
+
+// Função para quando o mouse é movido com o botão pressionado
+document.addEventListener('mousemove', function(event) {
+    if (isDragging) {
+        const x = event.clientX - offsetX;
+        const y = event.clientY - offsetY;
+
+        overlayImage.style.left = `${x}px`;
+        overlayImage.style.top = `${y}px`;
+    }
+});
+
+// Função para quando o botão do mouse é solto
+document.addEventListener('mouseup', function() {
+    isDragging = false;
+
+    // Voltar o cursor para o padrão
+    document.body.style.cursor = 'default';
+    overlayImage.style.cursor = 'grab';
+});
+
+// Definir estilo inicial do cursor para "grab" (mãozinha)
+overlayImage.style.cursor = 'grab';
+
+
+
+    // Função de atualização do conteúdo do display
+    function updateDisplayContent(content) {
+        const displayContentElement = document.getElementById('displayNumber');
+        const contentSpan = displayContentElement.querySelector('span');
+
+        contentSpan.textContent = content;
+
+        if (!isNaN(parseFloat(content)) && isFinite(content)) {
+            contentSpan.style.fontSize = '50'; // Número
+        } else {
+            contentSpan.style.fontSize = '50px'; // Texto
+        }
+        if (!isNaN(parseFloat(content)) && parseFloat(content) < 0.050) {
+            const bipSound = document.getElementById('bipSound');
+            bipSound.currentTime = 0;
+            bipSound.play();
+        }
+    }
+
+    updateDisplayContent('0.L');
+
+    // Definindo conteúdos para arquivos específicos
+    const selectedFileNameDisplay = document.getElementById('selectedFileName');
+    const selectedFileURLDisplay = document.getElementById('selectedFileURL');
+
+    fileLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const url = this.getAttribute('href');
+            updateDisplayContent(getContentForFile(url));
+            selectedFileNameDisplay.textContent = this.textContent.trim();
+            selectedFileURLDisplay.textContent = url;
+
+            selectedFileNameDisplay.style.display = 'block';
+            selectedFileURLDisplay.style.display = 'block';
+            selectedFileNameDisplay.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    const fileContentMap = {
+ 
+           
+'': '0.000',
+'2': '4.2V',
+'3': '0.712',
+'4': '0.508',
+'5': '0.615',
+'6': '1.080',
+'7': '1.047',
+'8': '1.047',
+'9': '0.467',
+'': '0.000',
+
+'': '0.000',
+'12': '0.448',
+'13': '0.606',
+'14': '0.606',
+'15': '4.2V',
+'16': '0.000',
+'17': '0.000',
+'18': '0.000',
+'19': '0.000',
+'TH': '100KΩ',
+        'OL': 'O.L',
+        '': '0.000',
+        
+        'sa': '100KΩ',
+        'SSS': '10KΩ',
+        'URL': '0.000',
+        'URL': '0.000',
+        'URL': '0.000',
+        'VBATT': '4.2V',
+        'OL': 'O.L',
+        'GND': '0.000',
+        
+    };
+
+    function getContentForFile(url) {
+        return fileContentMap[url] || '';
+    }
+     // Código para buscar arquivos
+     const folders = document.querySelectorAll('details');
+
+     document.getElementById('search').addEventListener('input', function() {
+         const searchTerm = this.value.trim().toLowerCase();
+
+         if (searchTerm === '') {
+             // Se a barra de pesquisa estiver vazia, fechar todas as pastas
+             folders.forEach(folder => {
+                 folder.removeAttribute('open');
+             });
+         } else {
+             // Se houver texto na barra de pesquisa, realizar a filtragem
+             folders.forEach(folder => {
+                 searchFolder(folder, searchTerm);
+             });
+         }
+     });
+
+     function searchFolder(folder, searchTerm) {
+       const folderSummaries = folder.querySelectorAll('summary');
+       const files = folder.querySelectorAll('.file');
+   
+       let foundInFolder = false;
+   
+       // Limpa qualquer marcação anterior
+       folderSummaries.forEach(summary => {
+           summary.classList.remove('highlight');
+       });
+       files.forEach(file => {
+           file.classList.remove('highlight');
+       });
+   
+       // Verifica se o nome da pasta (summary) corresponde ao termo de pesquisa
+       folderSummaries.forEach(summary => {
+           const folderName = summary.textContent.trim().toLowerCase();
+   
+           if (folderName.includes(searchTerm)) {
+               summary.classList.add('highlight');  // Marca a pasta
+               foundInFolder = true;
+           }
+       });
+   
+       // Verifica se há arquivos correspondentes dentro da pasta
+       files.forEach(file => {
+           const fileName = file.textContent.trim().toLowerCase();
+   
+           if (fileName.includes(searchTerm)) {
+               file.classList.add('highlight');  // Marca o arquivo
+               foundInFolder = true;
+           }
+       });
+   
+       // Se encontrou algum arquivo ou pasta correspondente, abre a pasta
+       if (foundInFolder) {
+           folder.setAttribute('open', 'true');
+       } else {
+           folder.removeAttribute('open');
+       }
+   
+       // Verifica pastas dentro desta pasta (recursivamente)
+       folderSummaries.forEach(summary => {
+           const subFolder = summary.nextElementSibling;
+           if (subFolder && subFolder.tagName === 'DETAILS') {
+               searchFolder(subFolder, searchTerm);
+           }
+       });
+   }
+   
+     // Impedir menu de contexto ao clicar com o botão direito nos arquivos
+     const files = document.querySelectorAll('.file');
+     files.forEach(file => {
+         file.addEventListener('contextmenu', e => {
+             e.preventDefault();
+         });
+     });
+
+     // Impedir evento de arrastar nos arquivos
+     files.forEach(file => {
+         file.addEventListener('dragstart', e => {
+             e.preventDefault();
+         });
+     });
+    </script>
+
+</body>
+
+</html><!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100vh; /* Garante que o corpo tenha 100% da altura da janela */
+        
+    }
+
+    .fixed-image {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw; /* Ocupa 100% da largura da janela */
+       
+        z-index: +999999999999; /* Fica ACIMA de outros elementos */
+    }
+
+    .fixed-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ajusta a imagem para cobrir toda a tela sem distorção */
+		z-index: +5; /* Fica ACIMA de outros elementos */
+    }
+
+    .content {
+        position: relative;
+        z-index: 1; /* Garante que o texto fique acima da imagem */
+        color: white;
+        text-align: center;
+        padding: 20px;
+        
+    }
+    
+  </style>
+
+<body class='header-page  wsite-theme-light'>
+
+    <!-- Imagem Fixa -->
+  <div class="fixed-image">
+    <img src="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/picsart_25-01-02_15-25-42-155.jpg" alt="Imagem Fixa">
+  </div>
+
+
+
+	
+	<script type="text/javascript" src="/files/theme/plugins.js"></script>
+	<script type="text/javascript" src="/files/theme/custom.js"></script>
+
+</body>
+</html>
+
