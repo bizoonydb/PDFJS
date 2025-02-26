@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informações do Usuário</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #000000, #3b3b3b, #000000); /* Gradiente multicolorido */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 70px; /* Espaçamento para o cabeçalho fixo */
+        }
+        .header {
+            text-transform: uppercase;
+            font-size: 30px;
+            color: rgb(221, 0, 0);
+            margin: 0;
+            height: 70px; /* Altura do cabeçalho */
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            position: fixed; /* Fixa o cabeçalho no topo */
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to right, #4f4f4f, #202020, #000000); /* Gradiente multicolorido */
+            z-index: 10; /* Garante que o cabeçalho ficará sobre os outros elementos */
+        }
+        .container {
+            display: flex; /* Usando flexbox para dispor os itens lado a lado */
+            justify-content: center;
+            gap: 30px; /* Aumentei o espaço entre os contêineres */
+            width: 100%;
+            max-width: 1000px; /* Defini um tamanho máximo para os contêineres */
+            margin-top: 20px; /* Espaçamento para não colidir com o cabeçalho fixo */
+        }
+        .info {
+            font-size: 25px; /* Aumentei o tamanho da fonte */
+            background-color: rgba(0, 0, 0, 0.9);
+            color: rgb(255, 225, 0);
+            padding: 10px; /* Aumentei o padding para mais espaço interno */
+            border-radius: 10px; /* Aumentei o arredondamento das bordas */
+            border: 4px solid blue;
+            text-align: center;
+            width: 650px; /* Aumentei a largura do contêiner de informações */
+            height: 300px; /* Aumentei a altura do contêiner de informações */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centraliza o conteúdo verticalmente */
+        }
+        .highlight {
+            font-weight: bold;
+            color: red;
+        }
+        .highlight-info {
+            background-color: rgba(186, 186, 186, 0.376); /* Fundo preto aplicado às informações */
+            color: rgb(255, 0, 128); /* Cor do texto em branco para contraste */
+            padding: 5px; /* Espaço interno */
+            border-radius: 5px; /* Bordas arredondadas para as informações */
+        }
+        .image {
+            width: 60%; /* Reduz a largura da imagem para 60% da largura do contêiner */
+            height: auto;
+        }
+        .large-image {
+            width: 100%; /* Imagem maior ocupa 100% da largura */
+            height: auto;
+            margin-top: 20px; /* Adiciona espaçamento entre as imagens */
+            max-width: 1000px; /* Defini um tamanho máximo para os contêineres */
+        }
+        .carousel {
+            display: flex;
+            overflow: hidden;
+            width: 650px; /* Aumentei a largura do carrossel */
+            height: 320px; /* Aumentei a altura do carrossel */
+            border-radius: 10px;
+            border: 4px solid blue;
+            justify-content: center;
+            align-items: center;
+        }
+        .carousel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Garante que a imagem ocupe todo o espaço disponível */
+            border-radius: 10px; /* Bordas arredondadas */
+        }
+        .carousel-container {
+            display: flex;
+            animation: slide 10s infinite;
+        }
+        @keyframes slide {
+            100% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(-100%);
+            }
+            0% {
+                transform: translateX(-200%);
+            }
+        }
+        .thank-you-message {
+            font-size: 24px;
+            color: #ffcc00;
+            text-align: center;
+            margin-top: 0px;
+            padding: 0px;
+            background-color: rgba(0, 0, 0, 0.7);
+            width: 90%;
+            max-width: 1000px; /* Defini um tamanho máximo para os contêineres */
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="header" id="header">Olá: Carregando...</div> <!-- Cabeçalho com a saudação -->
+    
+    
+  
+    <!-- Imagem maior abaixo da primeira imagem -->
+    <img src="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/picsart-25-02-26-16-48-52-110_orig.jpg" alt="Imagem Maior" class="large-image">
+    <!-- Mensagem de agradecimento -->
+    <div class="thank-you-message">
+        Agradecemos imensamente a todos os técnicos de manutenção de celular e eletronica geral, que utilizam o nosso software Digital Board, Com a sua ajuda, seremos referência no ramo, oferecendo sempre as melhores soluções para facilitar o seu trabalho. Juntos, vamos continuar inovando e crescendo no mercado!
+    </div>
+    <div class="container">
+        <div class="info" id="userInfo">Usuário: Carregando...</div>
+        
+        <!-- Carrossel de imagens -->
+        <div class="carousel">
+            <div class="carousel-container">
+                <img src="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/picsart-24-12-23-13-29-23-527_orig.png" alt="Imagem 1">
+                <img src="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/trashed-1737490211-picsart-24-12-22-17-08-23-168_orig.jpg" alt="Imagem 2">
+                <img src="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/trashed-1737490211-picsart-24-12-22-17-08-23-168_orig.jpg" alt="Imagem 2">
+                <img src="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/trashed-1737490211-picsart-24-12-22-17-08-23-168_orig.jpg" alt="Imagem 2">
+                <img src="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/trashed-1737490211-picsart-24-12-22-17-08-23-168_orig.jpg" alt="Imagem 2">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadUserInfo() {
+            const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
+            
+            function formatTime(date) {
+                const horas = String(date.getHours()).padStart(2, '0');
+                const minutos = String(date.getMinutes()).padStart(2, '0');
+                const segundos = String(date.getSeconds()).padStart(2, '0');
+                return `${horas}:${minutos}:${segundos}`;
+            }
+
+            function updateUserInfo() {
+                const now = new Date();
+                const horaAtual = formatTime(now);
+
+                let username = 'Desconhecido';
+                let email = 'E-mail não informado';
+                let saudacao = 'Olá: Carregando...';
+
+                if (usuariosCadastrados.length > 0) {
+                    const ultimoUsuario = usuariosCadastrados[usuariosCadastrados.length - 1];
+                    username = ultimoUsuario.username || username;
+                    email = ultimoUsuario.email || email;
+                    saudacao = `Olá: ${username}`;
+                }
+
+                // Atualiza o cabeçalho com o nome do usuário
+                document.getElementById('header').innerHTML = saudacao;
+
+                // Atualiza as informações do usuário
+                document.getElementById('userInfo').innerHTML = ` 
+                    BEM VINDO - USUÁRIO: <span class="highlight-info">${username}</span> <br>
+                    E-MAIL: <span class="highlight-info">${email}</span> <br>
+                    HORA: <span class="highlight-info">${horaAtual}</span>
+                `;
+            }
+
+            updateUserInfo();
+            setInterval(updateUserInfo, 1000);
+        }
+
+        loadUserInfo();
+    </script>
+</body>
+</html>
