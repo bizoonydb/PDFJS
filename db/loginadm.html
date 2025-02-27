@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #000;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(255, 255, 255, 0.2);
+            text-align: center;
+            color: rgb(246, 255, 0);
+            border: #00FF00 solid 2px;
+            z-index: 10;
+        }
+        input[type="text"],
+        input[type="password"] {
+            background-color: #222;
+            color: yellow;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 3px solid #55ff00;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+       
+        input[type="button"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 3px solid #1b3aeb;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+        input[type="button"] {
+            background-color: #2a2a2a;
+            color: rgb(251, 255, 0);
+            border: none;
+            cursor: pointer;
+        }
+        input[type="button"]:hover {
+            background-color: #3a8bd6;
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .title {
+            font-size: 40px;
+            font-weight: bold;
+            text-decoration: underline;
+            color: #1eb721;         
+        }
+        .admin-warning {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+            animation: blink 0.6s infinite alternate;
+        }
+        @keyframes blink {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+    <script>
+        function Login() {
+            var done = 0;
+            var username = document.getElementById("username").value.toLowerCase();
+            var password = document.getElementById("password").value.toLowerCase();
+            
+            var users = {
+                "nome": "senha",
+                "1111": "1111",
+                "1212": "1212",
+                "fabiano": "73740",
+                "outSro": "outSrasenha"
+            };
+            
+            if (users[username] === password) {
+                window.location = "https://bizoonydb.github.io/PDFJS/db/PERFIL.html";
+                done = 1;
+            }
+            
+            
+            
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2 class="title">PREENCHA OS DADOS:</h2>
+        <h3 class="admin-warning">SOMENTE ADMINISTRADORES PODEM LOGAR NESTA ÁREA:</h3>
+        <form>
+            <input type="text" id="username" placeholder="Usuário">
+            <input type="password" id="password" placeholder="Senha">
+            <input type="button" value="ENTRAR" onclick="Login()">
+            <div class="remember-me">
+                <input type="checkbox" id="remember-me"> <label for="remember-me">LEMBRAR-ME</label>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Code Animation</title>
+    <style>
+        .binary-code {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none; /* Impede a interação com as linhas binárias */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* As linhas começam do topo */
+            gap: 0; /* Espaçamento entre as linhas ajustado para garantir que as linhas fiquem justas */
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: black; /* Fundo preto */
+            color: #00FF00; /* Cor verde para o texto */
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; /* Esconde qualquer parte da animação que ultrapasse os limites */
+            position: relative;
+        }
+
+        /* Container do código binário */
+       
+
+        .binary-line {
+            font-size: 25px;
+            text-align: left; /* Alinha o texto à esquerda */
+            white-space: nowrap; /* Impede que o texto quebre */
+            animation: moveUp 60s infinite linear; /* Diminui a duração da animação para um movimento mais rápido */
+            width: 100%; /* Garante que as linhas ocupem toda a largura */
+            display: block; /* Garante que as linhas de código se comportem como blocos */
+        }
+
+        /* Variando a animação de cada linha */
+        .binary-line:nth-child(odd) {
+            animation-duration: 15s;
+        }
+        
+        .binary-line:nth-child(even) {
+            animation-duration: 15s;
+        }
+
+        @keyframes moveUp {
+           100% {
+                transform: translateY(100vh); /* Começa fora da tela, no fundo */
+            }
+            100% {
+                transform: translateY(-100vh); /* Vai até o topo da tela */
+            }
+        }
+
+        
+
+
+    </style>
+</head>
+<body>
+
+    <!-- Container do código binário -->
+    <div class="binary-code">
+        <!-- Gerar 1000 linhas com diretórios inexistentes, arquivos index e Lorem ipsum -->
+        <div class="binary-line">C:/Arquivos/Projetos/Documentos/Index.html not found</div>
+        <div class="binary-line">D:/System/Backup/2023/Folder/Index.html not found</div>
+        <div class="binary-line">E:/Programas/Files/index.php not found</div>
+        <div class="binary-line">F:/Data/Images/Project.zip does not exist</div>
+        <div class="binary-line">C:/Windows/System32/drivers/index.php not found</div>
+        <div class="binary-line">D:/Projects/Code/README.txt does not exist</div>
+        <div class="binary-line">E:/Downloads/Install/Installer.exe not found</div>
+        <div class="binary-line">F:/Documents/Work/Project.mkv not found</div>
+        <div class="binary-line">C:/Users/Username/Documents/Index.html not found</div>
+        <div class="binary-line">C:/Program Files/Software/Install.log not found</div>
+
+        <!-- Lorem Ipsum -->
+        <div class="binary-line">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
+        <div class="binary-line">Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+        <div class="binary-line">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</div>
+        <div class="binary-line">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</div>
+        <div class="binary-line">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+
+        <!-- Adicionando mais linhas aleatórias para dar um efeito "hacker" -->
+        <div class="binary-line">C:/Linux/Download/Index.html does not exist</div>
+        <div class="binary-line">E:/Backup/2023/Code/Project/Index.js not found</div>
+        <div class="binary-line">F:/Media/Videos/Film.avi does not exist</div>
+        <div class="binary-line">C:/Users/Username/Desktop/Program.py not found</div>
+        <div class="binary-line">D:/Projects/Documentation/Manual.pdf not found</div>
+
+        <!-- Criando mais 1000 linhas -->
+        <script>
+            function generateBinaryLines() {
+                const directories = [
+                    'C:/Arquivos/Projetos/Documentos/Index.html',
+                    'D:/System/Backup/2023/Folder/Index.html',
+                    'E:/Programas/Files/index.php',
+                    'F:/Data/Images/Project.zip',
+                    'C:/Windows/System32/drivers/index.php',
+                    'D:/Projects/Code/README.txt',
+                    'E:/Downloads/Install/Installer.exe',
+                    'F:/Documents/Work/Project.mkv',
+                    'C:/Users/Username/Documents/Index.html',
+                    'C:/Program Files/Software/Install.log'
+                ];
+
+                const lorem = [
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                    "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+                    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+                    "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                ];
+
+                const binaryLines = [];
+                for (let i = 0; i < 1000; i++) {
+                    const randomDirectory = directories[Math.floor(Math.random() * directories.length)];
+                    const randomLorem = lorem[Math.floor(Math.random() * lorem.length)];
+                    const randomType = Math.random() > 0.5 ? randomDirectory : randomLorem;
+                    binaryLines.push(randomType);
+                }
+
+                return binaryLines;
+            }
+
+            const binaryLines = generateBinaryLines();
+            const container = document.querySelector('.binary-code');
+
+            binaryLines.forEach(line => {
+                const lineElement = document.createElement('div');
+                lineElement.classList.add('binary-line');
+                lineElement.textContent = line;
+                container.appendChild(lineElement);
+            });
+        </script>
+    </div>
+
+</body>
+</html>
