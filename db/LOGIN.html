@@ -10,41 +10,42 @@
 
     <style>
         /* Estilos CSS vão aqui */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #3a3a3a00;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-        }
-       
+        /* Estilos CSS vão aqui */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #3a3a3af8;  /* Cor transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh; /* Garante que o body tenha pelo menos 100% da altura da tela */
+}
 
-        .login-container {
-            display: flex; /* Permite o uso de flexbox para alinhar itens */
-            background-color: rgba(76, 76, 76, 0.67);
-            border-radius: 10px;
-            border: 6px solid;
-            border-color: #000000;
-            padding: 30px;
-            box-shadow: 0 6px 100px rgba(9, 123, 210, 0.767);
-            max-width: 800px; /* Ajuste conforme necessário */
-            z-index: 999999; /* Fica acima de outros conteúdos */
-        }
+/* Container do formulário de login */
+.login-container {
+    display: flex; /* Permite o uso de flexbox para alinhar itens */
+    background-color: rgba(76, 76, 76, 0.67);
+    border-radius: 10px;
+    border: 6px solid;
+    border-color: #000000;
+    padding: 30px;
+    box-shadow: 0 6px 100px rgba(9, 123, 210, 0.767);
+    max-width: 800px; /* Ajuste conforme necessário */
+    z-index: 999999; /* Fica acima de outros conteúdos */
+}
 
-        .login-form, .register-form {
-            flex: 1; /* Ocupa o espaço restante */
-            text-align: center; /* Centraliza o texto dentro do container */
-        }
+.login-form, .register-form {
+    flex: 1; /* Ocupa o espaço restante */
+    text-align: center; /* Centraliza o texto dentro do container */
+}
 
-        .login-form img {
-            width: 90px; /* Ajuste o tamanho da imagem conforme necessário */
-            height: auto;
-            margin-bottom: 0px; /* Espaço abaixo da imagem */
-            float: left; /* Alinha a imagem à esquerda por padrão */
-        }
+.login-form img {
+    width: 90px; /* Ajuste o tamanho da imagem conforme necessário */
+    height: auto;
+    margin-bottom: 0px; /* Espaço abaixo da imagem */
+    float: left; /* Alinha a imagem à esquerda por padrão */
+}
 
         .logo-right {
             float: left; /* Alinha a imagem à direita */
@@ -328,7 +329,7 @@ input[type="button"]:hover {
     left: 0;
     width: 100%;
     background-color: #333333; /* transparemte */
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 4px 6px rgba(255, 238, 0, 0.581);
     padding: 10px 0;
 }
 
