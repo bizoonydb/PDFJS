@@ -1,3 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <title>LOGIN</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #3a3a3a;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+    }
+    /* Estiliza o cabeçalho fixo */
+    .header-wrap {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+background-color: #333333; /* transparemte */
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 10px 0;
+    }
+
+    /* Centraliza e ajusta os botões */
+    .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Centraliza os botões */
+        padding: 0 20px;
+    }
+
+    .buttons {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Espaço entre os botões */
+    }
+
+    .button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 12px;
+        font-size: 14px;
+        color: #ffffff;
+        background-color: transparent;
+        border: 2px solid #0000FF;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap; /* Evita que os botões quebrem linha */
+    }
+
+    .button img {
+        width: 20px;
+        height: auto;
+        margin-left: 8px;
+    }
+
+    .button:hover {
+        background-color: #add8e6;
+        color: #ffffff;
+    }
+
+    /* Para evitar que o conteúdo fique encoberto pelo cabeçalho fixo */
+    .main-wrap {
+        margin-top: 80px; /* Ajuste conforme necessário */
+    }
+
+    /* Responsividade para telas menores */
+    @media (max-width: 600px) {
+        .buttons {
+            flex-wrap: wrap; /* Permite que os botões quebrem linha em telas pequenas */
+            justify-content: center;
+        }
+
+        .button {
+            font-size: 12px;
+            padding: 5px 10px;
+        }
+    }
+  </style>
+</head>
+
+<body class='header-page wsite-theme-light'>
+
+<div class="wrapper">
+  <div class="header-wrap">
+    <div id="topBar" class="topbar">
+      <div class="buttons">
+        <a href="https://wa.me/message/6X46IDVVWEIQM1" class="button">SUPORTE
+          <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-21-43-961_orig.png" alt="WhatsApp">
+        </a>
+        <a href="https://bizoonycell.weebly.com/db.html" class="button">COMPRAR ACESSO
+          <img src="https://images.vexels.com/media/users/3/136534/isolated/lists/c93f32e11dbf6b5fe3efc5be5554ec50-icone-de-cadeado.png" alt="Cadeado">
+        </a>
+        <a href="https://bizoonydb.github.io/PDFJS/db/loginadm.html" class="button">LOGIN ADMIN
+          <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-27-23-35-22-945_orig.png" alt="">
+        </a>
+        <a href="https://www.facebook.com/DigitalBoardoficial" class="button">FACEBOOK
+          <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-22-12-589_orig.png" alt="Facebook">
+        </a>
+        <a href="https://cursobc.weebly.com/instagran" class="button">INSTAGRAM
+          <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-22-47-486_orig.png" alt="Instagram">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-wrap">
+
+  </div>
+</div>
+
+</body>
+</html>
+
+
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -6,60 +129,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap" rel="stylesheet">
-    <title>LOGIN</title>
+
 
     <style>
-   /* Garantir que a altura do html e body sejam 100% */
-html, body {
-    height: 100%;  /* Garantir que ambos ocupem toda a altura da tela */
-    margin: 0;
-}
+        /* Estilos CSS vão aqui */
+       
 
-/* Estilos CSS para o body */
-/* Remover overflow: hidden do body */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #000000eb; /* Cor transparente */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    min-height: 100%; /* Ocupa 100% da altura da tela */
-    overflow: auto; /* Permite a rolagem se necessário */
-}
+        .login-container {
+            display: flex; /* Permite o uso de flexbox para alinhar itens */
+            background-color: rgba(76, 76, 76, 0.67);
+            border-radius: 10px;
+            border: 6px solid;
+            border-color: #000000;
+            padding: 30px;
+            box-shadow: 0 6px 100px rgba(9, 123, 210, 0.767);
+            max-width: 800px; /* Ajuste conforme necessário */
+        
+        }
 
+        .login-form, .register-form {
+            flex: 1; /* Ocupa o espaço restante */
+            text-align: center; /* Centraliza o texto dentro do container */
+        }
 
-/* Container do formulário de login */
-.login-container {
-    display: flex; /* Flexbox para alinhar os itens */
-    background-color: rgba(76, 76, 76, 0.67);
-    border-radius: 10px;
-    border: 6px solid;
-    border-color: #000000;
-    padding: 30px;
-    box-shadow: 0 6px 100px rgba(9, 123, 210, 0.767);
-    max-width: 800px; /* Ajuste conforme necessário */
-    z-index: 999999; /* Garante que fique acima de outros conteúdos */
-    position: relative; /* Controla o posicionamento da container */
-    width: 100%;
-    box-sizing: border-box; /* Garante que o padding não afete o layout */
-}
-
-/* Estilo das seções de login ou registro */
-.login-form, .register-form {
-    flex: 1; /* Ocupa o espaço restante */
-    text-align: center; /* Centraliza o texto dentro do container */
-}
-
-.login-form img {
-    width: 90px; /* Ajuste o tamanho da imagem conforme necessário */
-    height: auto;
-    margin-bottom: 0px; /* Espaço abaixo da imagem */
-    float: left; /* Alinha a imagem à esquerda */
-}
-
-
+        .login-form img {
+            width: 90px; /* Ajuste o tamanho da imagem conforme necessário */
+            height: auto;
+            margin-bottom: 0px; /* Espaço abaixo da imagem */
+            float: left; /* Alinha a imagem à esquerda por padrão */
+        }
 
         .logo-right {
             float: left; /* Alinha a imagem à direita */
@@ -336,106 +434,14 @@ input[type="button"]:hover {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     padding: 25px;
 }
- /* Estiliza o cabeçalho fixo */
- .header-wrap {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: #333333; /* transparemte */
-    box-shadow: 0px 4px 6px rgba(255, 238, 0, 0.581);
-    padding: 10px 0;
-}
 
-/* Centraliza e ajusta os botões */
-.topbar {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Centraliza os botões */
-    padding: 0 20px;
-}
 
-.buttons {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Espaço entre os botões */
-}
 
-.button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 12px;
-    font-size: 14px;
-    color: #ffffff;
-    background-color: transparent;
-    border: 2px solid #0000FF;
-    border-radius: 5px;
-    text-decoration: none;
-    cursor: pointer;
-    white-space: nowrap; /* Evita que os botões quebrem linha */
-}
-
-.button img {
-    width: 20px;
-    height: auto;
-    margin-left: 8px;
-}
-
-.button:hover {
-    background-color: #add8e6;
-    color: #ffffff;
-}
-
-/* Para evitar que o conteúdo fique encoberto pelo cabeçalho fixo */
-.main-wrap {
-    margin-top: 80px; /* Ajuste conforme necessário */
-}
-
-/* Responsividade para telas menores */
-@media (max-width: 600px) {
-    .buttons {
-        flex-wrap: wrap; /* Permite que os botões quebrem linha em telas pequenas */
-        justify-content: center;
-    }
-
-    .button {
-        font-size: 12px;
-        padding: 5px 10px;
-    }
-}
 
 
 </style>
 </head>
-<body >
-    <div class="wrapper">
-        <div class="header-wrap">
-          <div id="topBar" class="topbar">
-            <div class="buttons">
-              <a href="https://wa.me/message/6X46IDVVWEIQM1" class="button">SUPORTE
-                <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-21-43-961_orig.png" alt="WhatsApp">
-              </a>
-              <a href="https://bizoonycell.weebly.com/db.html" class="button">COMPRAR ACESSO
-                <img src="https://images.vexels.com/media/users/3/136534/isolated/lists/c93f32e11dbf6b5fe3efc5be5554ec50-icone-de-cadeado.png" alt="Cadeado">
-              </a>
-              <a href="https://bizoonydb.github.io/PDFJS/db/loginadm.html" class="button">LOGIN ADMIN
-                <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-27-23-35-22-945_orig.png" alt="">
-              </a>
-              <a href="https://www.facebook.com/DigitalBoardoficial" class="button">FACEBOOK
-                <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-22-12-589_orig.png" alt="Facebook">
-              </a>
-              <a href="https://cursobc.weebly.com/instagran" class="button">INSTAGRAM
-                <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-22-47-486_orig.png" alt="Instagram">
-              </a>
-            </div>
-          </div>
-        </div>
-      
-        <div class="main-wrap">
-      
-        </div>
-      </div>
+<body>
     
     <div class="login-container">
         <div class="login-form">
