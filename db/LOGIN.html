@@ -9,23 +9,21 @@
     <title>LOGIN</title>
 
     <style>
-        /* Estilos CSS vão aqui */
-  /* Estilos CSS vão aqui */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #10e689aa;  /* Cor transparente */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+   /* Garantir que a altura do html e body sejam 100% */
+html, body {
+    height: 100%;  /* Garantir que ambos ocupem toda a altura da tela */
     margin: 0;
-    font-family: 'Poppins', sans-serif;
-    min-height: 100vh; /* Garante que o body tenha pelo menos 100% da altura da tela */
-    overflow: hidden; /* Impede que o body se expanda além do necessário */
+}
+
+/* Estilos CSS para o body */
+body {
+  
+    overflow: hidden; /* Impede o scroll e overflow */
 }
 
 /* Container do formulário de login */
 .login-container {
-    display: flex; /* Permite o uso de flexbox para alinhar itens */
+    display: flex; /* Flexbox para alinhar os itens */
     background-color: rgba(76, 76, 76, 0.67);
     border-radius: 10px;
     border: 6px solid;
@@ -33,9 +31,10 @@ body {
     padding: 30px;
     box-shadow: 0 6px 100px rgba(9, 123, 210, 0.767);
     max-width: 800px; /* Ajuste conforme necessário */
-    z-index: 999999; /* Fica acima de outros conteúdos */
-    position: relative; /* Garante que o conteúdo dentro da container seja posicionado corretamente */
+    z-index: 999999; /* Garante que fique acima de outros conteúdos */
+    position: relative; /* Controla o posicionamento da container */
     width: 100%;
+    box-sizing: border-box; /* Garante que o padding não afete o layout */
 }
 
 /* Estilo das seções de login ou registro */
@@ -48,8 +47,9 @@ body {
     width: 90px; /* Ajuste o tamanho da imagem conforme necessário */
     height: auto;
     margin-bottom: 0px; /* Espaço abaixo da imagem */
-    float: left; /* Alinha a imagem à esquerda por padrão */
+    float: left; /* Alinha a imagem à esquerda */
 }
+
 
 
         .logo-right {
