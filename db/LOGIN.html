@@ -10,16 +10,17 @@
 
     <style>
         /* Estilos CSS vão aqui */
-        /* Estilos CSS vão aqui */
+  /* Estilos CSS vão aqui */
 body {
     font-family: Arial, sans-serif;
-    background-color: #3a3a3af8;  /* Cor transparente */
+    background-color: #10e689aa;  /* Cor transparente */
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 0;
     font-family: 'Poppins', sans-serif;
     min-height: 100vh; /* Garante que o body tenha pelo menos 100% da altura da tela */
+    overflow: hidden; /* Impede que o body se expanda além do necessário */
 }
 
 /* Container do formulário de login */
@@ -33,8 +34,11 @@ body {
     box-shadow: 0 6px 100px rgba(9, 123, 210, 0.767);
     max-width: 800px; /* Ajuste conforme necessário */
     z-index: 999999; /* Fica acima de outros conteúdos */
+    position: relative; /* Garante que o conteúdo dentro da container seja posicionado corretamente */
+    width: 100%;
 }
 
+/* Estilo das seções de login ou registro */
 .login-form, .register-form {
     flex: 1; /* Ocupa o espaço restante */
     text-align: center; /* Centraliza o texto dentro do container */
@@ -46,6 +50,7 @@ body {
     margin-bottom: 0px; /* Espaço abaixo da imagem */
     float: left; /* Alinha a imagem à esquerda por padrão */
 }
+
 
         .logo-right {
             float: left; /* Alinha a imagem à direita */
