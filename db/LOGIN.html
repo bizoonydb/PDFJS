@@ -5,17 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <title>LOGIN</title>
-  <style>   
-
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #3a3a3a;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+    }
     /* Estiliza o cabeçalho fixo */
     .header-wrap {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        z-index: 1000;
-        background-color: #c90909; /* Cor de fundo mais neutra */
-        box-shadow: 0px 4px 6px rgba(62, 215, 11, 0.346);
+background-color: #333333; /* transparemte */
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         padding: 10px 0;
     }
 
@@ -125,16 +133,7 @@
 
     <style>
         /* Estilos CSS vão aqui */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #fb0000a8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-        }
+       
 
         .login-container {
             display: flex; /* Permite o uso de flexbox para alinhar itens */
@@ -145,6 +144,7 @@
             padding: 30px;
             box-shadow: 0 6px 100px rgba(9, 123, 210, 0.767);
             max-width: 800px; /* Ajuste conforme necessário */
+        
         }
 
         .login-form, .register-form {
