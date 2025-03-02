@@ -16,10 +16,19 @@ html, body {
 }
 
 /* Estilos CSS para o body */
+/* Remover overflow: hidden do body */
 body {
-  
-    overflow: hidden; /* Impede o scroll e overflow */
+    font-family: Arial, sans-serif;
+    background-color: #000000eb; /* Cor transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    min-height: 100%; /* Ocupa 100% da altura da tela */
+    overflow: auto; /* Permite a rolagem se necessário */
 }
+
 
 /* Container do formulário de login */
 .login-container {
