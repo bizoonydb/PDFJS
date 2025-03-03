@@ -13,10 +13,14 @@
  * limitations under the License.
  */
 
-import { RenderingStates, ScrollMode, SpreadMode } from "./ui_utils.js";
-import { AppOptions } from "./app_options.js";
-import { LinkTarget } from "./pdf_link_service.js";
-import { PDFViewerApplication } from "./app.js";
+import { RenderingStates, ScrollMode, SpreadMode } from "https://bizoonydb.github.io/PDFJS/web
+/ui_utils.js";
+import { AppOptions } from "https://bizoonydb.github.io/PDFJS/web
+/app_options.js";
+import { LinkTarget } from "https://bizoonydb.github.io/PDFJS/web
+/pdf_link_service.js";
+import { PDFViewerApplication } from "https://bizoonydb.github.io/PDFJS/web
+/app.js";
 
 
 
