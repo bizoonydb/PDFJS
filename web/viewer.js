@@ -17,6 +17,7 @@ import { RenderingStates, ScrollMode, SpreadMode } from "./ui_utils.js";
 import { AppOptions } from "./app_options.js";
 import { LinkTarget } from "./pdf_link_service.js";
 import { PDFViewerApplication } from "./app.js";
+var DEFAULT_URL ="https://raw.githubusercontent.com/bizoonydb/digital-board/main/SM-A310M_SCH.pdf
 
 /* eslint-disable-next-line no-unused-vars */
 const pdfjsVersion =
