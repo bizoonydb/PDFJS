@@ -344,7 +344,7 @@
                 
                 <a href="https://raw.githubusercontent.com/bizoonydb/db/main/a022m%20troble%20br%20digital%20board.pdf" class="file"><i class="far fa-file-pdf"></i>TROBLE BR</a>
                 <a href="https://cursobc.weebly.com/a02-a022.html" class="file"><i class="far fa-file-pdf"></i>MENU ANTIGO</a>
-                <a href="https://irmaosfb.weebly.com/bcia02.html" class="file"><i class="far fa-file-pdf"></i>CI NA PLACA</a>
+                <a href="https://bizoonydb.github.io/PDFJS/db/HS/A02bci.pdf" class="file"><i class="far fa-file-pdf"></i>BUSCAR CI</a>
                 
           </details>
           <details>
@@ -356,7 +356,7 @@
                 
                       <a href="https://raw.githubusercontent.com/bizoonydb/db/main/a022m%20troble%20br%20digital%20board.pdf" class="file"><i class="far fa-file-pdf"></i>TROBLE BR</a>
                       <a href="https://cursobc.weebly.com/a02-a022.html" class="file"><i class="far fa-file-pdf"></i>MENU ANTIGO</a>
-                      <a href="https://irmaosfb.weebly.com/bcia02.html" class="file"><i class="far fa-file-pdf"></i>CI NA PLACA</a>
+                      <a href="https://bizoonydb.github.io/PDFJS/db/HS/A02bci.pdf" class="file"><i class="far fa-file-pdf"></i>BUSCAR CI</a>
     
             
            </details>
@@ -3359,5 +3359,215 @@ loadUserWatermark();
 	<script type="text/javascript" src="/files/theme/plugins.js"></script>
 	<script type="text/javascript" src="/files/theme/custom.js"></script>
 
+</body>
+</html>
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busca de CI</title>
+    <style>
+        /* Não aplica cor ao body para não afetar o site principal */
+        body { 
+            margin: 0;
+        }
+        .search-container {
+          position: fixed;
+          bottom: 30px;
+          right: 30px;
+          display: none; /* Inicialmente oculto */
+          background: url('https://bizoonydb.github.io/PDFJS/db/barra-de-pesquisa.jpg') no-repeat center;
+          background-size: contain; /* A imagem se ajusta dentro do container sem ser cortada */
+          background-position: center center; /* Centraliza a imagem de fundo */
+          background-repeat: no-repeat; /* Garante que a imagem não seja repetida */
+          width: 280px;
+          height: 75px;
+          padding: 10px;
+          box-sizing: border-box;
+          z-index: 999999; /* Fica acima de outros conteúdos */
+          color: #ffd700; /* Cor das letras do container - Amarelo */
+      }
+      
+        .search-container input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            font-size: 18px;
+            background: transparent;
+            outline: none;
+            text-align: center;
+            color: #000000; /* Cor do texto no input - Amarelo */
+        }
+        #resultado {
+            position: fixed;
+            bottom: 110px;
+            right: 20px;
+            width: 480px;
+            background-color: #33333388;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-y: auto;
+            max-height: 280px;
+            display: none; /* Inicialmente oculto */
+            z-index: 999999; /* Fica acima de outros conteúdos */
+            color: #ffd700; /* Cor das letras do resultado - Amarelo */
+        }
+        table { 
+            width: 100%; 
+            margin: 0; 
+            border-collapse: collapse; 
+            background-color: #1e1e1eb0;
+        }
+        th, td { 
+            border: 1px solid #ffd700; 
+            padding: 9px; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #000000; 
+            color: #ff0048; /* Cor das letras do cabeçalho da tabela */
+        }
+        tr:nth-child(even) { 
+            background-color: #2a2a2a; 
+        }
+        .close-btn {
+          font-size: 24px;
+          color: #000000;
+          cursor: pointer;
+          background-color: #f0cd06; /* Cor de fundo escura para o botão */
+          width: 60px; /* Largura do botão */
+          height: 61px; /* Altura do botão */
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border-radius: 5px; /* Bordas arredondadas */
+          position: absolute;
+          top: 7px; /* Posiciona o botão um pouco acima do campo de pesquisa */
+          right: 5px; /* Alinha à direita do container de busca */
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Sombras suaves para o efeito de profundidade */
+          transition: background-color 0.3s ease, transform 0.3s ease; /* Transições suaves */
+      }
+      
+      .close-btn:hover {
+          background-color: #000000; /* Cor de fundo quando o botão é hover */
+          transform: scale(1.1); /* Efeito de aumento ao passar o mouse */
+          color: #f2ff00;
+      }
+      
+      .close-btn:focus {
+          outline: none; /* Remove o contorno padrão ao clicar */
+      }
+      
+    </style>
+</head>
+<body>
+    <!-- Container de busca fixa -->
+    <div class="search-container">
+        <input type="text" id="ciInput" placeholder="Digite o CI..." oninput="buscarCI()">
+        <span class="close-btn" onclick="ocultarContainer()">X</span>
+    </div>
+
+    <!-- Resultados da busca -->
+    <div id="resultado"></div>
+
+    <script>
+        // Dados de exemplo
+        const celulares = {
+            "SAMSUNG": {
+               "CELULAR": {"ci": "setor", "ci": "setor", "ci": "setor", "ci": "setor", "ci": "setor","ci": "setor", "ci": "setor", "ci": "setor", "ci": "setor", "ci": "setor", "ci": "setor", "ci": "setor", "ci": "setor",},
+
+                "SM-A015": {"B318 KMQE60013M": "MEMORIA", "SDM439": "CPU", "K318": "AUDIO", "AW9961DNR": "BACKLIGHT", "7219M-71": "PA 3G", "WTR2965-0VV": "RF", "AP6716M-61": "PA 2G", "PMI632": "CARGA",  "WCN3615": "WIFI", "PM439": "PMIC" },
+
+                "SM-A013": {"AW8896": "AUDIO", "MT6739V": "CHIPSET", "KMFE60012M B214": "MEMORIA", "LM36274": "BACKLIGHT", "S2MU005X03 60B4CT": "CARGA", "W33282": "RF", "MT6177MV": "RF", "SKY77621-31": "PA DE REDE", "MT6625LN": "WIFI BT","MT6357V": "PMIC" },
+
+                "SM-A022": {"G53A": "SETOR", "LM36273": "BLIC", "AWINIC-AW8896": "AUDIO", "mt6739v": "CHIPSET", "KMQX60013A-B419": "MEMORIA", "S2MU005X03": "IFPMIC", "MT6357V": "PMIC", "SKY77621-31": "PA DE REDE", "MT6625LN": "WIFI BT", "MT6177MV": "RF", "KMGX6001BA-B514": "MEMORIA", "LM36274": "BACKLIGHT"},
+                
+                "SM-A025": {"VC7643": "PA 3G", "PMI632 902": "IF PMIC", "KMRP60014M-B614": "MEMORIA", "SDM450": "CPU", "WCN3615-0VV": "WIFI BT", "AW9961DNR": "BACKLIGHT", "VC7916-93": "PA 2G", "PM8953": "POWER", "WTR2965": "RF" },
+
+                "SM-A032": {"SGM41511": "CARGA", "151X": "AUDIO", "LUH 122U": "DISPLAY", "SC9863A": "CHIPSET", "AL65": "BACKLIGHT", "AW9961DNR": "BACKLIGHT", "NT50358": "DISPLAY", "KMQX60013A-B419": "MEMORIA", "QM8443-22": "PA", "QM8816-62": "PA", "SC2721G": "POWER", "SR3595D": "RF"},
+
+                "SM-A035": {"RF5627G": "PA", "K318": "AUDIO", "SGM41511": "CARGA", "UMS9230": "CPU", "KMDV6001BD-B625": "MEMORIA", "UMW2652": "WIFI", "UMP510G": "PMIC", "AL65": "BACKLIGHT", "AW9961DNR": "BACKLIGHT", "630S": "DISPLAY", "NT50358": "DISPLAY", "RF5596G": "PA", "SR3595D": "PA",},
+
+                "SM-A037": {"5627G": "PA", "BQ25601": "CARGA", "MT6765V": "CHIPSET", "KMRP60014M-B614": "MEMORIA", "MT6631N": "WIFI", "AW9961DNR": "BACKLIGHT", "TPS65132A0": "DISPLAY", "1559": "AUDIO", "5596G": "PA", "MT6357CRV": "POWER", "MT6177MV": "RF", "ci": "setor", "ci": "setor"},
+
+                "SM-A042": {"5627R": "PA", "AXCNZ": "PA", "SGM41513": "CARGA", "RT9471GQW": "CARGA", "MT6765V": "CHIPSET", "KM4X60002M-B321": "MEMORIA", "MT6631N": "WIFI", "63QS": "DISPLAY", "ABS0": "DISPLAY", "AL65": "BACKLIGHT", "AW9961DNR": "BACKLIGHT", "5196": "PA", "MT6357CRV": "POWER", "JDHOZ": "PA 3G", "MT6177MV": "RF",},
+
+                "SM-A045": {"5627G-PMERZ": "PA", "331-AAPJ1": "NULL", "CDDD11": "CARGA", "SY6970QCC": "CARGA", "MT6765V": "CHIPSET", "LUM218M": "DISPLAY",  "AL65": "BACKLIGHT", "AW9961DNR": "BACKLIGHT", "KMDC6001DM-B625": "MEMORIA", "HL7593W2": "BUCK CDRAM", "MT6631N": "WIFI", "MT6357CRV": "POWER", "MT6177MV": "RF", "5596G": "PA", "FX5596H": "PA",},
+
+                "SM-A047": {"MBGA-ASDI": "BACKLIGHT", "FS1818": "AUDIO", "A2TDR2C": "CPU", "EXYNOS-850": "CPU", "KMDP6001DB-B425": "MEMORIA", "EMAEJP": "CARGA", "SY6970": "CARGA", "S518-60KN32": "POWER", "QM58110": "PA", "E052": "PA", "S612-W2232": "WIFI", "W332322-P6C231": "PA", "D3LK-W27J": "PA",},
+
+                "SM-A055": {"5627Y-HDBDZ": "PA", "2130-2333": "NULL", "GGNU042339": "CARGA", "KMDC6001DM-B625": "MEMORIA", "MT6769V": "CPU", "MT6631N": "WIFI", "3NCS": "BLIC", "LUM309C": "DISPLAY", "5596Y-KCA0Z": "PA", "AEAB-D215": "AUDIO", "MT6358W": "POWER", "MT6177MV": "RF",},
+                
+                "SM-A057": {"5627Y-KBBIZ": "PA", "SM5602-HW2F": "NULL", "GGKN862334": "CHARGER", "SM6225-000": "CPU", "KM2L9001CM-B518": "MEMORIA", "WCD9370-001": "AUDIO", "WCN3988-000": "WIFI", "63QS": "DISPLAY", "AW9961DNR": "BACKLIGHT", "5596E-KZAYZ": "PA", "WTR2965-0VV": "RF", "PM6225-001": "POWER", "PWFG-AAF4": "NULL",},
+
+                "SM-A065": {"5627YA": "PA", "UPM6722": "CARGA", "SC8541CFFR": "CARGA", "SGMGKB": "CARGA", "RT9471GQW": "CARGA","MT6769V-2425": "CPU", "KMDC6001DM-B625": "MEMORIA", "MT6631N-2417": "WIFI", "SGM3756YTDI6G": "BACKLIGHT", "LUM420M": "DISPLAY", "SM5109": "DISPLAY", "UCUFA": "NULL", "HUSB311_ACC": "NULL",  "MT6177MV": "RF",  "5596YA": "PA",  "MT6358W": "POWER",},
+
+                "SM-A102": {"S2DPS01": "BACKLIGHT", "SMA1301": "AUDIO", "KLMBG2JETD": "MEMORIA", "Exynos 7884": "CPU", "SEC 943": "CPU", "LHT03 W9A28": "NULL", "S527S 608XRR ": "POWER", "G1941R76": "POWER", "S2MU205X01": "CARGA", "S760 W1945": "NULL", "QM78143": "PA", "LMSWKSGU-K21": "PA", "SKY77656-11": "PA 3G", "S612 ": "WIFI", "QM48184": "RF", "S925D2": "RF",},
+
+
+            },
+         
+        };
+
+        // Função para verificar se o link termina com '.pdf'
+        function verificarLink(event) {
+            const link = event.target;
+            const href = link.getAttribute("href");
+
+            if (href && href.endsWith("bci.pdf")) {
+                // Exibe o container de busca e o resultado quando o link de PDF for clicado
+                document.querySelector(".search-container").style.display = "inline-block"; 
+                document.querySelector("#resultado").style.display = "none"; // Garante que o resultado esteja oculto inicialmente
+            }
+        }
+
+        // Adiciona o evento de clique a todos os links na página
+        document.querySelectorAll("a").forEach(link => {
+            link.addEventListener("click", verificarLink);
+        });
+
+        function buscarCI() {
+          const ciDigitado = document.getElementById("ciInput").value.toLowerCase();
+          const resultadoDiv = document.getElementById("resultado");
+          resultadoDiv.innerHTML = "";
+      
+          if (ciDigitado === "") return;
+      
+          let encontrados = [];
+          for (let marca in celulares) {
+              for (let modelo in celulares[marca]) {
+                  for (let ci in celulares[marca][modelo]) {
+                      if (ci.toLowerCase().includes(ciDigitado)) { // Busca parcial e sem diferenciar maiúsculas/minúsculas
+                          encontrados.push(`<tr><td>${marca}</td><td>${modelo}</td><td>${ci}</td><td>${celulares[marca][modelo][ci]}</td></tr>`);
+                      }
+                  }
+              }
+          }
+      
+          if (encontrados.length) {
+              resultadoDiv.innerHTML = `<table>
+                  <tr><th>Marca</th><th>Modelo</th><th>CI</th><th>Função</th></tr>
+                  ${encontrados.join("")}
+              </table>`;
+              resultadoDiv.style.display = "block"; // Exibe o resultado após a busca
+          } else {
+              resultadoDiv.innerHTML = "<p>NÃO ENCONTRADO...</p><br><p>VERIFIQUE O CI E TENTE NOVAMENTE</p>";
+              resultadoDiv.style.display = "block"; // Exibe a mensagem de "nenhum modelo encontrado"
+          }
+      }
+      
+      
+        // Função para ocultar o container de busca e o resultado
+        function ocultarContainer() {
+            document.querySelector(".search-container").style.display = "none";
+            document.querySelector("#resultado").style.display = "none"; // Oculta o resultado também
+        }
+    </script>
 </body>
 </html>
