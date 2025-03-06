@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webview PDF com Abas Automáticas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      position: relative; /* Define um contexto para o conteúdo */
+      z-index: 1; /* Garante que o conteúdo da página não seja bloqueado */
+    }
+    
+    .tab-container {
+      display: none;
+      margin-left: 250px;
+      flex-direction: column;
+      position: fixed; /* Fixa o conteúdo na tela */
+      top: 70px; /* Começa 70px abaixo do topo */
+      left: 0;
+      right: 0;
+      bottom: 0; /* Garante que ocupe toda a altura restante */
+      z-index: 1000; /* Coloca o conteúdo no topo */
+      pointer-events: auto; /* Permite a interação */
+      background-color: #00000000; /* Fundo transparente */
+      border: 5px solid #808080;
+    }
+ 
+    
+    .tabs {
+      display: flex;
+      background-color: #2e2e2e;
+      margin-left: 1px; /* Espaço no canto esquerdo */
+      z-index: 101; /* Garante que as abas fiquem sobre o iframe */
+    }
+    
+    .tab {
+      position: relative;
+  display: flex;
+  align-items: center;
+  padding: 3px 10px; /* Reduzindo o padding das abas */
+  cursor: pointer;
+  color: rgb(255, 230, 0);
+  background-color: #000000;
+  border-right: 3px solid #808080;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px; /* Reduzindo o tamanho máximo da aba */
+  font-size: 16px; 
+    }
+    .tab.active { background-color: #000000;
+      color: rgb(255, 0, 251); }
+    
+    .tab .close-btn {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      cursor: pointer;
+      color: #ff0000;
+      font-weight: 900; /* X mais grosso */
+      font-size: 20px; /* Tamanho do X */
+      width: 20px;  /* Largura igual à altura para ficar redondo */
+      height:20px; /* Altura igual à largura */
+      background: rgba(0, 0, 0, 0.8); /* Cor de fundo mais visível */
+      border-radius: 50%; /* Borda perfeitamente redonda */
+      display: flex; /* Centralizar o X */
+      align-items: center; /* Centralizar verticalmente */
+      justify-content: center; /* Centralizar horizontalmente */
+      box-shadow: 0 2px 4px rgba(255, 255, 255, 0.3); /* Pequena sombra para destaque */
+      border: 2px solid #d9ff00; /* Borda preta para destaque */
+    }
+    .tab .close-btn:hover { color: #f00; background: rgb(255, 255, 255); }
+    .iframe-container { flex-grow: 1; display: none;
+         border: 5px solid #808080; } /* Oculta o iframe inicialmente */
+    iframe {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: #00000000; /* Transparente */
+      height: 100vh;
+      object-fit: contain; /* Ajuste proporcional */
+      border: none;
+      z-index: 100; /* Garante que as abas fiquem sobre o iframe */
+    }
+    .hidden { display: none; }
+        /* Estilo da marca d'água */
+        .watermark {
+          position: fixed;
+          bottom: 5px;
+          right: 5px;
+          font-size: 10px;
+          font-weight: bold;
+          color: rgb(255, 230, 1);
+          background-color: rgba(0, 0, 0, 0.83);
+          padding: 5px 10px;
+          border-radius: 5px;
+          z-index: 1111;
+          pointer-events: none; /* Impede interação com a marca d'água */
+        }
+        
+        /* Estilo para o texto em vermelho */
+        .highlight {
+          color: red;
+          background-color: transparent; /* Remove qualquer fundo da tag */
+        }
+        
+    
+  </style>
+</head>
+<body>
+  <div class="tab-container" id="tabContainer">
+    <div class="tabs" id="tabs"></div>
+    <div class="iframe-container" id="iframeContainer"></div>
+  </div>
+  <!-- Marca d'água -->
+  
+    <!-- Marca d'água -->
+    <div class="watermark" id="watermark">Usuário: Carregando...</div>
+
+  <script>
+    let tabCount = 0;
+    const iframes = new Map(); // Armazenar iframes ativos
+
+    // Função para recuperar o último usuário salvo e exibir como marca d'água
+function loadUserWatermark() {
+  const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
+
+  // Função para formatar a hora com zero à esquerda, se necessário
+  function formatTime(date) {
+    const horas = String(date.getHours()).padStart(2, '0');
+    const minutos = String(date.getMinutes()).padStart(2, '0');
+    const segundos = String(date.getSeconds()).padStart(2, '0');
+    return `${horas}:${minutos}:${segundos}`;
+  }
+
+  // Função para atualizar a marca d'água com as informações do usuário e a hora atual
+  function updateWatermark() {
+    const now = new Date();
+    const horaAtual = formatTime(now);
+
+    if (usuariosCadastrados.length > 0) {
+      const ultimoUsuario = usuariosCadastrados[usuariosCadastrados.length - 1];
+      const username = ultimoUsuario.username || 'Desconhecido';
+      const email = ultimoUsuario.email || 'E-mail não informado';
+      
+      // Usando tags <span> para aplicar a cor vermelha
+      document.getElementById('watermark').innerHTML = `
+        BEM VINDO - USUÁRIO: <span class="highlight">${username}</span> 
+        E-MAIL: <span class="highlight">${email}</span> 
+        HORA: <span class="highlight">${horaAtual}</span>
+      `;
+    } else {
+      document.getElementById('watermark').innerHTML = `
+        Usuário: Desconhecido, 
+        HORA: <span class="highlight">${horaAtual}</span>
+      `;
+    }
+  }
+
+  // Atualizar a marca d'água imediatamente
+  updateWatermark();
+
+  // Atualizar a marca d'água a cada segundo (1000 ms)
+  setInterval(updateWatermark, 1000);
+}
+
+// Chamar a função ao carregar a página
+loadUserWatermark();
+
+
+ // Chamar a função ao carregar a página
+        loadUserWatermark();
+  
+    // Função para adicionar uma nova aba automaticamente
+    function addTabFromLink(pdfUrl) {
+      const viewerUrl = `https://pdfvieweronline.web.app/web/viewer.html?file=${encodeURIComponent(pdfUrl)}`;
+      const tabId = `tab${tabCount}`;
+  
+      // Extrair o nome do arquivo PDF da URL
+      const fileName = decodeURIComponent(pdfUrl.substring(pdfUrl.lastIndexOf('/') + 1));
+  
+      // Criar nova aba com o nome do arquivo e botão de fechar
+      const tab = document.createElement('div');
+      tab.className = 'tab';
+      tab.id = tabId;
+      tab.innerHTML = ` 
+        <span title="${fileName}">${fileName}</span>
+        <span class="close-btn" title="Fechar">×</span>
+      `;
+      tab.onclick = () => switchTab(tabId);
+  
+      // Evento para fechar a aba
+      tab.querySelector('.close-btn').onclick = (e) => {
+        e.stopPropagation(); // Evita ativar a aba ao clicar no X
+        closeTab(tabId);
+      };
+  
+      document.getElementById('tabs').appendChild(tab);
+  
+      // Criar o iframe e armazenar
+      const iframe = document.createElement('iframe');
+      iframe.src = viewerUrl;
+      iframe.classList.add('hidden'); // Escondido por padrão
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = 'none';
+      iframe.id = `iframe-${tabId}`;
+      document.getElementById('iframeContainer').appendChild(iframe);
+      iframes.set(tabId, iframe);
+  
+      // Exibir o container de abas
+      document.getElementById('tabContainer').style.display = 'flex';
+      // Ativar a aba recém-criada
+      switchTab(tabId);
+      tabCount++;
+    }
+
+    document.getElementById('iframeContainer').addEventListener('contextmenu', function(event) {
+      event.preventDefault(); // Impede o menu de contexto padrão
+  
+      const iframe = event.target.closest('iframe');
+      
+      if (iframe) {
+          if (!iframe.dataset.cursorToggled || iframe.dataset.cursorToggled === "false") {
+              iframe.dataset.cursorToggled = "true"; // Ativa modo de seleção
+              iframe.style.pointerEvents = "none"; // Permite copiar texto
+              iframe.style.cursor = "default"; // Seta
+  
+              // Criar overlay invisível para capturar eventos
+              let overlay = document.createElement("div");
+              overlay.style.position = "absolute";
+              overlay.style.top = "0";
+              overlay.style.left = "0";
+              overlay.style.width = "100%";
+              overlay.style.height = "100%";
+              overlay.style.background = "transparent";
+              overlay.style.cursor = "default"; // Força a seta
+              overlay.style.zIndex = "1000"; // Garante que fique sobre o iframe
+              overlay.id = "cursorOverlay";
+              
+              iframe.parentElement.appendChild(overlay);
+          } else {
+              iframe.dataset.cursorToggled = "false"; // Volta ao modo normal
+              iframe.style.pointerEvents = "auto"; // Restaura interatividade
+              iframe.style.cursor = "grab"; // Retorna à "mãozinha"
+  
+              // Remove overlay
+              let overlay = document.getElementById("cursorOverlay");
+              if (overlay) overlay.remove();
+          }
+      }
+  });
+  
+  
+  
+  
+  
+  
+    // Alternar entre abas sem perder o estado
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+  
+      // Esconder todos os iframes
+      iframes.forEach(iframe => iframe.classList.add('hidden'));
+      // Mostrar o iframe da aba ativa
+      iframes.get(tabId).classList.remove('hidden');
+  
+      // Exibir o container de iframe se ainda não estiver visível
+      document.getElementById('iframeContainer').style.display = 'block';
+    }
+  
+    // Fechar a aba correspondente
+    function closeTab(tabId) {
+      const tab = document.getElementById(tabId);
+      const wasActive = tab.classList.contains('active');
+      tab.remove();
+  
+      // Remover iframe da memória
+      const iframe = iframes.get(tabId);
+      iframe.remove();
+      iframes.delete(tabId);
+  
+      // Limpar o iframe se a aba fechada estava ativa
+      if (wasActive) {
+        if (iframes.size > 0) {
+          const nextTabId = Array.from(iframes.keys())[0];
+          switchTab(nextTabId);
+        } else {
+          document.getElementById('iframeContainer').innerHTML = '';
+          document.getElementById('iframeContainer').style.display = 'none'; // Oculta novamente
+          document.getElementById('tabContainer').style.display = 'none'; // Oculta novamente
+        }
+      }
+    }
+  
+    // Capturar cliques em links de PDF no site
+    document.addEventListener('click', function(event) {
+      const target = event.target.closest('a');
+      if (target && target.href && target.href.endsWith('.pdf')) {
+        event.preventDefault();
+        addTabFromLink(target.href);
+      }
+    });
+  </script>
+</body>
+</html>
