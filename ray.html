@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja Móvel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin-top: 75px;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* Cabeçalho */
+        
+
+        /* Fixando o botão do carrinho no topo à direita */
+         /* Fixando o botão do carrinho no topo à direita */
+        #carrinhoBotao {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            border-radius: 0%; /* Forma circular */
+            font-size: 24px;
+            cursor: pointer;
+            transition: background 0.3s;
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #carrinhoBotao:hover {
+            background-color: #0056b3;
+        }
+
+        #produtos {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .produto {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            width: 220px;
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+            position: relative;
+        }
+
+        .produto:hover {
+            transform: scale(1.05);
+        }
+
+        .produto img {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+            position: relative;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilo do ícone de dinheiro */
+        .dinheiro {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #ffd700;
+            display: none; /* Inicialmente escondido */
+        }
+
+        /* Animação de movimento */
+        @keyframes animarDinheiro {
+            0% {
+                top: 0;
+                left: 50%;
+                opacity: 1;
+            }
+            100% {
+                top: 50%;
+                left: 80%; /* Move até o carrinho */
+                opacity: 0;
+            }
+        }
+
+        /* Carrinho fixo */
+        #carrinhoContainer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+        }
+
+        .fechar-modal {
+            background-color: red;
+            margin-top: 10px;
+        }
+
+        .quantidade-btn {
+            background-color: #28a745;
+            width: 30px;
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .quantidade-btn:hover {
+            background-color: #218838;
+        }
+
+        .btnfexar {
+            background-color: #a72828;
+            width: 30px;
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .btnfexar:hover {
+            background-color: #882121;
+    }
+    .fixed-image {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw; /* Ocupa 100% da largura da janela */
+       
+        z-index: +5; /* Fica ACIMA de outros elementos */
+    }
+
+    .fixed-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ajusta a imagem para cobrir toda a tela sem distorção */
+		z-index: +5; /* Fica ACIMA de outros elementos */
+    }
+
+    .content {
+        position: relative;
+        z-index: 1; /* Garante que o texto fique acima da imagem */
+        color: white;
+        text-align: center;
+        padding: 20px;
+        
+    }
+    
+    </style>
+</head>
+<body>
+     <!-- Imagem Fixa -->
+  <div class="fixed-image">
+    <img src="https://bizoonydb.github.io/PDFJS/db/CAB.jpg" alt="Imagem Fixa">
+  </div>
+
+    <!-- Botão de carrinho -->
+    
+    <div id="carrinhoBotao" onclick="toggleCarrinho()">
+        <img src="https://images.vexels.com/content/200098/preview/shopping-cart-icon-shopping-cart-icon-2d9395.png" alt="Carrinho" width="30" height="30"><span id="itemCount">0</span>
+    </div>
+    
+
+    <section id="produtos">
+        <div class="produto" data-id="1">
+            <img src="produto1.jpg" alt="Produto 1">
+            <h2>Produto 1</h2>
+            <p>R$ 29,99</p>
+            <button class="addCart" onclick="adicionarAoCarrinho(1, 'Produto 1', 29.99)">Adicionar ao Carrinho</button>
+        </div>
+        <div class="produto" data-id="2">
+            <img src="produto2.jpg" alt="Produto 2">
+            <h2>Produto 2</h2>
+            <p>R$ 49,99</p>
+            <button class="addCart" onclick="adicionarAoCarrinho(2, 'Produto 2', 49.99)">Adicionar ao Carrinho</button>
+        </div>
+        <!-- Adicione mais produtos conforme necessário -->
+    </section>
+
+    <div id="carrinhoContainer">
+        <div class="modal-content">
+            <h2>Itens no Carrinho</h2>
+            <hr>
+            <div id="itensCarrinho"></div>
+            <hr>
+            <button onclick="finalizarCompra()">Finalizar Compra</button>
+            <button class="fechar-modal" onclick="toggleCarrinho()">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        let carrinho = [];
+
+        function carregarCarrinho() {
+            const carrinhoSalvo = localStorage.getItem('carrinho');
+            if (carrinhoSalvo) {
+                carrinho = JSON.parse(carrinhoSalvo);
+                atualizarCarrinho();
+            }
+        }
+
+        function salvarCarrinho() {
+            localStorage.setItem('carrinho', JSON.stringify(carrinho));
+        }
+
+        function adicionarAoCarrinho(id, nome, preco) {
+            let item = carrinho.find(p => p.id === id);
+            if (item) {
+                item.quantidade++;
+            } else {
+                carrinho.push({ id, nome, preco, quantidade: 1 });
+            }
+            salvarCarrinho();
+            atualizarCarrinho();
+            animarDinheiro();
+        }
+
+        function atualizarCarrinho() {
+            const carrinhoContainer = document.getElementById('itensCarrinho');
+            carrinhoContainer.innerHTML = '';
+            if (carrinho.length === 0) {
+                carrinhoContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
+                return;
+            }
+            let total = 0;
+            carrinho.forEach((item, index) => {
+                total += item.preco * item.quantidade;
+                carrinhoContainer.innerHTML += `
+                    <div>
+                        ${item.nome} - R$ ${(item.preco * item.quantidade).toFixed(2)} 
+                        <button class="quantidade-btn" onclick="modificarQuantidade(${index}, -1)">-</button>
+                        ${item.quantidade}
+                        <button class="quantidade-btn" onclick="modificarQuantidade(${index}, 1)">+</button>
+                        <button class="btnfexar" onclick="removerDoCarrinho(${index})" style="color:red;">X</button>
+                    </div>
+                `;
+            });
+            carrinhoContainer.innerHTML += `<strong>Total: R$ ${total.toFixed(2)}</strong>`;
+            document.getElementById('itemCount').textContent = carrinho.length;
+        }
+
+        function animarDinheiro() {
+            const dinheiro = document.getElementById('dinheiro');
+            dinheiro.style.display = 'inline';
+            dinheiro.style.animation = 'animarDinheiro 1s ease-out forwards';
+
+            setTimeout(() => {
+                dinheiro.style.display = 'none';
+            }, 1000); // O dinheiro desaparece após 1 segundo
+        }
+
+        function finalizarCompra() {
+            if (carrinho.length === 0) {
+                alert('Seu carrinho está vazio!');
+                return;
+            }
+
+            let resumoCarrinho = {};
+            let totalGeral = 0;
+
+            carrinho.forEach(item => {
+                if (!resumoCarrinho[item.nome]) {
+                    resumoCarrinho[item.nome] = { 
+                        quantidade: item.quantidade,
+                        preco: item.preco 
+                    };
+                } else {
+                    resumoCarrinho[item.nome].quantidade += item.quantidade;
+                }
+            });
+
+            let mensagem = ' _`OLÁ, GOSTARIA DE COMPRAR OS SEGUINTES ITENS`_ \n\n';
+            for (let nome in resumoCarrinho) {
+                let item = resumoCarrinho[nome];
+                let subtotal = item.quantidade * item.preco;
+                totalGeral += subtotal;
+                mensagem += ` ${nome} - *Quantidade:* ${item.quantidade} *| Preço Unitário:* R$ ${item.preco.toFixed(2)}\n`;
+            }
+
+            mensagem += `\n *Total da compra: R$ ${totalGeral.toFixed(2)}*\n`;
+
+            const numeroWhatsApp = '+5533984444376';
+            const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+            window.location.href = url;
+
+            carrinho = [];
+            salvarCarrinho();
+            atualizarCarrinho();
+        }
+
+        function modificarQuantidade(index, quantidade) {
+            if (carrinho[index].quantidade + quantidade > 0) {
+                carrinho[index].quantidade += quantidade;
+            } else {
+                carrinho.splice(index, 1);
+            }
+            salvarCarrinho();
+            atualizarCarrinho();
+        }
+
+        function removerDoCarrinho(index) {
+            carrinho.splice(index, 1);
+            salvarCarrinho();
+            atualizarCarrinho();
+        }
+
+        function toggleCarrinho() {
+            const carrinhoContainer = document.getElementById('carrinhoContainer');
+            carrinhoContainer.style.display = carrinhoContainer.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        window.onload = carregarCarrinho;
+    </script>
+</body>
+</html>
+
+
+
+
