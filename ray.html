@@ -23,7 +23,6 @@
         
 
         /* Fixando o botão do carrinho no topo à direita */
-         /* Fixando o botão do carrinho no topo à direita */
         #carrinhoBotao {
             position: fixed;
             top: 0px;
@@ -45,10 +44,11 @@
             background-color: #0056b3;
         }
 
+        /* Estilo da seção de produtos */
         #produtos {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: column; /* Organiza os produtos um debaixo do outro */
+            align-items: center;
             gap: 20px;
         }
 
@@ -57,7 +57,8 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             padding: 15px;
-            width:100%;
+            width: 100%;
+            max-width: 400px; /* Limita a largura máxima do produto */
             text-align: center;
             transition: transform 0.3s ease-in-out;
             position: relative;
@@ -68,7 +69,8 @@
         }
 
         .produto img {
-            width: 100%;
+            width: 100%; /* A imagem vai ocupar 100% da largura do contêiner */
+            height: auto; /* Mantém a proporção da imagem */
             border-radius: 5px;
         }
 
@@ -94,25 +96,27 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 24px;
+            font-size: 30px;
             color: #ffd700;
             display: none; /* Inicialmente escondido */
+            z-index: 999999999; /* Fica acima de outros elementos */
         }
 
         /* Animação de movimento */
         @keyframes animarDinheiro {
             0% {
-                top: 0;
+                top: 50%;
                 left: 50%;
                 opacity: 1;
+                transform: translate(-50%, -50%);
             }
             100% {
-                top: 50%;
-                left: 80%; /* Move até o carrinho */
+                top: 10px;
+                left: 10px; /* Posição do carrinho */
                 opacity: 0;
+                transform: translate(0, 0);
             }
         }
-
         /* Carrinho fixo */
         #carrinhoContainer {
             display: none;
@@ -165,56 +169,53 @@
 
         .btnfexar:hover {
             background-color: #882121;
-    }
-    .fixed-image {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw; /* Ocupa 100% da largura da janela */
-       
-        z-index: +5; /* Fica ACIMA de outros elementos */
-    }
+        }
 
-    .fixed-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Ajusta a imagem para cobrir toda a tela sem distorção */
-		z-index: +5; /* Fica ACIMA de outros elementos */
-    }
+        .fixed-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw; /* Ocupa 100% da largura da janela */
+            z-index: +5; /* Fica ACIMA de outros elementos */
+        }
 
-    .content {
-        position: relative;
-        z-index: 1; /* Garante que o texto fique acima da imagem */
-        color: white;
-        text-align: center;
-        padding: 20px;
-        
-    }
+        .fixed-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ajusta a imagem para cobrir toda a tela sem distorção */
+            z-index: +5; /* Fica ACIMA de outros elementos */
+        }
+
+        .content {
+            position: relative;
+            z-index: 1; /* Garante que o texto fique acima da imagem */
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
     
     </style>
 </head>
 <body>
-     <!-- Imagem Fixa -->
-  <div class="fixed-image">
-    <img src="https://bizoonydb.github.io/PDFJS/db/CAB.jpg" alt="Imagem Fixa">
-  </div>
+    <!-- Imagem Fixa -->
+    <div class="fixed-image">
+        <img src="https://bizoonydb.github.io/PDFJS/db/CAB.jpg" alt="Imagem Fixa">
+    </div>
 
     <!-- Botão de carrinho -->
-    
     <div id="carrinhoBotao" onclick="toggleCarrinho()">
         <img src="https://images.vexels.com/content/200098/preview/shopping-cart-icon-shopping-cart-icon-2d9395.png" alt="Carrinho" width="30" height="30"><span id="itemCount">0</span>
     </div>
-    
 
     <section id="produtos">
-        <div class="BATON TESTE" data-id="1">
+        <div class="produto" data-id="1">
             <img src="https://cdn.dooca.store/148383/products/gh8y87fs8ntl8ap9cpcv0n458ngqo3nuxm7p_640x640+fill_ffffff.png?v=1707243046&webp=0" alt="Produto 1">
             <h2>Produto 1</h2>
             <p>R$ 29,99</p>
             <button class="addCart" onclick="adicionarAoCarrinho(1, 'Produto 1', 29.99)">Adicionar ao Carrinho</button>
         </div>
-        <hr><br>
-        <div class="BATON TESTE 2" data-id="2">
+
+        <div class="produto" data-id="2">
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiMnpHmiFX2NAc_6eJwk7ScGqJYqQIgzISxA&s" alt="Produto 2">
             <h2>Produto 2</h2>
             <p>R$ 49,99</p>
@@ -277,7 +278,7 @@
                         <button class="quantidade-btn" onclick="modificarQuantidade(${index}, -1)">-</button>
                         ${item.quantidade}
                         <button class="quantidade-btn" onclick="modificarQuantidade(${index}, 1)">+</button>
-                        <button class="btnfexar" onclick="removerDoCarrinho(${index})" style="color:red;">X</button>
+                        <button class="btnfexar" onclick="removerDoCarrinho(${index})" style="color:black;">X</button>
                     </div>
                 `;
             });
@@ -359,7 +360,3 @@
     </script>
 </body>
 </html>
-
-
-
-
