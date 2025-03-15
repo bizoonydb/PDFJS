@@ -92,11 +92,11 @@
 
         /* Estilo do ícone de dinheiro */
         .dinheiro {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 30px;
+            font-size: 300px;
             color: #ffd700;
             display: none; /* Inicialmente escondido */
             z-index: 999999999; /* Fica acima de outros elementos */
@@ -106,13 +106,13 @@
         @keyframes animarDinheiro {
             0% {
                 top: 50%;
-                left: 50%;
+                height: 50%;
                 opacity: 1;
                 transform: translate(-50%, -50%);
             }
             100% {
                 top: 10px;
-                left: 10px; /* Posição do carrinho */
+                height: 10px; /* Posição do carrinho */
                 opacity: 0;
                 transform: translate(0, 0);
             }
@@ -223,6 +223,9 @@
         </div>
         <!-- Adicione mais produtos conforme necessário -->
     </section>
+    <div id="dinheiro" class="dinheiro">
+        <img src="https://png.pngtree.com/png-vector/20230822/ourmid/pngtree-an-outline-icon-of-a-shopping-bag-vector-png-image_6848140.png" alt="Imagem de Dinheiro" width="50" height="50">
+    </div>
 
     <div id="carrinhoContainer">
         <div class="modal-content">
