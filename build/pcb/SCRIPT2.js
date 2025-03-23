@@ -30,9 +30,10 @@ let bottomOffset = 0;
 function preload() {
     // Obtenha parâmetros de URL
     let params = getURLParams();
-    // Se o parâmetro fileLink existir, decodifique-o; caso contrário, use um valor padrão
-    let fileURL = params.fileLink ? decodeURIComponent(params.fileLink) : 'https://raw.githubusercontent.com/bizoonydb/digital-board/main/a10-pcb.bvr';
-    // Faça upload do arquivo usando o URL decodificado
+    // Se o parâmetro fileLink existir, use o valor diretamente, caso contrário, use um valor padrão
+    let fileURL = params.fileLink ? params.fileLink : 'https://raw.githubusercontent.com/bizoonydb/digital-board/main/a10-pcb.bvr';
+    
+    // Faça o upload do arquivo usando o URL diretamente (sem codificação)
     fileContent = loadStrings(fileURL);
 }
 
