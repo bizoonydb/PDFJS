@@ -2,6 +2,7 @@
 let fileContent;
 let parts = [];
 let outlinePoints = [];
+let isMirrored = false; // Variável para controlar o estado de espelhamento
 
 // Variables para transformación global
 let scaleFactor = 1;
@@ -10,11 +11,12 @@ let offsetX = 0;
 let offsetY = 0;
 let pinScaleFactor = 1; // Ajusta según lo necesites
 
+
 // Buffer para renderizar el contorno (elemento estático)
 let buffer;
 
-// Modo de visualización: "all", "top" o "bottom"
-let displayMode = "all";
+// Modo de visualización: "top", "top" o "bottom"
+let displayMode = "top";
 
 // Variables para interacción
 let tooltip = null;       // Información detallada del pin (tooltip)
@@ -30,21 +32,32 @@ let bottomOffset = 0;
 function preload() {
     // Obtenha parâmetros de URL
     let params = getURLParams();
-    // Se o parâmetro fileLink existir, use o valor diretamente, caso contrário, use um valor padrão
-    let fileURL = params.fileLink ? params.fileLink : 'https://raw.githubusercontent.com/bizoonydb/digital-board/main/a10-pcb.bvr';
-    
-    // Faça o upload do arquivo usando o URL diretamente (sem codificação)
+    // Se o parâmetro fileLink existir, decodifique-o; caso contrário, use um valor padrão
+    let fileURL = params.fileLink ? decodeURIComponent(params.fileLink) : 'https://bizoonydb.github.io/PDFJS/build/pcb/a50s.bvr';
+    // Faça upload do arquivo usando o URL decodificado
     fileContent = loadStrings(fileURL);
 }
 
+// Função para preencher a área dentro da outline de verde
+function fillGreenInsideOutline() {
+    fill(0, 255, 0, 100); // Cor verde com transparência
+    noStroke(); // Sem borda para o preenchimento
+
+}
+
 function setup() {
-    let canvasWidth = min(1600, windowWidth);
-    let canvasHeight = min(800, windowHeight);
-    createCanvas(canvasWidth, canvasHeight);
-    parseFile();
-    calcularTransformacion();
-    buffer = createGraphics(width, height);
-    renderBuffer();
+        // Define o tamanho do canvas para ocupar toda a tela
+        let canvasWidth = windowWidth; // Largura do canvas igual à largura da janela
+        let canvasHeight = windowHeight; // Altura do canvas igual à altura da janela
+        createCanvas(canvasWidth, canvasHeight);
+        
+        // Chamadas das funções após a criação do canvas
+        parseFile();
+        calcularTransformacion();
+        buffer = createGraphics(width, height); // Usando o tamanho do canvas
+        renderBuffer();
+    
+ 
 
     // Configurar botones
     select('#btnAll').mousePressed(() => {
@@ -63,9 +76,21 @@ function setup() {
     select('#btnRotate').mousePressed(() => {
         rotationAngle += Math.PI / 2;
     });
+    // Botão para espelhar a imagem
+    select('#btnMirror').mousePressed(() => {
+        isMirrored = !isMirrored; // Alternar o estado de espelhamento
+    });
 
     fillComponentDatalist();
     setupSearchListener();
+
+
+}
+function windowResized() {
+    // Redimensiona o canvas quando a janela é redimensionada
+    resizeCanvas(windowWidth, windowHeight);
+    buffer = createGraphics(width, height); // Redefine o buffer de gráficos
+    renderBuffer(); // Re-renderiza o buffer
 }
 
 //////////////////////////
@@ -75,7 +100,35 @@ function setup() {
 function draw() {
     background(0);
 
-    push();
+    // Corrigir a posição do mouse antes de espelhar
+    let mouseXToUse = isMirrored ? width - mouseX : mouseX;
+    let mouseYToUse = mouseY;
+
+    
+    // Desenhar a board sem aplicar o espelhamento
+    push();  // Salva o estado atual de transformações
+    if (isMirrored) {
+        // Aplica espelhamento apenas no conteúdo, não na board
+        scale(-1, 1); 
+        translate(-width, 0);
+    }
+
+    // Desenhe a board sem transformar
+    renderBuffer(); // Desenha o buffer (board)
+
+    pop();  // Restaura o estado anterior para não afetar a board
+
+    
+    // Se a imagem for espelhada, inverta a escala no eixo X
+    if (isMirrored) {
+        // Espelha ao longo do eixo X
+        scale(-1, 1); 
+        // Ajuste para não mover a imagem para fora da tela
+        translate(-width, 0); 
+    }
+    
+    
+    
     // T1: Rotación global centrada en el canvas
     translate(width / 2, height / 2);
     rotate(rotationAngle);
@@ -106,6 +159,10 @@ function draw() {
                 fill(0, 255, 0);
             } else if (pin.net === "GND") {
                 fill(150, 150, 150);
+            } else if (pin.net === "NC") {
+                fill(255, 200, 0);
+            } else if (pin.side === "B") {
+                fill(255, 200, 0);
             } else {
                 fill(255, 0, 0);
             }
@@ -123,6 +180,8 @@ function draw() {
     // Dibujar el tooltip sin transformaciones para que el texto esté "derecho"
     drawTooltip();
 }
+
+
 
 //////////////////////////
 // FUNCIONES DE CONVERSIÓN
@@ -205,6 +264,8 @@ function mousePressed() {
         for (let pin of part.pins) {
             if (pin.net === "GND") continue;
             let d = dist(mx, my, pin.x + groupOffset, pin.y);
+        if (pin.net === "NC") continue;
+        
             if (d <= pin.radius) {
                 tooltip = {
                     text: `Parte: ${part.name}\nNet: ${pin.net}`,
@@ -289,16 +350,16 @@ function mouseWheel(event) {
 function renderBuffer() {
     buffer.clear();
     buffer.push();
-    buffer.translate(offsetX, offsetY);
-    buffer.scale(scaleFactor);
-    // Ejemplo: dibujar contorno (descomenta si lo necesitas)
-    // buffer.stroke(139, 69, 19);
-    // buffer.noFill();
-    // buffer.beginShape();
-    // for (let p of outlinePoints) {
-    //   buffer.vertex(p.x, p.y);
-    // }
-    // buffer.endShape(CLOSE);
+   buffer.translate(offsetX, offsetY);
+   buffer.scale(scaleFactor);
+     //Ejemplo: dibujar contorno (descomenta si lo necesitas)
+    buffer.stroke(259, 269, 129);
+    buffer.noFill();
+    //buffer.beginShape();
+    //for (let p of outlinePoints) {
+   // buffer.vertex(p.x, p.y,);
+   // }
+    buffer.endShape(CLOSE);
     buffer.pop();
 }
 
