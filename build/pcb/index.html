@@ -1,14 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BVR DB</title>
-  <!-- Cargar p5.js desde el CDN -->
+  <title>Pan, Zoom e Arrastar - Centro</title>
+  <!-- Carregar p5.js do CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
-  <!-- Cargar tu sketch -->
-  <script src="SCRIPT2.js"></script>
   <style>
     html, body {
       margin: 0;
@@ -23,7 +20,7 @@
       display: block;
       margin: auto;
     }
-    /* Controles flotantes */
+    /* Controles flutuantes */
     #controls {
       position: fixed;
       top: 10px;
@@ -33,14 +30,18 @@
       background: rgba(35, 1, 255, 0.416);
       padding: 10px;
       border-radius: 4px;
-      box-shadow: 0 0 5px rgba(125, 125, 125, 0.461);
+      box-shadow: 0 0 5px rgba(255, 230, 0, 0.295);
     }
     #controls button, #controls input {
       margin: 0 5px;
       padding: 8px 12px;
     }
+   /* Cores por inicial do componente */
+.pin-c { background-color: yellow; color: black; }  /* C → Amarelo */
+.pin-r { background-color: green; color: white; }   /* R → Verde */
+.pin-n { background-color: blue; color: white; }    /* U → Azul (exemplo extra) */
   </style>
-</head>
+  <link type="text/css" rel="stylesheet" charset="UTF-8" href="https://www.gstatic.com/_/translate_http/_/ss/k=translate_http.tr.NJgGN_yGIWM.L.W.O/am=AAY/d=0/rs=AN8SPfrTSMIvWAFISYN4u74dPJrX0HgUsw/m=el_main_css"></head>
 <body>
   <div id="controls">
     <input id="searchComponent" type="text" placeholder="Search component" list="componentList">
@@ -48,10 +49,14 @@
     <button id="btnAll">both</button>
     <button id="btnTop">Top</button>
     <button id="btnBottom">Bottom</button>
-    <button id="btnNextNet">Next Pin</button>
-    <button id="btnRotate">Rotate</button>
-    <button id="btnMirror">Espelhar</button> <!-- Novo botão -->
+    <button id="btnNextNet">Próximo Pin</button>
+    <button id="btnRotate">Girar</button>
+    <button id="flipButton">flip</button>
   </div>
-  <!-- El canvas se crea automáticamente en el body mediante p5.js -->
+  
+  <!-- O canvas é criado automaticamente no corpo por meio de p5.js -->
+  
+  
+  <script src="sketch.js"></script>
 </body>
 </html>
