@@ -22,20 +22,56 @@
     }
     /* Controles flutuantes */
     #controls {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      z-index: 1000;
-      text-align: center;
-      background: rgba(35, 1, 255, 0.416);
-      padding: 10px;
-      border-radius: 4px;
-      box-shadow: 0 0 5px rgba(255, 230, 0, 0.295);
-    }
-    #controls button, #controls input {
-      margin: 0 5px;
-      padding: 8px 12px;
-    }
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0);
+  padding: 10px;
+  border: 1px solid #4a4a4a;
+  box-shadow: 0 0 20px rgba(219, 12, 12, 0.5);
+  display: flex;
+  flex-direction:row;
+  align-items: center;
+}
+#controls button, #controls input {
+  margin: 0px 5px;
+  padding: 5px;
+  width: 80px;
+  height: 40px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  border: none;
+  background-color: rgb(107, 107, 107);
+  color: rgb(70, 70, 70);
+  border-radius: 10%;
+  transition: background-color 0.3s, transform 0.2s;
+}
+#controls button:hover {
+  background-color: rgb(117, 117, 117);
+  color: black;
+  transform: scale(1.1);
+}
+#controls input {
+  width: 80px;
+  font-size: 12px;
+  border-radius: 5px;
+  border: none;,
+  background-color: black;
+  color: rgb(48, 48, 48);
+  text-align: center;
+}
+#searchComponent {
+  width: 150px;
+  font-size: 15px;
+  border: 1px solid #ff0000;
+ 
+  background-color: black;
+  color: rgb(48, 48, 48);
+  text-align: center;
+}
+
    /* Cores por inicial do componente */
 .pin-c { background-color: yellow; color: black; }  /* C → Amarelo */
 .pin-r { background-color: green; color: white; }   /* R → Verde */
@@ -46,17 +82,28 @@
   <div id="controls">
     <input id="searchComponent" type="text" placeholder="Search component" list="componentList">
     <datalist id="componentList"></datalist>
-    <button id="btnAll">both</button>
-    <button id="btnTop">Top</button>
-    <button id="btnBottom">Bottom</button>
-    <button id="btnNextNet">Próximo Pin</button>
-    <button id="btnRotate">Girar</button>
-    <button id="flipButton">flip</button>
+    <button id="btnRotate">🔄<br>GIRAR</button>
+    <button id="btnNextNet">🔽<br>PROXIMO</button>
+    <button id="btnAll">🔄<br>AMBOS</button>
+    <button id="btnTop">⬆️<br>TOP</button>
+    <button id="btnBottom">⬇️<br>BOTTOM</button>
+    
+    <button id="flipButton">🔁<br>VIRAR</button>
   </div>
+  <script>
+    function preload() {
+       // Obtenha parâmetros de URL
+       let params = getURLParams();
+       // Se o parâmetro fileLink existir, decodifique-o; caso contrário, use um valor padrão
+       let fileURL = params.fileLink ? decodeURIComponent(params.fileLink) : 'https://bizoonydb.github.io/PDFJS/build/pcb/a50s.bvr';
+       // Faça upload do arquivo usando o URL decodificado
+       fileContent = loadStrings(fileURL);
+   }
+  </script>
   
   <!-- O canvas é criado automaticamente no corpo por meio de p5.js -->
   
   
-  <script src="sketch.js"></script>
+  <script src="SCRIPT2.js"></script>
 </body>
 </html>
