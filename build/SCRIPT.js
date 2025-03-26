@@ -410,7 +410,7 @@ function mousePressed() {
     buffer.clear();
     buffer.push();
     // Dibuja el contorno en sus coordenadas originales
-    buffer.stroke(255, 0, 0);
+    buffer.stroke(255, 255, 255);
     buffer.noFill();
     buffer.beginShape();
     for (let p of outlinePoints) {
@@ -583,7 +583,7 @@ function drawPartNames() {
     // Configuración de estilo para el texto
     textAlign(CENTER, CENTER);
     textSize(12);
-    fill(0);
+    fill(255, 266, 20);
     noStroke();
 
     // Recorre cada parte para dibujar su nombre en el centro de sus pines
