@@ -35,6 +35,8 @@ let bottomOffset = 0;
          
          // Chamadas das funções após a criação do canvas
          parseFile();
+         frameRate(20); // Limita la velocidad de fotogramas a 20 FPS mientras mas usa mas recurso util para pc de bajo recursos
+    
          buffer = createGraphics(width, height); // Usando o tamanho do canvas
          renderBuffer();
      
@@ -109,6 +111,110 @@ let bottomOffset = 0;
     push(); // T3: Traslación y escalado
     translate(offsetX, offsetY);
     scale(scaleFactor);
+
+
+
+   ///////////////////////////////////////////
+   //////////___OUTLINE_BORDA___//////////////////
+   ///////////////////////////////////////
+   let threshold = 1.1; // Distância mínima entre pontos para considerar duplicados
+let minSegmentLength = 2; // Tamanho mínimo de segmento de linha para ser considerado válido (ajustável)
+
+// Função para verificar se dois pontos estão próximos o suficiente para serem considerados duplicados
+function arePointsClose(p1, p2, threshold) {
+    return dist(p1.x, p1.y, p2.x, p2.y) < threshold;
+}
+
+// Função para filtrar os pontos próximos e removê-los
+function filterOutlinePoints(outlinePoints, threshold) {
+    let filteredPoints = [outlinePoints[0]]; // Inicia com o primeiro ponto
+
+    for (let i = 1; i < outlinePoints.length; i++) {
+        let currentPoint = outlinePoints[i];
+        let lastAddedPoint = filteredPoints[filteredPoints.length - 1];
+
+        // Verifica se o ponto atual está próximo do último ponto adicionado
+        if (!arePointsClose(lastAddedPoint, currentPoint, threshold)) {
+            filteredPoints.push(currentPoint); // Adiciona o ponto se não for duplicado
+        }
+    }
+
+    return filteredPoints;
+}
+
+// Função para verificar o comprimento de um segmento de linha
+function segmentLength(p1, p2) {
+    return dist(p1.x, p1.y, p2.x, p2.y);
+}
+
+// Função para remover segmentos de linha muito curtos
+function removeSmallSegments(points, minLength) {
+    let cleanedPoints = [points[0]];
+
+    for (let i = 1; i < points.length; i++) {
+        let currentPoint = points[i];
+        let lastAddedPoint = cleanedPoints[cleanedPoints.length - 1];
+        
+        // Verifica o comprimento do segmento
+        if (segmentLength(lastAddedPoint, currentPoint) > minLength) {
+            cleanedPoints.push(currentPoint);
+        }
+    }
+
+    return cleanedPoints;
+}
+
+// Função de simplificação do contorno utilizando o algoritmo de Ramer-Douglas-Peucker
+function simplifyContour(points, epsilon) {
+    if (points.length < 3) return points; // Não há o que simplificar
+
+    let dmax = 0;
+    let index = 0;
+    for (let i = 1; i < points.length - 1; i++) {
+        let d = perpendicularDistance(points[i], points[0], points[points.length - 1]);
+        if (d > dmax) {
+            index = i;
+            dmax = d;
+        }
+    }
+
+    if (dmax > epsilon) {
+        let left = simplifyContour(points.slice(0, index + 1), epsilon);
+        let right = simplifyContour(points.slice(index), epsilon);
+
+        return left.slice(0, left.length - 1).concat(right);
+    } else {
+        return [points[0], points[points.length - 1]];
+    }
+}
+
+// Função para calcular a distância perpendicular de um ponto a uma linha
+function perpendicularDistance(pt, lineStart, lineEnd) {
+    let normalLength = dist(lineStart.x, lineStart.y, lineEnd.x, lineEnd.y);
+    return Math.abs((pt.x - lineStart.x) * (lineEnd.y - lineStart.y) - (pt.y - lineStart.y) * (lineEnd.x - lineStart.x)) / normalLength;
+}
+
+// Filtra os pontos para remover duplicações ou segmentos muito curtos
+let filteredOutlinePoints = filterOutlinePoints(outlinePoints, threshold);
+let cleanedOutlinePoints = removeSmallSegments(filteredOutlinePoints, minSegmentLength);
+
+// Simplifica o contorno para remover pontos desnecessários
+let simplifiedOutlinePoints = simplifyContour(cleanedOutlinePoints, 0.5); // Ajuste a precisão conforme necessário
+
+// Agora desenha a borda limpa, mais definida, sem linhas extras ou indesejadas
+stroke(255, 255, 0, 50); // Borda branca
+strokeWeight(2 / scaleFactor);
+noFill(); // Sem preenchimento na borda
+
+beginShape();
+for (let p of simplifiedOutlinePoints) {
+    vertex(p.x, p.y);
+}
+endShape();
+
+
+    // -----------------------------------------
+
     
 
     // Dibujar el buffer
@@ -410,12 +516,12 @@ function mousePressed() {
     buffer.clear();
     buffer.push();
     // Dibuja el contorno en sus coordenadas originales
-    buffer.stroke(255, 255, 255);
+    buffer.stroke(255, 255, 255, 0);
     buffer.noFill();
     buffer.beginShape();
-    for (let p of outlinePoints) {
-        buffer.vertex(p.x, p.y);
-    }
+   // for (let p of outlinePoints) {
+       // buffer.vertex(p.x, p.y);
+   // }
     buffer.endShape(CLOSE);
     buffer.pop();
 }
