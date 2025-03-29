@@ -202,8 +202,8 @@ let cleanedOutlinePoints = removeSmallSegments(filteredOutlinePoints, minSegment
 let simplifiedOutlinePoints = simplifyContour(cleanedOutlinePoints, 0.5); // Ajuste a precisão conforme necessário
 
 // Agora desenha a borda limpa, mais definida, sem linhas extras ou indesejadas
-stroke(255, 255, 0, 50); // Borda branca
-strokeWeight(2 / scaleFactor);
+stroke(255, 255, 0, 20); // Borda branca
+strokeWeight(1 / scaleFactor);
 noFill(); // Sem preenchimento na borda
 
 beginShape();
