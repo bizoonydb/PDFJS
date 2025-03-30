@@ -6,6 +6,24 @@
   <title>BITMAP</title>
   <!-- Carregar p5.js do CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+  <script>
+    function preload() {
+        let params = getURLParams();
+        let fileURL = params.fileLink ? decodeURIComponent(params.fileLink) : 'https://bizoonydb.github.io/PDFJS/build/IP/iPhone15_15 Plus.bvr';
+        
+        let cachedData = localStorage.getItem(fileURL);
+        if (cachedData) {
+            console.log("Carregando do cache local...");
+            fileContent = JSON.parse(cachedData);
+        } else {
+            console.log("Baixando novo arquivo...");
+            loadStrings(fileURL, (data) => {
+                fileContent = data;
+                localStorage.setItem(fileURL, JSON.stringify(data));
+            });
+        }
+    }
+</script>
   <style>
     html, body {
       margin: 0;
