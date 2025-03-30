@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MENU</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  
     <style>
         body {
             margin: 0;
@@ -3180,6 +3181,51 @@ a, img, div, p, span, button {
             });
         });
     </script>
+  <script>
+    function preload() {
+        let params = getURLParams();
+        let fileURL = params.fileLink ? decodeURIComponent(params.fileLink) : 'https://bizoonydb.github.io/PDFJS/build/IP/iPhone15_15 Plus.bvr';
+        
+        let cachedData = localStorage.getItem(fileURL);
+        if (cachedData) {
+            console.log("Carregando do cache local...");
+            fileContent = JSON.parse(cachedData);
+        } else {
+            console.log("Baixando novo arquivo...");
+            loadStrings(fileURL, (data) => {
+                fileContent = data;
+                localStorage.setItem(fileURL, JSON.stringify(data));
+            });
+        }
+    }
+
+    function saveIframes() {
+        let iframes = document.querySelectorAll('iframe');
+        let iframeData = {};
+
+        iframes.forEach((iframe, index) => {
+            iframeData[index] = iframe.src;
+        });
+
+        localStorage.setItem('savedIframes', JSON.stringify(iframeData));
+    }
+
+    function loadIframes() {
+        let iframeData = JSON.parse(localStorage.getItem('savedIframes'));
+        
+        if (iframeData) {
+            Object.keys(iframeData).forEach(index => {
+                let iframe = document.createElement('iframe');
+                iframe.src = iframeData[index];
+                document.body.appendChild(iframe);
+            });
+        }
+    }
+
+    window.addEventListener('beforeunload', saveIframes);
+    window.addEventListener('load', loadIframes);
+</script>
+
 </head>
 <body>
 
