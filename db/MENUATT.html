@@ -3029,6 +3029,17 @@ a, img, div, p, span, button {
    
 
     <script>
+      // Criar um novo Web Worker
+const worker = new Worker("worker.js"); // Certifique-se de que o caminho está correto!
+
+// Enviar dados para o Worker processar
+worker.postMessage(100); 
+
+// Receber a resposta do Worker
+worker.onmessage = function (e) {
+    console.log("Resultado do Worker:", e.data);
+};
+
         // Código para buscar arquivos
         const folders = document.querySelectorAll('details');
 
