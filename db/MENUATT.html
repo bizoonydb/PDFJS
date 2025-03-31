@@ -5,9 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MMENU</title>
+    <title>MENU</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  
     <style>
         body {
             margin: 0;
@@ -2568,7 +2567,7 @@ a, img, div, p, span, button {
           <summary><i class="fas fa-folder-plus"></i>  IPHONE 11</summary>
           <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/IP11-SCH.pdf" class="file"><i class="far fa-file-pdf"></i>ESQUEMATICO </a>
           <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/iphone%2011%20layout.pdf" class="file"><i class="far fa-file-pdf"></i>LAYOUT</a>
-          <a href="https://bizoonydb.github.io/PDFJS/db/isdb/IP11_db" class="file-image"><i class="far fa-file-image"></i>INFO HARDWARE</a>
+          <a href="https://bizoonydb.github.io/PDFJS/db/isdb/IP11_hs" class="file-image"><i class="far fa-file-image"></i>INFO HARDWARE</a>
           <a href="https://bizoonydb.github.io/PDFJS/build/IP/IP11_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
          
           <a href="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/thermistor_ip11.pdf" class="file"><i class="far fa-file-pdf"></i>THERMISTOR .pdf</a>
@@ -3029,17 +3028,6 @@ a, img, div, p, span, button {
    
 
     <script>
-      // Criar um novo Web Worker
-const worker = new Worker("worker.js"); // Certifique-se de que o caminho está correto!
-
-// Enviar dados para o Worker processar
-worker.postMessage(100); 
-
-// Receber a resposta do Worker
-worker.onmessage = function (e) {
-    console.log("Resultado do Worker:", e.data);
-};
-
         // Código para buscar arquivos
         const folders = document.querySelectorAll('details');
 
@@ -3192,7 +3180,6 @@ worker.onmessage = function (e) {
             });
         });
     </script>
- 
 </head>
 <body>
 
@@ -4228,7 +4215,41 @@ worker.onmessage = function (e) {
       background-color: #4c4c4c;
     }
         
-    
+    /* Estilos para o alerta personalizado */
+#dbAlert {
+  display: none; /* Inicialmente oculto */
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(58, 58, 58); /* Fundo vermelho transparente */
+  color: white;
+  padding: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 10px;
+  z-index: 1001; /* Garante que fique sobre outros elementos */
+  text-align: center;
+  border:2px solid #ffea00 ;
+  width: 400px;
+  box-shadow: 0 4px 6px rgba(251, 255, 0, 0.572);
+}
+
+#dbAlert button {
+  background-color: #e5ff00;
+  color: #000000;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+#dbAlert button:hover {
+  background-color: #349600;
+}
+
   </style>
 </head>
 <body>
@@ -4237,6 +4258,11 @@ worker.onmessage = function (e) {
     <div class="tabs" id="tabs"></div>
     <div class="iframe-container" id="iframeContainer"></div>
   </div>
+  <div id="dbAlert">
+    <p>POR FAVOR, FECHE O BITMAP ATUAL PARA NAO SOBRECARREGAR O SISTEMA.</p>
+    <button onclick="closeAlert()">ENTENDI</button>
+  </div>
+  
   <!-- Marca d'água -->
   
     <!-- Marca d'água -->
@@ -4292,116 +4318,121 @@ worker.onmessage = function (e) {
   // Chamar a função ao carregar a página
   loadUserWatermark();
   
-  
-   // Chamar a função ao carregar a página
-          loadUserWatermark();
+// Chamar a função ao carregar a página
+loadUserWatermark();
+
+function closeAlert() {
+  document.getElementById('dbAlert').style.display = 'none';
+}
+
+// Capturar cliques em links de PDF, BVR (_db) e HS (_hs)
+document.addEventListener('click', function(event) {
+  const target = event.target.closest('a');
+  if (target && target.href) {
+    event.preventDefault(); // Evita o comportamento padrão do link
     
-  // Capturar cliques em links de PDF e BVR
-  document.addEventListener('click', function(event) {
-    const target = event.target.closest('a');
-    if (target && target.href) {
-      // Verifica se é um arquivo PDF ou BVR
-      event.preventDefault();
-      
-      // Condição para verificar se o link é para um PDF ou BVR
-      if (target.href.endsWith('.pdf')) {
-        openTab(target.href, 'pdf');
-      } else if (target.href.endsWith('_db')) {
-        openTab(target.href, 'db');
+    if (target.href.endsWith('.pdf')) {
+      openTab(target.href, 'pdf');
+    } else if (target.href.endsWith('_db')) {
+      // Verifica se já existe um _db aberto
+      const existingDbIframe = document.querySelector('iframe[src*="_db"]');
+      if (existingDbIframe) {
+        document.getElementById('dbAlert').style.display = 'block'; // Exibe alerta
       } else {
-        // Se não for PDF ou BVR, o link será carregado na janela atual
-        window.location.href = target.href;
+        openTab(target.href, 'db');
       }
-  }
-  });
-  
-  // Função genérica para abrir abas de arquivos PDF ou BVR
-  function openTab(fileUrl, type) {
-    const tabId = `tab${tabCount}`;
-    const fileName = decodeURIComponent(fileUrl.substring(fileUrl.lastIndexOf('/') + 1));
-  
-    // Criar nova aba com o nome do arquivo e botão de fechar
-    const tab = document.createElement('div');
-    tab.className = 'tab';
-    tab.id = tabId;
-    tab.innerHTML = `
-      <span title="${fileName}">${fileName}</span>
-      <span class="close-btn" title="Fechar">×</span>
-    `;
-    tab.onclick = () => switchTab(tabId);
-  
-    // Evento para fechar a aba
-    tab.querySelector('.close-btn').onclick = (e) => {
-      e.stopPropagation(); // Evita ativar a aba ao clicar no X
-      closeTab(tabId);
-    };
-  
-    document.getElementById('tabs').appendChild(tab);
-  
-    // Criar o iframe e armazenar
-    const iframe = document.createElement('iframe');
-    
-    if (type === 'pdf') {
-      // Usar visualizador de PDF
-      iframe.src = `https://pdfvieweronline.web.app/web/viewer.html?file=${encodeURIComponent(fileUrl)}`;
-    } else if (type === 'db') {
-      // Para BVR, abre diretamente no iframe
-      iframe.src = fileUrl;
+    } else if (target.href.endsWith('_hs')) {
+      // Permite abrir vários _hs sem restrições
+      openTab(target.href, 'hs');
+    } else {
+      window.location.href = target.href;
     }
-    
-    iframe.classList.add('hidden'); // Escondido por padrão
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.border = 'none';
-    iframe.id = `iframe-${tabId}`;
-    document.getElementById('iframeContainer').appendChild(iframe);
-    iframes.set(tabId, iframe);
+  }
+});
+
+// Função genérica para abrir abas de arquivos PDF, BVR (_db) e HS (_hs)
+function openTab(fileUrl, type) {
+  const tabId = `tab${tabCount}`;
+  const fileName = decodeURIComponent(fileUrl.substring(fileUrl.lastIndexOf('/') + 1));
+
+  // Criar nova aba com o nome do arquivo e botão de fechar
+  const tab = document.createElement('div');
+  tab.className = 'tab';
+  tab.id = tabId;
+  tab.innerHTML = `
+    <span title="${fileName}">${fileName}</span>
+    <span class="close-btn" title="Fechar">×</span>
+  `;
+  tab.onclick = () => switchTab(tabId);
+
+  // Evento para fechar a aba
+  tab.querySelector('.close-btn').onclick = (e) => {
+    e.stopPropagation(); // Evita ativar a aba ao clicar no X
+    closeTab(tabId);
+  };
+
+  document.getElementById('tabs').appendChild(tab);
+
+  // Criar o iframe e armazenar
+  const iframe = document.createElement('iframe');
   
-    // Exibir o container de abas
-    document.getElementById('tabContainer').style.display = 'flex';
-    // Ativar a aba recém-criada
-    switchTab(tabId);
-    tabCount++;
+  if (type === 'pdf') {
+    iframe.src = `https://pdfvieweronline.web.app/web/viewer.html?file=${encodeURIComponent(fileUrl)}`;
+  } else if (type === 'db' || type === 'hs') {
+    iframe.src = fileUrl;
   }
   
+  iframe.classList.add('hidden'); // Escondido por padrão
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = 'none';
+  iframe.id = `iframe-${tabId}`;
+  document.getElementById('iframeContainer').appendChild(iframe);
+  iframes.set(tabId, iframe);
+
+  // Exibir o container de abas
+  document.getElementById('tabContainer').style.display = 'flex';
+  switchTab(tabId);
+  tabCount++;
+}
+
+// Adiciona funcionalidade de contexto no iframe
+document.getElementById('iframeContainer').addEventListener('contextmenu', function(event) {
+  event.preventDefault();
+
+  const iframe = event.target.closest('iframe');
   
-      document.getElementById('iframeContainer').addEventListener('contextmenu', function(event) {
-        event.preventDefault(); // Impede o menu de contexto padrão
-    
-        const iframe = event.target.closest('iframe');
-        
-        if (iframe) {
-            if (!iframe.dataset.cursorToggled || iframe.dataset.cursorToggled === "false") {
-                iframe.dataset.cursorToggled = "true"; // Ativa modo de seleção
-                iframe.style.pointerEvents = "none"; // Permite copiar texto
-                iframe.style.cursor = "default"; // Seta
-    
-                // Criar overlay invisível para capturar eventos
-                let overlay = document.createElement("div");
-                overlay.style.position = "absolute";
-                overlay.style.top = "0";
-                overlay.style.left = "0";
-                overlay.style.width = "100%";
-                overlay.style.height = "100%";
-                overlay.style.background = "transparent";
-                overlay.style.cursor = "default"; // Força a seta
-                overlay.style.zIndex = "1000"; // Garante que fique sobre o iframe
-                overlay.id = "cursorOverlay";
-                
-                iframe.parentElement.appendChild(overlay);
-            } else {
-                iframe.dataset.cursorToggled = "false"; // Volta ao modo normal
-                iframe.style.pointerEvents = "auto"; // Restaura interatividade
-                iframe.style.cursor = "grab"; // Retorna à "mãozinha"
-    
-                // Remove overlay
-                let overlay = document.getElementById("cursorOverlay");
-                if (overlay) overlay.remove();
-            }
-        }
-    });
-    
-    
+  if (iframe) {
+    if (!iframe.dataset.cursorToggled || iframe.dataset.cursorToggled === "false") {
+      iframe.dataset.cursorToggled = "true";
+      iframe.style.pointerEvents = "none";
+      iframe.style.cursor = "default";
+
+      let overlay = document.createElement("div");
+      overlay.style.position = "absolute";
+      overlay.style.top = "0";
+      overlay.style.left = "0";
+      overlay.style.width = "100%";
+      overlay.style.height = "100%";
+      overlay.style.background = "transparent";
+      overlay.style.cursor = "default";
+      overlay.style.zIndex = "1000";
+      overlay.id = "cursorOverlay";
+      
+      iframe.parentElement.appendChild(overlay);
+    } else {
+      iframe.dataset.cursorToggled = "false";
+      iframe.style.pointerEvents = "auto";
+      iframe.style.cursor = "grab";
+
+      let overlay = document.getElementById("cursorOverlay");
+      if (overlay) overlay.remove();
+    }
+  }
+});
+
+
+
     
     
     
