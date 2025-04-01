@@ -93,7 +93,7 @@
        // Obtenha parâmetros de URL
        let params = getURLParams();
        // Se o parâmetro fileLink existir, decodifique-o; caso contrário, use um valor padrão
-       let fileURL = params.fileLink ? decodeURIComponent(params.fileLink) : 'https://bizoonydb.github.io/PDFJS/build/redmi/rdmnt/nt4.bvr';
+       let fileURL = params.fileLink ? decodeURIComponent(params.fileLink) : 'https://bizoonydb.github.io/PDFJS/build/rdmnt/nt4.bvr';
        // Faça upload do arquivo usando o URL decodificado
        fileContent = loadStrings(fileURL);
    }
