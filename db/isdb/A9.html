@@ -11,7 +11,7 @@
             margin: 0;
             display: flex;
             flex-direction: column;
-            background-color: #ffffff;
+            background-color: #000000;
             color: #00000000;
         }
 
@@ -24,7 +24,7 @@
 
         .sidebar {
             position: fixed;
-            top: 130px;
+            top: 250px;
             left: 0;
             height: calc(100vh - 60px); /* Ajustado para ocupar a altura da janela de visualização menos a altura do cabeçalho */
             border: 2px solid #002aff;
@@ -52,6 +52,7 @@
     -ms-overflow-style: none;  
  }
         .main-content {
+            
             flex: 1;
             margin-left: 245px;
             display: flex;
@@ -117,7 +118,7 @@
     }
     .fa-folder-open {
       
-      color: rgb(9, 255, 0) !important;
+      color: rgb(0, 123, 255) !important;
   }
   .file-image i {
     background-color: rgba(0, 255, 42, 0.275); /* Fundo vermelho */
@@ -147,16 +148,18 @@
         }
 
         #displayNumber {
-            position: relative;
+            position: fixed;
+            top: 10px;
+            left: 0px;
             width: 200px;
             height: 175px;
-            background-image: url('https://cursobc.weebly.com/uploads/1/3/6/9/136931568/picsart_25-01-24_19-10-33-883.jpg');
+            background-image: url('https://bizoonydb.github.io/PDFJS/db/MULT.jpg');
             background-size: cover;
             background-position: center;
             text-align: center;
             color: rgb(88, 86, 86);
             font-size: 24px;
-            padding: 12px;
+            padding: 22px;
             z-index: 55;
             display: flex;
             justify-content: center;
@@ -174,7 +177,7 @@
             box-sizing: border-box;
             z-index: 999;
             position: fixed;
-            top: 70px;
+            top: 0px;
             left: 0px;
             width: 245px;
             border: 2px solid #0022ff;
@@ -184,7 +187,7 @@
         /* Novo estilo para a imagem que vai sobrepor a tela */
         #overlayImage {
             position: fixed;  /* Fixa a posição da imagem */
-            top: 70px;
+            top: 0px;
             left: 245px;    /* Garante que a imagem fique no canto esquerdo */
             width: calc(100vw - 245px); /* Ajusta a largura para não ultrapassar os limites */
             height: 100vh;  /* Usa a altura total da tela */
@@ -218,16 +221,16 @@
         }
 
         #displayed-image {/* imagem de centro DB */
-          position:fixed;
-          top: 50%;
-          left: 55%;
-          transform: translate(-50%, -50%);
-        
-          max-width: 100%;
-          max-height: 100%;
-          object-fit: contain;
-          background-color: #00000000;
-      }
+            position:fixed;
+            top: 50%;
+            left: 55%;
+            transform: translate(-50%, -50%);
+          
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            background-color: #00000000;
+        }
          /* Estilo para o spinner de carregamento */
          .spinner {
             position: fixed;
@@ -250,6 +253,10 @@
             100% { transform: rotate(360deg); }
         }
         .button {
+            position: fixed;
+            top: 320px;
+            left: 0;
+            height: calc(100vh - 60px); /* Ajustado para ocupar a altura da janela de visualização menos a altura do cabeçalho */
             display: inline-block;
             background-color: #9e9e9335;
             color: white;
@@ -289,7 +296,33 @@
         .piscando {
             animation: piscar 1s infinite;
         }
+        .whatsapp-icon  {
+            background-color: rgba(97, 196, 15, 0.419); /* Fundo vermelho */
+            color: rgb(255, 255, 255) !important; /* Cor vermelha para ícones de arquivo */
+            padding: 5px 10px;
+            font-size: 15px;
+            border: 2px solid #00a2ff;
+            text-align: center;
+            border-radius: 15%;
+        }
+        .whatsapp-icon i {
+            background-color: rgba(0, 0, 0, 0.686); /* Fundo vermelho */
+            color: rgb(47, 255, 0) !important; /* Cor vermelha para ícones de arquivo */
+   
+        }
+        .facebook-icon i{
+        background-color: rgba(0, 0, 0, 0); /* Fundo vermelho */
+        color: rgb(59, 93, 203) !important; /* Cor vermelha para ícones de arquivo */
+        border-radius: 2%; /* Torna o fundo do ícone redondo */
+        padding: -1px; /* Espaçamento interno para o ícone */
         
+    }.instagram-icon i{
+        background-color: rgba(0, 0, 0, 0); /* Fundo vermelho */
+        color: rgb(235, 81, 189) !important; /* Cor vermelha para ícones de arquivo */
+        border-radius: 2%; /* Torna o fundo do ícone redondo */
+        padding: -1px; /* Espaçamento interno para o ícone */
+    }
+    
 
     </style>
 </head>
@@ -733,64 +766,6 @@ overlayImage.style.cursor = 'grab';
      
      
 </script>
-
-</body>
-</html>
-
-
-<!DOCTYPE html>
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-</head>
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        height: 100vh; /* Garante que o corpo tenha 100% da altura da janela */
-        
-    }
-
-    .fixed-image {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw; /* Ocupa 100% da largura da janela */
-       
-        z-index: +999999999999; /* Fica ACIMA de outros elementos */
-    }
-
-    .fixed-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Ajusta a imagem para cobrir toda a tela sem distorção */
-		z-index: +5; /* Fica ACIMA de outros elementos */
-    }
-
-    .content {
-        position: relative;
-        z-index: 1; /* Garante que o texto fique acima da imagem */
-        color: white;
-        text-align: center;
-        padding: 20px;
-        
-    }
-    
-  </style>
-
-<body class='header-page  wsite-theme-light'>
-
-    <!-- Imagem Fixa -->
-  <div class="fixed-image">
-    <img src="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/picsart_25-01-02_15-25-42-155.jpg" alt="Imagem Fixa">
-  </div>
-
-
-
-	
-	<script type="text/javascript" src="/files/theme/plugins.js"></script>
-	<script type="text/javascript" src="/files/theme/custom.js"></script>
 
 </body>
 </html>
