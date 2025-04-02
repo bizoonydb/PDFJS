@@ -183,7 +183,7 @@ let bottomOffset = 0;
    
    // Preenche a área dentro do contorno com verde
    fill(0, 255, 0, 20,); // Verde para representar a placa
-   stroke(255, 255, 255); // Borda branca
+   stroke(255, 255, 255, 20,); // Borda branca
    strokeWeight(1 / scaleFactor);
    beginShape();
    for (let p of simplifiedOutlinePoints) {
