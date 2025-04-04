@@ -486,8 +486,7 @@ function mousePressed() {
  
  
  
- 
- //////////////////////////
+  //////////////////////////
  // OTRAS FUNCIONES (Parseo, etc.)
  //////////////////////////
  
@@ -540,37 +539,62 @@ function mousePressed() {
      }
      return (topMaxX - topMinX) + 50;
  }
- 
- function drawArrow(x1, y1, x2, y2, arrowSize = 10) {
-     let angle = atan2(y2 - y1, x2 - x1); // Calcular o ângulo da linha
-     let arrowX = x2 - cos(angle - PI / 6) * arrowSize;
-     let arrowY = y2 - sin(angle - PI / 6) * arrowSize;
-     line(x2, y2, arrowX, arrowY); // Linha para o lado esquerdo da seta
- 
-     arrowX = x2 - cos(angle + PI / 6) * arrowSize;
-     arrowY = y2 - sin(angle + PI / 6) * arrowSize;
-     line(x2, y2, arrowX, arrowY); // Linha para o lado direito da seta
- }
- 
- function drawSelectedNetConnections() {
-     if (!selectedPin) return;
-     push();
-     strokeWeight(1);
-     stroke(255, 255, 0);
-     for (let part of parts) {
-         let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
-         for (let pin of part.pins) {
-             if (pin !== selectedPin && pin.net === selectedPin.net) {
-                 // Desenhar linha
-                 line(selectedPin.x, selectedPin.y, pin.x + groupOffset, pin.y);
- 
-                 // Desenhar seta na ponta da linha
-                 drawArrow(selectedPin.x, selectedPin.y, pin.x + groupOffset, pin.y);
-             }
-         }
-     }
-     pop();
- }
+ function drawOrthogonalLine(x1, y1, x2, y2) {
+    console.log(`Linha de (${x1}, ${y1}) para (${x2}, ${y2})`);
+    line(x1, y1, x2, y1); // horizontal
+    line(x2, y1, x2, y2); // vertical
+}
+
+function drawBlueDot(x, y) {
+    push();
+    fill(0, 255, 0);
+    noStroke();
+    ellipse(x, y, 6, 6);
+    pop();
+}
+
+
+function drawSelectedNetConnections() {
+    if (!selectedPin) return;
+
+    push();
+    strokeWeight(3);
+    stroke(0, 255, 0);
+    noFill();
+
+    let connectedPoints = [];
+
+    for (let part of parts) {
+        let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+
+        for (let pin of part.pins) {
+            if (pin.net === selectedPin.net) {
+                let px = pin.x + (part.side === "B" ? groupOffset : 0);
+                let py = pin.y;
+                connectedPoints.push({ x: px, y: py });
+            }
+        }
+    }
+
+    connectedPoints.sort((a, b) => a.x - b.x || a.y - b.y);
+
+    console.log("Pontos conectados:");
+    connectedPoints.forEach(p => {
+        console.log(`(${p.x}, ${p.y})`);
+        drawBlueDot(p.x, p.y);
+    });
+
+    for (let i = 1; i < connectedPoints.length; i++) {
+        let p1 = connectedPoints[i - 1];
+        let p2 = connectedPoints[i];
+        console.log(`Linha: (${p1.x}, ${p1.y}) -> (${p2.x}, ${p2.y})`);
+        drawOrthogonalLine(p1.x, p1.y, p2.x, p2.y);
+    }
+    
+
+    pop();
+}
+
  
  function drawComponentBoundingBoxes() {
     let backgroundRects = []; // Lista para armazenar os preenchimentos
