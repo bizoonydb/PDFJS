@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    
     <title>Informações do Usuário</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            font-family: 'Poppins', sans-serif;
             background: linear-gradient(to right, #000000, #3b3b3b, #000000); /* Gradiente multicolorido */
             color: white;
             display: flex;
@@ -39,20 +44,25 @@
             width: 100%;
             max-width: 1000px; /* Defini um tamanho máximo para os contêineres */
             margin-top: 20px; /* Espaçamento para não colidir com o cabeçalho fixo */
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2);
+
         }
         .info {
             font-size: 25px; /* Aumentei o tamanho da fonte */
             background-color: rgba(0, 0, 0, 0.9);
-            color: rgb(255, 225, 0);
+            background: #1e1e1e;
+            border: 1px solid #00e5ff;
             padding: 10px; /* Aumentei o padding para mais espaço interno */
             border-radius: 10px; /* Aumentei o arredondamento das bordas */
-            border: 4px solid blue;
+            border: 4px solid rgb(251, 255, 0);
             text-align: center;
             width: 650px; /* Aumentei a largura do contêiner de informações */
             height: 300px; /* Aumentei a altura do contêiner de informações */
             display: flex;
             flex-direction: column;
             justify-content: center; /* Centraliza o conteúdo verticalmente */
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2);
+
         }
         .highlight {
             font-weight: bold;
@@ -80,7 +90,7 @@
             width: 650px; /* Aumentei a largura do carrossel */
             height: 320px; /* Aumentei a altura do carrossel */
             border-radius: 10px;
-            border: 4px solid blue;
+            border: 4px solid rgb(255, 238, 0);
             justify-content: center;
             align-items: center;
         }
@@ -116,15 +126,16 @@
             max-width: 1000px; /* Defini um tamanho máximo para os contêineres */
             text-transform: uppercase;
         }
+        
     </style>
 </head>
 <body>
     <div class="header" id="header">Olá: Carregando...</div> <!-- Cabeçalho com a saudação -->
     
-    
+
   
     <!-- Imagem maior abaixo da primeira imagem -->
-    <img src="https://bizoonydb.github.io/PDFJS/db/BANER-PRINCIPAL.jpg" alt="Imagem Maior" class="large-image">
+    <img src="https://bizoonydb.github.io/PDFJS/db/bnr.jpg" alt="Imagem Maior" class="large-image">
     <!-- Mensagem de agradecimento -->
     <div class="thank-you-message">
         Agradecemos imensamente a todos os técnicos de manutenção de celular e eletronica geral, que utilizam o nosso software Digital Board, Com a sua ajuda, seremos referência no ramo, oferecendo sempre as melhores soluções para facilitar o seu trabalho. Juntos, vamos continuar inovando e crescendo no mercado!
@@ -135,11 +146,13 @@
         <!-- Carrossel de imagens -->
         <div class="carousel">
             <div class="carousel-container">
-                <img src="https://bizoonydb.github.io/PDFJS/db/CARROCEL1.jpg" alt="Imagem 1">
-                <img src="https://bizoonydb.github.io/PDFJS/db/CARROCEL%202.jpg" alt="Imagem 2">
-                <img src="https://bizoonydb.github.io/PDFJS/db/CARROCEL%202.jpg" alt="Imagem 3">
-                <img src="https://bizoonydb.github.io/PDFJS/db/CARROCEL%202.jpg" alt="Imagem 4">
-                <img src="https://bizoonydb.github.io/PDFJS/db/CARROCEL%202.jpg" alt="Imagem 5">
+              
+                <img src="https://bizoonydb.github.io/PDFJS/db/vbv.jpg" alt="Imagem 2">
+                <img src="https://bizoonydb.github.io/PDFJS/db/bvbv.jpg" alt="Imagem 3">
+           
+                <img src="https://bizoonydb.github.io/PDFJS/db/vbv.jpg" alt="Imagem 5">
+
+            
             </div>
         </div>
     </div>
@@ -175,7 +188,7 @@
 
                 // Atualiza as informações do usuário
                 document.getElementById('userInfo').innerHTML = ` 
-                    BEM VINDO <span class="highlight-info">${username}</span> <br>
+                    <i class="fas fa-user"></i><span class="highlight-info">${username}</span> <br>
                     E-MAIL <span class="highlight-info">${email}</span> <br>
                     HORAS <span class="highlight-info">${horaAtual}</span>
                 `;
