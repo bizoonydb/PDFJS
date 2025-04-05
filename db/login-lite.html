@@ -8,7 +8,7 @@
   <style>
     body {
         font-family: Arial, sans-serif;
-        background-color: #3a3a3a;
+        background-color: #080808;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -22,8 +22,8 @@
         top: 0;
         left: 0;
         width: 100%;
-background-color: #333333; /* transparemte */
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+background-color: #333333; /* cor do cab*/
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.618);/*cor da sombra do cabeçalho*/
         padding: 10px 0;
     }
 
@@ -49,7 +49,7 @@ background-color: #333333; /* transparemte */
         font-size: 14px;
         color: #ffffff;
         background-color: transparent;
-        border: 2px solid #0000FF;
+        border: 2px solid #eeff00;
         border-radius: 5px;
         text-decoration: none;
         cursor: pointer;
@@ -63,7 +63,7 @@ background-color: #333333; /* transparemte */
     }
 
     .button:hover {
-        background-color: #add8e6;
+        background-color: #c3c911;
         color: #ffffff;
     }
 
@@ -85,14 +85,18 @@ background-color: #333333; /* transparemte */
         }
     }
   </style>
+  
 </head>
 
 <body class='header-page wsite-theme-light'>
 
 <div class="wrapper">
   <div class="header-wrap">
+    
     <div id="topBar" class="topbar">
       <div class="buttons">
+        <a  class="button"> LITE v0.5.2</a>
+           
         <a href="https://wa.me/message/6X46IDVVWEIQM1" class="button">SUPORTE
           <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-21-43-961_orig.png" alt="WhatsApp">
         </a>
@@ -137,12 +141,12 @@ background-color: #333333; /* transparemte */
 
         .login-container {
             display: flex; /* Permite o uso de flexbox para alinhar itens */
-            background-color: rgba(76, 76, 76, 0.67);
+            background-color: rgba(37, 37, 37, 0.887);
             border-radius: 10px;
             border: 6px solid;
-            border-color: #000000;
+            border-color: #e3cc00;
             padding: 30px;
-            box-shadow: 0 6px 100px rgba(9, 123, 210, 0.767);
+            box-shadow: 0 6px 100px rgba(242, 255, 0, 0.192);
             max-width: 800px; /* Ajuste conforme necessário */
         
         }
@@ -177,7 +181,7 @@ background-color: #333333; /* transparemte */
             width: 100%; /* 100% da largura do container pai (.side-image) */
             height: auto; /* Altura automática para manter a proporção */
             max-width: 400px; /* Tamanho máximo igual ao máximo da caixa geral */
-            border-radius: 8%;/* borda arrendondada */
+            border-radius: 5%;/* borda arrendondada */
             
         }
 
@@ -199,14 +203,14 @@ background-color: #333333; /* transparemte */
             box-sizing: border-box;
             font-size: 18px;
             outline: none;
-            background-color: #262726da;
-            color: #ffffff;
+            background-color: #48450719;
+            color: #ddff00;
         }
 
         input[type="button"] {
-            background-color: #0e0e0e;
+            background-color: #d5ce04ed;
            
-            color: rgb(0, 215, 243);
+            color: rgb(0, 0, 0);
             border: 3px solid #000000;
             cursor: pointer;
             transition: background-color 0.3s ease;
@@ -221,7 +225,7 @@ background-color: #333333; /* transparemte */
             margin-bottom: 19px; /* Espaçamento inferior */
             margin-top: -19px; /* Espaçamento superior */
             color: rgb(0, 0, 0);
-            text-shadow: 1px 1px rgb(0, 162, 255);
+            text-shadow: 1px 1px rgb(242, 255, 0);
             position: relative;
             overflow: hidden;
             display: inline-block;
@@ -235,7 +239,7 @@ background-color: #333333; /* transparemte */
             left: -100%; /* Começa fora da tela */
             width: 100%;
             height: 100%;
-            background: linear-gradient(120deg, rgba(255, 255, 255, 0) 0%, rgba(0, 208, 255, 0.583) 50%, rgba(255, 255, 255, 0) 100%);
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0) 0%, rgba(251, 255, 0, 0.196) 50%, rgba(255, 255, 255, 0) 100%);
             transform: skewX(-50deg); /* Inclinação do reflexo */
             z-index: 1;
             pointer-events: none;
@@ -398,7 +402,7 @@ background-color: #333333; /* transparemte */
 input[type="password"]:focus {
     border-color: #0e0e0e;
     background-color: #333333;
-    box-shadow: 0 0 20px rgba(0, 162, 255, 0.834); /* Efeito de brilho no foco */
+    box-shadow: 0 0 20px rgba(234, 255, 0, 0.507); /* Efeito de brilho no foco */
     transition: all 0.3s ease;
 }
 
@@ -424,9 +428,11 @@ input[type="submit"]:hover {
 input[type="submit"]:hover, 
 input[type="button"]:hover {
     background-color: #000000;
-    background-image: linear-gradient(35deg, #449bff, #000000); /* Gradiente dinâmico */
+    background-image: linear-gradient(35deg, #2e2e2e6c, #000000); /* Gradiente dinâmico */
     transform: scale(1.05);
     transition: background-color 0.3s, transform 0.3s ease, background-image 0.3s ease;
+    border:3px solid #ffdd00;
+    color: #fffb00;
 }
 .popup#redefinirSenhaPopup {
     background: linear-gradient(145deg, rgba(55, 55, 55, 0.8), rgba(33, 33, 33, 0.8));
@@ -472,7 +478,7 @@ input[type="button"]:hover {
             </form>
         </div>
         <div class="side-image">
-            <img src="https://bizoonydb.github.io/PDFJS/db/BANER-INICIO.jpg" alt="Side Image"><!--imagem baner principal -->
+            <img src="https://bizoonydb.github.io/PDFJS/db/0_5_2.jpg" alt="Side Image"><!--imagem baner principal -->
         </div>
     </div>
     
@@ -514,7 +520,7 @@ input[type="button"]:hover {
     <!-- Popup de redefinir senha -->
     <div id="redefinirSenhaPopup" class="popup azul">
     <span class="close" onclick="fecharRedefinirSenhaPopup()">&times;</span>
-    <h2><span style="font-weight: bold; color: rgb(0, 225, 255);">REDEFINIR SENHA</span></h2>
+    <h2><span style="font-weight: bold; color: rgb(229, 255, 0);">REDEFINIR SENHA</span></h2>
     <form id="resetPasswordForm">
         <input type="text" name="resetUsername" placeholder="Usuário" autocomplete="off"><br>
         <input type="password" name="newPassword" placeholder="Nova Senha"><br>
@@ -616,7 +622,7 @@ function validarCodigoAtivacao(codigo) {
         "DBED2605": 730,  // 2 anos (730 dias)
         "DBED3605": 36525,
         "DBED0001": 1,
-        "DBED1875": 293,
+        "DBED1875": 37293,
         "DBED2325": 210,
     };
 
