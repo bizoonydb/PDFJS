@@ -26,7 +26,9 @@ let bottomOffset = 0;
 //////////////////////////
 // PRELOAD y SETUP
 //////////////////////////
- 
+let bgImage; // Variável global para armazenar a imagem de fundo
+let showBg = true; // controla a exibição da imagem
+
  function setup() {
          // Define o tamanho do canvas para ocupar toda a tela
          let canvasWidth = windowWidth; // Largura do canvas igual à largura da janela
@@ -43,8 +45,8 @@ let bottomOffset = 0;
          calcularTransformacion();
         
          renderBuffer();
+         
      
-  
  
      
     // Configurar botones
@@ -67,12 +69,20 @@ let bottomOffset = 0;
     document.getElementById("flipButton").addEventListener("click", () => {
         flipHorizontal = !flipHorizontal;
     });
-
+    // Botão para mostrar/ocultar imagem de fundo
+   
     let searchInput = document.getElementById("searchComponent");
 
     searchInput.addEventListener("mousedown", (event) => {
         event.stopPropagation(); // Evita que p5.js intercepte el evento
     });
+     // Conecta o botão ao evento
+     const toggleBtn = document.getElementById('toggleBgBtn');
+      toggleBtn.addEventListener('click', (event) => {
+      event.preventDefault(); // impede recarregamento ou comportamento padrão
+     showBg = !showBg;
+    });
+ 
 
 
     fillComponentDatalist();
@@ -89,31 +99,49 @@ let bottomOffset = 0;
  
  function draw() {
     background(0);
-    
-
+   
     // T1: Rotação global centrada no canvas
-    push(); // T1: Rotación global centrada en el canvas
+    push();
     translate(width / 2, height / 2);
     rotate(rotationAngle);
     translate(-width / 2, -height / 2);
-
+  
     if (displayMode === "all") {
-        bottomOffset = computeBottomOffset();
+      bottomOffset = computeBottomOffset();
     }
-
-    push(); // T2: Aplicar reflejo horizontal si está activado
+  
+    // T2: Reflejo horizontal (flip horizontal) se ativado
+    push();
     if (flipHorizontal) {
-        translate(width, 0);
-        scale(-1, 1);
+      translate(width, 0);
+      scale(-1, 1);
     }
-    
-
-    push(); // T3: Traslación y escalado
+  
+    // T3: Translação e escala (zoom/pan)
+    push();
     translate(offsetX, offsetY);
     scale(scaleFactor);
-
-
-
+  
+      
+  
+    // 🔽 Desenha a imagem de fundo com zoom e pan aplicados
+    drawBackgroundImage();
+    
+  
+    function drawBackgroundImage() {
+        if (showBg && bgImage) { // <-- verifica se showBg está ativado
+          push();
+          scale(1, -1); // Inverte o eixo Y (vertical)
+      
+          const imgX = -bgImage.width / 2;
+          const imgY = -bgImage.height / 2;
+      
+          image(bgImage, imgX, -imgY - bgImage.height);
+      
+          pop();
+        }
+      }
+      
    ///////////////////////////////////////////
    //////////___OUTLINE_BORDA___//////////////////
    ///////////////////////////////////////
@@ -183,7 +211,7 @@ let bottomOffset = 0;
    
    // Preenche a área dentro do contorno com verde
    fill(255, 255, 255, 30,); // Verde para representar a placa
-   stroke(255, 255, 255, 150,); // Borda branca
+   stroke(255, 255, 255, 10,); // Borda branca
    strokeWeight(1 / scaleFactor);
    beginShape();
    for (let p of simplifiedOutlinePoints) {
@@ -201,8 +229,7 @@ let bottomOffset = 0;
     
 
     // Atualiza o estado de piscamento
-    blinkState = (frameCount % blinkInterval < blinkInterval / 2) ? 255 : 0;  // Alterna entre 255 e 0 a cada intervalo
-
+    
     // Desenha os pinos com efeito de piscar
     for (let part of parts) {
         if (displayMode === "top" && part.side !== "T") continue;
@@ -565,7 +592,7 @@ function drawSelectedNetConnections() {
 
     push();
     strokeWeight(3);
-    stroke(0, 255, 0, 0); // Verde
+    
     noFill();
 
     let connectedPoints = [];
@@ -584,19 +611,13 @@ function drawSelectedNetConnections() {
 
     connectedPoints.sort((a, b) => a.x - b.x || a.y - b.y);
 
-    console.log("Pontos conectados:");
+   
     connectedPoints.forEach(p => {
-        console.log(`(${p.x}, ${p.y})`);
+        
         drawBlueDot(p.x, p.y);
     });
 
-    for (let i = 1; i < connectedPoints.length; i++) {
-        let p1 = connectedPoints[i - 1];
-        let p2 = connectedPoints[i];
-        console.log(`Linha: (${p1.x}, ${p1.y}) -> (${p2.x}, ${p2.y})`);
-        drawOrthogonalLine(p1.x, p1.y, p2.x, p2.y);
-    }
-    
+  
 
     pop();
 }
@@ -677,7 +698,7 @@ function drawSelectedNetConnections() {
     }
 
     // 1. Desenhamos as bordas  COR DAS BORDAS DOS COMPONENTES e pinos PRIMEIRO
-    stroke(255, 255, 255,100);
+    stroke(255, 255, 255,130);
     noFill();
     strokeWeight(1,5);
     for (let rectData of backgroundRects) {
