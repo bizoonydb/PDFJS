@@ -246,7 +246,7 @@ pop();
    
    // Preenche a área dentro do contorno com verde
    fill(255, 255, 255, 0,); // Verde para representar a placa
-   stroke(255, 255, 255, 10,); // Borda branca
+   stroke(255, 255, 255, 0,); // Borda branca
    strokeWeight(1 / scaleFactor);
    beginShape();
    for (let p of simplifiedOutlinePoints) {
