@@ -709,7 +709,7 @@ function drawSelectedNetConnections() {
             } else if (part.name.startsWith("H")) {
                 fillColor = color(50, 50, 50, 120);
             } else if (part.name.startsWith("J")) {
-                fillColor = color(200, 200, 200, 115);
+                fillColor = color(200, 200, 200, 35);
             } else if (part.name.startsWith("D")) {
                 fillColor = color(80, 80, 80, 125);
             } else if (part.name.startsWith("Q")) {
