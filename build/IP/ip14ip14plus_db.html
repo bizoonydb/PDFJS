@@ -12,7 +12,7 @@
       padding: 0;
       overflow: hidden;
       background: #000000;
-      color: #fff700;
+      color: #15ff00;
     }
     canvas {
       max-width: 100%;
@@ -77,9 +77,35 @@
   </style>
   <link type="text/css" rel="stylesheet" charset="UTF-8" href="https://www.gstatic.com/_/translate_http/_/ss/k=translate_http.tr.NJgGN_yGIWM.L.W.O/am=AAY/d=0/rs=AN8SPfrTSMIvWAFISYN4u74dPJrX0HgUsw/m=el_main_css"></head>
 <body>
+  <div id="pinDisplay" style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 90px;
+  background: url('https://bizoonydb.github.io/PDFJS/db/painel.jpg') no-repeat center center;
+  background-size: cover;
+  padding: 10px;
+  font-family: sans-serif;
+  font-size: 18px;
+  color: #48ff00;
+  border-radius: 0px;
+  margin: 0px;
+  z-index: 100;
+  white-space: pre-line;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: left;
+">
+  
+</div>
   <div id="controls">
     <input id="searchComponent" type="text" placeholder="Search component" list="componentList">
     <datalist id="componentList"></datalist>
+    <button id="toggleBgBtn"type="button">🖼️<br>BORDAS</button>
+
     <button id="btnRotate">🔄<br>GIRAR</button>
     <button id="btnNextNet">🔽<br>PROXIMO</button>
     <button id="btnAll">🔄<br>AMBOS</button>
@@ -90,19 +116,22 @@
   </div>
   <script>
     function preload() {
+      bgImage = loadImage("https://bizoonydb.github.io/PDFJS/build/IP/ip14_14plus_borda.jpg"); // substitua pelo caminho da sua imagem
        // Obtenha parâmetros de URL
        let params = getURLParams();
        // Se o parâmetro fileLink existir, decodifique-o; caso contrário, use um valor padrão
        let fileURL = params.fileLink ? decodeURIComponent(params.fileLink) : 'https://bizoonydb.github.io/PDFJS/build/IP/iPhone14_14Plus.bvr';
        // Faça upload do arquivo usando o URL decodificado
        fileContent = loadStrings(fileURL);
+
    }
+   
   </script>
   
   <!-- O canvas é criado automaticamente no corpo por meio de p5.js -->
   
   
-  <script src="https://bizoonydb.github.io/PDFJS/build/SCRIPT.js"></script>
+  <script src="https://bizoonydb.github.io/PDFJS/build/SCRIPT2.js"></script>
 </body>
 </html>
 
