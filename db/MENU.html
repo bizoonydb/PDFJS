@@ -5137,6 +5137,10 @@ document.getElementById('iframeContainer').addEventListener('contextmenu', funct
 
 
 
+    iframe.dataset.originalUrl = fileUrl;
+iframe.dataset.fileType = type;
+iframe.setAttribute('sandbox', '');
+iframe.setAttribute('loading', 'lazy');
     
     
     
