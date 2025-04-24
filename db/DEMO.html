@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MENU4</title>
+    <title>MENU5</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
@@ -4319,54 +4319,68 @@ iframe.setAttribute('loading', 'lazy');
 <body>
 
   
-    <!-- Modal BCI -->
-    <div class="modalbci" id="modalbci">
-        <div class="modalbci-content">
-            <h3>Digite o código de ativação</h3>
-            <input type="password" id="codigoInput" placeholder="Código de ativação">
-            <button onclick="verificarCodigo()">Confirmar</button>
-        </div>
+   
+  <!-- Modal -->
+  <div class="modalbci" id="modalbci">
+    <div class="modalbci-content" id="modalbciContent">
+      <h3>Digite o código de ativação</h3>
+      <input type="password" id="codigoInput" placeholder="Código de ativação">
+      <button id="confirmarBtn">Confirmar</button>
     </div>
+  </div>
 
-   <script>
-        const linkBci = document.querySelector('.link-bci');
-        const modalbci = document.getElementById('modalbci');
-        const inputCodigo = document.getElementById('codigoInput');
-        const btnConfirmar = document.getElementById('confirmarBtn');
-        const codigoCorreto = "DBED1234";
-        const chaveLocalStorage = "bci_ativado";
+  <script>
+    const linkBci = document.querySelector('.link-bci');
+    const modalbci = document.getElementById('modalbci');
+    const modalbciContent = document.getElementById('modalbciContent');
+    const inputCodigo = document.getElementById('codigoInput');
+    const btnConfirmar = document.getElementById('confirmarBtn');
+    const codigoCorreto = "DBED1234";
+    const chaveLocalStorage = "bci_ativado";
 
-        let destino = "";
+    let destino = "";
 
-        linkBci.addEventListener("click", function (e) {
-            e.preventDefault(); // Sempre previne
-            destino = this.dataset.url;
+    linkBci.addEventListener("click", function (e) {
+      e.preventDefault();
+      destino = this.dataset.url;
 
-            if (localStorage.getItem(chaveLocalStorage) === "true") {
-                window.open(destino, "_blank");
-            } else {
-                modalbci.style.display = "flex";
-            }
-        });
+      if (localStorage.getItem(chaveLocalStorage) === "true") {
+        window.open(destino, "_blank");
+      } else {
+        modalbci.style.display = "flex";
+        inputCodigo.focus();
+      }
+    });
 
-        btnConfirmar.addEventListener("click", function () {
-            if (inputCodigo.value === codigoCorreto) {
-                localStorage.setItem(chaveLocalStorage, "true");
-                modalbci.style.display = "none";
-                inputCodigo.value = "";
-                window.open(destino, "_blank");
-            } else {
-                alert("Código incorreto.");
-            }
-        });
+    btnConfirmar.addEventListener("click", function () {
+      const valorDigitado = inputCodigo.value.trim();
+      if (valorDigitado === codigoCorreto) {
+        localStorage.setItem(chaveLocalStorage, "true");
+        modalbci.style.display = "none";
+        inputCodigo.value = "";
+        window.open(destino, "_blank");
+      } else {
+        alert("Código incorreto. Tente novamente.");
+        inputCodigo.value = "";
+        inputCodigo.focus();
+      }
+    });
 
-        // Fechar modal ao clicar fora
-        window.addEventListener("click", function (e) {
-            if (e.target === modalbci) {
-                modalbci.style.display = "none";
-                inputCodigo.value = "";
-            }
-        });
-    </script>
+    // Fechar modal ao clicar fora da área de conteúdo
+    window.addEventListener("click", function (e) {
+      if (e.target === modalbci) {
+        modalbci.style.display = "none";
+        inputCodigo.value = "";
+      }
+    });
+
+    // Fechar com ESC
+    window.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        modalbci.style.display = "none";
+        inputCodigo.value = "";
+      }
+    });
+  </script>
 </body>
 </html>
