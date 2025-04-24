@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MENU2</title>
+    <title>MENU3</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
@@ -4284,7 +4284,7 @@ iframe.setAttribute('loading', 'lazy');
         .modalbci {
             display: none;
             position: fixed;
-            z-index: 999;
+         
             left: 0;
             top: 0;
             width: 100vw;
@@ -4292,6 +4292,7 @@ iframe.setAttribute('loading', 'lazy');
             background-color: rgba(0, 0, 0, 0.6);
             justify-content: center;
             align-items: center;
+          z-index: 999999; /* Fica ACIMA de outros elementos */
         }
 
         .modalbci-content {
@@ -4299,6 +4300,7 @@ iframe.setAttribute('loading', 'lazy');
             padding: 20px;
             border-radius: 8px;
             text-align: center;
+          z-index: 999999; /* Fica ACIMA de outros elementos */
         }
 
         .modalbci input {
