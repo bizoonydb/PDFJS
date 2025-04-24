@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEMONSTRAÇÃO</title>
+    <title>1DEMONSTRAÇÃO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
@@ -188,26 +188,28 @@ a, img, div, p, span, button {
     <div class="sidebar">
       <div class="container">
         <a>
-            <img src="https://bizoonydb.github.io/PDFJS/db/cell.png" class="botao-imagem" alt="SMARTPHONE">
-        </a>
-
-        <a href="https://bizoonydb.github.io/PDFJS/bci" class="link-bci" target="_blank">
-            <img src="https://bizoonydb.github.io/PDFJS/db/drone.png" class="botao-imagem" alt="DRONE">
-        </a>
-
-        <a>
-            <img src="https://bizoonydb.github.io/PDFJS/db/pc.png" class="botao-imagem" alt="LAPTOPS">
-        </a>
-
-        <a>
-            <img src="https://bizoonydb.github.io/PDFJS/db/gpu.png" class="botao-imagem" alt="PLACA DE VIDEO">
-        </a>
-        <a>
-          <img src="https://bizoonydb.github.io/PDFJS/db/console.png" class="botao-imagem" alt="CONSOLER">
-      </a>
-   <a class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/bci">
-        <img src="https://bizoonydb.github.io/PDFJS/db/bci.png" class="botao-imagem" alt="BCI">
-    </a>
+                <img src="https://bizoonydb.github.io/PDFJS/db/cell.png" class="botao-imagem" alt="SMARTPHONE">
+            </a>
+    
+            <a href="https://bizoonydb.github.io/PDFJS/bci" class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/bci" target="_blank">
+                <img src="https://bizoonydb.github.io/PDFJS/db/drone.png" class="botao-imagem" alt="DRONE">
+            </a>
+    
+            <a>
+                <img src="https://bizoonydb.github.io/PDFJS/db/pc.png" class="botao-imagem" alt="LAPTOPS">
+            </a>
+    
+            <a>
+                <img src="https://bizoonydb.github.io/PDFJS/db/gpu.png" class="botao-imagem" alt="PLACA DE VIDEO">
+            </a>
+            
+            <a>
+                <img src="https://bizoonydb.github.io/PDFJS/db/console.png" class="botao-imagem" alt="CONSOLE">
+            </a>
+            
+            <a class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/bci">
+                <img src="https://bizoonydb.github.io/PDFJS/db/bci.png" class="botao-imagem" alt="BCI">
+            </a>
     </div>
         <!-- Barra de pesquisa -->
         <input type="text" id="search" placeholder="⏳    PESQUISAR   ☁..↩">
@@ -4320,63 +4322,64 @@ iframe.setAttribute('loading', 'lazy');
 
   
    
-  <!-- Modal -->
-  <div class="modalbci" id="modalbci">
-    <div class="modalbci-content" id="modalbciContent">
-      <h3>Digite o código de ativação</h3>
-      <input type="password" id="codigoInput" placeholder="Código de ativação">
-      <button id="confirmarBtn">Confirmar</button>
+<!-- Modal -->
+    <div class="modalbci" id="modalbci">
+        <div class="modalbci-content" id="modalbciContent">
+          <h3>Digite o código de ativação</h3>
+          <input type="password" id="codigoInput" placeholder="Código de ativação">
+          <button id="confirmarBtn">Confirmar</button>
+        </div>
     </div>
-  </div>
 
-  <script>
-    const linkBci = document.querySelector('.link-bci');
-    const modalbci = document.getElementById('modalbci');
-    const modalbciContent = document.getElementById('modalbciContent');
-    const inputCodigo = document.getElementById('codigoInput');
-    const btnConfirmar = document.getElementById('confirmarBtn');
-    const codigoCorreto = "DBED1234";
-    const chaveLocalStorage = "bci_ativado";
+    <script>
+        const linksBci = document.querySelectorAll('.link-bci');
+        const modalbci = document.getElementById('modalbci');
+        const inputCodigo = document.getElementById('codigoInput');
+        const btnConfirmar = document.getElementById('confirmarBtn');
+        const codigoCorreto = "DBED1234";
+        const chaveLocalStorage = "bci_ativado";
 
-    let destino = "";
+        let destino = "";
 
-    linkBci.addEventListener("click", function (e) {
-      e.preventDefault();
-      destino = this.dataset.url;
+        linksBci.forEach(link => {
+            link.addEventListener("click", function (e) {
+                e.preventDefault();
+                destino = this.dataset.url;
 
-      if (localStorage.getItem(chaveLocalStorage) === "true") {
-        window.open(destino, "_blank");
-      } else {
-        modalbci.style.display = "flex";
-        inputCodigo.focus();
-      }
-    });
+                if (localStorage.getItem(chaveLocalStorage) === "true") {
+                    window.open(destino, "_blank");
+                } else {
+                    modalbci.style.display = "flex";
+                    inputCodigo.focus();
+                }
+            });
+        });
 
-    btnConfirmar.addEventListener("click", function () {
-      const valorDigitado = inputCodigo.value.trim();
-      if (valorDigitado === codigoCorreto) {
-        localStorage.setItem(chaveLocalStorage, "true");
-        modalbci.style.display = "none";
-        inputCodigo.value = "";
-        window.open(destino, "_blank");
-      } 
-    });
+        btnConfirmar.addEventListener("click", function () {
+            const valorDigitado = inputCodigo.value.trim();
+            if (valorDigitado === codigoCorreto) {
+                localStorage.setItem(chaveLocalStorage, "true");
+                modalbci.style.display = "none";
+                inputCodigo.value = "";
+                window.open(destino, "_blank");
+            }
+        });
 
-    // Fechar modal ao clicar fora da área de conteúdo
-    window.addEventListener("click", function (e) {
-      if (e.target === modalbci) {
-        modalbci.style.display = "none";
-        inputCodigo.value = "";
-      }
-    });
+        window.addEventListener("click", function (e) {
+            if (e.target === modalbci) {
+                modalbci.style.display = "none";
+                inputCodigo.value = "";
+            }
+        });
 
-    // Fechar com ESC
-    window.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") {
-        modalbci.style.display = "none";
-        inputCodigo.value = "";
-      }
-    });
-  </script>
+        window.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") {
+                modalbci.style.display = "none";
+                inputCodigo.value = "";
+            }
+        });
+    </script>
+
 </body>
 </html>
+
