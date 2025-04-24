@@ -223,8 +223,8 @@
 
     <!-- Container do Perfil -->
     <div class="profile-container">
-        <img src="https://bizoonydb.github.io/PDFJS/db/LOGO-PNG.jpg" alt="Foto de Perfil" class="profile-image">
-        <h1 class="profile-name">BEM VINDO <span id="usernameDisplay"></span></h1>
+        
+        <h1 class="profile-name">BEM VINDO: <span id="usernameDisplay"></span></h1>
         
         <!-- Informações do último usuário cadastrado -->
         <div class="user-info" id="userInfoContainer">
@@ -487,6 +487,122 @@
             });
         </script>
     </div>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resetar Ativação BCI</title>
+  <style>
+   
+
+    .cabecalho {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background-color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      box-sizing: border-box;
+      border-bottom: 2px solid #444;
+      z-index: 1000;
+    }
+
+    .cabecalho h3 {
+      margin: 0;
+      color: #f1f1f1;
+      font-size: 20px;
+    }
+
+    .status-ativo {
+      color: limegreen;
+      font-weight: bold;
+    }
+
+    .status-inativo {
+      color: orangered;
+      font-weight: bold;
+    }
+
+    .conteudo {
+      text-align: center;
+      padding-top: 50px;
+      z-index: 99990;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      z-index: 99990;
+    }
+
+    button:hover {
+      background-color: #d32f2f;
+    }
+
+    .mensagem {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+    
+
+  <!-- CABEÇALHO -->
+  <div class="cabecalho">
+    
+    <h3>DIGITAL BOARD- ADMIN: FABIANO</h3> <img src="https://bizoonydb.github.io/PDFJS/db/LOGO-PNG.jpg" alt="Foto de Perfil" class="profile-image">
+    <div id="statusPainel"></div>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div class="conteudo">
+
+    <button id="limparBtn">REMOVER PREMIUM</button>
+    <div class="mensagem" id="mensagemStatus"></div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+    const btnLimpar = document.getElementById('limparBtn');
+    const mensagem = document.getElementById('mensagemStatus');
+    const statusPainel = document.getElementById('statusPainel');
+
+    function atualizarPainel() {
+      if (localStorage.getItem('bci_ativado') === "true") {
+        statusPainel.innerHTML = '<span class="status-ativo">✔ ACESSO PREMIUM ATIVO</span>';
+      } else {
+        statusPainel.innerHTML = '<span class="status-inativo">✖ ACESSO PREMIUM INATIVO</span>';
+      }
+    }
+
+    btnLimpar.addEventListener('click', function () {
+      if (localStorage.getItem('bci_ativado')) {
+        localStorage.removeItem('bci_ativado');
+        mensagem.textContent = "PREMIUM REMOVIDO COM SUCESSO.";
+        mensagem.style.color = "limegreen";
+      } else {
+        mensagem.textContent = "USUARIO SEM CONTA PREMIUM.";
+        mensagem.style.color = "orange";
+      }
+      atualizarPainel();
+    });
+
+    // Atualiza o status na primeira carga
+    atualizarPainel();
+  </script>
 
 </body>
 </html>
