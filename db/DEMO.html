@@ -4326,41 +4326,49 @@ iframe.setAttribute('loading', 'lazy');
         </div>
     </div>
 
-    <script>
+     <script>
         const linkBci = document.querySelector('a.link-bci');
         const modalbci = document.getElementById('modalbci');
         const inputCodigo = document.getElementById('codigoInput');
-        const codigoCorreto = "DBED12345";
+        const btnConfirmar = document.getElementById('confirmarBtn');
+        const codigoCorreto = "DBED1234";
         const chaveLocalStorage = "bci_ativado";
 
-        // Verifica se o código já foi salvo
+        let destino = ""; // armazenará temporariamente o link
+
+        // Verifica se o código já foi ativado
         function jaAtivado() {
             return localStorage.getItem(chaveLocalStorage) === "true";
         }
 
-        // Ao clicar no link BCI
+        // Interceptar clique no link
         linkBci.addEventListener("click", function (e) {
             if (!jaAtivado()) {
-                e.preventDefault();
+                e.preventDefault(); // impede o redirecionamento
+                destino = linkBci.href;
                 modalbci.style.display = "flex";
             }
         });
 
-        // Verificação do código
-        function verificarCodigo() {
+        // Verifica o código e redireciona se estiver correto
+        btnConfirmar.addEventListener("click", function () {
             if (inputCodigo.value === codigoCorreto) {
                 localStorage.setItem(chaveLocalStorage, "true");
                 modalbci.style.display = "none";
-                window.open(linkBci.href, "_blank");
-            } 
-        }
+                inputCodigo.value = "";
+                window.open(destino, "_blank");
+            } else {
+                alert("Código incorreto. Tente novamente.");
+            }
+        });
 
-        // Fechar modal ao clicar fora do conteúdo
-        window.onclick = function (e) {
+        // Fecha o modal ao clicar fora
+        window.addEventListener("click", function (e) {
             if (e.target === modalbci) {
                 modalbci.style.display = "none";
+                inputCodigo.value = "";
             }
-        }
+        });
     </script>
 
 </body>
