@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MENU3</title>
+    <title>MENU4</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
@@ -4328,31 +4328,27 @@ iframe.setAttribute('loading', 'lazy');
         </div>
     </div>
 
-     <script>
-        const linkBci = document.querySelector('a.link-bci');
+   <script>
+        const linkBci = document.querySelector('.link-bci');
         const modalbci = document.getElementById('modalbci');
         const inputCodigo = document.getElementById('codigoInput');
         const btnConfirmar = document.getElementById('confirmarBtn');
         const codigoCorreto = "DBED1234";
         const chaveLocalStorage = "bci_ativado";
 
-        let destino = ""; // armazenará temporariamente o link
+        let destino = "";
 
-        // Verifica se o código já foi ativado
-        function jaAtivado() {
-            return localStorage.getItem(chaveLocalStorage) === "true";
-        }
-
-        // Interceptar clique no link
         linkBci.addEventListener("click", function (e) {
-            if (!jaAtivado()) {
-                e.preventDefault(); // impede o redirecionamento
-                destino = linkBci.href;
+            e.preventDefault(); // Sempre previne
+            destino = this.dataset.url;
+
+            if (localStorage.getItem(chaveLocalStorage) === "true") {
+                window.open(destino, "_blank");
+            } else {
                 modalbci.style.display = "flex";
             }
         });
 
-        // Verifica o código e redireciona se estiver correto
         btnConfirmar.addEventListener("click", function () {
             if (inputCodigo.value === codigoCorreto) {
                 localStorage.setItem(chaveLocalStorage, "true");
@@ -4360,11 +4356,11 @@ iframe.setAttribute('loading', 'lazy');
                 inputCodigo.value = "";
                 window.open(destino, "_blank");
             } else {
-                alert("Código incorreto. Tente novamente.");
+                alert("Código incorreto.");
             }
         });
 
-        // Fecha o modal ao clicar fora
+        // Fechar modal ao clicar fora
         window.addEventListener("click", function (e) {
             if (e.target === modalbci) {
                 modalbci.style.display = "none";
@@ -4372,6 +4368,5 @@ iframe.setAttribute('loading', 'lazy');
             }
         });
     </script>
-
 </body>
 </html>
