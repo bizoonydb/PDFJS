@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1-DEMONSTRAÇÃO</title>
+    <title>1DEMONSTRAÇÃO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
@@ -190,7 +190,7 @@ a, img, div, p, span, button {
 </head>
 
 <body>
-    <iframe class="webview" src="https://bizoonydb.github.io/PDFJS/db/pagina.html"></iframe>
+    
 
     
     <div class="sidebar">
@@ -2930,7 +2930,7 @@ a, img, div, p, span, button {
 
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #000000;
+            background-color: #161616;
             padding: 20px;
         }
 
@@ -4395,4 +4395,50 @@ iframe.setAttribute('loading', 'lazy');
 
 </body>
 </html>
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Imagem Dentro da Área</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .area-com-imagem {
+      position: absolute;
+      top: 70px;
+      left: 250px;
+      right: 0;
+      bottom: 0;
+      border: 2px solid yellow;
+      overflow: hidden;
+      background-color: black; /* só pra destacar quando sobrar espaço */
+    }
+
+    .area-com-imagem img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* <<< Este é o segredo */
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="area-com-imagem">
+    <img src="https://bizoonydb.github.io/PDFJS/db/frnt.png" alt="Imagem de exemplo">
+  </div>
+
+</body>
+</html>
+
 
