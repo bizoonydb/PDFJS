@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2DEMONSTRAÇÃO</title>
+    <title>2-DEMONSTRAÇÃO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
@@ -171,12 +171,20 @@ a, img, div, p, span, button {
         border: none;
     }
     .botao-imagem {
-      border: none;
-      background: none;
-      cursor: pointer;
-      width: 70px; /* ajusta a largura da imagem se necessário */
-      height: auto;
-  }
+        border: none;
+        background: none;
+        cursor: pointer;
+        width: 70px;
+        height: auto;
+        transition: transform 0.3s ease, translate 0.3s ease;
+    }
+    
+    .botao-imagem:hover {
+        transform: scale(1.1) translateY(-3px);
+        border: #ffffff solid 3px;
+        border-radius: 30%;
+    }
+    
       
     </style>
 </head>
@@ -186,12 +194,14 @@ a, img, div, p, span, button {
 
     
     <div class="sidebar">
+
+       
       <div class="container">
         <a>
                 <img src="https://bizoonydb.github.io/PDFJS/db/cell.png" class="botao-imagem" alt="SMARTPHONE">
             </a>
     
-            <a href="https://bizoonydb.github.io/PDFJS/bci" class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/bci" target="_blank">
+            <a class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/bci">
                 <img src="https://bizoonydb.github.io/PDFJS/db/drone.png" class="botao-imagem" alt="DRONE">
             </a>
     
@@ -211,6 +221,7 @@ a, img, div, p, span, button {
                 <img src="https://bizoonydb.github.io/PDFJS/db/bci.png" class="botao-imagem" alt="BCI">
             </a>
     </div>
+    <hr style="border: 1px solid #fbff00; margin: 10px 0;"> <!-- Linha de separação -->
         <!-- Barra de pesquisa -->
         <input type="text" id="search" placeholder="⏳    PESQUISAR   ☁..↩">
         <details class="folder">
