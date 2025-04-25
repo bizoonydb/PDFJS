@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt">
-  🔒
+  
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1DEMONSTRAÇÃO</title>
+    <title>DEMONSTRAÇÃO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
             margin: 0;
             display: flex;
             flex-direction: column;
-            background-color: #808080; /* Fundo azul claro */
-            color: #ff0b0b; /* Cor padrão para o texto */
+            background-color: #afafaf; /* Fundo azul claro */
+            color: #676767; /* Cor padrão para o texto */
             font-size: 14px; /* Tamanho da letra das pastas */
         }
         
@@ -200,24 +200,25 @@ a, img, div, p, span, button {
         <a>
                 <img src="https://bizoonydb.github.io/PDFJS/db/botn/cell.png" class="botao-imagem" alt="SMARTPHONE">
             </a>
+            <a class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/bi">
+              <img src="https://bizoonydb.github.io/PDFJS/db/botn/console.png" class="botao-imagem" alt="CONSOLE">
+          </a>
     
-            <a class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/bci">
+          <a class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/bi">
                 <img src="https://bizoonydb.github.io/PDFJS/db/botn/drone.png" class="botao-imagem" alt="DRONE">
             </a>
     
-            <a>
+            <a class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/bi">
                 <img src="https://bizoonydb.github.io/PDFJS/db/botn/pc.png" class="botao-imagem" alt="LAPTOPS">
             </a>
     
-            <a>
+            <a class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/bi">
                 <img src="https://bizoonydb.github.io/PDFJS/db/botn/gpu.png" class="botao-imagem" alt="PLACA DE VIDEO">
             </a>
             
-            <a>
-                <img src="https://bizoonydb.github.io/PDFJS/db/botn/console.png" class="botao-imagem" alt="CONSOLE">
-            </a>
+           
             
-            <a class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/bci">
+            <a class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/bi">
                 <img src="https://bizoonydb.github.io/PDFJS/db/botn/tv.png" class="botao-imagem" alt="BCI">
             </a>
     </div>
@@ -2840,71 +2841,52 @@ a, img, div, p, span, button {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Botões Fixos</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        .button-container {
-            position: fixed;
-            top: 60px; /* Ajuste para ficar abaixo do cabeçalho */
-            right: 0;
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
-            align-items: flex-start;
-            padding: 10px;
-            pointer-events: none;
-            z-index: 999; /* Garante sobreposição máxima */
-            
-        }
-        .button-container a {
-            text-decoration: none;
-            color: rgb(255, 255, 255);
-            border: 2px solid rgb(0, 162, 255);
-            padding: 5px 10px;
-            border-radius: 5px;
-            background-color: rgba(171, 185, 194, 0.359);
-            transition: background-color 0.3s, color 0.3s;
-            pointer-events: auto;
-            margin: 0 10px;
-            
-        }
-        .button-container a:hover {
-            background-color: rgb(115, 127, 130);
-            color: white;
-        
-        
-
-        }
-    .facebook-icon  {
-        width: 25px; /* Defina o tamanho desejado para a largura */
-        height: auto; /* Mantenha a proporção original */
-        vertical-align: middle; /* Ajuste para alinhar verticalmente */
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Botões Fixos com Imagem</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
     }
-    </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const links = document.querySelectorAll('.button-container a');
-            links.forEach(link => {
-                link.addEventListener('click', (event) => {
-                    event.preventDefault(); // Evita o comportamento padrão
-                    window.location.href = link.href; // Carrega a URL na mesma aba
-                });
-            });
-        });
-    </script>
+    .button-container {
+      position: fixed;
+      top: 2px;
+      right: 0;
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      padding: 0px;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .button-container a {
+      pointer-events: auto;
+      margin: 0 2px;
+    }
+    .button-container img {
+      width: 55px; /* Ajuste o tamanho da imagem aqui */
+      height: auto;
+      border-radius: 10px;
+      transition: transform 0.3s;
+    }
+    .button-container img:hover {
+      transform: scale(1.05);
+      border-radius: 30%;
+      border: #ffffff solid 3px;
+    }
+  </style>
 </head>
 <body>
 
 <div class="button-container">
-    <a href="https://wa.me/message/6X46IDVVWEIQM1">SUPORTE TECNICO<img class="facebook-icon" src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-21-43-961_orig.png" alt="whatsapp"></a>
-    <a href="https://bizoonydb.github.io/PDFJS/bci.html">BUSCA POR CI <img class="facebook-icon" src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/ss_orig.png" alt=""></a>
-    
-    
+  <a href="https://wa.me/message/6X46IDVVWEIQM1" target="_blank">
+    <img src="https://bizoonydb.github.io/PDFJS/db/botn/suporte.png" alt="Suporte Técnico">
+  </a>
+  <a href="https://bizoonydb.github.io/PDFJS/bci.html" target="_blank">
+    <img src="https://bizoonydb.github.io/PDFJS/db/botn/bci.png" alt="Busca por CI">
+  </a>
 </div>
 
 </body>
@@ -3043,29 +3025,40 @@ a, img, div, p, span, button {
             background-color: #1e88e5;
         }
 
-        /* Botão para abrir o modal */
-        #openModalBtn {
-            position: fixed; /* Fixa o botão na posição */
-            top: 70px; /* Define a distância do topo */
-            right: 410px; /* Define a distância do lado direito */
-            text-decoration: none;
-            color: rgb(255, 255, 255);
-            border: 2px solid rgb(0, 162, 255);
-            padding: 10px 15px; /* Aumenta o espaço interno (largura e altura do botão) */
-            font-size: 1.0rem; /* Aumenta o tamanho da fonte */
-            border-radius: 5px;
-            background-color: rgba(171, 185, 194, 0.359);
-            transition: background-color 0.3s, color 0.3s;
-            pointer-events: auto;
-            margin: 0 10px;
-            z-index: 999; /* Garante sobreposição máxima */
-            
-        }
-        
-        #openModalBtn:hover {
-            background-color: #535353;
-        }
-       
+/* Botão para abrir o modal */
+#openModalBtn {
+    position: fixed;
+    top: 2px;
+    right: 120px;
+    z-index: 999;
+    pointer-events: auto;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Remove efeitos padrão do botão */
+#openModalBtn:focus {
+    outline: none;
+   
+}
+
+/* Estilo da imagem */
+.btn-img {
+    width: 55px;
+    height: auto;
+    border-radius: 10px;
+    transition: transform 0.3s;
+   
+}
+.btn-img:hover {
+    transform: scale(1.05);
+    border-radius: 30%;
+    border: #ffffff solid 3px;
+
+}
+          
         .user-item {
           background-color: #d3d3d3;
           padding: 15px;
@@ -3139,16 +3132,8 @@ a, img, div, p, span, button {
   overflow-y: scroll; /* Garante a rolagem, mas sem a barra visível */
 }
 /* Estilo para a imagem fixa */
-.modal-header img {
-    display: block;
-    margin: 0 auto; /* Centraliza horizontalmente */
-    max-width: 100%;
-    max-height: 150px; /* Limita a altura da imagem */
-    border: 1px solid #00a6ff; /* Borda azul */
-    border-radius: 10px; /* Bordas arredondadas */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Sombra para destacar */
-    margin-bottom: 10px; /* Espaço abaixo da imagem */
-}
+
+
 
 
     </style>
@@ -3156,8 +3141,9 @@ a, img, div, p, span, button {
 <body>
 
     <button id="openModalBtn">
-        <i class="fas fa-user"></i> PERFIL
-    </button>
+        <img src="https://bizoonydb.github.io/PDFJS/db/botn/perfil.png" alt="Perfil" class="btn-img">
+        
+      </button>
     
 
     <!-- Modal -->
@@ -3167,7 +3153,7 @@ a, img, div, p, span, button {
             <button class="close-btn" id="closeModalBtn">&times;</button>
             <div class="modal-header"></div>
             <div class="modal-header">
-                <img src="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/picsart_25-01-02_15-25-42-155.jpg" alt="Imagem Fixa">
+               
             </div>
             <div class="profile-container">
                 <img src="https://irmaosfb.weebly.com/uploads/1/3/6/9/136931568/editor/picsart-24-05-22-17-02-16-964.jpg?1737867126" alt="Foto de Perfil" class="profile-image">
@@ -3245,6 +3231,9 @@ a, img, div, p, span, button {
 </html>
 
 
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -3265,14 +3254,14 @@ a, img, div, p, span, button {
         left: 0;
         width: 100vw; /* Ocupa 100% da largura da janela */
        
-        z-index: +999999999999; /* Fica ACIMA de outros elementos */
+        z-index: 99; /* Fica ACIMA de outros elementos */
     }
 
     .fixed-image img {
         width: 100%;
         height: 100%;
         object-fit: cover; /* Ajusta a imagem para cobrir toda a tela sem distorção */
-		z-index: +5; /* Fica ACIMA de outros elementos */
+		z-index: 5; /* Fica ACIMA de outros elementos */
     }
 
     .content {
@@ -4336,7 +4325,13 @@ iframe.setAttribute('loading', 'lazy');
 <!-- Modal -->
     <div class="modalbci" id="modalbci">
         <div class="modalbci-content" id="modalbciContent">
-          <h3>Digite o código de ativação</h3>
+          <h2>CONTEUDO EXCLUSIVO PARA CONTAS PREMIUM</h2><br>
+          <h4>ATENÇÃO</h4><br> O CONTEUDO É EXCLUSIVO PARA CONTAS PREMIUM<br>DIGITE O CÓDIGO ABAIXO PARA ACESSAR O CONTEUDO</p><br>
+
+          <br>
+          <h5>SE NÃO TEM UMA CONTA PREMIUM, ADQUIRA UMA ATRAVES DO NOSSO WHATSAPP +55 (33)98444-4376</h5>
+          <br><hr><br>
+          <h3>COLE SEU CODIGO PREMIUM: </h3>
           <input type="password" id="codigoInput" placeholder="Código de ativação">
           <button id="confirmarBtn">Confirmar</button>
         </div>
@@ -4427,7 +4422,7 @@ iframe.setAttribute('loading', 'lazy');
     .area-com-imagem img {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* <<< Este é o segredo */
+      object-fit: fill;/*contain; /* <<< Este é o segredo */
       display: block;
     }
   </style>
@@ -4435,7 +4430,8 @@ iframe.setAttribute('loading', 'lazy');
 <body>
 
   <div class="area-com-imagem">
-    <img src="https://bizoonydb.github.io/PDFJS/db/frnt.png" alt="Imagem de exemplo">
+    <img src="https://bizoonydb.github.io/PDFJS/db/atual.jpg" alt="baner 1">
+    
   </div>
 
 </body>
