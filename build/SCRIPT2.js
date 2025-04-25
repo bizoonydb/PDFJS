@@ -627,7 +627,7 @@ function drawSelectedNetConnections() {
     if (!selectedPin) return;
 
     push();
-    strokeWeight(3);
+    strokeWeight(1);
     stroke(0, 255, 0);
     noFill();
 
