@@ -617,7 +617,7 @@ function mousePressed() {
 function drawBlueDot(x, y) {
     push();
     fill(255, 0, 0, 0); // VerMELHO PINO SELECIONADO
-    noStroke();
+    strokeWeight(1);
     ellipse(x, y, 6, 6);
     pop();
 }
@@ -627,8 +627,8 @@ function drawSelectedNetConnections() {
     if (!selectedPin) return;
 
     push();
-    strokeWeight(1);
-    stroke(0, 255, 0);
+    strokeWeight(2);
+    stroke(0, 255, 0); // Verde para la línea de conexión
     noFill();
 
     let connectedPoints = [];
