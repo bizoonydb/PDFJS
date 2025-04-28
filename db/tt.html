@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <title>LOGIN</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #080808;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+    }
+    /* Estiliza o cabeçalho fixo */
+    .header-wrap {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+background-color: #333333; /* cor do cab*/
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.618);/*cor da sombra do cabeçalho*/
+        padding: 10px 0;
+    }
+
+    /* Centraliza e ajusta os botões */
+    .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Centraliza os botões */
+        padding: 0 20px;
+    }
+
+    .buttons {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Espaço entre os botões */
+    }
+
+    .button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 12px;
+        font-size: 14px;
+        color: #ffffff;
+        background-color: transparent;
+        border: 2px solid #eeff00;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap; /* Evita que os botões quebrem linha */
+    }
+
+    .button img {
+        width: 20px;
+        height: auto;
+        margin-left: 8px;
+    }
+
+    .button:hover {
+        background-color: #c3c911;
+        color: #ffffff;
+    }
+
+    /* Para evitar que o conteúdo fique encoberto pelo cabeçalho fixo */
+    .main-wrap {
+        margin-top: 80px; /* Ajuste conforme necessário */
+    }
+
+    /* Responsividade para telas menores */
+    @media (max-width: 600px) {
+        .buttons {
+            flex-wrap: wrap; /* Permite que os botões quebrem linha em telas pequenas */
+            justify-content: center;
+        }
+
+        .button {
+            font-size: 12px;
+            padding: 5px 10px;
+        }
+    }
+  </style>
+</head>
+
+<body class='header-page wsite-theme-light'>
+
+<div class="wrapper">
+  <div class="header-wrap">
+    <div id="topBar" class="topbar">
+      <div class="buttons">
+        <a href="https://wa.me/message/6X46IDVVWEIQM1" class="button">SUPORTE
+          <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-21-43-961_orig.png" alt="WhatsApp">
+        </a>
+        <a href="https://bizoonycell.weebly.com/db.html" class="button">COMPRAR ACESSO
+          <img src="https://images.vexels.com/media/users/3/136534/isolated/lists/c93f32e11dbf6b5fe3efc5be5554ec50-icone-de-cadeado.png" alt="Cadeado">
+        </a>
+        <a href="https://bizoonydb.github.io/PDFJS/db/loginadm.html" class="button">LOGIN ADMIN
+          <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-27-23-35-22-945_orig.png" alt="">
+        </a>
+        <a href="https://www.facebook.com/DigitalBoardoficial" class="button">FACEBOOK
+          <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-22-12-589_orig.png" alt="Facebook">
+        </a>
+        <a href="https://cursobc.weebly.com/instagran" class="button">INSTAGRAM
+          <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-22-47-486_orig.png" alt="Instagram">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-wrap">
+
+  </div>
+</div>
+
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+
+
+    <style>
+        /* Estilos CSS vão aqui */
+       
+
+        .login-container {
+            display: flex; /* Permite o uso de flexbox para alinhar itens */
+            background-color: rgba(37, 37, 37, 0.887);
+            border-radius: 10px;
+            border: 6px solid;
+            border-color: #e3cc00;
+            padding: 30px;
+            box-shadow: 0 6px 100px rgba(242, 255, 0, 0.192);
+            max-width: 800px; /* Ajuste conforme necessário */
+        
+        }
+
+        .login-form, .register-form {
+            flex: 1; /* Ocupa o espaço restante */
+            text-align: center; /* Centraliza o texto dentro do container */
+        }
+
+        .login-form img {
+            width: 90px; /* Ajuste o tamanho da imagem conforme necessário */
+            height: auto;
+            margin-bottom: 0px; /* Espaço abaixo da imagem */
+            float: left; /* Alinha a imagem à esquerda por padrão */
+        }
+
+        .logo-right {
+            float: left; /* Alinha a imagem à direita */
+            
+            
+        }
+
+        .side-image {
+            flex: 1; /* Ocupa o espaço ao lado */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+        }
+
+        .side-image img {
+            width: 100%; /* 100% da largura do container pai (.side-image) */
+            height: auto; /* Altura automática para manter a proporção */
+            max-width: 400px; /* Tamanho máximo igual ao máximo da caixa geral */
+            border-radius: 5%;/* borda arrendondada */
+            
+        }
+
+        form {
+            width: 100%;
+            text-align: left; /* Alinha o texto do formulário à esquerda */
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="button"],
+        input[type="submit"] {
+            width: calc(100% - 30px); /* Considera o padding do formulário */
+            padding: 15px;
+            margin: 12px;
+            margin-top: 0px;
+            border: 3px solid #000000;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 18px;
+            outline: none;
+            background-color: #48450719;
+            color: #ddff00;
+        }
+
+        input[type="button"] {
+            background-color: #d5ce04ed;
+           
+            color: rgb(0, 0, 0);
+            border: 3px solid #000000;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="button"]:hover {
+            background-color: #232323;
+        }
+
+        .login-title {
+            font-size: 40px; /* Tamanho da fonte */
+            margin-bottom: 19px; /* Espaçamento inferior */
+            margin-top: -19px; /* Espaçamento superior */
+            color: rgb(0, 0, 0);
+            text-shadow: 1px 1px rgb(242, 255, 0);
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            font-family: 'Roboto', sans-serif; /* Outra fonte para o título */
+        }
+
+        .login-title::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%; /* Começa fora da tela */
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0) 0%, rgba(251, 255, 0, 0.196) 50%, rgba(255, 255, 255, 0) 100%);
+            transform: skewX(-50deg); /* Inclinação do reflexo */
+            z-index: 1;
+            pointer-events: none;
+            animation: light-sweep 8s linear infinite; /* Ciclo total: 1s de movimento + 5s de espera */
+        }
+
+        @keyframes light-sweep {
+            0% {
+                left: -100%;
+            }
+            20% {
+                left: 100%; /* Reflexo atravessa a tela em 10% do tempo total */
+            }
+            100% {
+                left: 100%; /* Espera o restante do ciclo (90%) */
+            }
+        }
+        .alert {
+            position: absolute;
+            background-color: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            animation: bounceIn 0.5s ease;
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Estilos para os popups */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+        }
+
+        .popup p {
+            margin: 0;
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .popup .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Estilos para os popups específicos */
+        .popup.verde {
+            background-color: #5cb85c; /* Verde */
+            border: 2px solid #4cae4c;
+            color: #fff;
+        }
+
+        .popup.vermelho {
+            background-color: #d9534f; /* Vermelho */
+            border: 2px solid #c9302c;
+            color: #fff;
+        }
+
+        .popup.amarelo {
+            background-color: #f0ad4e; /* Amarelo */
+            border: 2px solid #eea236;
+            color: #fff;
+        }
+
+        .popup.azul {
+            background-color: #5bc0de; /* Azul */
+            border: 2px solid #46b8da;
+            color: #fff;
+        }
+        /* Estilos para o popup de redefinir senha */
+.popup#redefinirSenhaPopup {
+    background-color: #373737df; /* PRETO TRANSPARENTE */
+    border: 5px solid #000000;
+    color: #ff0000;
+}
+
+.popup#redefinirSenhaPopup h2 {
+    margin-top: 0;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.popup#redefinirSenhaPopup form {
+    margin-top: 20px;
+}
+
+.popup#redefinirSenhaPopup input[type="text"],
+.popup#redefinirSenhaPopup input[type="password"],
+.popup#redefinirSenhaPopup input[type="button"] {
+    width: calc(100% - 30px);
+    padding: 10px;
+    margin: 8px;
+    border: 2px solid #000000;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 16px;
+    outline: none;
+    background-color: #262726da;
+    color: #ffee00;
+}
+
+.popup#redefinirSenhaPopup input[type="button"] {
+    background-color: #000000;
+    color: rgb(245, 241, 3);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.popup#redefinirSenhaPopup input[type="button"]:hover {
+    background-color: #2c2c2c;
+}
+
+.popup#redefinirSenhaPopup .close {
+    top: 5px;
+    right: 5px;
+}
+.link-button {
+    display: inline-block;
+    background-color: #222222;
+    color: white;
+    text-decoration: none;
+    padding: 10px 10px;
+    font-size: 15px;
+    border-radius: 5px;
+    text-align: center;
+    
+  }
+  .link-button:hover {
+    background-color: #72660a;
+  }
+
+  input[type="text"]:focus, 
+input[type="password"]:focus {
+    border-color: #0e0e0e;
+    background-color: #333333;
+    box-shadow: 0 0 20px rgba(234, 255, 0, 0.507); /* Efeito de brilho no foco */
+    transition: all 0.3s ease;
+}
+
+input[type="button"]:hover, 
+input[type="submit"]:hover {
+    background-color: #000000;
+    transform: scale(1.05); /* Leve aumento no tamanho ao passar o mouse */
+    transition: transform 0.2s ease;
+}
+.popup {
+    animation: fadeIn 0.3s ease-in-out;
+    
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+input[type="submit"]:hover, 
+input[type="button"]:hover {
+    background-color: #000000;
+    background-image: linear-gradient(35deg, #2e2e2e6c, #000000); /* Gradiente dinâmico */
+    transform: scale(1.05);
+    transition: background-color 0.3s, transform 0.3s ease, background-image 0.3s ease;
+    border:3px solid #ffdd00;
+    color: #fffb00;
+}
+.popup#redefinirSenhaPopup {
+    background: linear-gradient(145deg, rgba(55, 55, 55, 0.8), rgba(33, 33, 33, 0.8));
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    padding: 25px;
+}
+
+
+
+
+
+</style>
+</head>
+<body>
+    
+    <div class="login-container">
+        <div class="login-form">
+            <h1 class="login-title">DIGITAL BOARD</h1>
+            <form id="loginForm">
+                <input type="text" name="username" placeholder="NOME DE USUARIO" autocomplete="off"><br>
+                <input type="password" name="password" placeholder="SENHA..."><br>
+                <input type="button" value="Entrar" onClick="Login()">
+                <input type="button" value="Cadastrar" onClick="redirectToCadastro()">
+                
+                <a href="https://bizoonydb.github.io/PDFJS/db/DEMO.html" class="link-button"><span style="font-weight: bold; color: rgb(0, 0, 0);">DEMO</span></a><span style="font-weight: bold; color: rgb(255, 255, 255);">v0.5.2</span></a><br><!-- versao verção-->
+                <a href="#" onClick="mostrarFormularioRedefinirSenha()"><span style="font-weight: bold; color: rgb(255, 225, 0);">Esqueceu sua senha</span></a><br>
+                <label><input type="checkbox" id="remember-me"> <span style="font-weight: bold; color: red;">Lembrar-me</span></label>
+                
+
+                
+            </form>
+        </div>
+        <div class="register-form" style="display: none;">
+            <h1 class="login-title">Cadastro</h1>
+            <form id="registerForm">
+                <input type="text" name="newUsername" placeholder="NOME DE USUARIO" autocomplete="off"><br>
+                <input type="text" name="email" id="email" placeholder="E-MAIL" required><br>
+                <input type="password" name="newPassword" placeholder="NOVA SENHA"><br>
+                <input type="text" name="activationCode" placeholder="CÓDIGO DE ATIVAÇAO"><br> <!-- Novo campo para o código de ativação -->
+                <input type="button" value="Cadastrar" onClick="Cadastro()">
+                <input type="button" value="Cancelar" onClick="cancelar()">
+            </form>
+        </div>
+        <div class="side-image">
+            <img src="https://bizoonydb.github.io/PDFJS/db/0_5_2.jpg" alt="Side Image"><!--imagem baner principal -->
+        </div>
+    </div>
+    
+
+    <!-- Popup de senha incorreta -->
+    <div id="senhaIncorretaPopup" class="popup vermelho">
+        <span class="close" onclick="closeSenhaIncorretaPopup()">&times;</span>
+        <p>Senha incorreta. Por favor, verifique suas credenciais.</p>
+    </div>
+
+    <!-- Popup de login expirado -->
+    <div id="loginExpiredPopup" class="popup amarelo">
+        <span class="close" onclick="closeLoginExpiredPopup()">&times;</span>
+        <p>LOGIN EXPIRADO, RENOVE SEU ACESSO!!!<br>WHATSAPP (33)98444-4376</p>
+    </div>
+
+    <!-- Popup de cadastro bem-sucedido -->
+    <div id="cadastroPopup" class="popup verde">
+        <span class="close" onclick="closeCadastroPopup()">&times;</span>
+        <p>Cadastro realizado com sucesso!</p>
+    </div>
+
+    <!-- Popup de código de ativação incorreto -->
+    <div id="codigoAtivacaoIncorretoPopup" class="popup azul">
+        <span class="close" onclick="closeCodigoAtivacaoIncorretoPopup()">&times;</span>
+        <p>CÓDIGO DE ACESSO INCORRETO,VERIFIQUE E TENTE NOVAMETE.</p>
+    </div>
+
+    <!-- Popup de usuário já cadastrado -->
+    <div id="usuarioExistentePopup" class="popup vermelho">
+        <span class="close" onclick="closeUsuarioExistentePopup()">&times;</span>
+        <p>Este usuário já está cadastrado. Por favor, escolha outro nome de usuário.</p>
+    </div>
+    <!-- Popup de preencha todos os campos -->
+    <div id="preenchaTodosCamposPopup" class="popup azul">
+        <span class="close" onclick="closePreenchaTodosCamposPopup()">&times;</span>
+        <p>PREENCHA TODOS OS DADOS.</p>
+    </div>
+    <!-- Popup de redefinir senha -->
+    <div id="redefinirSenhaPopup" class="popup azul">
+    <span class="close" onclick="fecharRedefinirSenhaPopup()">&times;</span>
+    <h2><span style="font-weight: bold; color: rgb(229, 255, 0);">REDEFINIR SENHA</span></h2>
+    <form id="resetPasswordForm">
+        <input type="text" name="resetUsername" placeholder="Usuário" autocomplete="off"><br>
+        <input type="password" name="newPassword" placeholder="Nova Senha"><br>
+        <input type="password" name="confirmPassword" placeholder="Confirmar Nova Senha"><br>
+        <input type="button" value="Redefinir Senha" onClick="resetPassword()">
+    </form>
+
+
+    </div>
+    
+    <script>
+        // Função para exibir o formulário de redefinição de senha
+function mostrarFormularioRedefinirSenha() {
+    var redefinirSenhaPopup = document.getElementById('redefinirSenhaPopup');
+    redefinirSenhaPopup.style.display = 'block';
+}
+
+// Função para fechar o popup de redefinição de senha
+function fecharRedefinirSenhaPopup() {
+    var redefinirSenhaPopup = document.getElementById('redefinirSenhaPopup');
+    redefinirSenhaPopup.style.display = 'none';
+}
+ 
+// Função para redefinir a senha
+function resetPassword() {
+    var resetUsername = document.getElementById('resetPasswordForm').elements['resetUsername'].value.trim().toLowerCase();
+    var newPassword = document.getElementById('resetPasswordForm').elements['newPassword'].value.trim();
+    var confirmPassword = document.getElementById('resetPasswordForm').elements['confirmPassword'].value.trim();
+
+    var usuariosCadastrados = getUsuariosCadastrados();
+
+    // Verifica se o usuário existe na lista de cadastrados
+    var usuarioExistente = usuariosCadastrados.find(function(user) {
+        return user.username === resetUsername;
+    });
+
+    if (!usuarioExistente) {
+        alert('Usuário não encontrado.');
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        alert('As senhas não coincidem.');
+        return;
+    }
+
+    // Atualiza a senha do usuário na lista
+    usuarioExistente.password = newPassword;
+
+    // Salva a lista atualizada no localStorage
+    saveUsuariosCadastrados(usuariosCadastrados);
+
+    // Fecha o popup de redefinição de senha
+    fecharRedefinirSenhaPopup();
+
+    // Exibe mensagem de sucesso (opcional)
+    alert('Senha redefinida com sucesso!');
+}
+
+        // Função para verificar se localStorage é suportado
+        function storageAvailable(type) {
+            var storage;
+            try {
+                storage = window[type];
+                var x = '__storage_test__';
+                storage.setItem(x, x);
+                storage.removeItem(x);
+                return true;
+            }
+            catch (e) {
+                return false;
+            }
+        }
+
+        // Função para obter ou inicializar a lista de usuários cadastrados
+        function getUsuariosCadastrados() {
+            if (storageAvailable('localStorage')) {
+                var usuarios = localStorage.getItem('usuariosCadastrados');
+                return usuarios ? JSON.parse(usuarios) : [];
+            } else {
+                console.error('LocalStorage não suportado. Não foi possível obter usuários cadastrados.');
+                return [];
+            }
+        }
+
+        // Função para salvar a lista de usuários cadastrados no localStorage
+        function saveUsuariosCadastrados(usuarios) {
+            if (storageAvailable('localStorage')) {
+                localStorage.setItem('usuariosCadastrados', JSON.stringify(usuarios));
+            } else {
+                console.error('LocalStorage não suportado. Não foi possível salvar usuários cadastrados.');
+            }
+        }
+
+       // Função para validar o código de ativação e definir o tempo de validade em dias
+function validarCodigoAtivacao(codigo) {
+    var codigosValidos = {
+        "DBED1605": 365,  // 1 ano (365 dias)
+        "DBED2605": 730,  // 2 anos (730 dias)
+        "DBED03605": 36525,
+        "DBED1000": 1,
+        "DBED1875": 37293,
+        "DBED2325": 210,
+        "DBED06605": 180,  // 6MESES
+        "DBED4589": 180,  // 6MESES
+        "DBED2498": 180,  // 6MESES
+        "DBED3485": 180,  // 6MESES
+    };
+
+    // Verifica se o código é válido e retorna o período de validade em dias
+    if (codigosValidos[codigo]) {
+        return codigosValidos[codigo]; // Retorna 365, 730 ou 0 (vitalício)
+    }
+    return false; // Código inválido
+}
+
+        // Função para cadastrar um novo usuário
+function Cadastro() {
+    var newUsername = document.getElementById('registerForm').elements['newUsername'].value.trim().toLowerCase();
+    var newPassword = document.getElementById('registerForm').elements['newPassword'].value.trim();
+    var email = document.getElementById('registerForm').elements['email'].value.trim();
+    var activationCode = document.getElementById('registerForm').elements['activationCode'].value.trim();
+    
+          // Verifica se todos os campos estão preenchidos
+          if (newUsername && newPassword && activationCode) {
+                var usuariosCadastrados = getUsuariosCadastrados();
+
+            if (!newUsername || !newPassword || !activationCode) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            
+    var periodoAtivacao = validarCodigoAtivacao(activationCode);
+
+    if (!periodoAtivacao) {
+        showCodigoAtivacaoIncorretoPopup();
+        return;
+    }
+
+            var expirationDate = new Date();
+    
+            // Se o código for válido, ajusta a data de expiração conforme os dias
+            if (periodoAtivacao > 0) {
+                expirationDate.setDate(expirationDate.getDate() + periodoAtivacao); // Adiciona os dias
+            } else {
+                expirationDate = null; // Código vitalício não tem data de expiração
+            }
+        
+            var usuariosCadastrados = getUsuariosCadastrados();
+
+            // Verifica se o usuário já existe
+            var usuarioExistente = usuariosCadastrados.find(function(user) {
+                return user.username === newUsername;
+            });
+
+            if (usuarioExistente) {
+                showUsuarioExistentePopup();
+                return;
+            }
+        } else {
+                showPreenchaTodosCamposPopup();
+            }
+
+           // Adiciona o novo usuário à lista com data de expiração e e-mail
+        usuariosCadastrados.push({ 
+            username: newUsername, 
+            password: newPassword, 
+            email: email,  // Salva o e-mail
+            expirationDate: expirationDate,
+            registrationDate: new Date().toLocaleDateString()  // Salva a data de registro
+        });
+
+            // Salva a lista atualizada no localStorage
+            saveUsuariosCadastrados(usuariosCadastrados);
+
+            // Mostra o popup de cadastro bem-sucedido
+            showCadastroPopup();
+
+            // Limpa o formulário de cadastro
+            document.getElementById('registerForm').reset();
+
+            // Volta para o formulário de login
+            cancelar();
+        }
+
+        // Função para exibir o formulário de cadastro
+        function redirectToCadastro() {
+            document.getElementsByClassName('login-form')[0].style.display = 'none'; // Oculta o formulário de login
+            document.getElementsByClassName('register-form')[0].style.display = 'block'; // Exibe o formulário de cadastro
+        }
+
+        // Função para cancelar o cadastro e voltar para o login
+        function cancelar() {
+            document.getElementsByClassName('login-form')[0].style.display = 'block'; // Exibe o formulário de login
+            document.getElementsByClassName('register-form')[0].style.display = 'none'; // Oculta o formulário de cadastro
+        }
+
+        // Função para realizar o login
+        function Login() {
+            var username = document.getElementById('loginForm').elements['username'].value.trim().toLowerCase();
+            var password = document.getElementById('loginForm').elements['password'].value.trim();
+            const activationDate = new Date().toLocaleDateString(); // Data de ativação no formato DD/MM/YYYY
+            localStorage.setItem("activationDate", activationDate);
+        
+            var usuariosCadastrados = getUsuariosCadastrados();
+
+            // Verifica se o usuário e senha estão na lista de cadastrados
+            var usuarioValido = usuariosCadastrados.find(function(user) {
+                return user.username === username && user.password === password;
+            });
+
+            if (usuarioValido && new Date(usuarioValido.expirationDate) > new Date()) {
+                window.location.href = 'https://bizoonydb.github.io/PDFJS/db/MENU.html';
+            } else if (usuarioValido && new Date(usuarioValido.expirationDate) <= new Date()) {
+                showLoginExpiredMessage();
+            } else {
+                showSenhaIncorretaPopup();
+            }
+        }
+
+        // Função para exibir o popup de senha incorreta
+        function showSenhaIncorretaPopup() {
+            var senhaIncorretaPopup = document.getElementById('senhaIncorretaPopup');
+            senhaIncorretaPopup.style.display = 'block'; // Exibe o popup de senha incorreta
+        }
+
+        // Função para fechar o popup de senha incorreta
+        function closeSenhaIncorretaPopup() {
+            var senhaIncorretaPopup = document.getElementById('senhaIncorretaPopup');
+            senhaIncorretaPopup.style.display = 'none';
+        }
+
+        // Função para exibir o popup de login expirado
+        function showLoginExpiredMessage() {
+            var loginExpiredPopup = document.getElementById('loginExpiredPopup');
+            loginExpiredPopup.style.display = 'block'; // Exibe o popup de login expirado
+        }
+
+        // Função para fechar o popup de login expirado
+        function closeLoginExpiredPopup() {
+            var loginExpiredPopup = document.getElementById('loginExpiredPopup');
+            loginExpiredPopup.style.display = 'none';
+        }
+
+        // Função para exibir o popup de cadastro bem-sucedido
+        function showCadastroPopup() {
+            var cadastroPopup = document.getElementById('cadastroPopup');
+            cadastroPopup.style.display = 'block'; // Exibe o popup de cadastro bem-sucedido
+        }
+
+        // Função para fechar o popup de cadastro bem-sucedido
+        function closeCadastroPopup() {
+            var cadastroPopup = document.getElementById('cadastroPopup');
+            cadastroPopup.style.display = 'none';
+        }
+
+        // Função para exibir o popup de código de ativação incorreto
+        function showCodigoAtivacaoIncorretoPopup() {
+            var codigoAtivacaoIncorretoPopup = document.getElementById('codigoAtivacaoIncorretoPopup');
+            codigoAtivacaoIncorretoPopup.style.display = 'block'; // Exibe o popup de código de ativação incorreto
+        }
+
+        // Função para fechar o popup de código de ativação incorreto
+        function closeCodigoAtivacaoIncorretoPopup() {
+            var codigoAtivacaoIncorretoPopup = document.getElementById('codigoAtivacaoIncorretoPopup');
+            codigoAtivacaoIncorretoPopup.style.display = 'none';
+        }
+
+        // Função para exibir o popup de usuário já cadastrado
+        function showUsuarioExistentePopup() {
+            var usuarioExistentePopup = document.getElementById('usuarioExistentePopup');
+            usuarioExistentePopup.style.display = 'block'; // Exibe o popup de usuário já cadastrado
+        }
+
+        // Função para fechar o popup de usuário já cadastrado
+        function closeUsuarioExistentePopup() {
+            var usuarioExistentePopup = document.getElementById('usuarioExistentePopup');
+            usuarioExistentePopup.style.display = 'none';
+        }
+         // Função para fechar o popup de preencha todos os campos
+         function closePreenchaTodosCamposPopup() {
+            document.getElementById('preenchaTodosCamposPopup').style.display = 'none';
+        }
+
+        // Função para mostrar o popup de preencha todos os campos
+        function showPreenchaTodosCamposPopup() {
+            document.getElementById('preenchaTodosCamposPopup').style.display = 'block';
+        }
+        // Função para fechar o popup de senha ou usuário incorreto
+        function closeAlert() {
+            var customAlert = document.getElementById('customAlert');
+            customAlert.style.display = 'none'; // Oculta o alerta personalizado
+        }
+        // Verificar se há dados salvos para "Lembrar-me" e preencher automaticamente
+        window.onload = function() {
+            var rememberedUser = localStorage.getItem('rememberedUser');
+
+            if (rememberedUser) {
+                var user = JSON.parse(rememberedUser);
+                document.getElementById('loginForm').elements['username'].value = user.username;
+                document.getElementById('loginForm').elements['password'].value = user.password;
+                document.getElementById('remember-me').checked = true;
+            }
+            var rememberedEmail = localStorage.getItem('rememberedEmail');
+    if (rememberedEmail) {
+        document.getElementById('loginForm').elements['email'].value = rememberedEmail;
+    }
+        }
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação de Acesso</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        /* Estilos para o alerta */
+        .alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #db3f34; /* Cor de fundo do alerta */
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 300px;
+        }
+        .alert .message {
+            margin-right: 10px;
+        }
+        .alert .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        /* Tela de fundo escurecida */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        /* Estilos para a mensagem de carregamento (alerta) */
+        .loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            color: white;
+            background-color: #4e4e4e;
+            padding: 20px;
+            border-radius: 5px;
+            border: 2px solid #ffee00;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+        }
+        .loading-spinner {
+            border: 4px solid #a3a3a3;; /* Cor da bola */
+            border-top: 4px solid #ffee00; /* Cor do topo da bola */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        /* Animação da bola de carregamento */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- A sobreposição e alerta serão adicionados dinamicamente -->
+    <div id="overlay" class="overlay" style="display: none;"></div>
+    <div id="alert" class="alert" style="display: none;">
+        <span class="message">ACESSO EXPIRADO, RENOVE-O</span>
+        <button class="close-btn" onclick="fecharAlerta()">×</button>
+    </div>
+
+    <!-- Mensagem de carregamento (alerta) -->
+    <div id="loadingMessage" class="loading-message" style="display: none;">
+        <span>AGUARDE, FAZENDO LOGIN...</span>
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        // Função para verificar o acesso do usuário
+        function verificarAcesso() {
+            // Carrega os usuários cadastrados
+            const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
+
+           // Se não houver usuários cadastrados, não faz nada
+    if (usuariosCadastrados.length === 0) {
+        return;
+    }
+
+            // Obtém o último usuário cadastrado
+            const ultimoUsuario = usuariosCadastrados[usuariosCadastrados.length - 1];
+            const dataExpiracao = ultimoUsuario.expirationDate;
+
+           
+    // Só exibe o carregamento se houver usuários
+    document.getElementById('loadingMessage').style.display = 'flex';
+
+            // Aguarda 5 segundos para verificar a expiração
+           
+    setTimeout(function() {
+        const dataAtual = new Date().getTime();
+        const expiraEm = new Date(dataExpiracao).getTime();
+
+        if (dataAtual < expiraEm) {
+            window.location.href = 'https://bizoonydb.github.io/PDFJS/db/DEMO.html';
+        } else {
+            exibirAlerta();
+        }
+
+        document.getElementById('loadingMessage').style.display = 'none';
+    }, 5000);
+}
+
+        // Função para exibir o alerta
+        function exibirAlerta() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('alert').style.display = 'flex';
+        }
+
+        // Função para fechar o alerta
+        function fecharAlerta() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('alert').style.display = 'none';
+        }
+
+        // Chama a função para verificar o acesso assim que a página carregar
+        window.onload = verificarAcesso;
+    </script>
+
+</body>
+</html>
