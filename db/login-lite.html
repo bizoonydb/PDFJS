@@ -458,7 +458,7 @@ input[type="button"]:hover {
                 <input type="button" value="Entrar" onClick="Login()">
                 <input type="button" value="Cadastrar" onClick="redirectToCadastro()">
                 
-                <a href="" class="link-button"><span style="font-weight: bold; color: rgb(0, 0, 0);">DEMO</span></a><span style="font-weight: bold; color: rgb(255, 255, 255);">v0.5.2</span></a><br><!-- versao verção-->
+                <a href="https://bizoonydb.github.io/PDFJS/db/DEMO.html" class="link-button"><span style="font-weight: bold; color: rgb(0, 0, 0);">DEMO</span></a><span style="font-weight: bold; color: rgb(255, 255, 255);">v0.5.2</span></a><br><!-- versao verção-->
                 <a href="#" onClick="mostrarFormularioRedefinirSenha()"><span style="font-weight: bold; color: rgb(255, 225, 0);">Esqueceu sua senha</span></a><br>
                 <label><input type="checkbox" id="remember-me"> <span style="font-weight: bold; color: red;">Lembrar-me</span></label>
                 
@@ -828,5 +828,172 @@ function Cadastro() {
     }
         }
 </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação de Acesso</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        /* Estilos para o alerta */
+        .alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #db3f34; /* Cor de fundo do alerta */
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 300px;
+        }
+        .alert .message {
+            margin-right: 10px;
+        }
+        .alert .close-btn {
+            background: none;
+            border: none;
+            color: rgb(0, 0, 0);
+            font-size: 40px;
+            cursor: pointer;
+            border: 3px #000000;
+            box-sizing: border-box;
+        }
+        /* Tela de fundo escurecida */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        /* Estilos para a mensagem de carregamento (alerta) */
+        .loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            color: rgb(255, 255, 255);
+            background-color: #4e4e4e94;
+            padding: 20px;
+            border-radius: 5px;
+            border: 2px solid #e6ff01f6;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+        }
+        .loading-spinner {
+            border: 4px solid #a3a3a3;; /* Cor da bola */
+            border-top: 4px solid #ffee00; /* Cor do topo da bola */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        /* Animação da bola de carregamento */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .close-btn:hover {
+            color: #ffffff; /* Cor ao passar o mouse */
+        }
+       
+        
+    </style>
+</head>
+<body>
+
+    <!-- A sobreposição e alerta serão adicionados dinamicamente -->
+    <div id="overlay" class="overlay" style="display: none;"></div>
+    <div id="alert" class="alert" style="display: none;">
+        <span class="message">ACESSO EXPIRADO, RENOVE-O <br><h5>WHATSAPP +55 33 98444-4376</h5></span>
+        <button class="close-btn" onclick="fecharAlerta()">×</button>
+    </div>
+
+    <!-- Mensagem de carregamento (alerta) -->
+    <div id="loadingMessage" class="loading-message" style="display: none;">
+        <span>AGUARDE, FAZENDO LOGIN...</span>
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        // Função para verificar o acesso do usuário
+        function verificarAcesso() {
+            // Carrega os usuários cadastrados
+            const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
+
+           // Se não houver usuários cadastrados, não faz nada
+    if (usuariosCadastrados.length === 0) {
+        return;
+    }
+
+            // Obtém o último usuário cadastrado
+            const ultimoUsuario = usuariosCadastrados[usuariosCadastrados.length - 1];
+            const dataExpiracao = ultimoUsuario.expirationDate;
+
+           
+    // Só exibe o carregamento se houver usuários
+    document.getElementById('loadingMessage').style.display = 'flex';
+
+            // Aguarda 5 segundos para verificar a expiração
+           
+    setTimeout(function() {
+        const dataAtual = new Date().getTime();
+        const expiraEm = new Date(dataExpiracao).getTime();
+
+        if (dataAtual < expiraEm) {
+            window.location.href = 'https://bizoonydb.github.io/PDFJS/db/menulite.html';
+        } else {
+            exibirAlerta();
+        }
+
+        document.getElementById('loadingMessage').style.display = 'none';
+    }, 5000);
+}
+
+        // Função para exibir o alerta
+        function exibirAlerta() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('alert').style.display = 'flex';
+        }
+
+        // Função para fechar o alerta
+        function fecharAlerta() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('alert').style.display = 'none';
+        }
+
+        // Chama a função para verificar o acesso assim que a página carregar
+        window.onload = verificarAcesso;
+    </script>
+
 </body>
 </html>
