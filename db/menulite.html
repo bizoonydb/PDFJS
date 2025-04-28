@@ -8,177 +8,219 @@
     <title>MENU</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        body {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            background-color: #808080; /* Fundo azul claro */
-            color: #ff0b0b; /* Cor padrão para o texto */
-            font-size: 14px; /* Tamanho da letra das pastas */
-        }
-        
+      body {
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          background-color: #afafaf; /* Fundo azul claro */
+          color: #676767; /* Cor padrão para o texto */
+          font-size: 14px; /* Tamanho da letra das pastas */
+      }
+      
 
-        header {
-          background-color: #808080;
-            color: white; /* Cor do texto no cabeçalho */
-            padding: 10px;
-            text-align: center;
-        }
-        * {
-    -webkit-user-drag: none; /* Bloqueia o arrasto em navegadores que suportam WebKit */
-    user-select: none; /* Impede a seleção de texto (opcional, mas ajuda a evitar o arrasto acidental de texto) */
+      header {
+        background-color: #808080;
+          color: white; /* Cor do texto no cabeçalho */
+          padding: 10px;
+          text-align: center;
+      }
+      * {
+  -webkit-user-drag: none; /* Bloqueia o arrasto em navegadores que suportam WebKit */
+  user-select: none; /* Impede a seleção de texto (opcional, mas ajuda a evitar o arrasto acidental de texto) */
 }
 
 a, img, div, p, span, button {
-    -webkit-user-drag: none; /* Bloqueia o arrasto de links, imagens, divs, etc. */
-    user-select: none; /* Impede a seleção de texto em elementos */
+  -webkit-user-drag: none; /* Bloqueia o arrasto de links, imagens, divs, etc. */
+  user-select: none; /* Impede a seleção de texto em elementos */
 }
 
 
-        .sidebar {
-            position: fixed;
-            top: 70px; /* Distância do topo, ajuste conforme necessário */
-            left: 0;
-            height: calc(100vh - 70px); /* Ajustado para ocupar a altura da janela de visualização menos a altura do cabeçalho */
-            border: 1px solid #9f9d9d;
-            padding: 15px;
-            width: 250px;
-            overflow-y: auto; /* Permitir rolagem quando necessário */
-            background-color: #000; /* Fundo preto para a barra lateral */
-            color: rgb(155, 155, 155); /* Cor do texto na barra lateral */
-        }
-        .sidebar * {
-    user-select: none; /* Impede a seleção de texto */
-    -webkit-user-drag: none; /* Bloqueia o arrasto de imagens e links no Safari */
-    pointer-events: auto; /* Mantém a interatividade */
+      .sidebar {
+          position: fixed;
+          top: 70px; /* Distância do topo, ajuste conforme necessário */
+          left: 0;
+          height: calc(100vh - 70px); /* Ajustado para ocupar a altura da janela de visualização menos a altura do cabeçalho */
+          border: 1px solid #9f9d9d;
+          padding: 15px;
+          width: 250px;
+          overflow-y: auto; /* Permitir rolagem quando necessário */
+          background-color: #000; /* Fundo preto para a barra lateral */
+          color: rgb(155, 155, 155); /* Cor do texto na barra lateral */
+      }
+      .sidebar * {
+  user-select: none; /* Impede a seleção de texto */
+  -webkit-user-drag: none; /* Bloqueia o arrasto de imagens e links no Safari */
+  pointer-events: auto; /* Mantém a interatividade */
 }
-         /* Ocultar barra de rolagem no WebKit */
-        .sidebar::-webkit-scrollbar {
-         display: none; /* Oculta a barra de rolagem */
-         }
+       /* Ocultar barra de rolagem no WebKit */
+      .sidebar::-webkit-scrollbar {
+       display: none; /* Oculta a barra de rolagem */
+       }
 
-        /* Garante a funcionalidade da rolagem mesmo sem exibir */
-        .sidebar {
-         -ms-overflow-style: none; 
-          
-        }
-
-        .main-content {
-            margin-left: 240px; /* Ajustado para considerar a largura da barra lateral principal */
-            padding: 20px;
-            flex: 1;
-        }
-
-        details {
-            margin-bottom: 10px;
-            padding-left: 10px; /* Recuo para os detalhes secundários */
-            border-left: 1px solid #ccc; /* Linha lateral para indicar recuo */
-        }
-
-        summary {
-            cursor: pointer;
-        }
-
-        .file {
-            display: block;
-            margin-left: 15px;
-            color: rgb(183, 224, 242); /* Cor do texto nos links de arquivo */
-            text-decoration: none; /* Remover sublinhado padrão */
-        }
+      /* Garante a funcionalidade da rolagem mesmo sem exibir */
+      .sidebar {
+       -ms-overflow-style: none; 
         
-        .file:hover {
-            text-decoration: underline; /* Adicionar sublinhado ao passar o mouse */
-            color: rgb(84, 155, 214) !important;
-        }
+      }
 
-        .file i {
-            background-color: rgba(255, 255, 255, 0.796); /* Fundo vermelho */
-            color: red !important; /* Cor vermelha para ícones de arquivo */
-            border-radius: 2%; /* Torna o fundo do ícone redondo */
-            padding: -1px; /* Espaçamento interno para o ícone */
-        }
-        .folder {
-          background-color: rgba(58, 58, 58, 0.757); /* Fundo vermelho */
-          color: rgb(255, 255, 255) !important; /* Cor vermelha para ícones de arquivo */
+      .main-content {
+          margin-left: 240px; /* Ajustado para considerar a largura da barra lateral principal */
+          padding: 20px;
+          flex: 1;
+      }
+
+      details {
+          margin-bottom: 10px;
+          padding-left: 10px; /* Recuo para os detalhes secundários */
+          border-left: 1px solid #ccc; /* Linha lateral para indicar recuo */
+      }
+
+      summary {
+          cursor: pointer;
+      }
+
+      .file {
+          display: block;
+          margin-left: 15px;
+          color: rgb(183, 224, 242); /* Cor do texto nos links de arquivo */
+          text-decoration: none; /* Remover sublinhado padrão */
+      }
+      
+      .file:hover {
+          text-decoration: underline; /* Adicionar sublinhado ao passar o mouse */
+          color: rgb(84, 155, 214) !important;
+      }
+
+      .file i {
+          background-color: rgba(255, 255, 255, 0.796); /* Fundo vermelho */
+          color: red !important; /* Cor vermelha para ícones de arquivo */
           border-radius: 2%; /* Torna o fundo do ícone redondo */
           padding: -1px; /* Espaçamento interno para o ícone */
+      }
+      .folder {
+        background-color: rgba(58, 58, 58, 0.757); /* Fundo vermelho */
+        color: rgb(255, 255, 255) !important; /* Cor vermelha para ícones de arquivo */
+        border-radius: 2%; /* Torna o fundo do ícone redondo */
+        padding: -1px; /* Espaçamento interno para o ícone */
+        
+    }
+
+      .folder i {
+          color: #ddc868ed; /* Cor  ícones de pasta */
           
       }
-
-        .folder i {
-            color: #ddc868ed; /* Cor  ícones de pasta */
-            
-        }
-        .fa-folder-plus:hover {
-          text-decoration:underline ; /* Adicionar sublinhado ao passar o mouse */
-          color: rgb(255, 0, 0) !important;
-      }
-      .fa-folder-plus {
-        
-        color: rgb(0, 166, 255) !important;
+      .fa-folder-plus:hover {
+        text-decoration:underline ; /* Adicionar sublinhado ao passar o mouse */
+        color: rgb(255, 0, 0) !important;
     }
-    .fa-folder-open {
+    .fa-folder-plus {
       
-      color: rgb(9, 255, 0) !important;
+      color: rgb(0, 166, 255) !important;
   }
+  .fa-folder-open {
+    
+    color: rgb(9, 255, 0) !important;
+}
 
-        #search {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-        }
-        .file-image i {
-            background-color: rgb(0, 0, 0); /* Fundo vermelho */
-            color: rgb(255, 0, 208) !important; /* Cor vermelha para ícones de arquivo */
-            border-radius: 2%; /* Torna o fundo do ícone redondo */
-            padding: 1px; /* Espaçamento interno para o ícone */
-        
-        }
-        .file-code {
-            display: block;
-            margin-left: 15px;
-            color: rgb(251, 255, 0); /* Cor do texto nos links de arquivo */
-            text-decoration: none; /* Remover sublinhado padrão */
-        }
-        .file-code:hover {
-            text-decoration: underline; /* Adicionar sublinhado ao passar o mouse */
-            color: rgb(57, 255, 7) !important;
-        }
-      
-      .file-code i {
-            background-color: rgba(0, 0, 0, 0.628); /* Fundo vermelho */
-            color: rgb(55, 255, 0) !important; /* Cor vermelha para ícones de arquivo */
-            border-radius: 2%; /* Torna o fundo do ícone redondo */
-            padding: 1px; /* Espaçamento interno para o ícone */
-        
-        }
-        .file-image{
-            display: block;
-            margin-left: 15px;
-            color: rgb(244, 144, 216); /* Cor do texto nos links de arquivo */
-            text-decoration: none; /* Remover sublinhado padrão */
-        }
-        .highlight {
-          background-color: rgba(247, 0, 255, 0.383);  /* Exemplo de destaque */
+      #search {
+          width: 100%;
+          padding: 10px;
+          margin-bottom: 10px;
+          box-sizing: border-box;
       }
-      .webview {
-        position: absolute;
-        top: 70px; /* 70px abaixo do cabeçalho */
-        left: 250px; /* 250px da esquerda */
-        width: calc(100% - 250px); /* Ajusta a largura para ocupar o restante da tela */
-        height: calc(100vh - 70px); /* Ajusta a altura para ocupar o restante da tela */
-        border: none;
-    }
+      .file-image i {
+          background-color: rgb(0, 0, 0); /* Fundo vermelho */
+          color: rgb(255, 0, 208) !important; /* Cor vermelha para ícones de arquivo */
+          border-radius: 2%; /* Torna o fundo do ícone redondo */
+          padding: 1px; /* Espaçamento interno para o ícone */
       
-    </style>
+      }
+      .file-code {
+          display: block;
+          margin-left: 15px;
+          color: rgb(251, 255, 0); /* Cor do texto nos links de arquivo */
+          text-decoration: none; /* Remover sublinhado padrão */
+      }
+      .file-code:hover {
+          text-decoration: underline; /* Adicionar sublinhado ao passar o mouse */
+          color: rgb(57, 255, 7) !important;
+      }
+    
+    .file-code i {
+          background-color: rgba(0, 0, 0, 0.628); /* Fundo vermelho */
+          color: rgb(55, 255, 0) !important; /* Cor vermelha para ícones de arquivo */
+          border-radius: 2%; /* Torna o fundo do ícone redondo */
+          padding: 1px; /* Espaçamento interno para o ícone */
+      
+      }
+      .file-image{
+          display: block;
+          margin-left: 15px;
+          color: rgb(244, 144, 216); /* Cor do texto nos links de arquivo */
+          text-decoration: none; /* Remover sublinhado padrão */
+      }
+      .highlight {
+        background-color: rgba(247, 0, 255, 0.383);  /* Exemplo de destaque */
+    }
+    .webview {
+      position: absolute;
+      top: 70px; /* 70px abaixo do cabeçalho */
+      left: 250px; /* 250px da esquerda */
+      width: calc(100% - 250px); /* Ajusta a largura para ocupar o restante da tela */
+      height: calc(100vh - 70px); /* Ajusta a altura para ocupar o restante da tela */
+      border: none;
+  }
+  .botao-imagem {
+      border: none;
+      background: none;
+      cursor: pointer;
+      width: 70px;
+      height: auto;
+      transition: transform 0.3s ease, translate 0.3s ease;
+  }
+  
+  .botao-imagem:hover {
+      transform: scale(1.1) translateY(-3px);
+      border: #ffffff solid 3px;
+      border-radius: 30%;
+  }
+  
+    
+  </style>
 </head>
 
 <body>
-    <iframe class="webview" src="https://bizoonydb.github.io/PDFJS/db/pagina.html"></iframe>
+    
 
     
     <div class="sidebar">
+      <div class="container">
+        <a>
+                <img src="https://bizoonydb.github.io/PDFJS/db/botn/cell.png" class="botao-imagem" alt="SMARTPHONE">
+            </a>
+            <a href="https://bizoonydb.github.io/PDFJS/db/console_lite.html">
+              <img src="https://bizoonydb.github.io/PDFJS/db/botn/console.png" class="botao-imagem" alt="CONSOLE">
+          </a>
+      
+          <a class="link-bci" data-url="https://bizoonydb.github.io/PDFJS/db/drone_lite.html">
+                <img src="https://bizoonydb.github.io/PDFJS/db/botn/drone.png" class="botao-imagem" alt="DRONE">
+            </a>
+      
+            
+                <img src="https://bizoonydb.github.io/PDFJS/db/botn/pc.png" class="botao-imagem" alt="LAPTOPS">
+            </a>
+      
+            
+                <img src="https://bizoonydb.github.io/PDFJS/db/botn/gpu.png" class="botao-imagem" alt="PLACA DE VIDEO">
+            </a>
+            
+           
+            
+            
+                <img src="https://bizoonydb.github.io/PDFJS/db/botn/tv.png" class="botao-imagem" alt="tv">
+            </a>
+      </div>
+    <hr style="border: 1px solid #fbff00; margin: 10px 0;"> <!-- Linha de separação -->
         <!-- Barra de pesquisa -->
         <input type="text" id="search" placeholder="⏳    PESQUISAR   ☁..↩">
         <details class="folder">
@@ -3439,281 +3481,18 @@ a, img, div, p, span, button {
     </details>
 </details> 
 <details class="folder">
-  <summary><i class="fas fa-folder"></i> CONSOLE</summary>
-  <details>
-    <summary><i class="fas fa-folder"></i> X-BOX</summary>
-    <details>
-      <summary><i class="fas fa-folder"></i> 360_Corona V1 V2</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/Xbox_360_Corona_Translation_Schematic.pdf" class="file"><i class="far fa-file-pdf"></i> ESQUEMATICO 1</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/Xbox_360_Corona_V1_V2.brd.bvr" class="file"><i class="far fa-file-pdf"></i> ESQUEMATICO 2</a>
-      
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/v1v2_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> 360_Corona_V3_V4</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/Xbox_360_Corona_Translation_Schematic.pdf" class="file"><i class="far fa-file-pdf"></i> ESQUEMATICO</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/v3v4_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> 360_Corona_V5_V6</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/Xbox_360_Corona_Translation_Schematic.pdf" class="file"><i class="far fa-file-pdf"></i> ESQUEMATICO</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/v5v6_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> 360_Falcon</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/Xbox_360_Falcon_Schematic.pdf" class="file"><i class="far fa-file-pdf"></i> ESQUEMATICO</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/falcon_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> 360_Jasper_Kronos</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/Xbox_360_Jasper_Schematic.pdf" class="file"><i class="far fa-file-pdf"></i> ESQUEMATICO</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/jasper_kronos_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> 360_Jasper_V1</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/Xbox_360_Jasper_Schematic.pdf" class="file"><i class="far fa-file-pdf"></i> ESQUEMATICO</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/jasper_v1_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i>360_Trinity_FabF_ver2</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/Xbox_360_Trinity_Schematic.pdf" class="file"><i class="far fa-file-pdf"></i> ESQUEMATICO</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/trinity_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> Xbox_360_Xenon</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/Xbox_360_Xenon_Schematic.pdf" class="file"><i class="far fa-file-pdf"></i> ESQUEMATICO</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/xenon_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> 360_Xenon_008</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/Xbox_360_Xenon_Schematic.pdf" class="file"><i class="far fa-file-pdf"></i> ESQUEMATICO</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/xenon_008_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> 360_Zephyr_A</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/Xbox_360_Zephyr_A_Schematic.pdf" class="file"><i class="far fa-file-pdf"></i> ESQUEMATICO</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/zephyr_a_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> 360_Zephyr_B</summary>
-      
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/zephyr_b_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> Xbox Elite 2th</summary>
+  <summary><i class="fas fa-folder"></i> INFINIX🔒</summary>
+  <a  class="file"><i class="far fa-file-pdf"></i>BREVE</a>
   
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/elite_2th_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/elite_sub_db" class="file-code"><i class="far fa-file-code"></i>SUB BITMAP</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> Xbox One S</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/Kingston_fabG_Retail.pdf" class="file"><i class="far fa-file-pdf"></i> ESQUEMATICO</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/assy-sh1[one s].pdf" class="file"><i class="far fa-file-pdf"></i> LAYOUT A</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/assy-sh2[one s].pdf" class="file"><i class="far fa-file-pdf"></i> LAYOUT B</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> Xbox One X</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/cactus_fabG_retail.pdf" class="file"><i class="far fa-file-pdf"></i>Cactus_fabG_retail</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> Xbox Seies S</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/stockton_fabC.pdf" class="file"><i class="far fa-file-pdf"></i>Stockton_fabC</a>
-      
-    </details>
-    <details>
-      <summary><i class="fas fa-folder"></i> Xbox Series X</summary>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/toledo_sb_fabE.pdf" class="file"><i class="far fa-file-pdf"></i>toledo_sb_fabE</a>
-      <a href="https://bizoonydb.github.io/PDFJS/build/XBOX/toledo_soc_fabE_retail.pdf" class="file"><i class="far fa-file-pdf"></i>toledo_soc_fabE_retail</a>
-      
-    </details>
   
   </details>
-   
+  </details> 
   
-  <details>
-      <summary><i class="fas fa-folder"></i> NINTENDO</summary>
-      <details>
-        <summary><i class="fas fa-folder"></i> NS-SWITCH</summary>
-        <a href="URL" class="file"><i class="far fa-file-pdf"></i> NS-SWITCH</a>
-      </details>
-      <details>
-        <summary><i class="fas fa-folder"></i> SWITCH LITE</summary>
-        <a href="URL" class="file"><i class="far fa-file-pdf"></i> SWITCH LITE</a>
-      </details>
-      <details>
-        <summary><i class="fas fa-folder"></i> SWITCH OLED</summary>
-        <a href="URL" class="file"><i class="far fa-file-pdf"></i> SWITCH OLED</a>
-      </details>
-      <details>
-        <summary><i class="fas fa-folder"></i> LONG ENDURACE</summary>
-        <a href="URL" class="file"><i class="far fa-file-pdf"></i> LONG ENDURACE</a>
-      </details>
-      <details>
-        <summary><i class="fas fa-folder"></i> GAMEBOY</summary>
-        <a href="URL" class="file"><i class="far fa-file-pdf"></i> GAMEBOY</a>
-      </details>
-      
-  </details>
-  <details>
-  <summary><i class="fas fa-folder"></i> PLAYSTATION</summary>
-  <details>
-    <summary><i class="fas fa-folder"></i> PLAY STATION 1</summary>
-    <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/sony_playstation1_schematic.pdf" class="file"><i class="far fa-file-pdf"></i> PLAY STATION 1</a>
-  </details>
-  <details>
-    <summary><i class="fas fa-folder"></i> PSP 2000 TA085</summary>
-    <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/PSP%202000%20ta085.pdf" class="file"><i class="far fa-file-pdf"></i> PSP 2000 TA085</a>
-    <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/PSP%202000%20ta085%20LAYOUT.pdf" class="file"><i class="far fa-file-pdf"></i>LAYOUT</a>
-  </details>
-  <details>
-    <summary><i class="fas fa-folder"></i> PS2 SCPH-39001</summary>
-    <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/Sony+PS2+SCPH-39001.pdf" class="file"><i class="far fa-file-pdf"></i> PS2 SCPH-39001</a>
-  </details>
-  <details>
-    <summary><i class="fas fa-folder"></i> PS2 SCPH-30000</summary>
-    <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/Sony+PS2+SCPH-39001.pdf" class="file"><i class="far fa-file-pdf"></i> PS2 SCPH-30000</a>
-  </details>
-  <details>
-    <summary><i class="fas fa-folder"></i> PS2 SCPH-50000</summary>
-    <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/scph-50000_series.pdf" class="file"><i class="far fa-file-pdf"></i> PS2 SCPH-50000</a>
-  </details>
-  <details>
-    <summary><i class="fas fa-folder"></i> PS2 SCPH-70000</summary>
-    <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/SCPH-70000_SCH.pdf" class="file"><i class="far fa-file-pdf"></i> PS2 SCPH-70000</a>
-  </details>
-  <details>
-    <summary><i class="fas fa-folder"></i> PS3 SM-BDD-0013E-01</summary>
-    <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/PS3%20SCH-543.pdf" class="file"><i class="far fa-file-pdf"></i> PS3 SM-BDD-0013E-01</a>
-    <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/PS3%20SCH-543.pdf" class="file"><i class="far fa-file-pdf"></i> PS3 LAYOUT</a>
-  </details>
-  <details>
-    <summary><i class="fas fa-folder"></i> PS3-0073E-05</summary>
-    <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/sm-ps3-0073e-05-0_compressed.pdf" class="file"><i class="far fa-file-pdf"></i> PS3-0073E-05</a>
-  </details>
-  <details>
-    <summary><i class="fas fa-folder"></i> PS4 FONTE</summary>
-    <a href="https://bizoonydb.github.io/PDFJS/build/SM/PS4 Power.pdf" class="file"><i class="far fa-file-pdf"></i> PS4 FONTE</a>
-  </details>
-  <details>
-    <summary><i class="fas fa-folder"></i> PS5 EDM-010 </summary>
-   
-    <a href="https://bizoonydb.github.io/PDFJS/build/SM/ps5_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-  
+  <details class="folder">
+  <summary><i class="fas fa-folder"></i> REALME🔒</summary>
+  <a  class="file"><i class="far fa-file-pdf"></i>BREVE</a>
   </details>
   
-  </details>
-</details> 
-
-<details class="folder">
-  <summary><i class="fas fa-folder"></i> DRONE</summary>
-  <details>
-           <summary><i class="fas fa-folder-plus"></i> DJI MAVIC AIR 2</summary>
-           <a href="https://raw.githubusercontent.com/bizoonydb/digital-board/main/DJI-air2.pdf" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-           <a href="https://bizoonydb.github.io/PDFJS/build/AIR2_ELETRICAL_db" class="file-code"><i class="far fa-file-code"></i> REG BITMAP</a>
-           <a href="https://bizoonydb.github.io/PDFJS/build/AIR2 PCB_db" class="file-code"><i class="far fa-file-code"></i> BOARD BITMAP</a>
-           <a href="https://bizoonydb.github.io/PDFJS/build/air2_cpu_mem_db" class="file-code"><i class="far fa-file-code"></i> CPU MEM BITMAP</a>
-           <a href="https://bizoonydb.github.io/PDFJS/build/cpu nc_db" class="file-code"><i class="far fa-file-code"></i> CPU PADS </a>
-          
-          
-  </details>
-  <details>
-    <summary><i class="fas fa-folder-plus"></i> DJI MAVIC AIR 2S</summary>
-    <a href="https://bizoonydb.github.io/PDFJS/build/DRONE/DJI_AIR_2s.pdf" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/air2s_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-                      
-   
-  </details>
-  <details>
-    <summary><i class="fas fa-folder-plus"></i> DJI MAVIC AIR 3</summary>
-    <a href="https://bizoonydb.github.io/PDFJS/build/DRONE/DJI_MAVC_3.pdf" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-    
-                      
-   
-  </details>
-  <details>
-    <summary><i class="fas fa-folder-plus"></i> DJI MAVIC PRO</summary>
-    <a href="https://bizoonydb.github.io/PDFJS/build/DRONE/DJI_MAVIC_PRO.pdf" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/mavic pro_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-                      
-   
-  </details>
-  <details>
-    <summary><i class="fas fa-folder-plus"></i> DJI MAVIC 2</summary>
-    <a href="https://bizoonydb.github.io/PDFJS/build/_db" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/mavic2_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-                      
-   
-  </details>
-  <details>
-    <summary><i class="fas fa-folder-plus"></i> DJI MAVIC 3</summary>
-    <a href="https://bizoonydb.github.io/PDFJS/build/_db" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/MAVIC3 REG_db" class="file-code"><i class="far fa-file-code"></i>REG BITMAP</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/mavic3_db" class="file-code"><i class="far fa-file-code"></i>PBC BITMAP</a>
-                      
-   
-  </details>
-  <details>
-    <summary><i class="fas fa-folder-plus"></i> DJI MAVIC 3 PRO</summary>
-    <a href="https://bizoonydb.github.io/PDFJS/build/DRONE/DJI_MAVIC_3PRO.pdf" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/mavic3pro_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-                      
-   
-  </details>
-  <details>
-    <summary><i class="fas fa-folder-plus"></i> DJI MINI 1</summary>
-    <a href="https://bizoonydb.github.io/PDFJS/build/DRONE/DJI_MINI_1.pdf" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/mini1_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-                      
-   
-  </details>
-  <details>
-    <summary><i class="fas fa-folder-plus"></i> DJI MINI 2</summary>
-    <a href="https://bizoonydb.github.io/PDFJS/build/DRONE/DJ_MINI_2.pdf" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/mine2_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-                      
-   
-  </details>
-  <details>
-    <summary><i class="fas fa-folder-plus"></i> DJI MINI 3</summary>
-    <a href="https://bizoonydb.github.io/PDFJS/build/_db" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/mini3_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-                      
-   
-  </details>
-  <details>
-    <summary><i class="fas fa-folder-plus"></i> DJI MINI 3PRO</summary>
-    <a href="https://bizoonydb.github.io/PDFJS/build/DRONE/DJI_MINI_3PRO.pdf" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-    <a href="https://bizoonydb.github.io/PDFJS/db/isdb/MINI3PRO_hs" class="file-image"><i class="far fa-file-image"></i>INFO HARDWARE</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/mini3pro_db" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
-                      
-   
-  </details>
- 
-  <details>
-    <summary><i class="fas fa-folder-plus"></i> DJI MINI 4 PRO</summary>
-    <a href="https://bizoonydb.github.io/PDFJS/build/DRONE/DJI_MINI_4PRO.pdf" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/mini4pro_db" class="file-code"><i class="far fa-file-code"></i>MAIN BITMAP</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/mini4pro_sub1_db" class="file-code"><i class="far fa-file-code"></i>SUB1 BITMAP</a>
-    <a href="https://bizoonydb.github.io/PDFJS/build/mini4pro_sub2_db" class="file-code"><i class="far fa-file-code"></i>SUB2 BITMAP</a>
-                      
-   
-  </details>
- 
-</details>
 
 <details class="AQUI ESCREVE FOLDERR">
 <summary><i class="fas fa-folder"></i> BACKUP</summary>
@@ -3828,75 +3607,59 @@ a, img, div, p, span, button {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Botões Fixos</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        .button-container {
-            position: fixed;
-            top: 60px; /* Ajuste para ficar abaixo do cabeçalho */
-            right: 0;
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
-            align-items: flex-start;
-            padding: 10px;
-            pointer-events: none;
-            z-index: 999; /* Garante sobreposição máxima */
-            
-        }
-        .button-container a {
-            text-decoration: none;
-            color: rgb(255, 255, 255);
-            border: 2px solid rgb(0, 162, 255);
-            padding: 5px 10px;
-            border-radius: 5px;
-            background-color: rgba(171, 185, 194, 0.359);
-            transition: background-color 0.3s, color 0.3s;
-            pointer-events: auto;
-            margin: 0 10px;
-            
-        }
-        .button-container a:hover {
-            background-color: rgb(115, 127, 130);
-            color: white;
-        
-        
-
-        }
-    .facebook-icon  {
-        width: 25px; /* Defina o tamanho desejado para a largura */
-        height: auto; /* Mantenha a proporção original */
-        vertical-align: middle; /* Ajuste para alinhar verticalmente */
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Botões Fixos com Imagem</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
     }
-    </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const links = document.querySelectorAll('.button-container a');
-            links.forEach(link => {
-                link.addEventListener('click', (event) => {
-                    event.preventDefault(); // Evita o comportamento padrão
-                    window.location.href = link.href; // Carrega a URL na mesma aba
-                });
-            });
-        });
-    </script>
+    .button-container {
+      position: fixed;
+      top: 2px;
+      right: 0;
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      padding: 0px;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .button-container a {
+      pointer-events: auto;
+      margin: 0 2px;
+    }
+    .button-container img {
+      width: 55px; /* Ajuste o tamanho da imagem aqui */
+      height: auto;
+      border-radius: 10px;
+      transition: transform 0.3s;
+    }
+    .button-container img:hover {
+      transform: scale(1.05);
+      border-radius: 30%;
+      border: #ffffff solid 3px;
+    }
+  </style>
 </head>
 <body>
 
 <div class="button-container">
-    <a href="https://wa.me/message/6X46IDVVWEIQM1">SUPORTE TECNICO<img class="facebook-icon" src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-21-43-961_orig.png" alt="whatsapp"></a>
-    <a href="https://bizoonydb.github.io/PDFJS/bci.html">BUSCA POR CI <img class="facebook-icon" src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/ss_orig.png" alt=""></a>
-    
-    
+  <a href="https://wa.me/message/6X46IDVVWEIQM1" target="_blank">
+    <img src="https://bizoonydb.github.io/PDFJS/db/botn/suporte.png" alt="Suporte Técnico">
+  </a>
+  <a href="https://bizoonydb.github.io/PDFJS/bci.html" target="_blank">
+    <img src="https://bizoonydb.github.io/PDFJS/db/botn/bci.png" alt="Busca por CI">
+  </a>
 </div>
 
 </body>
 </html>
+
+
+
 
 
 
@@ -3918,7 +3681,7 @@ a, img, div, p, span, button {
 
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #000000;
+            background-color: #161616;
             padding: 20px;
         }
 
@@ -4031,29 +3794,40 @@ a, img, div, p, span, button {
             background-color: #1e88e5;
         }
 
-        /* Botão para abrir o modal */
-        #openModalBtn {
-            position: fixed; /* Fixa o botão na posição */
-            top: 70px; /* Define a distância do topo */
-            right: 410px; /* Define a distância do lado direito */
-            text-decoration: none;
-            color: rgb(255, 255, 255);
-            border: 2px solid rgb(0, 162, 255);
-            padding: 10px 15px; /* Aumenta o espaço interno (largura e altura do botão) */
-            font-size: 1.0rem; /* Aumenta o tamanho da fonte */
-            border-radius: 5px;
-            background-color: rgba(171, 185, 194, 0.359);
-            transition: background-color 0.3s, color 0.3s;
-            pointer-events: auto;
-            margin: 0 10px;
-            z-index: 999; /* Garante sobreposição máxima */
-            
-        }
-        
-        #openModalBtn:hover {
-            background-color: #535353;
-        }
-       
+/* Botão para abrir o modal */
+#openModalBtn {
+    position: fixed;
+    top: 2px;
+    right: 120px;
+    z-index: 999;
+    pointer-events: auto;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Remove efeitos padrão do botão */
+#openModalBtn:focus {
+    outline: none;
+   
+}
+
+/* Estilo da imagem */
+.btn-img {
+    width: 55px;
+    height: auto;
+    border-radius: 10px;
+    transition: transform 0.3s;
+   
+}
+.btn-img:hover {
+    transform: scale(1.05);
+    border-radius: 30%;
+    border: #ffffff solid 3px;
+
+}
+          
         .user-item {
           background-color: #d3d3d3;
           padding: 15px;
@@ -4127,16 +3901,8 @@ a, img, div, p, span, button {
   overflow-y: scroll; /* Garante a rolagem, mas sem a barra visível */
 }
 /* Estilo para a imagem fixa */
-.modal-header img {
-    display: block;
-    margin: 0 auto; /* Centraliza horizontalmente */
-    max-width: 100%;
-    max-height: 150px; /* Limita a altura da imagem */
-    border: 1px solid #00a6ff; /* Borda azul */
-    border-radius: 10px; /* Bordas arredondadas */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Sombra para destacar */
-    margin-bottom: 10px; /* Espaço abaixo da imagem */
-}
+
+
 
 
     </style>
@@ -4144,8 +3910,9 @@ a, img, div, p, span, button {
 <body>
 
     <button id="openModalBtn">
-        <i class="fas fa-user"></i> PERFIL
-    </button>
+        <img src="https://bizoonydb.github.io/PDFJS/db/botn/perfil.png" alt="Perfil" class="btn-img">
+        
+      </button>
     
 
     <!-- Modal -->
@@ -4155,7 +3922,7 @@ a, img, div, p, span, button {
             <button class="close-btn" id="closeModalBtn">&times;</button>
             <div class="modal-header"></div>
             <div class="modal-header">
-                <img src="https://cursobc.weebly.com/uploads/1/3/6/9/136931568/picsart_25-01-02_15-25-42-155.jpg" alt="Imagem Fixa">
+               
             </div>
             <div class="profile-container">
                 <img src="https://irmaosfb.weebly.com/uploads/1/3/6/9/136931568/editor/picsart-24-05-22-17-02-16-964.jpg?1737867126" alt="Foto de Perfil" class="profile-image">
@@ -4232,7 +3999,6 @@ a, img, div, p, span, button {
 </body>
 </html>
 
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -4253,14 +4019,14 @@ a, img, div, p, span, button {
         left: 0;
         width: 100vw; /* Ocupa 100% da largura da janela */
        
-        z-index: +999999999999; /* Fica ACIMA de outros elementos */
+        z-index: 99; /* Fica ACIMA de outros elementos */
     }
 
     .fixed-image img {
         width: 100%;
         height: 100%;
         object-fit: cover; /* Ajusta a imagem para cobrir toda a tela sem distorção */
-		z-index: +5; /* Fica ACIMA de outros elementos */
+		 z-index: 5; /* Fica ACIMA de outros elementos */
     }
 
     .content {
@@ -5270,3 +5036,171 @@ document.getElementById('iframeContainer').addEventListener('contextmenu', funct
     </script>
 </body>
 </html>
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Validação BCI</title>
+    <style>
+        
+
+        /* Modal BCI */
+        .modalbci {
+            display: none;
+            position: fixed;
+         
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+          z-index: 999999; /* Fica ACIMA de outros elementos */
+        }
+
+        .modalbci-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+          z-index: 999999; /* Fica ACIMA de outros elementos */
+        }
+
+        .modalbci input {
+            padding: 8px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .modalbci button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+  
+   
+<!-- Modal -->
+    <div class="modalbci" id="modalbci">
+        <div class="modalbci-content" id="modalbciContent">
+          <h2>CONTEUDO EXCLUSIVO PARA CONTAS PREMIUM</h2><br>
+          <h4>ATENÇÃO</h4><br> O CONTEUDO É EXCLUSIVO PARA CONTAS PREMIUM<br>DIGITE O CÓDIGO ABAIXO PARA ACESSAR O CONTEUDO</p><br>
+
+          <br>
+          <h5>SE NÃO TEM UMA CONTA PREMIUM, ADQUIRA UMA ATRAVES DO NOSSO WHATSAPP +55 (33)98444-4376</h5>
+          <br><hr><br>
+          <h3>COLE SEU CODIGO PREMIUM: </h3>
+          <input type="password" id="codigoInput" placeholder="Código de ativação">
+          <button id="confirmarBtn">Confirmar</button>
+        </div>
+    </div>
+
+    <script>
+        const linksBci = document.querySelectorAll('.link-bci');
+        const modalbci = document.getElementById('modalbci');
+        const inputCodigo = document.getElementById('codigoInput');
+        const btnConfirmar = document.getElementById('confirmarBtn');
+        const codigoCorreto = "DBED1234";
+        const chaveLocalStorage = "bci_ativado";
+
+        let destino = "";
+
+        linksBci.forEach(link => {
+            link.addEventListener("click", function (e) {
+                e.preventDefault();
+                destino = this.dataset.url;
+
+                if (localStorage.getItem(chaveLocalStorage) === "true") {
+                    window.location.href = destino;
+
+                } else {
+                    modalbci.style.display = "flex";
+                    inputCodigo.focus();
+                }
+            });
+        });
+
+        btnConfirmar.addEventListener("click", function () {
+            const valorDigitado = inputCodigo.value.trim();
+            if (valorDigitado === codigoCorreto) {
+                localStorage.setItem(chaveLocalStorage, "true");
+                modalbci.style.display = "none";
+                inputCodigo.value = "";
+                window.location.href = destino;
+
+            }
+        });
+
+        window.addEventListener("click", function (e) {
+            if (e.target === modalbci) {
+                modalbci.style.display = "none";
+                inputCodigo.value = "";
+            }
+        });
+
+        window.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") {
+                modalbci.style.display = "none";
+                inputCodigo.value = "";
+            }
+        });
+    </script>
+
+</body>
+</html>
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Imagem Dentro da Área</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .area-com-imagem {
+      position: absolute;
+      top: 70px;
+      left: 250px;
+      right: 0;
+      bottom: 0;
+      border: 2px solid yellow;
+      overflow: hidden;
+      background-color: black; /* só pra destacar quando sobrar espaço */
+    }
+
+    .area-com-imagem img {
+      width: 100%;
+      height: 100%;
+      object-fit: fill;/*contain; /* <<< Este é o segredo */
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="area-com-imagem">
+    <img src="https://bizoonydb.github.io/PDFJS/db/atual.jpg" alt="baner 1">
+    
+  </div>
+
+</body>
+</html>
+
+
