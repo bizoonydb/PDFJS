@@ -699,8 +699,7 @@ function drawSelectedNetConnections() {
     pop();
 }
 
- 
- function drawComponentBoundingBoxes() {
+function drawComponentBoundingBoxes() {
     let backgroundRects = []; // Lista para armazenar os preenchimentos
 
     // Primeiro, coletamos as informações dos retângulos de fundo
@@ -759,32 +758,59 @@ function drawSelectedNetConnections() {
                 fillColor = color(0, 0, 255, 75);
             } else {
                 fillColor = color(255, 255, 0, 0);
-
             }
-    
- 
+
             // Guardamos os dados para desenhar depois
-            backgroundRects.push({ x: minX + groupOffset, y: minY, w: maxX - minX, h: maxY - minY, color: fillColor });
+            backgroundRects.push({ 
+                x: minX + groupOffset, 
+                y: minY, 
+                w: maxX - minX, 
+                h: maxY - minY, 
+                color: fillColor 
+            });
         }
     }
-    // 2. Desenhamos os fundos DEPOIS
+
+    // Agora desenhar apenas os que estão visíveis
+
     noStroke();
     for (let rectData of backgroundRects) {
-        fill(rectData.color);
-        rect(rectData.x, rectData.y, rectData.w, rectData.h);
+        // Converter coordenadas do mundo para a tela
+        let screenX = rectData.x * scaleFactor + offsetX;
+        let screenY = rectData.y * scaleFactor + offsetY;
+        let screenW = rectData.w * scaleFactor;
+        let screenH = rectData.h * scaleFactor;
+
+        // Só desenha se estiver visível
+        if (
+            screenX + screenW >= 0 && screenX <= width &&
+            screenY + screenH >= 0 && screenY <= height
+        ) {
+            fill(rectData.color);
+            rect(rectData.x, rectData.y, rectData.w, rectData.h);
+        }
     }
 
-    // 1. Desenhamos as bordas  COR DAS BORDAS DOS COMPONENTES e pinos PRIMEIRO
     stroke(255, 255, 255);
     noFill();
-    strokeWeight(1,5);
-    for (let rectData of backgroundRects) {
-        rect(rectData.x, rectData.y, rectData.w, rectData.h);
-    }
-    
+    strokeWeight(1.5);
 
-    
+    for (let rectData of backgroundRects) {
+        // Recalcular para as bordas também
+        let screenX = rectData.x * scaleFactor + offsetX;
+        let screenY = rectData.y * scaleFactor + offsetY;
+        let screenW = rectData.w * scaleFactor;
+        let screenH = rectData.h * scaleFactor;
+
+        if (
+            screenX + screenW >= 0 && screenX <= width &&
+            screenY + screenH >= 0 && screenY <= height
+        ) {
+            rect(rectData.x, rectData.y, rectData.w, rectData.h);
+        }
+    }
 }
+
 
 function drawPartNames() {
     if (scaleFactor < 1.1 || scaleFactor >= 4.0) return; // Só desenha em zoom intermediário
