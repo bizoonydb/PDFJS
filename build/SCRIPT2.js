@@ -267,6 +267,7 @@ pop();
 blinkState = (frameCount % blinkInterval < blinkInterval / 2) ? 255 : 0;  // Alterna entre 255 e 0 a cada intervalo
 
 // Desenha os pinos com efeito de piscar
+// Desenha os pinos com efeito de piscar
 if (scaleFactor >= 0.2) {
     for (let part of parts) {
         if (displayMode === "top" && part.side !== "T") continue;
@@ -274,31 +275,37 @@ if (scaleFactor >= 0.2) {
         let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
         
         for (let pin of part.pins) {
-            noStroke();
+            // Calcular posição na tela
+            let screenX = (pin.x + groupOffset) * scaleFactor + offsetX;
+            let screenY = pin.y * scaleFactor + offsetY;
 
-            // Aplica a cor piscando ao pino selecionado e pinos conectados
-            if (selectedPin === pin || (selectedPin && pin.net === selectedPin.net)) {
-                fill(blinkState === 255 ? color(255, 0, 255) : color(0, 255, 0));  // Magenta e Verde piscando
-            } else if (pin.net === "GND") {
-                fill(70, 70, 70);
-            } else if (pin.net === "NC") {
-                fill(255, 255, 0);
-            } else if (pin.side === "B") {
-                fill(255, 200, 0);
-            } else if (pin.side === "TP") {
-                fill(255, 255, 0);
-            } else {
-                fill(255, 0, 0);
+            // Desenhar apenas se o pino estiver visível
+            if (screenX > 0 && screenX < width && screenY > 0 && screenY < height) {
+                noStroke();
+
+                // Aplica a cor piscando ao pino selecionado e pinos conectados
+                if (selectedPin === pin || (selectedPin && pin.net === selectedPin.net)) {
+                    fill(blinkState === 255 ? color(255, 0, 255) : color(0, 255, 0));  // Magenta e Verde piscando
+                } else if (pin.net === "GND") {
+                    fill(70, 70, 70);
+                } else if (pin.net === "NC") {
+                    fill(255, 255, 0);
+                } else if (pin.side === "B") {
+                    fill(255, 200, 0);
+                } else if (pin.side === "TP") {
+                    fill(255, 255, 0);
+                } else {
+                    fill(255, 0, 0);
+                }
+
+                // Verifica se o componente começa com "u", "n" ou "a" e desenha o pino corretamente
+                if (part.name && ['u', 'tp', 'a'].includes(part.name.toLowerCase()[0])) {
+                    ellipse(pin.x + groupOffset, pin.y, pin.radius, pin.radius);
+                } else {
+                    rect(pin.x + groupOffset - pin.radius / 2, pin.y - pin.radius / 2, pin.radius, pin.radius);
+                }
             }
-
-            // Verifica se o componente começa com "u", "n" ou "a" e desenha o pino corretamente
-            if (part.name && ['u', 'tp', 'a'].includes(part.name.toLowerCase()[0])) {
-                ellipse(pin.x + groupOffset, pin.y, pin.radius, pin.radius);
-            } else {
-                rect(pin.x + groupOffset - pin.radius / 2, pin.y - pin.radius / 2, pin.radius, pin.radius);
-            }
-
-         
+     
 // Agora desenhar o número DENTRO do pad
 if (scaleFactor >= 4.0) { // Mostrar apenas com zoom bem grande
     push();
@@ -644,7 +651,7 @@ function mousePressed() {
 
 function drawBlueDot(x, y) {
     push();
-    fill(255, 0, 0, 0); // VerMELHO PINO SELECIONADO
+    fill(255, 0, 255,); // VerMELHO PINO SELECIONADO
     strokeWeight(1);
     ellipse(x, y, 6, 6);
     pop();
