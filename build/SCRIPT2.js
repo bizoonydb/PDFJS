@@ -9,6 +9,7 @@ let rotationAngle = Math.PI; // Inicialmente 180° (en radianes)
 let offsetX = 0;
 let offsetY = 0;
 let pinScaleFactor = 1; // Ajusta según lo necesites //1
+let isDragging = false;
 
 // Buffer para renderizar el contorno (elemento estático)
 let buffer;
@@ -168,14 +169,12 @@ let showBg = true; // controla a exibição da imagem
       
       
       push();
-fill('red');
-noStroke();
-ellipse(0, 0, 10, 10); // ponto vermelho na origem lógica
+
 pop();
 
       
       
- 
+drawComponentBoundingBoxes();
       
    ///////////////////////////////////////////
    //////////___OUTLINE_BORDA___//////////////////
@@ -267,90 +266,160 @@ pop();
 blinkState = (frameCount % blinkInterval < blinkInterval / 2) ? 255 : 0;  // Alterna entre 255 e 0 a cada intervalo
 
 // Desenha os pinos com efeito de piscar
-// Desenha os pinos com efeito de piscar
+/// Desenha os pinos com efeito de piscar
 if (scaleFactor >= 0.2) {
     for (let part of parts) {
         if (displayMode === "top" && part.side !== "T") continue;
         if (displayMode === "bottom" && part.side !== "B") continue;
+
         let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
-        
+
         for (let pin of part.pins) {
-            // Calcular posição na tela
+            // Calcular posição do pino na tela (uma vez só)
             let screenX = (pin.x + groupOffset) * scaleFactor + offsetX;
             let screenY = pin.y * scaleFactor + offsetY;
 
-            // Desenhar apenas se o pino estiver visível
-            if (screenX > 0 && screenX < width && screenY > 0 && screenY < height) {
+            // IGNORAR pino se estiver fora da tela — melhora o desempenho
+            if (screenX < -20 || screenX > width + 20 || screenY < -20 || screenY > height + 20) continue;
+
+            // A partir daqui, só processa pinos realmente visíveis
+            let enlargedRadius = pin.radius * 1.9;
+            let isPPnV = typeof pin.net === "string" && /^PP[0-9]V/.test(pin.net);
+
+            noStroke();
+
+            // Aplica a cor piscando ao pino selecionado e pinos conectados
+            if (selectedPin === pin || (selectedPin && pin.net === selectedPin.net)) {
+                fill(blinkState === 255 ? color(255, 0, 255) : color(100, 180, 100));
+            } else if (typeof pin.net === "string" && pin.net.startsWith("VB")) {
+                fill(255, 0, 0);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("VSW")) {
+                fill(230, 200, 100);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("V")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("DV")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("PWR")) {
+                fill(255, 100, 100);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("RF")) {
+                fill(0, 130, 0);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("PP_VDD")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("PP_BAT")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("PP_VS")) {
+                fill(255, 70, 70);
+            } else if (isPPnV) {
+                fill(230, 200, 100);
+            } else if (pin.net === "GND") {
+                fill(120, 120, 120);
+            } else if (pin.net === "NC") {
+                fill(100, 130, 180);
+            } else if (pin.side === "B") {
+                fill(255, 200, 0);
+            } else if (pin.side === "TP") {
+                fill(255, 255, 0);
+            } else {
+                fill(230, 200, 100);
+            }
+
+            // Borda para PPnV
+            if (isPPnV) {
+                stroke(200, 50, 50);
+                strokeWeight(1.5);
+            } else {
                 noStroke();
+            }
 
-                // Aplica a cor piscando ao pino selecionado e pinos conectados
-                if (selectedPin === pin || (selectedPin && pin.net === selectedPin.net)) {
-                    fill(blinkState === 255 ? color(255, 0, 255) : color(0, 255, 0));  // Magenta e Verde piscando
-                } else if (pin.net === "GND") {
-                    fill(70, 70, 70);
-                } else if (pin.net === "NC") {
-                    fill(255, 255, 0);
-                } else if (pin.side === "B") {
-                    fill(255, 200, 0);
-                } else if (pin.side === "TP") {
-                    fill(255, 255, 0);
-                } else {
-                    fill(255, 0, 0);
+            // Desenhar o pino
+            if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
+                beginShape();
+                for (let j = 0; j < pin.outlineRelative.length; j += 2) {
+                    let vx = pin.x + pin.outlineRelative[j];
+                    let vy = pin.y + pin.outlineRelative[j + 1];
+                    vertex(vx + groupOffset, vy);
                 }
-
-                // Verifica se há um contorno definido para o pino
-                if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
-                    // Desenha o contorno do pino com base no outlineRelative
-                    beginShape();
-                    for (let j = 0; j < pin.outlineRelative.length; j += 2) {
-                        let vx = pin.x + pin.outlineRelative[j];
-                        let vy = pin.y + pin.outlineRelative[j + 1];
-                        vertex(vx + groupOffset, vy);
-                    }
-                    endShape(CLOSE);
+                endShape(CLOSE);
+            } else {
+                if (part.name && ['u', 'tp', 'a', 'nfc', '1', 'n','tp'].includes(part.name.toLowerCase()[0])) {
+                    ellipse(pin.x + groupOffset, pin.y, enlargedRadius, enlargedRadius);
                 } else {
-                    // Caso não tenha um outline, desenha o pino como círculo ou retângulo
-                    if (part.name && ['u', 'tp', 'a'].includes(part.name.toLowerCase()[0])) {
-                        ellipse(pin.x + groupOffset, pin.y, pin.radius, pin.radius);
-                    } else {
-                        rect(pin.x + groupOffset - pin.radius / 2, pin.y - pin.radius / 2, pin.radius, pin.radius);
-                    }
+                    rect(pin.x + groupOffset - enlargedRadius / 2, pin.y - enlargedRadius / 2, enlargedRadius, enlargedRadius);
                 }
             }
 
-            // Agora desenhar o número DENTRO do pad
-            if (scaleFactor >= 4.0) { // Mostrar apenas com zoom bem grande
+            // === DESENHAR TEXTOS APENAS EM ZOOM GRANDE ===
+            if (
+                scaleFactor >= 4.0 &&
+                screenX > 0 && screenX < width &&
+                screenY > 0 && screenY < height
+            ) {
                 push();
-                fill(255); // Cor do texto
-                noStroke(); // Sem contorno
+                fill(255);
+                noStroke();
                 textAlign(CENTER, CENTER);
 
-                // Calcular posição na tela
-                let screenX = (pin.x + groupOffset) * scaleFactor + offsetX;
-                let screenY = pin.y * scaleFactor + offsetY;
+                translate(0, height);
+                scale(1, -1);
 
-                // Desenhar apenas se o pino estiver visível
-                if (screenX > 0 && screenX < width && screenY > 0 && screenY < height) {
-                    translate(0, height); // Move a origem para o topo invertido
-                    scale(1, -1); // Inverte o eixo Y (vertical)
+                textSize(min(pin.radius * 0.8, 20));
+                text(pin.number || pin.name || "", pin.x + groupOffset, height - pin.y - 1);
 
-                    textSize(min(pin.radius * 0.8, 20)); 
+                if (typeof pin.net === "string" && pin.net.length > 0) {
+                    textSize(min(pin.radius * 0.1, 4));
+                    text(pin.net, pin.x + groupOffset, height - pin.y + 8);
+                }
 
+                pop();
+            }
+
+            // === DESENHAR NET NO CENTRO DO PINO SE TIVER OUTLINE E ZOOM GRANDE ===
+            if (
+                scaleFactor >= 4.0 &&
+                pin.net &&
+                pin.outlineRelative && pin.outlineRelative.length >= 4 &&
+                screenX > 0 && screenX < width &&
+                screenY > 0 && screenY < height
+            ) {
+                push();
+                fill(0);
+                noStroke();
+                textAlign(CENTER, CENTER);
+
+                // Centro aproximado da área do pino
+                let centerX = pin.x + groupOffset + (pin.outlineRelative[0] + pin.outlineRelative[2]) / 2;
+                let centerY = pin.y + (pin.outlineRelative[1] + pin.outlineRelative[3]) / 2;
+
+                textSize(min(pin.radius * 0.5, 12));
+
+                let netText = pin.net;
+                let lines = [];
+                for (let i = 0; i < netText.length; i += 6) {
+                    lines.push(netText.slice(i, i + 6));
+                }
+
+                let lineHeight = textSize() * 1.2;
+                for (let i = 0; i < lines.length; i++) {
                     text(
-                        pin.number || pin.name || "", 
-                        pin.x + groupOffset, 
-                        height - pin.y // Corrige para a inversão
+                        lines[i],
+                        centerX * scaleFactor + offsetX,
+                        (centerY + (i - (lines.length - 1) / 2) * lineHeight) * scaleFactor + offsetY
                     );
                 }
 
                 pop();
             }
+
+            noStroke();
         }
     }
 }
 
+
+
+
     
-    drawComponentBoundingBoxes();
+    
     drawSelectedNetConnections();
    
     drawPartNames();
@@ -525,12 +594,15 @@ function mouseWheel(event) {
  }
  
  // Detecta el click convirtiendo las coordenadas de pantalla a mundo
-function mousePressed() {
-    // Convertir la posición del mouse a coordenadas del "mundo"
+ function mousePressed() {
+    isDragging = true; // Oculta os nomes durante o arraste
+    cursor('grabbing'); // Altera o cursor para dar feedback visual
+
     let worldPos = screenToWorld(mouseX, mouseY);
     let mx = worldPos.x;
     let my = worldPos.y;
     let found = false;
+
 
     // Recorrer cada parte y sus pines para ver si se hizo click sobre alguno
     for (let part of parts) {
@@ -593,9 +665,9 @@ function mousePressed() {
  }
  
  function mouseReleased() {
-     // Al soltar, se restaura el cursor por defecto
-     cursor('default');
- }
+    isDragging = false; // Mostra os nomes novamente ao soltar o mouse
+    cursor('default');  // Restaura o cursor padrão
+}
  
  
  
@@ -785,10 +857,10 @@ function drawComponentBoundingBoxes() {
         rect(rectData.x, rectData.y, rectData.w, rectData.h);
     }
 
-    // Desenhar bordas
-    stroke(255, 255, 255);
+    // Desenhar bordas do componente
+    stroke(150, 150, 150);
     noFill();
-    strokeWeight(1);
+    strokeWeight(2);
 
     for (let rectData of backgroundRects) {
         rect(rectData.x, rectData.y, rectData.w, rectData.h);
@@ -806,13 +878,13 @@ function determineFillColor(part) {
     } else if (part.name.startsWith("N")) {
         return color(0, 0, 255, 0);
     } else if (part.name.startsWith("L")) {
-        return color(255, 255, 255, 80);
+        return color(30, 30, 30);
     } else if (part.name.startsWith("ZD")) {
         return color(80, 80, 80, 125);
     } else if (part.name.startsWith("U")) {
-        return color(50, 50, 50, 0);
+        return color(10, 10, 10);
     } else if (part.name.startsWith("u")) {
-        return color(10, 10, 10, 100);
+        return color(10, 10, 10);
     } else if (part.name.startsWith("S")) {
         return color(128, 128, 128, 115);
     } else if (part.name.startsWith("H")) {
@@ -836,10 +908,8 @@ function determineFillColor(part) {
     }
 }
 
-
-
 function drawPartNames() {
-    if (scaleFactor < 1.1 || scaleFactor >= 4.0) return; // Só desenha em zoom intermediário
+    if (scaleFactor < 1.1 || scaleFactor >= 4.0 || isDragging) return;
 
     push();
     resetMatrix();
@@ -855,7 +925,6 @@ function drawPartNames() {
             let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
             let sumX = 0, sumY = 0;
 
-            // Calcular o centro do componente
             for (let pin of part.pins) {
                 sumX += pin.x;
                 sumY += pin.y;
@@ -864,12 +933,9 @@ function drawPartNames() {
             let centerX = sumX / part.pins.length + groupOffset;
             let centerY = sumY / part.pins.length;
 
-            // Converte as coordenadas do mundo para a tela
             let centerScreen = worldToScreen(centerX, centerY);
 
-            // Verifica se o nome do componente está visível na tela
             if (centerScreen.x >= 0 && centerScreen.x <= width && centerScreen.y >= 0 && centerScreen.y <= height) {
-                // Desenha o nome do componente
                 textSize(12);
                 text(part.name, centerScreen.x, centerScreen.y);
             }
