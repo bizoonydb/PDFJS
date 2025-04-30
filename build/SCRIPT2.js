@@ -298,44 +298,53 @@ if (scaleFactor >= 0.2) {
                     fill(255, 0, 0);
                 }
 
-                // Verifica se o componente começa com "u", "n" ou "a" e desenha o pino corretamente
-                if (part.name && ['u', 'tp', 'a'].includes(part.name.toLowerCase()[0])) {
-                    ellipse(pin.x + groupOffset, pin.y, pin.radius, pin.radius);
+                // Verifica se há um contorno definido para o pino
+                if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
+                    // Desenha o contorno do pino com base no outlineRelative
+                    beginShape();
+                    for (let j = 0; j < pin.outlineRelative.length; j += 2) {
+                        let vx = pin.x + pin.outlineRelative[j];
+                        let vy = pin.y + pin.outlineRelative[j + 1];
+                        vertex(vx + groupOffset, vy);
+                    }
+                    endShape(CLOSE);
                 } else {
-                    rect(pin.x + groupOffset - pin.radius / 2, pin.y - pin.radius / 2, pin.radius, pin.radius);
+                    // Caso não tenha um outline, desenha o pino como círculo ou retângulo
+                    if (part.name && ['u', 'tp', 'a'].includes(part.name.toLowerCase()[0])) {
+                        ellipse(pin.x + groupOffset, pin.y, pin.radius, pin.radius);
+                    } else {
+                        rect(pin.x + groupOffset - pin.radius / 2, pin.y - pin.radius / 2, pin.radius, pin.radius);
+                    }
                 }
             }
-     
-// Agora desenhar o número DENTRO do pad
-if (scaleFactor >= 4.0) { // Mostrar apenas com zoom bem grande
-    push();
-    fill(255); // Cor do texto
-    noStroke(); // Sem contorno
-    textAlign(CENTER, CENTER);
 
-    // Calcular posição na tela
-    let screenX = (pin.x + groupOffset) * scaleFactor + offsetX;
-    let screenY = pin.y * scaleFactor + offsetY;
+            // Agora desenhar o número DENTRO do pad
+            if (scaleFactor >= 4.0) { // Mostrar apenas com zoom bem grande
+                push();
+                fill(255); // Cor do texto
+                noStroke(); // Sem contorno
+                textAlign(CENTER, CENTER);
 
-    // Desenhar apenas se o pino estiver visível
-    if (screenX > 0 && screenX < width && screenY > 0 && screenY < height) {
-        translate(0, height); // Move a origem para o topo invertido
-        scale(1, -1); // Inverte o eixo Y (vertical)
+                // Calcular posição na tela
+                let screenX = (pin.x + groupOffset) * scaleFactor + offsetX;
+                let screenY = pin.y * scaleFactor + offsetY;
 
-        textSize(min(pin.radius * 0.8, 20)); 
+                // Desenhar apenas se o pino estiver visível
+                if (screenX > 0 && screenX < width && screenY > 0 && screenY < height) {
+                    translate(0, height); // Move a origem para o topo invertido
+                    scale(1, -1); // Inverte o eixo Y (vertical)
 
-        text(
-            pin.number || pin.name || "", 
-            pin.x + groupOffset, 
-            height - pin.y // Corrige para a inversão
-        );
-    }
+                    textSize(min(pin.radius * 0.8, 20)); 
 
-    pop();
-}
+                    text(
+                        pin.number || pin.name || "", 
+                        pin.x + groupOffset, 
+                        height - pin.y // Corrige para a inversão
+                    );
+                }
 
-
-
+                pop();
+            }
         }
     }
 }
@@ -699,117 +708,134 @@ function drawSelectedNetConnections() {
     pop();
 }
 
-function drawComponentBoundingBoxes() {
-    let backgroundRects = []; // Lista para armazenar os preenchimentos
 
-    // Primeiro, coletamos as informações dos retângulos de fundo
+
+function drawComponentBoundingBoxes() {
+    let backgroundRects = [];
+
     for (let part of parts) {
         if (displayMode === "top" && part.side !== "T") continue;
         if (displayMode === "bottom" && part.side !== "B") continue;
         let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
 
-        if (part.pins.length > 0) {
-            let minX = Infinity, minY = Infinity;
-            let maxX = -Infinity, maxY = -Infinity;
+        let minX = Infinity, minY = Infinity;
+        let maxX = -Infinity, maxY = -Infinity;
 
+        if (part.outline && part.outline.length > 0) {
+            for (let i = 0; i < part.outline.length; i += 2) {
+                let relX = part.outline[i];
+                let relY = part.outline[i + 1];
+
+                let absX = part.origin.x + relX;
+                let absY = part.origin.y + relY;
+
+                minX = Math.min(minX, absX);
+                maxX = Math.max(maxX, absX);
+                minY = Math.min(minY, absY);
+                maxY = Math.max(maxY, absY);
+            }
+        } else if (part.pins && part.pins.length > 0) {
             for (let pin of part.pins) {
-                let r = pin.radius * 0.75;
-                minX = Math.min(minX, pin.x - r);
-                maxX = Math.max(maxX, pin.x + r);
-                minY = Math.min(minY, pin.y - r);
-                maxY = Math.max(maxY, pin.y + r);
+                let pinX = pin.x + part.origin.x;
+                let pinY = pin.y + part.origin.y;
+                minX = Math.min(minX, pinX);
+                maxX = Math.max(maxX, pinX);
+                minY = Math.min(minY, pinY);
+                maxY = Math.max(maxY, pinY);
             }
-
-            // Definir cor de preenchimento por tipo de componente
-            let fillColor;
-            if (part.name.startsWith("C")) {
-                fillColor = color(255, 255, 150, 85);
-            } else if (part.name.startsWith("R")) {
-                fillColor = color(50, 50, 50, 100);
-            } else if (part.name.startsWith("MIC")) {
-                fillColor = color(255, 255, 150, 225);
-            } else if (part.name.startsWith("N")) {
-                fillColor = color(0, 0, 255, 0);
-            } else if (part.name.startsWith("L")) {
-                fillColor = color(255, 255, 255, 80);
-            } else if (part.name.startsWith("ZD")) {
-                fillColor = color(80, 80, 80, 125);
-            } else if (part.name.startsWith("U")) {
-                fillColor = color(50, 50, 50, 0);
-            } else if (part.name.startsWith("u")) {
-                fillColor = color(10, 10, 10, 100);
-            } else if (part.name.startsWith("S")) {
-                fillColor = color(128, 128, 128, 115);
-            } else if (part.name.startsWith("H")) {
-                fillColor = color(50, 50, 50, 120);
-            } else if (part.name.startsWith("J")) {
-                fillColor = color(200, 200, 200, 35);
-            } else if (part.name.startsWith("D")) {
-                fillColor = color(80, 80, 80, 125);
-            } else if (part.name.startsWith("Q")) {
-                fillColor = color(80, 80, 80, 125);
-            } else if (part.name.startsWith("RF")) {
-                fillColor = color(255, 255, 0, 105);
-            } else if (part.name.startsWith("ANT")) {
-                fillColor = color(128, 128, 128, 155);
-            } else if (part.name.startsWith("PA")) {
-                fillColor = color(50, 50, 50, 120);
-            } else if (part.name.startsWith("F")) {
-                fillColor = color(0, 0, 255, 75);
-            } else {
-                fillColor = color(255, 255, 0, 0);
-            }
-
-            // Guardamos os dados para desenhar depois
-            backgroundRects.push({ 
-                x: minX + groupOffset, 
-                y: minY, 
-                w: maxX - minX, 
-                h: maxY - minY, 
-                color: fillColor 
-            });
+        } else {
+            continue; // Pular se não houver outline nem pinos
         }
+        let x = minX + groupOffset;
+        let y = minY;
+        let w = maxX - minX;
+        let h = maxY - minY;
+
+        // Corrigido: Verifica se está completamente fora da tela
+        let screenMin = worldToScreen(x, y);
+        let screenMax = worldToScreen(x + w, y + h);
+
+        let screenLeft   = Math.min(screenMin.x, screenMax.x);
+        let screenRight  = Math.max(screenMin.x, screenMax.x);
+        let screenTop    = Math.min(screenMin.y, screenMax.y);
+        let screenBottom = Math.max(screenMin.y, screenMax.y);
+
+        let completelyOffScreen =
+            screenRight < 0 ||
+            screenLeft > width ||
+            screenBottom < 0 ||
+            screenTop > height;
+
+        if (completelyOffScreen) continue;
+
+
+        backgroundRects.push({ 
+            x, 
+            y, 
+            w, 
+            h, 
+            fillColor: determineFillColor(part)
+        });
     }
 
-    // Agora desenhar apenas os que estão visíveis
-
+    // Desenhar os retângulos visíveis
     noStroke();
     for (let rectData of backgroundRects) {
-        // Converter coordenadas do mundo para a tela
-        let screenX = rectData.x * scaleFactor + offsetX;
-        let screenY = rectData.y * scaleFactor + offsetY;
-        let screenW = rectData.w * scaleFactor;
-        let screenH = rectData.h * scaleFactor;
-
-        // Só desenha se estiver visível
-        if (
-            screenX + screenW >= 0 && screenX <= width &&
-            screenY + screenH >= 0 && screenY <= height
-        ) {
-            fill(rectData.color);
-            rect(rectData.x, rectData.y, rectData.w, rectData.h);
-        }
+        fill(rectData.fillColor);
+        rect(rectData.x, rectData.y, rectData.w, rectData.h);
     }
 
+    // Desenhar bordas
     stroke(255, 255, 255);
     noFill();
-    strokeWeight(1.5);
+    strokeWeight(1);
 
     for (let rectData of backgroundRects) {
-        // Recalcular para as bordas também
-        let screenX = rectData.x * scaleFactor + offsetX;
-        let screenY = rectData.y * scaleFactor + offsetY;
-        let screenW = rectData.w * scaleFactor;
-        let screenH = rectData.h * scaleFactor;
-
-        if (
-            screenX + screenW >= 0 && screenX <= width &&
-            screenY + screenH >= 0 && screenY <= height
-        ) {
-            rect(rectData.x, rectData.y, rectData.w, rectData.h);
-        }
+        rect(rectData.x, rectData.y, rectData.w, rectData.h);
     }
 }
+
+// Função de cor conforme o nome do componente
+function determineFillColor(part) {
+    if (part.name.startsWith("C")) {
+        return color(255, 255, 150, 85);
+    } else if (part.name.startsWith("R")) {
+        return color(50, 50, 50, 100);
+    } else if (part.name.startsWith("MIC")) {
+        return color(255, 255, 150, 225);
+    } else if (part.name.startsWith("N")) {
+        return color(0, 0, 255, 0);
+    } else if (part.name.startsWith("L")) {
+        return color(255, 255, 255, 80);
+    } else if (part.name.startsWith("ZD")) {
+        return color(80, 80, 80, 125);
+    } else if (part.name.startsWith("U")) {
+        return color(50, 50, 50, 0);
+    } else if (part.name.startsWith("u")) {
+        return color(10, 10, 10, 100);
+    } else if (part.name.startsWith("S")) {
+        return color(128, 128, 128, 115);
+    } else if (part.name.startsWith("H")) {
+        return color(50, 50, 50, 120);
+    } else if (part.name.startsWith("J")) {
+        return color(200, 200, 200, 35);
+    } else if (part.name.startsWith("D")) {
+        return color(80, 80, 80, 125);
+    } else if (part.name.startsWith("Q")) {
+        return color(80, 80, 80, 125);
+    } else if (part.name.startsWith("RF")) {
+        return color(255, 255, 0, 105);
+    } else if (part.name.startsWith("ANT")) {
+        return color(128, 128, 128, 155);
+    } else if (part.name.startsWith("PA")) {
+        return color(50, 50, 50, 120);
+    } else if (part.name.startsWith("F")) {
+        return color(0, 0, 255, 75);
+    } else {
+        return color(255, 255, 0, 0);
+    }
+}
+
 
 
 function drawPartNames() {
@@ -853,8 +879,6 @@ function drawPartNames() {
     pop();
 }
 
-
-
 function parseFile() {
     let i = 0;
     while (i < fileContent.length) {
@@ -862,14 +886,30 @@ function parseFile() {
         if (line.startsWith("PART_NAME")) {
             let tokens = line.split(/\s+/);
             let partName = tokens[1];
-            let part = { name: partName, pins: [] };
+            let part = { name: partName, pins: [], outline: [] };
             i++;
             while (i < fileContent.length && !fileContent[i].trim().startsWith("PART_END")) {
                 let innerLine = fileContent[i].trim();
+
                 if (innerLine.startsWith("PART_SIDE")) {
                     let tokensSide = innerLine.split(/\s+/);
                     part.side = tokensSide[1]; // "T" ou "B"
                 }
+
+                if (innerLine.startsWith("PART_ORIGIN")) {
+                    let tokensOrigin = innerLine.split(/\s+/);
+                    part.origin = {
+                        x: parseFloat(tokensOrigin[1]),
+                        y: parseFloat(tokensOrigin[2])
+                    };
+                }
+
+                if (innerLine.startsWith("PART_OUTLINE_RELATIVE")) {
+                    let tokensOutline = innerLine.split(/\s+/);
+                    tokensOutline.shift(); // remove "PART_OUTLINE_RELATIVE"
+                    part.outline = tokensOutline.map(Number);
+                }
+
                 if (innerLine.startsWith("PIN_ID")) {
                     let pin = {};
                     i++;
@@ -892,6 +932,9 @@ function parseFile() {
                                 break;
                             case "PIN_NET":
                                 pin.net = tokensPin.slice(1).join(" ");
+                                break;
+                            case "PIN_OUTLINE_RELATIVE":
+                                pin.outlineRelative = tokensPin.slice(1).map(Number);
                                 break;
                         }
                         i++;
@@ -916,6 +959,7 @@ function parseFile() {
         }
     }
 }
+
 
  
  function fillComponentDatalist() {
