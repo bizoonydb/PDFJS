@@ -341,7 +341,7 @@ if (scaleFactor >= 0.2) {
                 }
                 endShape(CLOSE);
             } else {
-                if (part.name && ['u', 'tp', 'a', 'nfc', '1', 'n','tp'].includes(part.name.toLowerCase()[0])) {
+                if (part.name && ['u', 'a', 'nfc', '1', 'n', 'tp'].some(prefix => part.name.toLowerCase().startsWith(prefix))) {
                     ellipse(pin.x + groupOffset, pin.y, enlargedRadius, enlargedRadius);
                 } else {
                     rect(pin.x + groupOffset - enlargedRadius / 2, pin.y - enlargedRadius / 2, enlargedRadius, enlargedRadius);
