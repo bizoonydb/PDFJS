@@ -112,7 +112,7 @@ let bottomOffset = 0;
     translate(offsetX, offsetY);
     scale(scaleFactor);
 
-
+drawComponentBoundingBoxes();
 
    ///////////////////////////////////////////
    //////////___OUTLINE_BORDA___//////////////////
@@ -182,8 +182,8 @@ let bottomOffset = 0;
    let simplifiedOutlinePoints = simplifyContour(cleanedOutlinePoints, 0.5);
    
    // Preenche a área dentro do contorno com verde
-   fill(0, 255, 0, 60,); // Verde para representar a placa
-   stroke(255, 255, 255, 20,); // Borda branca
+   fill(0, 255, 0, 0,); // Verde para representar a placa
+   stroke(255, 255, 0); // Borda branca
    strokeWeight(1 / scaleFactor);
    beginShape();
    for (let p of simplifiedOutlinePoints) {
@@ -203,47 +203,164 @@ let bottomOffset = 0;
     // Atualiza o estado de piscamento
     blinkState = (frameCount % blinkInterval < blinkInterval / 2) ? 255 : 0;  // Alterna entre 255 e 0 a cada intervalo
 
-    // Desenha os pinos com efeito de piscar
+    
+    // Atualiza o estado de piscamento
+blinkState = (frameCount % blinkInterval < blinkInterval / 2) ? 255 : 0;  // Alterna entre 255 e 0 a cada intervalo
+
+// Desenha os pinos com efeito de piscar
+/// Desenha os pinos com efeito de piscar
+if (scaleFactor >= 0.2) {
     for (let part of parts) {
         if (displayMode === "top" && part.side !== "T") continue;
         if (displayMode === "bottom" && part.side !== "B") continue;
+
         let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+
         for (let pin of part.pins) {
+            // Calcular posição do pino na tela (uma vez só)
+            let screenX = (pin.x + groupOffset) * scaleFactor + offsetX;
+            let screenY = pin.y * scaleFactor + offsetY;
+
+            // IGNORAR pino se estiver fora da tela — melhora o desempenho
+            if (screenX < -20 || screenX > width + 20 || screenY < -20 || screenY > height + 20) continue;
+
+            // A partir daqui, só processa pinos realmente visíveis
+            let enlargedRadius = pin.radius * 1.9;
+            let isPPnV = typeof pin.net === "string" && /^PP[0-9]V/.test(pin.net);
+
             noStroke();
 
             // Aplica a cor piscando ao pino selecionado e pinos conectados
             if (selectedPin === pin || (selectedPin && pin.net === selectedPin.net)) {
-                fill(blinkState === 255 ? color(255, 0, 0) : color(0, 255, 0));  // Amarelo e Azul piscando
+                fill(blinkState === 255 ? color(255, 0, 255) : color(100, 180, 100));
+            } else if (typeof pin.net === "string" && pin.net.startsWith("VB")) {
+                fill(255, 0, 0);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("VSW")) {
+                fill(230, 200, 100);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("V")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("DV")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("PWR")) {
+                fill(255, 100, 100);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("RF")) {
+                fill(0, 130, 0);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("PP_VDD")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("PP_BAT")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("PP_VS")) {
+                fill(255, 70, 70);
+            } else if (isPPnV) {
+                fill(230, 200, 100);
             } else if (pin.net === "GND") {
-                fill(70, 70, 70);
+                fill(120, 120, 120);
             } else if (pin.net === "NC") {
-                fill(255, 255, 0);
+                fill(100, 130, 180);
             } else if (pin.side === "B") {
                 fill(255, 200, 0);
             } else if (pin.side === "TP") {
                 fill(255, 255, 0);
             } else {
-                fill(255, 0, 0);
+                fill(230, 200, 100);
             }
-            // Verifica se o componente começa com "u", "n" ou "a" e desenha o pino corretamente
-            if (part.name && ['u', 'tp', 'a'].includes(part.name.toLowerCase()[0])) {
-              // Se começar com "u", "n" ou "a", desenha como círculo
-            ellipse(pin.x + groupOffset, pin.y, pin.radius, pin.radius);
+
+            // Borda para PPnV
+            if (isPPnV) {
+                stroke(200, 50, 50);
+                strokeWeight(1.5);
             } else {
-             // Caso contrário, desenha como quadrado
-             rect(pin.x + groupOffset - pin.radius / 2, pin.y - pin.radius / 2, pin.radius, pin.radius);
-            }         
+                noStroke();
+            }
 
+            // Desenhar o pino
+            if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
+                beginShape();
+                for (let j = 0; j < pin.outlineRelative.length; j += 2) {
+                    let vx = pin.x + pin.outlineRelative[j];
+                    let vy = pin.y + pin.outlineRelative[j + 1];
+                    vertex(vx + groupOffset, vy);
+                }
+                endShape(CLOSE);
+            } else {
+                if (part.name && ['u', 'a', 'nfc', '1', 'n', 'tp'].some(prefix => part.name.toLowerCase().startsWith(prefix))) {
+                    ellipse(pin.x + groupOffset, pin.y, enlargedRadius, enlargedRadius);
+                } else {
+                    rect(pin.x + groupOffset - enlargedRadius / 2, pin.y - enlargedRadius / 2, enlargedRadius, enlargedRadius);
+                }
+            }
 
-            
-            
+            // === DESENHAR TEXTOS APENAS EM ZOOM GRANDE ===
+            if (
+                scaleFactor >= 4.0 &&
+                screenX > 0 && screenX < width &&
+                screenY > 0 && screenY < height
+            ) {
+                push();
+                fill(255);
+                noStroke();
+                textAlign(CENTER, CENTER);
+
+                translate(0, height);
+                scale(1, -1);
+
+                textSize(min(pin.radius * 0.8, 20));
+                text(pin.number || pin.name || "", pin.x + groupOffset, height - pin.y - 1);
+
+                if (typeof pin.net === "string" && pin.net.length > 0) {
+                    textSize(min(pin.radius * 0.1, 4));
+                    text(pin.net, pin.x + groupOffset, height - pin.y + 8);
+                }
+
+                pop();
+            }
+
+            // === DESENHAR NET NO CENTRO DO PINO SE TIVER OUTLINE E ZOOM GRANDE ===
+            if (
+                scaleFactor >= 4.0 &&
+                pin.net &&
+                pin.outlineRelative && pin.outlineRelative.length >= 4 &&
+                screenX > 0 && screenX < width &&
+                screenY > 0 && screenY < height
+            ) {
+                push();
+                fill(0);
+                noStroke();
+                textAlign(CENTER, CENTER);
+
+                // Centro aproximado da área do pino
+                let centerX = pin.x + groupOffset + (pin.outlineRelative[0] + pin.outlineRelative[2]) / 2;
+                let centerY = pin.y + (pin.outlineRelative[1] + pin.outlineRelative[3]) / 2;
+
+                textSize(min(pin.radius * 0.5, 12));
+
+                let netText = pin.net;
+                let lines = [];
+                for (let i = 0; i < netText.length; i += 6) {
+                    lines.push(netText.slice(i, i + 6));
+                }
+
+                let lineHeight = textSize() * 1.2;
+                for (let i = 0; i < lines.length; i++) {
+                    text(
+                        lines[i],
+                        centerX * scaleFactor + offsetX,
+                        (centerY + (i - (lines.length - 1) / 2) * lineHeight) * scaleFactor + offsetY
+                    );
+                }
+
+                pop();
+            }
+
+            noStroke();
         }
     }
+}
+
+
 
     
-
-    
-    drawComponentBoundingBoxes();
+   
     drawSelectedNetConnections();
    
     drawPartNames();
@@ -724,61 +841,86 @@ function drawPartNames() {
 
 
  
- function parseFile() {
-     let i = 0;
-     while (i < fileContent.length) {
-         let line = fileContent[i].trim();
-         if (line.startsWith("PART_NAME")) {
-             let tokens = line.split(/\s+/);
-             let partName = tokens[1];
-             let part = { name: partName, pins: [] };
-             i++;
-             while (i < fileContent.length && !fileContent[i].trim().startsWith("PART_END")) {
-                 let innerLine = fileContent[i].trim();
-                 if (innerLine.startsWith("PART_SIDE")) {
-                     let tokensSide = innerLine.split(/\s+/);
-                     part.side = tokensSide[1]; // "T" o "B"
-                 }
-                 if (innerLine.startsWith("PIN_ID")) {
-                     let pin = {};
-                     i++;
-                     while (i < fileContent.length && !fileContent[i].trim().startsWith("PIN_END")) {
-                         let pinLine = fileContent[i].trim();
-                         let tokensPin = pinLine.split(/\s+/);
-                         switch (tokensPin[0]) {
-                             case "PIN_ORIGIN":
-                                 pin.x = parseFloat(tokensPin[1]);
-                                 pin.y = parseFloat(tokensPin[2]);
-                                 break;
-                             case "PIN_RADIUS":
-                                 pin.radius = parseFloat(tokensPin[1]);
-                                 break;
-                             case "PIN_NET":
-                                 pin.net = tokensPin.slice(1).join(" ");
-                                 break;
-                         }
-                         i++;
-                     }
-                     part.pins.push(pin);
-                 } else {
-                     i++;
-                 }
-             }
-             parts.push(part);
-         } else if (line.startsWith("OUTLINE_SEGMENTED")) {
-             let tokens = line.split(/\s+/);
-             tokens.shift();
-             for (let j = 0; j < tokens.length; j += 2) {
-                 let x = parseFloat(tokens[j]);
-                 let y = parseFloat(tokens[j + 1]);
-                 outlinePoints.push({ x, y });
-             }
-             i++;
-         } else {
-             i++;
-         }
-     }
- }
+function parseFile() {
+    let i = 0;
+    while (i < fileContent.length) {
+        let line = fileContent[i].trim();
+        if (line.startsWith("PART_NAME")) {
+            let tokens = line.split(/\s+/);
+            let partName = tokens[1];
+            let part = { name: partName, pins: [], outline: [] };
+            i++;
+            while (i < fileContent.length && !fileContent[i].trim().startsWith("PART_END")) {
+                let innerLine = fileContent[i].trim();
+
+                if (innerLine.startsWith("PART_SIDE")) {
+                    let tokensSide = innerLine.split(/\s+/);
+                    part.side = tokensSide[1]; // "T" ou "B"
+                }
+
+                if (innerLine.startsWith("PART_ORIGIN")) {
+                    let tokensOrigin = innerLine.split(/\s+/);
+                    part.origin = {
+                        x: parseFloat(tokensOrigin[1]),
+                        y: parseFloat(tokensOrigin[2])
+                    };
+                }
+
+                if (innerLine.startsWith("PART_OUTLINE_RELATIVE")) {
+                    let tokensOutline = innerLine.split(/\s+/);
+                    tokensOutline.shift(); // remove "PART_OUTLINE_RELATIVE"
+                    part.outline = tokensOutline.map(Number);
+                }
+
+                if (innerLine.startsWith("PIN_ID")) {
+                    let pin = {};
+                    i++;
+                    while (i < fileContent.length && !fileContent[i].trim().startsWith("PIN_END")) {
+                        let pinLine = fileContent[i].trim();
+                        let tokensPin = pinLine.split(/\s+/);
+                        switch (tokensPin[0]) {
+                            case "PIN_NUMBER":
+                                pin.number = tokensPin[1];
+                                break;
+                            case "PIN_NAME":
+                                pin.name = tokensPin.slice(1).join(" ");
+                                break;
+                            case "PIN_ORIGIN":
+                                pin.x = parseFloat(tokensPin[1]);
+                                pin.y = parseFloat(tokensPin[2]);
+                                break;
+                            case "PIN_RADIUS":
+                                pin.radius = parseFloat(tokensPin[1]);
+                                break;
+                            case "PIN_NET":
+                                pin.net = tokensPin.slice(1).join(" ");
+                                break;
+                            case "PIN_OUTLINE_RELATIVE":
+                                pin.outlineRelative = tokensPin.slice(1).map(Number);
+                                break;
+                        }
+                        i++;
+                    }
+                    part.pins.push(pin);
+                } else {
+                    i++;
+                }
+            }
+            parts.push(part);
+        } else if (line.startsWith("OUTLINE_SEGMENTED")) {
+            let tokens = line.split(/\s+/);
+            tokens.shift();
+            for (let j = 0; j < tokens.length; j += 2) {
+                let x = parseFloat(tokens[j]);
+                let y = parseFloat(tokens[j + 1]);
+                outlinePoints.push({ x, y });
+            }
+            i++;
+        } else {
+            i++;
+        }
+    }
+}
  
  function fillComponentDatalist() {
      let componentList = select('#componentList');
