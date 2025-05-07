@@ -1,293 +1,293 @@
 /**
- * @licstart A seguir está o aviso de licença completo para o
- * Código JavaScript nesta página
+ * @licstart The following is the entire license notice for the
+ * JavaScript code in this page
  *
- * Copyright 2024 Fundação Mozilla
+ * Copyright 2024 Mozilla Foundation
  *
- * Licenciado sob a Licença Apache, Versão 2.0 (a "Licença");
- * você não pode usar este arquivo exceto em conformidade com a Licença.
- * Você pode obter uma cópia da Licença em
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * A menos que exigido pela lei aplicável ou acordado por escrito, o software
- * distribuído sob a Licença é distribuído "NO ESTADO EM QUE SE ENCONTRA",
- * SEM GARANTIAS OU CONDIÇÕES DE QUALQUER TIPO, expressas ou implícitas.
- * Consulte a Licença para o idioma específico que rege as permissões e
- * limitações sob a Licença.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- * @licend O acima é o aviso de licença completo para o
- * Código JavaScript nesta página
+ * @licend The above is the entire license notice for the
+ * JavaScript code in this page
  */
 
 
 ;// ./src/shared/util.js
-const isNodeJS = typeof processo === "objeto" && processo + "" === "[objeto processo]" && !process.versions.nw && !(process.versions.electron && process.type && process.type !== "navegador");
-const MATRIZ_DE_IDENTIDADE_DA_FONTE = [0,001, 0, 0, 0,001, 0, 0];
-const FATOR_DE_LINHA = 1,35;
-const FATOR_DE_DESCENT_DE_LINHA = 0,35;
-const FATOR_DE_BASE = FATOR_DE_DESCENT_DE_LINHA / FATOR_DE_LINHA;
+const isNodeJS = typeof process === "object" && process + "" === "[object process]" && !process.versions.nw && !(process.versions.electron && process.type && process.type !== "browser");
+const FONT_IDENTITY_MATRIX = [0.001, 0, 0, 0.001, 0, 0];
+const LINE_FACTOR = 1.35;
+const LINE_DESCENT_FACTOR = 0.35;
+const BASELINE_FACTOR = LINE_DESCENT_FACTOR / LINE_FACTOR;
 const RenderingIntentFlag = {
-  QUALQUER: 0x01,
-  EXIBIÇÃO: 0x02,
-  IMPRESSÃO: 0x04,
-  SALVAR: 0x08,
-  ANOTAÇÕES_FORMULÁRIOS: 0x10,
-  ANOTAÇÕES_ARMAZENAMENTO: 0x20,
-  ANOTAÇÕES_DESATIVADAS: 0x40,
-  EDIÇÃO_IS: 0x80,
-  LISTA OPL: 0x100
+  ANY: 0x01,
+  DISPLAY: 0x02,
+  PRINT: 0x04,
+  SAVE: 0x08,
+  ANNOTATIONS_FORMS: 0x10,
+  ANNOTATIONS_STORAGE: 0x20,
+  ANNOTATIONS_DISABLE: 0x40,
+  IS_EDITING: 0x80,
+  OPLIST: 0x100
 };
-const ModoDeAnotação = {
-  DESATIVAR: 0,
-  HABILITAR: 1,
-  HABILITAR_FORMULÁRIOS: 2,
-  HABILITAR_ARMAZENAMENTO: 3
+const AnnotationMode = {
+  DISABLE: 0,
+  ENABLE: 1,
+  ENABLE_FORMS: 2,
+  ENABLE_STORAGE: 3
 };
 const AnnotationEditorPrefix = "pdfjs_internal_editor_";
-const TipoDeEditorDeAnotação = {
-  DESATIVAR: -1,
-  NENHUM: 0,
-  TEXTO LIVRE: 3,
-  DESTAQUE: 9,
-  SELO: 13,
-  TINTA: 15,
-  ASSINATURA: 101
+const AnnotationEditorType = {
+  DISABLE: -1,
+  NONE: 0,
+  FREETEXT: 3,
+  HIGHLIGHT: 9,
+  STAMP: 13,
+  INK: 15,
+  SIGNATURE: 101
 };
 const AnnotationEditorParamsType = {
-  REDIMENSIONAR: 1,
-  CRIAR: 2,
-  TAMANHO_DO_TEXTO_LIVRE: 11,
-  COR_DO_TEXTO_LIVRE: 12,
-  OPACIDADE_DO_TEXTO_LIVRE: 13,
-  COR_DA_TINTA: 21,
-  ESPESSURA DA TINTA: 22,
-  OPACIDADE_DA_TINTA: 23,
-  COR DE DESTAQUE: 31,
-  COR_PADRÃO_DE_DESTAQUE: 32,
-  ESPESSURA DE DESTAQUE: 33,
-  DESTAQUE_GRÁTIS: 34,
-  DESTAQUE_MOSTRAR_TUDO: 35,
-  ETAPA_DESENHO: 41
+  RESIZE: 1,
+  CREATE: 2,
+  FREETEXT_SIZE: 11,
+  FREETEXT_COLOR: 12,
+  FREETEXT_OPACITY: 13,
+  INK_COLOR: 21,
+  INK_THICKNESS: 22,
+  INK_OPACITY: 23,
+  HIGHLIGHT_COLOR: 31,
+  HIGHLIGHT_DEFAULT_COLOR: 32,
+  HIGHLIGHT_THICKNESS: 33,
+  HIGHLIGHT_FREE: 34,
+  HIGHLIGHT_SHOW_ALL: 35,
+  DRAW_STEP: 41
 };
 const PermissionFlag = {
-  IMPRESSÃO: 0x04,
-  MODIFICAR_CONTEÚDO: 0x08,
-  CÓPIA: 0x10,
-  MODIFICAR_ANNOTAÇÕES: 0x20,
-  PREENCHER_FORMULÁRIOS_INTERATIVOS: 0x100,
-  CÓPIA_PARA_ACESSIBILIDADE: 0x200,
-  MONTAGEM: 0x400,
-  IMPRESSÃO_ALTA_QUALIDADE: 0x800
+  PRINT: 0x04,
+  MODIFY_CONTENTS: 0x08,
+  COPY: 0x10,
+  MODIFY_ANNOTATIONS: 0x20,
+  FILL_INTERACTIVE_FORMS: 0x100,
+  COPY_FOR_ACCESSIBILITY: 0x200,
+  ASSEMBLE: 0x400,
+  PRINT_HIGH_QUALITY: 0x800
 };
 const TextRenderingMode = {
-  PREENCHIMENTO: 0,
-  AVC: 1,
-  CURSO_DE_PREENCHIMENTO: 2,
-  INVISÍVEL: 3,
-  PREENCHER_ADICIONAR_AO_CAMINHO: 4,
+  FILL: 0,
+  STROKE: 1,
+  FILL_STROKE: 2,
+  INVISIBLE: 3,
+  FILL_ADD_TO_PATH: 4,
   STROKE_ADD_TO_PATH: 5,
-  PREENCHIMENTO_TRAÇO_ADICIONAR_AO_CAMINHO: 6,
-  ADICIONAR_AO_CAMINHO: 7,
-  MÁSCARA_DE_TRAÇO_DE_PREENCHIMENTO: 3,
-  ADICIONAR_AO_CAMINHO_FLAG: 4
+  FILL_STROKE_ADD_TO_PATH: 6,
+  ADD_TO_PATH: 7,
+  FILL_STROKE_MASK: 3,
+  ADD_TO_PATH_FLAG: 4
 };
 const util_ImageKind = {
-  ESCALA DE CINZA_1BPP: 1,
+  GRAYSCALE_1BPP: 1,
   RGB_24BPP: 2,
   RGBA_32BPP: 3
 };
-const Tipo de Anotação = {
-  TEXTO 1,
+const AnnotationType = {
+  TEXT: 1,
   LINK: 2,
-  TEXTO LIVRE: 3,
-  LINHA: 4,
-  QUADRADO: 5,
-  CÍRCULO: 6,
-  POLÍGONO: 7,
-  POLILINHA: 8,
-  DESTAQUE: 9,
-  SUBLINHADO: 10,
-  OLHADO: 11,
+  FREETEXT: 3,
+  LINE: 4,
+  SQUARE: 5,
+  CIRCLE: 6,
+  POLYGON: 7,
+  POLYLINE: 8,
+  HIGHLIGHT: 9,
+  UNDERLINE: 10,
+  SQUIGGLY: 11,
   STRIKEOUT: 12,
-  SELO: 13,
-  CIRCULAÇÃO: 14,
-  TINTA: 15,
-  POP-UP: 16,
-  ANEXO DO ARQUIVO: 17,
-  SOM: 18,
-  FILME: 19,
+  STAMP: 13,
+  CARET: 14,
+  INK: 15,
+  POPUP: 16,
+  FILEATTACHMENT: 17,
+  SOUND: 18,
+  MOVIE: 19,
   WIDGET: 20,
-  TELA: 21,
-  MARCA DE IMPRESSÃO: 22,
-  ARMADILHA: 23,
-  MARCA D'ÁGUA: 24,
-  TRÊS: 25,
-  REDIGIR: 26
+  SCREEN: 21,
+  PRINTERMARK: 22,
+  TRAPNET: 23,
+  WATERMARK: 24,
+  THREED: 25,
+  REDACT: 26
 };
 const AnnotationReplyType = {
-  GRUPO: "Grupo",
-  RESPOSTA: "R"
+  GROUP: "Group",
+  REPLY: "R"
 };
 const AnnotationFlag = {
-  INVISÍVEL: 0x01,
-  OCULTO: 0x02,
-  IMPRESSÃO: 0x04,
-  SEM ZOOM: 0x08,
-  NOROTATO: 0x10,
+  INVISIBLE: 0x01,
+  HIDDEN: 0x02,
+  PRINT: 0x04,
+  NOZOOM: 0x08,
+  NOROTATE: 0x10,
   NOVIEW: 0x20,
-  SOMENTE LEITURA: 0x40,
-  BLOQUEADO: 0x80,
-  ALTERNARVISUALIZAÇÃO: 0x100,
-  CONTEÚDO BLOQUEADO: 0x200
+  READONLY: 0x40,
+  LOCKED: 0x80,
+  TOGGLENOVIEW: 0x100,
+  LOCKEDCONTENTS: 0x200
 };
-const SinalizadorDeCampoDeAnotação = {
-  SOMENTE LEITURA: 0x0000001,
-  OBRIGATÓRIO: 0x0000002,
+const AnnotationFieldFlag = {
+  READONLY: 0x0000001,
+  REQUIRED: 0x0000002,
   NOEXPORT: 0x0000004,
-  MULTILINHA: 0x0001000,
-  SENHA: 0x0002000,
+  MULTILINE: 0x0001000,
+  PASSWORD: 0x0002000,
   NOTOGGLETOOFF: 0x0004000,
-  RÁDIO: 0x0008000,
-  BOTÃO DE PRESSÃO: 0x0010000,
+  RADIO: 0x0008000,
+  PUSHBUTTON: 0x0010000,
   COMBO: 0x0020000,
-  EDITAR: 0x0040000,
-  CLASSIFICAÇÃO: 0x0080000,
-  SELEÇÃO DE ARQUIVO: 0x0100000,
+  EDIT: 0x0040000,
+  SORT: 0x0080000,
+  FILESELECT: 0x0100000,
   MULTISELECT: 0x0200000,
-  NÃO VERIFICAR ORTOGRAFIA: 0x0400000,
-  NÃO ROLAR: 0x0800000,
+  DONOTSPELLCHECK: 0x0400000,
+  DONOTSCROLL: 0x0800000,
   COMB: 0x1000000,
   RICHTEXT: 0x2000000,
   RADIOSINUNISON: 0x2000000,
-  COMISSÕESALTERAÇÃO: 0x4000000
+  COMMITONSELCHANGE: 0x4000000
 };
 const AnnotationBorderStyleType = {
-  SÓLIDO: 1,
-  TRAÇADO: 2,
-  BISOTADO: 3,
-  INSERÇÃO: 4,
-  SUBLINHADO: 5
+  SOLID: 1,
+  DASHED: 2,
+  BEVELED: 3,
+  INSET: 4,
+  UNDERLINE: 5
 };
 const AnnotationActionEventType = {
-  E: "Enter do mouse",
-  X: "Saída do mouse",
-  D: "Mouse para baixo",
-  U: "Mouse para cima",
-  Fo: "Foco",
-  Bl: "Desfoque",
-  PO: "PáginaAberta",
-  PC: "Fechar Página",
-  PV: "PáginaVisível",
-  PI: "PáginaInvisível",
-  K: "Pressionamento de tecla",
-  F: "Formato",
-  V: "Validar",
-  C: "Calcular"
+  E: "Mouse Enter",
+  X: "Mouse Exit",
+  D: "Mouse Down",
+  U: "Mouse Up",
+  Fo: "Focus",
+  Bl: "Blur",
+  PO: "PageOpen",
+  PC: "PageClose",
+  PV: "PageVisible",
+  PI: "PageInvisible",
+  K: "Keystroke",
+  F: "Format",
+  V: "Validate",
+  C: "Calculate"
 };
 const DocumentActionEventType = {
   WC: "WillClose",
-  WS: "Salvarei",
-  DS: "Salvou",
-  WP: "Imprimirá",
-  DP: "Imprimiu"
+  WS: "WillSave",
+  DS: "DidSave",
+  WP: "WillPrint",
+  DP: "DidPrint"
 };
 const PageActionEventType = {
-  O: "PáginaAberta",
-  C: "FecharPágina"
+  O: "PageOpen",
+  C: "PageClose"
 };
-const NívelDeVerbosidade = {
-  ERROS: 0,
-  AVISOS: 1,
-  INFORMAÇÕES: 5
+const VerbosityLevel = {
+  ERRORS: 0,
+  WARNINGS: 1,
+  INFOS: 5
 };
 const OPS = {
-  dependência: 1,
+  dependency: 1,
   setLineWidth: 2,
   setLineCap: 3,
   setLineJoin: 4,
   setMiterLimit: 5,
   setDash: 6,
   setRenderingIntent: 7,
-  conjuntoPlanicidade: 8,
-  definirGState: 9,
-  salvar: 10,
-  restaurar: 11,
-  transformar: 12,
-  mover para: 13,
-  linhaPara: 14,
-  curvaPara: 15,
-  curvaTo2: 16,
-  curvaTo3: 17,
+  setFlatness: 8,
+  setGState: 9,
+  save: 10,
+  restore: 11,
+  transform: 12,
+  moveTo: 13,
+  lineTo: 14,
+  curveTo: 15,
+  curveTo2: 16,
+  curveTo3: 17,
   closePath: 18,
-  retângulo: 19,
-  curso: 20,
+  rectangle: 19,
+  stroke: 20,
   closeStroke: 21,
-  preenchimento: 22,
+  fill: 22,
   eoFill: 23,
   fillStroke: 24,
   eoFillStroke: 25,
   closeFillStroke: 26,
   closeEOFillStroke: 27,
   endPath: 28,
-  clipe: 29,
+  clip: 29,
   eoClip: 30,
   beginText: 31,
-  fim do texto: 32,
+  endText: 32,
   setCharSpacing: 33,
   setWordSpacing: 34,
   setHScale: 35,
-  conjuntoLeading: 36,
+  setLeading: 36,
   setFont: 37,
-  definirModoDeRenderizaçãoDeTexto: 38,
+  setTextRenderingMode: 38,
   setTextRise: 39,
   moveText: 40,
   setLeadingMoveText: 41,
   setTextMatrix: 42,
-  próximaLinha: 43,
-  mostrarTexto: 44,
+  nextLine: 43,
+  showText: 44,
   showSpacedText: 45,
   nextLineShowText: 46,
   nextLineSetSpacingShowText: 47,
   setCharWidth: 48,
-  definirCharWidthAndBounds: 49,
+  setCharWidthAndBounds: 49,
   setStrokeColorSpace: 50,
   setFillColorSpace: 51,
   setStrokeColor: 52,
   setStrokeColorN: 53,
-  definirFillColor: 54,
-  definirFillColorN: 55,
+  setFillColor: 54,
+  setFillColorN: 55,
   setStrokeGray: 56,
   setFillGray: 57,
   setStrokeRGBColor: 58,
   setFillRGBColor: 59,
   setStrokeCMYKColor: 60,
   setFillCMYKColor: 61,
-  sombreamentoPreenchimento: 62,
+  shadingFill: 62,
   beginInlineImage: 63,
   beginImageData: 64,
   endInlineImage: 65,
   paintXObject: 66,
-  ponto de marcação: 67,
+  markPoint: 67,
   markPointProps: 68,
   beginMarkedContent: 69,
   beginMarkedContentProps: 70,
-  ConteúdoMarcadofinal: 71,
+  endMarkedContent: 71,
   beginCompat: 72,
   endCompat: 73,
-  paintFormXObjectInício: 74,
+  paintFormXObjectBegin: 74,
   paintFormXObjectEnd: 75,
-  beginGrupo: 76,
-  Grupo final: 77,
+  beginGroup: 76,
+  endGroup: 77,
   beginAnnotation: 80,
-  Anotação final: 81,
+  endAnnotation: 81,
   paintImageMaskXObject: 83,
   paintImageMaskXObjectGroup: 84,
   paintImageXObject: 85,
   paintInlineImageXObject: 86,
   paintInlineImageXObjectGroup: 87,
-  paintImageXObjectRepetir: 88,
-  paintImageMaskXObjectRepetir: 89,
+  paintImageXObjectRepeat: 88,
+  paintImageMaskXObjectRepeat: 89,
   paintSolidColorImageMask: 90,
   constructPath: 91,
   setStrokeTransparent: 92,
@@ -295,314 +295,314 @@ const OPS = {
   rawFillPath: 94
 };
 const DrawOPS = {
-  mover para: 0,
-  linhaPara: 1,
-  curvaPara: 2,
+  moveTo: 0,
+  lineTo: 1,
+  curveTo: 2,
   closePath: 3
 };
-const RespostasDeSenha = {
-  SENHA_NECESSÁRIA: 1,
-  SENHA_INCORRETA: 2
+const PasswordResponses = {
+  NEED_PASSWORD: 1,
+  INCORRECT_PASSWORD: 2
 };
-deixe verbosity = VerbosityLevel.WARNINGS;
-função setVerbosityLevel(nível) {
-  se (Number.isInteger(nível)) {
-    verbosidade = nível;
+let verbosity = VerbosityLevel.WARNINGS;
+function setVerbosityLevel(level) {
+  if (Number.isInteger(level)) {
+    verbosity = level;
   }
 }
-função getVerbosityLevel() {
-  retornar verbosidade;
+function getVerbosityLevel() {
+  return verbosity;
 }
-função info(msg) {
-  se (verbosidade >= VerbosityLevel.INFOS) {
-    console.log(`Informações: ${msg}`);
+function info(msg) {
+  if (verbosity >= VerbosityLevel.INFOS) {
+    console.log(`Info: ${msg}`);
   }
 }
-função warn(msg) {
-  se (verbosidade >= VerbosidadeNível.AVISOS) {
-    console.log(`Aviso: ${msg}`);
+function warn(msg) {
+  if (verbosity >= VerbosityLevel.WARNINGS) {
+    console.log(`Warning: ${msg}`);
   }
 }
-função inalcançável(msg) {
-  lançar novo erro(msg);
+function unreachable(msg) {
+  throw new Error(msg);
 }
-função assert(cond, msg) {
-  se (!cond) {
-    inacessível(msg);
+function assert(cond, msg) {
+  if (!cond) {
+    unreachable(msg);
   }
 }
-função _isValidProtocol(url) {
-  switch (url?.protocolo) {
-    caso "http:":
-    caso "https:":
-    caso "ftp:":
-    caso "mailto:":
-    caso "tel:":
-      retornar verdadeiro;
-    padrão:
-      retornar falso;
+function _isValidProtocol(url) {
+  switch (url?.protocol) {
+    case "http:":
+    case "https:":
+    case "ftp:":
+    case "mailto:":
+    case "tel:":
+      return true;
+    default:
+      return false;
   }
 }
-função createValidAbsoluteUrl(url, baseUrl = nulo, opções = nulo) {
-  se (!url) {
-    retornar nulo;
+function createValidAbsoluteUrl(url, baseUrl = null, options = null) {
+  if (!url) {
+    return null;
   }
-  se (opções && tipo de url === "string") {
-    se (opções.addDefaultProtocol && url.startsWith("www.")) {
-      const pontos = url.match(/\./g);
-      se (pontos?.comprimento >= 2) {
+  if (options && typeof url === "string") {
+    if (options.addDefaultProtocol && url.startsWith("www.")) {
+      const dots = url.match(/\./g);
+      if (dots?.length >= 2) {
         url = `http://${url}`;
       }
     }
-    se (opções.tryConvertEncoding) {
-      tentar {
+    if (options.tryConvertEncoding) {
+      try {
         url = stringToUTF8String(url);
-      } pegar {}
+      } catch {}
     }
   }
   const absoluteUrl = baseUrl ? URL.parse(url, baseUrl) : URL.parse(url);
-  retornar _isValidProtocol(absoluteUrl) ? absoluteUrl : nulo;
+  return _isValidProtocol(absoluteUrl) ? absoluteUrl : null;
 }
-função updateUrlHash(url, hash, allowRel = false) {
+function updateUrlHash(url, hash, allowRel = false) {
   const res = URL.parse(url);
-  se (res) {
+  if (res) {
     res.hash = hash;
-    retornar res.href;
+    return res.href;
   }
-  se (allowRel && createValidAbsoluteUrl(url, "http://example.com")) {
-    retornar url.split("#", 1)[0] + `${hash ? `#${hash}` : ""}`;
+  if (allowRel && createValidAbsoluteUrl(url, "http://example.com")) {
+    return url.split("#", 1)[0] + `${hash ? `#${hash}` : ""}`;
   }
-  retornar "";
+  return "";
 }
-função shadow(obj, prop, valor, não serializável = falso) {
-  Objeto.defineProperty(obj, prop, {
-    valor,
-    enumerável: !nãoSerializável,
-    configurável: verdadeiro,
-    gravável: falso
+function shadow(obj, prop, value, nonSerializable = false) {
+  Object.defineProperty(obj, prop, {
+    value,
+    enumerable: !nonSerializable,
+    configurable: true,
+    writable: false
   });
-  valor de retorno;
+  return value;
 }
-const BaseException = função BaseExceptionClosure() {
-  função BaseException(mensagem, nome) {
-    this.message = mensagem;
-    this.nome = nome;
+const BaseException = function BaseExceptionClosure() {
+  function BaseException(message, name) {
+    this.message = message;
+    this.name = name;
   }
-  BaseException.prototype = novo Erro();
-  BaseException.construtor = BaseException;
-  retornar BaseException;
+  BaseException.prototype = new Error();
+  BaseException.constructor = BaseException;
+  return BaseException;
 }();
-classe PasswordException estende BaseException {
-  construtor(msg, código) {
+class PasswordException extends BaseException {
+  constructor(msg, code) {
     super(msg, "PasswordException");
-    this.code = código;
+    this.code = code;
   }
 }
-classe UnknownErrorException estende BaseException {
-  construtor(msg, detalhes) {
+class UnknownErrorException extends BaseException {
+  constructor(msg, details) {
     super(msg, "UnknownErrorException");
-    this.details = detalhes;
+    this.details = details;
   }
 }
-classe InvalidPDFException estende BaseException {
-  construtor(msg) {
-    super(msg, "ExceçãoPDFInválida");
+class InvalidPDFException extends BaseException {
+  constructor(msg) {
+    super(msg, "InvalidPDFException");
   }
 }
-classe ResponseException estende BaseException {
-  construtor(msg, status, ausente) {
-    super(msg, "Exceção de Resposta");
-    este.status = status;
-    this.missing = faltando;
+class ResponseException extends BaseException {
+  constructor(msg, status, missing) {
+    super(msg, "ResponseException");
+    this.status = status;
+    this.missing = missing;
   }
 }
-classe FormatError estende BaseException {
-  construtor(msg) {
-    super(msg, "Erro de formatação");
+class FormatError extends BaseException {
+  constructor(msg) {
+    super(msg, "FormatError");
   }
 }
-classe AbortException estende BaseException {
-  construtor(msg) {
+class AbortException extends BaseException {
+  constructor(msg) {
     super(msg, "AbortException");
   }
 }
-função bytesToString(bytes) {
-  se (tipo de bytes !== "objeto" || bytes?.comprimento === indefinido) {
-    unreachable("Argumento inválido para bytesToString");
+function bytesToString(bytes) {
+  if (typeof bytes !== "object" || bytes?.length === undefined) {
+    unreachable("Invalid argument for bytesToString");
   }
-  comprimento constante = bytes.length;
+  const length = bytes.length;
   const MAX_ARGUMENT_COUNT = 8192;
-  se (comprimento < MAX_ARGUMENT_COUNT) {
-    retornar String.fromCharCode.apply(nulo, bytes);
+  if (length < MAX_ARGUMENT_COUNT) {
+    return String.fromCharCode.apply(null, bytes);
   }
   const strBuf = [];
-  para (seja i = 0; i < comprimento; i += MAX_ARGUMENT_COUNT) {
-    const chunkEnd = Math.min(i + MAX_ARGUMENT_COUNT, comprimento);
+  for (let i = 0; i < length; i += MAX_ARGUMENT_COUNT) {
+    const chunkEnd = Math.min(i + MAX_ARGUMENT_COUNT, length);
     const chunk = bytes.subarray(i, chunkEnd);
-    strBuf.push(String.fromCharCode.apply(nulo, pedaço));
+    strBuf.push(String.fromCharCode.apply(null, chunk));
   }
-  retornar strBuf.join("");
+  return strBuf.join("");
 }
-função stringToBytes(str) {
-  se (tipo de str !== "string") {
-    unreachable("Argumento inválido para stringToBytes");
+function stringToBytes(str) {
+  if (typeof str !== "string") {
+    unreachable("Invalid argument for stringToBytes");
   }
-  comprimento constante = str.length;
-  const bytes = novo Uint8Array(comprimento);
-  para (seja i = 0; i < comprimento; ++i) {
+  const length = str.length;
+  const bytes = new Uint8Array(length);
+  for (let i = 0; i < length; ++i) {
     bytes[i] = str.charCodeAt(i) & 0xff;
   }
-  retornar bytes;
+  return bytes;
 }
-função string32(valor) {
-  retornar String.fromCharCode(valor >> 24 e 0xff, valor >> 16 e 0xff, valor >> 8 e 0xff, valor e 0xff);
+function string32(value) {
+  return String.fromCharCode(value >> 24 & 0xff, value >> 16 & 0xff, value >> 8 & 0xff, value & 0xff);
 }
-função objectSize(obj) {
-  retornar Object.keys(obj).length;
+function objectSize(obj) {
+  return Object.keys(obj).length;
 }
-função isLittleEndian() {
-  const buffer8 = novo Uint8Array(4);
+function isLittleEndian() {
+  const buffer8 = new Uint8Array(4);
   buffer8[0] = 1;
-  const view32 = novo Uint32Array(buffer8.buffer, 0, 1);
-  retornar view32[0] === 1;
+  const view32 = new Uint32Array(buffer8.buffer, 0, 1);
+  return view32[0] === 1;
 }
-função isEvalSupported() {
-  tentar {
-    nova Função("");
-    retornar verdadeiro;
-  } pegar {
-    retornar falso;
+function isEvalSupported() {
+  try {
+    new Function("");
+    return true;
+  } catch {
+    return false;
   }
 }
-classe util_FeatureTest {
-  estático obter isLittleEndian() {
+class util_FeatureTest {
+  static get isLittleEndian() {
     return shadow(this, "isLittleEndian", isLittleEndian());
   }
-  estático obter isEvalSupported() {
-    retornar sombra(isto, "isEvalSupported", isEvalSupported());
+  static get isEvalSupported() {
+    return shadow(this, "isEvalSupported", isEvalSupported());
   }
-  estático obter isOffscreenCanvasSupported() {
-    retornar sombra(isto, "OffscreenCanvasSupported", tipo de OffscreenCanvas !== "indefinido");
+  static get isOffscreenCanvasSupported() {
+    return shadow(this, "isOffscreenCanvasSupported", typeof OffscreenCanvas !== "undefined");
   }
-  estático obter isImageDecoderSupported() {
-    retornar sombra(isto, "éImageDecoderSuportado", tipo de ImageDecoder !== "indefinido");
+  static get isImageDecoderSupported() {
+    return shadow(this, "isImageDecoderSupported", typeof ImageDecoder !== "undefined");
   }
-  estático obter plataforma() {
-    constante {
-      plataforma,
-      Agente do usuário
-    } = navegador;
-    retornar sombra(isto, "plataforma", {
-      éAndroid: userAgent.includes("Android"),
-      isLinux: plataforma.includes("Linux"),
-      isMac: plataforma.includes("Mac"),
+  static get platform() {
+    const {
+      platform,
+      userAgent
+    } = navigator;
+    return shadow(this, "platform", {
+      isAndroid: userAgent.includes("Android"),
+      isLinux: platform.includes("Linux"),
+      isMac: platform.includes("Mac"),
       isWindows: platform.includes("Win"),
       isFirefox: userAgent.includes("Firefox")
     });
   }
-  estático obter isCSSRoundSupported() {
-    retornar sombra(isto, "CSSRoundSupported", globalThis.CSS?.supports?.("largura: redondo(1,5px, 1px)"));
+  static get isCSSRoundSupported() {
+    return shadow(this, "isCSSRoundSupported", globalThis.CSS?.supports?.("width: round(1.5px, 1px)"));
   }
 }
 const hexNumbers = Array.from(Array(256).keys(), n => n.toString(16).padStart(2, "0"));
-classe Util {
-  estático makeHexColor(r, g, b) {
-    retornar `#${hexNumbers[r]}${hexNumbers[g]}${hexNumbers[b]}`;
+class Util {
+  static makeHexColor(r, g, b) {
+    return `#${hexNumbers[r]}${hexNumbers[g]}${hexNumbers[b]}`;
   }
-  escala estáticaMinMax(transformar, minMax) {
-    deixe temp;
-    se (transformar[0]) {
-      se (transformar[0] < 0) {
+  static scaleMinMax(transform, minMax) {
+    let temp;
+    if (transform[0]) {
+      if (transform[0] < 0) {
         temp = minMax[0];
         minMax[0] = minMax[2];
-        minMax[2] = temperatura;
+        minMax[2] = temp;
       }
-      minMax[0] *= transformar[0];
-      minMax[2] *= transformar[0];
-      se (transformar[3] < 0) {
+      minMax[0] *= transform[0];
+      minMax[2] *= transform[0];
+      if (transform[3] < 0) {
         temp = minMax[1];
         minMax[1] = minMax[3];
-        minMax[3] = temperatura;
+        minMax[3] = temp;
       }
-      minMax[1] *= transformar[3];
-      minMax[3] *= transformar[3];
-    } outro {
+      minMax[1] *= transform[3];
+      minMax[3] *= transform[3];
+    } else {
       temp = minMax[0];
       minMax[0] = minMax[1];
-      minMax[1] = temperatura;
+      minMax[1] = temp;
       temp = minMax[2];
       minMax[2] = minMax[3];
-      minMax[3] = temperatura;
-      se (transformar[1] < 0) {
+      minMax[3] = temp;
+      if (transform[1] < 0) {
         temp = minMax[1];
         minMax[1] = minMax[3];
-        minMax[3] = temperatura;
+        minMax[3] = temp;
       }
-      minMax[1] *= transformar[1];
-      minMax[3] *= transformar[1];
-      se (transformar[2] < 0) {
+      minMax[1] *= transform[1];
+      minMax[3] *= transform[1];
+      if (transform[2] < 0) {
         temp = minMax[0];
         minMax[0] = minMax[2];
-        minMax[2] = temperatura;
+        minMax[2] = temp;
       }
-      minMax[0] *= transformar[2];
-      minMax[2] *= transforma[2];
+      minMax[0] *= transform[2];
+      minMax[2] *= transform[2];
     }
-    minMax[0] += transformar[4];
-    minMax[1] += transformar[5];
-    minMax[2] += transformar[4];
-    minMax[3] += transformar[5];
+    minMax[0] += transform[4];
+    minMax[1] += transform[5];
+    minMax[2] += transform[4];
+    minMax[3] += transform[5];
   }
-  transformação estática(m1, m2) {
-    retornar [m1[0] * m2[0] + m1[2] * m2[1], m1[1] * m2[0] + m1[3] * m2[1], m1[0] * m2[2] + m1[2] * m2[3], m1[1] * m2[2] + m1[3] * m2[3], m1[0] * m2[4] + m1[2] * m2[5] + m1[4], m1[1] * m2[4] + m1[3] * m2[5] + m1[5]];
+  static transform(m1, m2) {
+    return [m1[0] * m2[0] + m1[2] * m2[1], m1[1] * m2[0] + m1[3] * m2[1], m1[0] * m2[2] + m1[2] * m2[3], m1[1] * m2[2] + m1[3] * m2[3], m1[0] * m2[4] + m1[2] * m2[5] + m1[4], m1[1] * m2[4] + m1[3] * m2[5] + m1[5]];
   }
-  estático applyTransform(p, m, pos = 0) {
+  static applyTransform(p, m, pos = 0) {
     const p0 = p[pos];
     const p1 = p[pos + 1];
     p[pos] = p0 * m[0] + p1 * m[2] + m[4];
     p[pos + 1] = p0 * m[1] + p1 * m[3] + m[5];
   }
-  estático applyTransformToBezier(p, transformar, pos = 0) {
-    const m0 = transformar[0];
-    const m1 = transformar[1];
-    const m2 = transformar[2];
-    const m3 = transformar[3];
-    const m4 = transformar[4];
-    const m5 = transformar[5];
-    para (seja i = 0; i < 6; i += 2) {
+  static applyTransformToBezier(p, transform, pos = 0) {
+    const m0 = transform[0];
+    const m1 = transform[1];
+    const m2 = transform[2];
+    const m3 = transform[3];
+    const m4 = transform[4];
+    const m5 = transform[5];
+    for (let i = 0; i < 6; i += 2) {
       const pI = p[pos + i];
       const pI1 = p[pos + i + 1];
       p[pos + i] = pI * m0 + pI1 * m2 + m4;
       p[pos + i + 1] = pI * m1 + pI1 * m3 + m5;
     }
   }
-  estático applyInverseTransform(p, m) {
+  static applyInverseTransform(p, m) {
     const p0 = p[0];
     const p1 = p[1];
     const d = m[0] * m[3] - m[1] * m[2];
     p[0] = (p0 * m[3] - p1 * m[2] + m[2] * m[5] - m[4] * m[3]) / d;
     p[1] = (-p0 * m[1] + p1 * m[0] + m[4] * m[1] - m[5] * m[0]) / d;
   }
-  axialAlignedBoundingBox estático(retificar, transformar, saída) {
-    const m0 = transformar[0];
-    const m1 = transformar[1];
-    const m2 = transformar[2];
-    const m3 = transformar[3];
-    const m4 = transformar[4];
-    const m5 = transformar[5];
-    const r0 = retângulo[0];
-    const r1 = retângulo[1];
-    const r2 = retângulo[2];
+  static axialAlignedBoundingBox(rect, transform, output) {
+    const m0 = transform[0];
+    const m1 = transform[1];
+    const m2 = transform[2];
+    const m3 = transform[3];
+    const m4 = transform[4];
+    const m5 = transform[5];
+    const r0 = rect[0];
+    const r1 = rect[1];
+    const r2 = rect[2];
     const r3 = rect[3];
-    deixe a0 = m0 * r0 + m4;
-    deixe a2 = a0;
-    deixe a1 = m0 * r2 + m4;
-    deixe a3 = a1;
-    seja b0 = m3 * r1 + m5;
-    deixe b2 = b0;
-    seja b1 = m3 * r3 + m5;
-    deixe b3 = b1;
-    se (m1 !== 0 || m2 !== 0) {
+    let a0 = m0 * r0 + m4;
+    let a2 = a0;
+    let a1 = m0 * r2 + m4;
+    let a3 = a1;
+    let b0 = m3 * r1 + m5;
+    let b2 = b0;
+    let b1 = m3 * r3 + m5;
+    let b3 = b1;
+    if (m1 !== 0 || m2 !== 0) {
       const m1r0 = m1 * r0;
       const m1r2 = m1 * r2;
       const m2r1 = m2 * r1;
@@ -616,68 +616,68 @@ classe Util {
       b1 += m1r2;
       b2 += m1r2;
     }
-    saída[0] = Math.min(saída[0], a0, a1, a2, a3);
-    saída[1] = Math.min(saída[1], b0, b1, b2, b3);
-    saída[2] = Math.max(saída[2], a0, a1, a2, a3);
-    saída[3] = Math.max(saída[3], b0, b1, b2, b3);
+    output[0] = Math.min(output[0], a0, a1, a2, a3);
+    output[1] = Math.min(output[1], b0, b1, b2, b3);
+    output[2] = Math.max(output[2], a0, a1, a2, a3);
+    output[3] = Math.max(output[3], b0, b1, b2, b3);
   }
-  transformação inversa estática(m) {
+  static inverseTransform(m) {
     const d = m[0] * m[3] - m[1] * m[2];
-    retornar [m[3] / d, -m[1] / d, -m[2] / d, m[0] / d, (m[2] * m[5] - m[4] * m[3]) / d, (m[4] * m[1] - m[5] * m[0]) / d];
+    return [m[3] / d, -m[1] / d, -m[2] / d, m[0] / d, (m[2] * m[5] - m[4] * m[3]) / d, (m[4] * m[1] - m[5] * m[0]) / d];
   }
-  static singularValueDecompose2dScale(matriz, saída) {
-    const m0 = matriz[0];
-    const m1 = matriz[1];
-    const m2 = matriz[2];
-    const m3 = matriz[3];
-    constante a = m0 ** 2 + m1 ** 2;
+  static singularValueDecompose2dScale(matrix, output) {
+    const m0 = matrix[0];
+    const m1 = matrix[1];
+    const m2 = matrix[2];
+    const m3 = matrix[3];
+    const a = m0 ** 2 + m1 ** 2;
     const b = m0 * m2 + m1 * m3;
     const c = m2 ** 2 + m3 ** 2;
-    const primeiro = (a + c) / 2;
-    const segundo = Math.sqrt(primeiro ** 2 - (a * c - b ** 2));
-    output[0] = Math.sqrt(primeiro + segundo || 1);
-    output[1] = Math.sqrt(primeiro - segundo || 1);
+    const first = (a + c) / 2;
+    const second = Math.sqrt(first ** 2 - (a * c - b ** 2));
+    output[0] = Math.sqrt(first + second || 1);
+    output[1] = Math.sqrt(first - second || 1);
   }
-  estático normalizeRect(rect) {
+  static normalizeRect(rect) {
     const r = rect.slice(0);
-    se (rect[0] > rect[2]) {
-      r[0] = retângulo[2];
-      r[2] = retângulo[0];
+    if (rect[0] > rect[2]) {
+      r[0] = rect[2];
+      r[2] = rect[0];
     }
-    se (rect[1] > rect[3]) {
-      r[1] = retângulo[3];
-      r[3] = retângulo[1];
+    if (rect[1] > rect[3]) {
+      r[1] = rect[3];
+      r[3] = rect[1];
     }
-    retornar r;
+    return r;
   }
-  interseção estática(ret1, ret2) {
-    const xLow = Math.max(Math.min(ret1[0], ret1[2]), Math.min(ret2[0], ret2[2]));
+  static intersect(rect1, rect2) {
+    const xLow = Math.max(Math.min(rect1[0], rect1[2]), Math.min(rect2[0], rect2[2]));
     const xHigh = Math.min(Math.max(rect1[0], rect1[2]), Math.max(rect2[0], rect2[2]));
-    se (xBaixo > xAlto) {
-      retornar nulo;
+    if (xLow > xHigh) {
+      return null;
     }
     const yLow = Math.max(Math.min(rect1[1], rect1[3]), Math.min(rect2[1], rect2[3]));
     const yHigh = Math.min(Math.max(rect1[1], rect1[3]), Math.max(rect2[1], rect2[3]));
-    se (yBaixo > yAlto) {
-      retornar nulo;
+    if (yLow > yHigh) {
+      return null;
     }
-    retornar [xBaixo, yBaixo, xAlto, yAlto];
+    return [xLow, yLow, xHigh, yHigh];
   }
-  pointBoundingBox estático(x, y, minMax) {
+  static pointBoundingBox(x, y, minMax) {
     minMax[0] = Math.min(minMax[0], x);
     minMax[1] = Math.min(minMax[1], y);
     minMax[2] = Math.max(minMax[2], x);
     minMax[3] = Math.max(minMax[3], y);
   }
-  rectBoundingBox estático(x0, y0, x1, y1, minMax) {
+  static rectBoundingBox(x0, y0, x1, y1, minMax) {
     minMax[0] = Math.min(minMax[0], x0, x1);
     minMax[1] = Math.min(minMax[1], y0, y1);
     minMax[2] = Math.max(minMax[2], x0, x1);
     minMax[3] = Math.max(minMax[3], y0, y1);
   }
-  estático #getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, t, minMax) {
-    se (t <= 0 || t >= 1) {
-      retornar;
+  static #getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, t, minMax) {
+    if (t <= 0 || t >= 1) {
+      return;
     }
     const mt = 1 - t;
     const tt = t * t;
@@ -689,829 +689,829 @@ classe Util {
     minMax[2] = Math.max(minMax[2], x);
     minMax[3] = Math.max(minMax[3], y);
   }
-  estático #getExtremum(x0, x1, x2, x3, y0, y1, y2, y3, a, b, c, minMax) {
-    se (Math.abs(a) < 1e-12) {
-      se (Math.abs(b) >= 1e-12) {
-        isto.#getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, -c / b, minMax);
+  static #getExtremum(x0, x1, x2, x3, y0, y1, y2, y3, a, b, c, minMax) {
+    if (Math.abs(a) < 1e-12) {
+      if (Math.abs(b) >= 1e-12) {
+        this.#getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, -c / b, minMax);
       }
-      retornar;
+      return;
     }
-    constante delta = b ** 2 - 4 * c * a;
-    se (delta < 0) {
-      retornar;
+    const delta = b ** 2 - 4 * c * a;
+    if (delta < 0) {
+      return;
     }
     const sqrtDelta = Math.sqrt(delta);
-    constante a2 = 2 * a;
+    const a2 = 2 * a;
     this.#getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, (-b + sqrtDelta) / a2, minMax);
     this.#getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, (-b - sqrtDelta) / a2, minMax);
   }
-  bezierBoundingBox estático(x0, y0, x1, y1, x2, y2, x3, y3, minMax) {
+  static bezierBoundingBox(x0, y0, x1, y1, x2, y2, x3, y3, minMax) {
     minMax[0] = Math.min(minMax[0], x0, x3);
     minMax[1] = Math.min(minMax[1], y0, y3);
     minMax[2] = Math.max(minMax[2], x0, x3);
     minMax[3] = Math.max(minMax[3], y0, y3);
-    isto.#getExtremum(x0, x1, x2, x3, y0, y1, y2, y3, 3 * (-x0 + 3 * (x1 - x2) + x3), 6 * (x0 - 2 * x1 + x2), 3 * (x1 - x0), minMax);
+    this.#getExtremum(x0, x1, x2, x3, y0, y1, y2, y3, 3 * (-x0 + 3 * (x1 - x2) + x3), 6 * (x0 - 2 * x1 + x2), 3 * (x1 - x0), minMax);
     this.#getExtremum(x0, x1, x2, x3, y0, y1, y2, y3, 3 * (-y0 + 3 * (y1 - y2) + y3), 6 * (y0 - 2 * y1 + y2), 3 * (y1 - y0), minMax);
   }
 }
-const PDFStringTranslateTable = (/* expressão pura não utilizada ou super */ null && ([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x2d8, 0x2c7, 0x2c6, 0x2d9, 0x2dd, 0x2db, 0x2da, 0x2dc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ... 0x192, 0x2044, 0x2039, 0x203a, 0x2212, 0x2030, 0x201e, 0x201c, 0x201d, 0x2018, 0x2019, 0x201a, 0x2122, 0xfb01, 0xfb02, 0x141, 0x152, 0x160, 0x178, 0x17d, 0x131, 0x142, 0x153, 0x161, 0x17e, 0, 0x20ac]));
-função stringToPDFString(str, keepEscapeSequence = false) {
-  se (str[0] >= "\xEF") {
-    deixe codificação;
-    se (str[0] === "\xFE" && str[1] === "\xFF") {
-      codificação = "utf-16be";
-      se (str.length % 2 === 1) {
+const PDFStringTranslateTable = (/* unused pure expression or super */ null && ([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x2d8, 0x2c7, 0x2c6, 0x2d9, 0x2dd, 0x2db, 0x2da, 0x2dc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x2022, 0x2020, 0x2021, 0x2026, 0x2014, 0x2013, 0x192, 0x2044, 0x2039, 0x203a, 0x2212, 0x2030, 0x201e, 0x201c, 0x201d, 0x2018, 0x2019, 0x201a, 0x2122, 0xfb01, 0xfb02, 0x141, 0x152, 0x160, 0x178, 0x17d, 0x131, 0x142, 0x153, 0x161, 0x17e, 0, 0x20ac]));
+function stringToPDFString(str, keepEscapeSequence = false) {
+  if (str[0] >= "\xEF") {
+    let encoding;
+    if (str[0] === "\xFE" && str[1] === "\xFF") {
+      encoding = "utf-16be";
+      if (str.length % 2 === 1) {
         str = str.slice(0, -1);
       }
-    } senão se (str[0] === "\xFF" && str[1] === "\xFE") {
-      codificação = "utf-16le";
-      se (str.length % 2 === 1) {
+    } else if (str[0] === "\xFF" && str[1] === "\xFE") {
+      encoding = "utf-16le";
+      if (str.length % 2 === 1) {
         str = str.slice(0, -1);
       }
-    } senão se (str[0] === "\xEF" && str[1] === "\xBB" && str[2] === "\xBF") {
-      codificação = "utf-8";
+    } else if (str[0] === "\xEF" && str[1] === "\xBB" && str[2] === "\xBF") {
+      encoding = "utf-8";
     }
-    se (codificação) {
-      tentar {
-        const decodificador = novo TextDecoder(codificação, {
-          fatal: verdadeiro
+    if (encoding) {
+      try {
+        const decoder = new TextDecoder(encoding, {
+          fatal: true
         });
         const buffer = stringToBytes(str);
-        const decodificado = decodificador.decodificar(buffer);
-        se (manterSequênciaDeEscape || !decodificado.inclui("\x1b")) {
-          retornar decodificado;
+        const decoded = decoder.decode(buffer);
+        if (keepEscapeSequence || !decoded.includes("\x1b")) {
+          return decoded;
         }
-        retornar decodificado.replaceAll(/\x1b[^\x1b]*(?:\x1b|$)/g, "");
-      } pegar (ex) {
-        avisar(`stringToPDFString: "${ex}".`);
+        return decoded.replaceAll(/\x1b[^\x1b]*(?:\x1b|$)/g, "");
+      } catch (ex) {
+        warn(`stringToPDFString: "${ex}".`);
       }
     }
   }
   const strBuf = [];
-  para (seja i = 0, ii = str.length; i < ii; i++) {
+  for (let i = 0, ii = str.length; i < ii; i++) {
     const charCode = str.charCodeAt(i);
-    se (!keepEscapeSequence && charCode === 0x1b) {
-      enquanto (++i < ii && str.charCodeAt(i) !== 0x1b) {}
-      continuar;
+    if (!keepEscapeSequence && charCode === 0x1b) {
+      while (++i < ii && str.charCodeAt(i) !== 0x1b) {}
+      continue;
     }
-    const código = PDFStringTranslateTable[charCode];
-    strBuf.push(código ? String.fromCharCode(código) : str.charAt(i));
+    const code = PDFStringTranslateTable[charCode];
+    strBuf.push(code ? String.fromCharCode(code) : str.charAt(i));
   }
-  retornar strBuf.join("");
+  return strBuf.join("");
 }
-função stringToUTF8String(str) {
-  retornar decodeURIComponent(escape(str));
+function stringToUTF8String(str) {
+  return decodeURIComponent(escape(str));
 }
-função utf8StringToString(str) {
-  retornar unescape(encodeURIComponent(str));
+function utf8StringToString(str) {
+  return unescape(encodeURIComponent(str));
 }
 function isArrayEqual(arr1, arr2) {
-  se (arr1.length !== arr2.length) {
-    retornar falso;
+  if (arr1.length !== arr2.length) {
+    return false;
   }
-  para (seja i = 0, ii = arr1.length; i < ii; i++) {
-    se (arr1[i] !== arr2[i]) {
-      retornar falso;
+  for (let i = 0, ii = arr1.length; i < ii; i++) {
+    if (arr1[i] !== arr2[i]) {
+      return false;
     }
   }
-  retornar verdadeiro;
+  return true;
 }
-função getModificationDate(data = nova Data()) {
-  buffer const = [date.getUTCFullYear().toString(), (date.getUTCMonth() + 1).toString().padStart(2, "0"), date.getUTCDate().toString().padStart(2, "0"), date.getUTCHours().toString().padStart(2, "0"), date.getUTCMinutes().toString().padStart(2, "0"), date.getUTCSeconds().toString().padStart(2, "0")];
-  retornar buffer.join("");
+function getModificationDate(date = new Date()) {
+  const buffer = [date.getUTCFullYear().toString(), (date.getUTCMonth() + 1).toString().padStart(2, "0"), date.getUTCDate().toString().padStart(2, "0"), date.getUTCHours().toString().padStart(2, "0"), date.getUTCMinutes().toString().padStart(2, "0"), date.getUTCSeconds().toString().padStart(2, "0")];
+  return buffer.join("");
 }
-deixe NormalizeRegex = nulo;
-deixe NormalizationMap = nulo;
-função normalizeUnicode(str) {
-  se (!NormalizeRegex) {
-    NormalizeRegex = /([\u00a0\u00a5\u00e\u00eb3\u2000-\u200a\u202f\u2126\ufb00-\ufb04\ufb06\ufb20-\ufb36\ufb38-\ufb3c\ufb3e\ufb40-\ufb41\ufb43-\ufb44\ufb46-\ufba1\ufba4-\ufba9\ufbae-\uf bb1\ufbd3-\ufbdc\ufbde-\ufbe7\ufbea-\ufbf8\ufbfc-\ufbfd\ufc00-\ufc5d\ufc64-\ufcf1\u fcf5-\ufd3d\ufd88\ufdf4\ufdfa-\ufdfb\ufe71\ufe77\ufe79\ufe7b\ue7d]+)|(\ufb05+)/gu;
-    NormalizationMap = novo Mapa([["ﬅ", "ſt"]]);
+let NormalizeRegex = null;
+let NormalizationMap = null;
+function normalizeUnicode(str) {
+  if (!NormalizeRegex) {
+    NormalizeRegex = /([\u00a0\u00b5\u037e\u0eb3\u2000-\u200a\u202f\u2126\ufb00-\ufb04\ufb06\ufb20-\ufb36\ufb38-\ufb3c\ufb3e\ufb40-\ufb41\ufb43-\ufb44\ufb46-\ufba1\ufba4-\ufba9\ufbae-\ufbb1\ufbd3-\ufbdc\ufbde-\ufbe7\ufbea-\ufbf8\ufbfc-\ufbfd\ufc00-\ufc5d\ufc64-\ufcf1\ufcf5-\ufd3d\ufd88\ufdf4\ufdfa-\ufdfb\ufe71\ufe77\ufe79\ufe7b\ufe7d]+)|(\ufb05+)/gu;
+    NormalizationMap = new Map([["ﬅ", "ſt"]]);
   }
-  retornar str.replaceAll(NormalizeRegex, (_, p1, p2) => p1 ? p1.normalize("NFKC") : NormalizationMap.get(p2));
+  return str.replaceAll(NormalizeRegex, (_, p1, p2) => p1 ? p1.normalize("NFKC") : NormalizationMap.get(p2));
 }
-função getUuid() {
-  se (tipo de criptografia.randomUUID === "função") {
-    retornar crypto.randomUUID();
+function getUuid() {
+  if (typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
   }
-  const buf = novo Uint8Array(32);
-  cripto.obterValoresAleatórios(buf);
-  retornar bytesToString(buf);
+  const buf = new Uint8Array(32);
+  crypto.getRandomValues(buf);
+  return bytesToString(buf);
 }
 const AnnotationPrefix = "pdfjs_internal_id_";
-função _isValidExplicitDest(validRef, validName, dest) {
-  se (!Array.isArray(dest) || dest.length < 2) {
-    retornar falso;
+function _isValidExplicitDest(validRef, validName, dest) {
+  if (!Array.isArray(dest) || dest.length < 2) {
+    return false;
   }
-  const [página, zoom, ...args] = dest;
-  se (!validRef(página) && !Number.isInteger(página)) {
-    retornar falso;
+  const [page, zoom, ...args] = dest;
+  if (!validRef(page) && !Number.isInteger(page)) {
+    return false;
   }
-  se (!nomevalido(zoom)) {
-    retornar falso;
+  if (!validName(zoom)) {
+    return false;
   }
   const argsLen = args.length;
-  deixe allowNull = true;
-  alternar (zoom.nome) {
-    caso "XYZ":
-      se (argsLen < 2 || argsLen > 3) {
-        retornar falso;
+  let allowNull = true;
+  switch (zoom.name) {
+    case "XYZ":
+      if (argsLen < 2 || argsLen > 3) {
+        return false;
       }
-      quebrar;
-    caso "Ajuste":
-    caso "FitB":
-      retornar argsLen === 0;
-    caso "FitH":
-    caso "FitBH":
-    caso "FitV":
-    caso "FitBV":
-      se (argsLen > 1) {
-        retornar falso;
+      break;
+    case "Fit":
+    case "FitB":
+      return argsLen === 0;
+    case "FitH":
+    case "FitBH":
+    case "FitV":
+    case "FitBV":
+      if (argsLen > 1) {
+        return false;
       }
-      quebrar;
-    caso "FitR":
-      se (argsLen !== 4) {
-        retornar falso;
+      break;
+    case "FitR":
+      if (argsLen !== 4) {
+        return false;
       }
-      allowNull = falso;
-      quebrar;
-    padrão:
-      retornar falso;
+      allowNull = false;
+      break;
+    default:
+      return false;
   }
-  para (const arg de args) {
-    se (tipo de argumento === "número" || permitir Nulo && argumento === nulo) {
-      continuar;
+  for (const arg of args) {
+    if (typeof arg === "number" || allowNull && arg === null) {
+      continue;
     }
-    retornar falso;
+    return false;
   }
-  retornar verdadeiro;
+  return true;
 }
-função MathClamp(v, min, max) {
-  retornar Math.min(Math.max(v, min), max);
+function MathClamp(v, min, max) {
+  return Math.min(Math.max(v, min), max);
 }
-função toHexUtil(arr) {
-  se (Uint8Array.prototype.toHex) {
-    retornar arr.toHex();
+function toHexUtil(arr) {
+  if (Uint8Array.prototype.toHex) {
+    return arr.toHex();
   }
-  retornar Array.from(arr, num => hexNumbers[num]).join("");
+  return Array.from(arr, num => hexNumbers[num]).join("");
 }
-função toBase64Util(arr) {
-  se (Uint8Array.prototype.toBase64) {
-    retornar arr.toBase64();
+function toBase64Util(arr) {
+  if (Uint8Array.prototype.toBase64) {
+    return arr.toBase64();
   }
-  retornar btoa(bytesToString(arr));
+  return btoa(bytesToString(arr));
 }
-função deBase64Util(str) {
-  se (Uint8Array.fromBase64) {
-    retornar Uint8Array.fromBase64(str);
+function fromBase64Util(str) {
+  if (Uint8Array.fromBase64) {
+    return Uint8Array.fromBase64(str);
   }
-  retornar stringToBytes(atob(str));
+  return stringToBytes(atob(str));
 }
-se (tipo de Promessa.tentar !== "função") {
-  Promessa.try = função (fn, ...args) {
-    retornar nova Promessa(resolver => {
-      resolver(fn(...args));
+if (typeof Promise.try !== "function") {
+  Promise.try = function (fn, ...args) {
+    return new Promise(resolve => {
+      resolve(fn(...args));
     });
   };
 }
-se (tipo de Math.sumPrecise !== "função") {
-  Math.sumPrecise = função (números) {
-    retornar números.reduce((a, b) => a + b, 0);
+if (typeof Math.sumPrecise !== "function") {
+  Math.sumPrecise = function (numbers) {
+    return numbers.reduce((a, b) => a + b, 0);
   };
 }
 
 ;// ./src/display/display_utils.js
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-classe PixelsPorPolegada {
-  CSS estático = 96,0;
-  PDF estático = 72,0;
-  PDF_TO_CSS_UNITS estático = this.CSS / this.PDF;
+class PixelsPerInch {
+  static CSS = 96.0;
+  static PDF = 72.0;
+  static PDF_TO_CSS_UNITS = this.CSS / this.PDF;
 }
-função assíncrona fetchData(url, tipo = "texto") {
-  se (isValidFetchUrl(url, document.baseURI)) {
-    const resposta = await fetch(url);
-    se (!resposta.ok) {
-      lançar novo erro(response.statusText);
+async function fetchData(url, type = "text") {
+  if (isValidFetchUrl(url, document.baseURI)) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(response.statusText);
     }
-    switch (tipo) {
-      caso "arraybuffer":
-        retornar resposta.arrayBuffer();
-      caso "blob":
-        retornar resposta.blob();
-      caso "json":
-        retornar resposta.json();
+    switch (type) {
+      case "arraybuffer":
+        return response.arrayBuffer();
+      case "blob":
+        return response.blob();
+      case "json":
+        return response.json();
     }
-    retornar resposta.texto();
+    return response.text();
   }
-  retornar nova Promessa((resolver, rejeitar) => {
-    const request = novo XMLHttpRequest();
-    request.open("GET", url, verdadeiro);
-    request.responseType = tipo;
-    solicitação.onreadystatechange = () => {
-      se (solicitação.readyState !== XMLHttpRequest.DONE) {
-        retornar;
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.responseType = type;
+    request.onreadystatechange = () => {
+      if (request.readyState !== XMLHttpRequest.DONE) {
+        return;
       }
-      se (solicitação.status === 200 || solicitação.status === 0) {
-        switch (tipo) {
-          caso "arraybuffer":
-          caso "blob":
-          caso "json":
-            resolver(solicitação.resposta);
-            retornar;
+      if (request.status === 200 || request.status === 0) {
+        switch (type) {
+          case "arraybuffer":
+          case "blob":
+          case "json":
+            resolve(request.response);
+            return;
         }
-        resolver(solicitação.responseText);
-        retornar;
+        resolve(request.responseText);
+        return;
       }
-      rejeitar(novo erro(request.statusText));
+      reject(new Error(request.statusText));
     };
-    solicitação.enviar(nulo);
+    request.send(null);
   });
 }
-classe PageViewport {
-  construtor({
-    Caixa de visualização,
-    unidade de usuário,
-    escala,
-    rotação,
-    deslocamentoX = 0,
-    deslocamentoY = 0,
-    dontFlip = falso
+class PageViewport {
+  constructor({
+    viewBox,
+    userUnit,
+    scale,
+    rotation,
+    offsetX = 0,
+    offsetY = 0,
+    dontFlip = false
   }) {
     this.viewBox = viewBox;
-    this.userUnit = UnidadeUsuário;
-    this.scale = escala;
-    this.rotation = rotação;
-    isto.offsetX = offsetX;
-    isto.offsetY = offsetY;
-    escala *= userUnit;
+    this.userUnit = userUnit;
+    this.scale = scale;
+    this.rotation = rotation;
+    this.offsetX = offsetX;
+    this.offsetY = offsetY;
+    scale *= userUnit;
     const centerX = (viewBox[2] + viewBox[0]) / 2;
     const centerY = (viewBox[3] + viewBox[1]) / 2;
-    deixe girarA, girarB, girarC, girarD;
-    rotação %= 360;
-    se (rotação < 0) {
-      rotação += 360;
+    let rotateA, rotateB, rotateC, rotateD;
+    rotation %= 360;
+    if (rotation < 0) {
+      rotation += 360;
     }
-    interruptor (rotação) {
-      caso 180:
-        girarA = -1;
-        girarB = 0;
-        girarC = 0;
-        girarD = 1;
-        quebrar;
-      caso 90:
-        girarA = 0;
-        girarB = 1;
-        girarC = 1;
-        girarD = 0;
-        quebrar;
-      caso 270:
-        girarA = 0;
-        girarB = -1;
-        girarC = -1;
-        girarD = 0;
-        quebrar;
-      caso 0:
-        girarA = 1;
-        girarB = 0;
-        girarC = 0;
-        girarD = -1;
-        quebrar;
-      padrão:
-        lançar novo erro("PageViewport: Rotação inválida, deve ser um múltiplo de 90 graus.");
+    switch (rotation) {
+      case 180:
+        rotateA = -1;
+        rotateB = 0;
+        rotateC = 0;
+        rotateD = 1;
+        break;
+      case 90:
+        rotateA = 0;
+        rotateB = 1;
+        rotateC = 1;
+        rotateD = 0;
+        break;
+      case 270:
+        rotateA = 0;
+        rotateB = -1;
+        rotateC = -1;
+        rotateD = 0;
+        break;
+      case 0:
+        rotateA = 1;
+        rotateB = 0;
+        rotateC = 0;
+        rotateD = -1;
+        break;
+      default:
+        throw new Error("PageViewport: Invalid rotation, must be a multiple of 90 degrees.");
     }
-    se (nãoInverter) {
-      girarC = -rotateC;
-      girarD = -rotateD;
+    if (dontFlip) {
+      rotateC = -rotateC;
+      rotateD = -rotateD;
     }
-    deixe offsetCanvasX, offsetCanvasY;
-    deixe largura, altura;
-    se (rotateA === 0) {
-      offsetCanvasX = Math.abs(centerY - viewBox[1]) * escala + offsetX;
-      offsetCanvasY = Math.abs(centerX - viewBox[0]) * escala + offsetY;
-      largura = (viewBox[3] - viewBox[1]) * escala;
-      altura = (viewBox[2] - viewBox[0]) * escala;
-    } outro {
-      offsetCanvasX = Math.abs(centerX - viewBox[0]) * escala + offsetX;
-      offsetCanvasY = Math.abs(centerY - viewBox[1]) * escala + offsetY;
-      largura = (viewBox[2] - viewBox[0]) * escala;
-      altura = (viewBox[3] - viewBox[1]) * escala;
+    let offsetCanvasX, offsetCanvasY;
+    let width, height;
+    if (rotateA === 0) {
+      offsetCanvasX = Math.abs(centerY - viewBox[1]) * scale + offsetX;
+      offsetCanvasY = Math.abs(centerX - viewBox[0]) * scale + offsetY;
+      width = (viewBox[3] - viewBox[1]) * scale;
+      height = (viewBox[2] - viewBox[0]) * scale;
+    } else {
+      offsetCanvasX = Math.abs(centerX - viewBox[0]) * scale + offsetX;
+      offsetCanvasY = Math.abs(centerY - viewBox[1]) * scale + offsetY;
+      width = (viewBox[2] - viewBox[0]) * scale;
+      height = (viewBox[3] - viewBox[1]) * scale;
     }
-    this.transform = [rotateA * escala, rotateB * escala, rotateC * escala, rotateD * escala, offsetCanvasX - rotateA * escala * centerX - rotateC * escala * centerY, offsetCanvasY - rotateB * escala * centerX - rotateD * escala * centerY];
-    this.largura = largura;
-    this.height = altura;
+    this.transform = [rotateA * scale, rotateB * scale, rotateC * scale, rotateD * scale, offsetCanvasX - rotateA * scale * centerX - rotateC * scale * centerY, offsetCanvasY - rotateB * scale * centerX - rotateD * scale * centerY];
+    this.width = width;
+    this.height = height;
   }
-  obter rawDims() {
-    const dims = esta.viewBox;
-    retornar sombra(isto, "rawDims", {
+  get rawDims() {
+    const dims = this.viewBox;
+    return shadow(this, "rawDims", {
       pageWidth: dims[2] - dims[0],
       pageHeight: dims[3] - dims[1],
-      páginaX: escurece[0],
-      páginaY: escurece[1]
+      pageX: dims[0],
+      pageY: dims[1]
     });
   }
   clone({
-    escala = this.scale,
-    rotação = this.rotação,
+    scale = this.scale,
+    rotation = this.rotation,
     offsetX = this.offsetX,
     offsetY = this.offsetY,
-    dontFlip = falso
+    dontFlip = false
   } = {}) {
-    retornar novo PageViewport({
+    return new PageViewport({
       viewBox: this.viewBox.slice(),
-      userUnit: esta.userUnit,
-      escala,
-      rotação,
+      userUnit: this.userUnit,
+      scale,
+      rotation,
       offsetX,
       offsetY,
-      não vire
+      dontFlip
     });
   }
-  converterParaPontoDeVisualização(x, y) {
-    constante p = [x, y];
+  convertToViewportPoint(x, y) {
+    const p = [x, y];
     Util.applyTransform(p, this.transform);
-    retornar p;
+    return p;
   }
-  convertToViewportRectangle(retângulo) {
-    const topLeft = [retângulo[0], retângulo[1]];
+  convertToViewportRectangle(rect) {
+    const topLeft = [rect[0], rect[1]];
     Util.applyTransform(topLeft, this.transform);
-    const bottomRight = [ret[2], rect[3]];
-    Util.applyTransform(inferiorDireita, this.transform);
-    retornar [topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]];
+    const bottomRight = [rect[2], rect[3]];
+    Util.applyTransform(bottomRight, this.transform);
+    return [topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]];
   }
-  converterParaPontoPdf(x, y) {
-    constante p = [x, y];
+  convertToPdfPoint(x, y) {
+    const p = [x, y];
     Util.applyInverseTransform(p, this.transform);
-    retornar p;
+    return p;
   }
 }
-classe RenderingCancelledException estende BaseException {
-  construtor(msg, extraDelay = 0) {
+class RenderingCancelledException extends BaseException {
+  constructor(msg, extraDelay = 0) {
     super(msg, "RenderingCancelledException");
-    isto.extraDelay = extraDelay;
+    this.extraDelay = extraDelay;
   }
 }
-função isDataScheme(url) {
+function isDataScheme(url) {
   const ii = url.length;
-  deixe i = 0;
-  enquanto (i < ii && url[i].trim() === "") {
+  let i = 0;
+  while (i < ii && url[i].trim() === "") {
     i++;
   }
-  retornar url.substring(i, i + 5).toLowerCase() === "dados:";
+  return url.substring(i, i + 5).toLowerCase() === "data:";
 }
-função isPdfFile(nome do arquivo) {
-  retornar tipo de nome de arquivo === "string" && /\.pdf$/i.test(nome de arquivo);
+function isPdfFile(filename) {
+  return typeof filename === "string" && /\.pdf$/i.test(filename);
 }
-função getFilenameFromUrl(url) {
+function getFilenameFromUrl(url) {
   [url] = url.split(/[#?]/, 1);
-  retornar url.substring(url.lastIndexOf("/") + 1);
+  return url.substring(url.lastIndexOf("/") + 1);
 }
-função getPdfFilenameFromUrl(url, defaultFilename = "document.pdf") {
-  se (tipo de url !== "string") {
-    retornar nome_do_arquivo_padrão;
+function getPdfFilenameFromUrl(url, defaultFilename = "document.pdf") {
+  if (typeof url !== "string") {
+    return defaultFilename;
   }
-  se (isDataScheme(url)) {
-    warn('getPdfFilenameFromUrl: ignore "data:"-URL por motivos de desempenho.');
-    retornar nome_do_arquivo_padrão;
+  if (isDataScheme(url)) {
+    warn('getPdfFilenameFromUrl: ignore "data:"-URL for performance reasons.');
+    return defaultFilename;
   }
   const reURI = /^(?:(?:[^:]+:)?\/\/[^/]+)?([^?#]*)(\?[^#]*)?(#.*)?$/;
   const reFilename = /[^/?#=]+\.pdf\b(?!.*\.pdf\b)/i;
   const splitURI = reURI.exec(url);
-  deixe suggestedFilename = reFilename.exec(splitURI[1]) || reFilename.exec(splitURI[2]) || reFilename.exec(splitURI[3]);
-  se (nome de arquivo sugerido) {
-    Nome de arquivo sugerido = Nome de arquivo sugerido[0];
-    se (nome de arquivo sugerido.includes("%")) {
-      tentar {
-        Nome de arquivo sugerido = reNome de arquivo.exec(decodeURIComponent(nome de arquivo sugerido))[0];
-      } pegar {}
+  let suggestedFilename = reFilename.exec(splitURI[1]) || reFilename.exec(splitURI[2]) || reFilename.exec(splitURI[3]);
+  if (suggestedFilename) {
+    suggestedFilename = suggestedFilename[0];
+    if (suggestedFilename.includes("%")) {
+      try {
+        suggestedFilename = reFilename.exec(decodeURIComponent(suggestedFilename))[0];
+      } catch {}
     }
   }
-  retornar nome de arquivo sugerido || nome de arquivo padrão;
+  return suggestedFilename || defaultFilename;
 }
-classe StatTimer {
-  iniciado = Objeto.criar(nulo);
-  vezes = [];
-  tempo(nome) {
-    se (nome em this.started) {
-      warn(`O temporizador já está em execução para ${name}`);
+class StatTimer {
+  started = Object.create(null);
+  times = [];
+  time(name) {
+    if (name in this.started) {
+      warn(`Timer is already running for ${name}`);
     }
-    this.started[nome] = Data.agora();
+    this.started[name] = Date.now();
   }
-  timeEnd(nome) {
-    se (!(nome neste.iniciado)) {
-      warn(`O temporizador não foi iniciado para ${name}`);
+  timeEnd(name) {
+    if (!(name in this.started)) {
+      warn(`Timer has not been started for ${name}`);
     }
-    isso.vezes.push({
-      nome,
-      início: this.started[nome],
-      fim: Date.now()
+    this.times.push({
+      name,
+      start: this.started[name],
+      end: Date.now()
     });
-    excluir isto.iniciado[nome];
+    delete this.started[name];
   }
-  paraString() {
+  toString() {
     const outBuf = [];
-    deixe o mais longo = 0;
-    para (const {
-      nome
-    } deste.vezes) {
-      mais longo = Math.max(nome.comprimento, mais longo);
+    let longest = 0;
+    for (const {
+      name
+    } of this.times) {
+      longest = Math.max(name.length, longest);
     }
-    para (const {
-      nome,
-      começar,
-      fim
-    } deste.vezes) {
+    for (const {
+      name,
+      start,
+      end
+    } of this.times) {
       outBuf.push(`${name.padEnd(longest)} ${end - start}ms\n`);
     }
-    retornar outBuf.join("");
+    return outBuf.join("");
   }
 }
-função isValidFetchUrl(url, baseUrl) {
+function isValidFetchUrl(url, baseUrl) {
   const res = baseUrl ? URL.parse(url, baseUrl) : URL.parse(url);
-  retornar res?.protocol === "http:" || res?.protocol === "https:";
+  return res?.protocol === "http:" || res?.protocol === "https:";
 }
-função noContextMenu(e) {
+function noContextMenu(e) {
   e.preventDefault();
 }
-função stopEvent(e) {
+function stopEvent(e) {
   e.preventDefault();
   e.stopPropagation();
 }
-função obsoleta(detalhes) {
-  console.log("Uso de API obsoleto: " + detalhes);
+function deprecated(details) {
+  console.log("Deprecated API usage: " + details);
 }
-classe PDFDateString {
-  #regex estático;
-  estático toDateObject(entrada) {
-    se (!entrada || tipo de entrada !== "string") {
-      retornar nulo;
+class PDFDateString {
+  static #regex;
+  static toDateObject(input) {
+    if (!input || typeof input !== "string") {
+      return null;
     }
-    isto.#regex ||= novo RegExp("^D:" + "(\\d{4})" + "(\\d{2})?" + "(\\d{2})?" + "(\\d{2})?" + "(\\d{2})?" + "(\\d{2})?" + "([Z|+|-])?" + "(\\d{2})?" + "'?" + "(\\d{2})?" + "'?");
-    const matches = this.#regex.exec(entrada);
-    se (!corresponde) {
-      retornar nulo;
+    this.#regex ||= new RegExp("^D:" + "(\\d{4})" + "(\\d{2})?" + "(\\d{2})?" + "(\\d{2})?" + "(\\d{2})?" + "(\\d{2})?" + "([Z|+|-])?" + "(\\d{2})?" + "'?" + "(\\d{2})?" + "'?");
+    const matches = this.#regex.exec(input);
+    if (!matches) {
+      return null;
     }
-    const ano = parseInt(corresponde[1], 10);
-    deixe mês = parseInt(matches[2], 10);
-    mês = mês >= 1 && mês <= 12 ? mês - 1 : 0;
-    deixe dia = parseInt(correspondências[3], 10);
-    dia = dia >= 1 && dia <= 31 ? dia : 1;
-    deixe hora = parseInt(matches[4], 10);
-    hora = hora >= 0 && hora <= 23 ? hora : 0;
-    deixe minuto = parseInt(matches[5], 10);
-    minuto = minuto >= 0 && minuto <= 59 ? minuto : 0;
-    deixe segundo = parseInt(matches[6], 10);
-    segundo = segundo >= 0 && segundo <= 59 ? segundo : 0;
+    const year = parseInt(matches[1], 10);
+    let month = parseInt(matches[2], 10);
+    month = month >= 1 && month <= 12 ? month - 1 : 0;
+    let day = parseInt(matches[3], 10);
+    day = day >= 1 && day <= 31 ? day : 1;
+    let hour = parseInt(matches[4], 10);
+    hour = hour >= 0 && hour <= 23 ? hour : 0;
+    let minute = parseInt(matches[5], 10);
+    minute = minute >= 0 && minute <= 59 ? minute : 0;
+    let second = parseInt(matches[6], 10);
+    second = second >= 0 && second <= 59 ? second : 0;
     const universalTimeRelation = matches[7] || "Z";
-    deixe offsetHour = parseInt(matches[8], 10);
+    let offsetHour = parseInt(matches[8], 10);
     offsetHour = offsetHour >= 0 && offsetHour <= 23 ? offsetHour : 0;
-    deixe offsetMinute = parseInt(matches[9], 10) || 0;
+    let offsetMinute = parseInt(matches[9], 10) || 0;
     offsetMinute = offsetMinute >= 0 && offsetMinute <= 59 ? offsetMinute : 0;
-    se (universalTimeRelation === "-") {
-      hora += offsetHour;
-      minuto += offsetMinute;
-    } senão se (universalTimeRelation === "+") {
-      hora -= offsetHour;
-      minuto -= offsetMinute;
+    if (universalTimeRelation === "-") {
+      hour += offsetHour;
+      minute += offsetMinute;
+    } else if (universalTimeRelation === "+") {
+      hour -= offsetHour;
+      minute -= offsetMinute;
     }
-    retornar nova Data(Data.UTC(ano, mês, dia, hora, minuto, segundo));
+    return new Date(Date.UTC(year, month, day, hour, minute, second));
   }
 }
-função getXfaPageViewport(xfaPage, {
-  escala = 1,
-  rotação = 0
+function getXfaPageViewport(xfaPage, {
+  scale = 1,
+  rotation = 0
 }) {
-  constante {
-    largura,
-    altura
+  const {
+    width,
+    height
   } = xfaPage.attributes.style;
-  const viewBox = [0, 0, parseInt(largura), parseInt(altura)];
-  retornar novo PageViewport({
-    Caixa de visualização,
-    unidade de usuário: 1,
-    escala,
-    rotação
+  const viewBox = [0, 0, parseInt(width), parseInt(height)];
+  return new PageViewport({
+    viewBox,
+    userUnit: 1,
+    scale,
+    rotation
   });
 }
-função getRGB(cor) {
-  se (color.startsWith("#")) {
-    const colorRGB = parseInt(cor.slice(1), 16);
-    retornar [(colorRGB & 0xff0000) >> 16, (colorRGB & 0x00ff00) >> 8, colorRGB & 0x0000ff];
+function getRGB(color) {
+  if (color.startsWith("#")) {
+    const colorRGB = parseInt(color.slice(1), 16);
+    return [(colorRGB & 0xff0000) >> 16, (colorRGB & 0x00ff00) >> 8, colorRGB & 0x0000ff];
   }
-  se (cor.startsWith("rgb(")) {
-    retornar cor.slice(4, -1).split(",").map(x => parseInt(x));
+  if (color.startsWith("rgb(")) {
+    return color.slice(4, -1).split(",").map(x => parseInt(x));
   }
-  se (color.startsWith("rgba(")) {
-    retornar cor.slice(5, -1).split(",").map(x => parseInt(x)).slice(0, 3);
+  if (color.startsWith("rgba(")) {
+    return color.slice(5, -1).split(",").map(x => parseInt(x)).slice(0, 3);
   }
-  warn(`Não é um formato de cor válido: "${color}"`);
-  retornar [0, 0, 0];
+  warn(`Not a valid color format: "${color}"`);
+  return [0, 0, 0];
 }
-função getColorValues(cores) {
+function getColorValues(colors) {
   const span = document.createElement("span");
-  span.style.visibility = "oculto";
-  span.style.colorScheme = "somente luz";
-  documento.corpo.acrescentar(extensão);
-  para (const nome de cores.chaves()) {
-    span.style.color = nome;
-    const computedColor = janela.getComputedStyle(span).color;
-    cores.set(nome, getRGB(computedColor));
+  span.style.visibility = "hidden";
+  span.style.colorScheme = "only light";
+  document.body.append(span);
+  for (const name of colors.keys()) {
+    span.style.color = name;
+    const computedColor = window.getComputedStyle(span).color;
+    colors.set(name, getRGB(computedColor));
   }
   span.remove();
 }
-função getCurrentTransform(ctx) {
-  constante {
-    um,
+function getCurrentTransform(ctx) {
+  const {
+    a,
     b,
     c,
     d,
     e,
     f
   } = ctx.getTransform();
-  retornar [a, b, c, d, e, f];
+  return [a, b, c, d, e, f];
 }
-função getCurrentTransformInverse(ctx) {
-  constante {
-    um,
+function getCurrentTransformInverse(ctx) {
+  const {
+    a,
     b,
     c,
     d,
     e,
     f
   } = ctx.getTransform().invertSelf();
-  retornar [a, b, c, d, e, f];
+  return [a, b, c, d, e, f];
 }
-função setLayerDimensions(div, viewport, mustFlip = false, mustRotate = true) {
-  se (instância de viewport de PageViewport) {
-    constante {
-      largura da página,
-      altura da página
+function setLayerDimensions(div, viewport, mustFlip = false, mustRotate = true) {
+  if (viewport instanceof PageViewport) {
+    const {
+      pageWidth,
+      pageHeight
     } = viewport.rawDims;
-    constante {
-      estilo
+    const {
+      style
     } = div;
     const useRound = util_FeatureTest.isCSSRoundSupported;
-    const w = `var(--fator-de-escala-total) * ${pageWidth}px`,
-      h = `var(--fator-de-escala-total) * ${pageHeight}px`;
-    const widthStr = useRound ? `round(baixo, ${w}, var(--scale-round-x))` : `calc(${w})`,
+    const w = `var(--total-scale-factor) * ${pageWidth}px`,
+      h = `var(--total-scale-factor) * ${pageHeight}px`;
+    const widthStr = useRound ? `round(down, ${w}, var(--scale-round-x))` : `calc(${w})`,
       heightStr = useRound ? `round(down, ${h}, var(--scale-round-y))` : `calc(${h})`;
-    se (!mustFlip || viewport.rotação % 180 === 0) {
-      estilo.largura = widthStr;
-      estilo.altura = alturaStr;
-    } outro {
-      estilo.largura = alturaStr;
-      estilo.altura = widthStr;
+    if (!mustFlip || viewport.rotation % 180 === 0) {
+      style.width = widthStr;
+      style.height = heightStr;
+    } else {
+      style.width = heightStr;
+      style.height = widthStr;
     }
   }
-  se (deveGirar) {
-    div.setAttribute("rotação-principal-de-dados", viewport.rotação);
+  if (mustRotate) {
+    div.setAttribute("data-main-rotation", viewport.rotation);
   }
 }
-classe OutputScale {
-  construtor() {
-    constante {
-      Proporção de pixels
-    } = Escala de Saída;
+class OutputScale {
+  constructor() {
+    const {
+      pixelRatio
+    } = OutputScale;
     this.sx = pixelRatio;
     this.sy = pixelRatio;
   }
-  obter escalado() {
-    retornar isto.sx !== 1 || isto.sy !== 1;
+  get scaled() {
+    return this.sx !== 1 || this.sy !== 1;
   }
-  obter simétrico() {
-    retornar isto.sx === isto.sy;
+  get symmetric() {
+    return this.sx === this.sy;
   }
-  limitCanvas(largura, altura, maxPixels, maxDim) {
-    deixe maxAreaScale = Infinito,
-      maxWidthScale = Infinito,
-      maxHeightScale = Infinito;
-    se (maxPixels > 0) {
-      maxAreaScale = Math.sqrt(maxPixels / (largura * altura));
+  limitCanvas(width, height, maxPixels, maxDim) {
+    let maxAreaScale = Infinity,
+      maxWidthScale = Infinity,
+      maxHeightScale = Infinity;
+    if (maxPixels > 0) {
+      maxAreaScale = Math.sqrt(maxPixels / (width * height));
     }
-    se (maxDim !== -1) {
-      maxWidthScale = maxDim / largura;
-      maxHeightScale = maxDim / altura;
+    if (maxDim !== -1) {
+      maxWidthScale = maxDim / width;
+      maxHeightScale = maxDim / height;
     }
     const maxScale = Math.min(maxAreaScale, maxWidthScale, maxHeightScale);
-    se (this.sx > maxScale || this.sy > maxScale) {
-      isto.sx = maxScale;
-      isto.sy = maxScale;
-      retornar verdadeiro;
+    if (this.sx > maxScale || this.sy > maxScale) {
+      this.sx = maxScale;
+      this.sy = maxScale;
+      return true;
     }
-    retornar falso;
+    return false;
   }
-  estático obter pixelRatio() {
-    retornar globalThis.devicePixelRatio || 1;
+  static get pixelRatio() {
+    return globalThis.devicePixelRatio || 1;
   }
 }
-const SupportedImageMimeTypes = ["imagem/apng", "imagem/avif", "imagem/bmp", "imagem/gif", "imagem/jpeg", "imagem/png", "imagem/svg+xml", "imagem/webp", "imagem/x-icon"];
+const SupportedImageMimeTypes = ["image/apng", "image/avif", "image/bmp", "image/gif", "image/jpeg", "image/png", "image/svg+xml", "image/webp", "image/x-icon"];
 
 ;// ./src/display/editor/toolbar.js
 
-classe EditorToolbar {
-  #barra de ferramentas = nulo;
-  #colorPicker = nulo;
+class EditorToolbar {
+  #toolbar = null;
+  #colorPicker = null;
   #editor;
-  #botões = nulo;
-  #altText = nulo;
-  #signatureDescriptionButton = nulo;
-  estático #l10nRemove = nulo;
-  construtor(editor) {
-    isto.#editor = editor;
-    Barra de ferramentas do editor.#l10nRemover ||= Objeto.congelar({
-      texto livre: "editor-pdfjs-remove-botão-de-texto-livre",
-      destaque: "pdfjs-editor-remove-highlight-button",
-      tinta: "pdfjs-editor-remove-ink-button",
-      carimbo: "pdfjs-editor-remove-stamp-button",
-      assinatura: "pdfjs-editor-remove-signature-button"
+  #buttons = null;
+  #altText = null;
+  #signatureDescriptionButton = null;
+  static #l10nRemove = null;
+  constructor(editor) {
+    this.#editor = editor;
+    EditorToolbar.#l10nRemove ||= Object.freeze({
+      freetext: "pdfjs-editor-remove-freetext-button",
+      highlight: "pdfjs-editor-remove-highlight-button",
+      ink: "pdfjs-editor-remove-ink-button",
+      stamp: "pdfjs-editor-remove-stamp-button",
+      signature: "pdfjs-editor-remove-signature-button"
     });
   }
-  renderizar() {
+  render() {
     const editToolbar = this.#toolbar = document.createElement("div");
-    editToolbar.classList.add("editToolbar", "oculto");
-    editToolbar.setAttribute("função", "barra de ferramentas");
-    sinal constante = this.#editor._uiManager._signal;
+    editToolbar.classList.add("editToolbar", "hidden");
+    editToolbar.setAttribute("role", "toolbar");
+    const signal = this.#editor._uiManager._signal;
     editToolbar.addEventListener("contextmenu", noContextMenu, {
-      sinal
+      signal
     });
-    editToolbar.addEventListener("ponteiroparabaixo", EditorToolbar.#ponteiroparabaixo, {
-      sinal
+    editToolbar.addEventListener("pointerdown", EditorToolbar.#pointerDown, {
+      signal
     });
-    botões const = this.#botões = document.createElement("div");
-    botões.className = "botões";
-    editToolbar.append(botões);
-    const posição = this.#editor.toolbarPosition;
-    se (posição) {
-      constante {
-        estilo
-      } = editarBarra de ferramentas;
-      const x = this.#editor._uiManager.direction === "ltr" ? 1 - posição[0] : posição[0];
-      estilo.insetInlineEnd = `${100 * x}%`;
-      style.top = `calc(${100 * posição[1]}% + var(--editor-toolbar-vert-offset))`;
+    const buttons = this.#buttons = document.createElement("div");
+    buttons.className = "buttons";
+    editToolbar.append(buttons);
+    const position = this.#editor.toolbarPosition;
+    if (position) {
+      const {
+        style
+      } = editToolbar;
+      const x = this.#editor._uiManager.direction === "ltr" ? 1 - position[0] : position[0];
+      style.insetInlineEnd = `${100 * x}%`;
+      style.top = `calc(${100 * position[1]}% + var(--editor-toolbar-vert-offset))`;
     }
-    isto.#addDeleteButton();
-    retornar editToolbar;
+    this.#addDeleteButton();
+    return editToolbar;
   }
-  obter div() {
-    retornar isto.#barra de ferramentas;
+  get div() {
+    return this.#toolbar;
   }
-  estático #pointerDown(e) {
+  static #pointerDown(e) {
     e.stopPropagation();
   }
-  #focoEm(e) {
-    isto.#editor._focusEventsAllowed = falso;
+  #focusIn(e) {
+    this.#editor._focusEventsAllowed = false;
     stopEvent(e);
   }
   #focusOut(e) {
-    isto.#editor._focusEventsAllowed = verdadeiro;
+    this.#editor._focusEventsAllowed = true;
     stopEvent(e);
   }
-  #addListenersToElement(elemento) {
-    sinal constante = this.#editor._uiManager._signal;
-    elemento.addEventListener("foco em", isto.#focoEm.vincular(isto), {
-      captura: verdadeiro,
-      sinal
+  #addListenersToElement(element) {
+    const signal = this.#editor._uiManager._signal;
+    element.addEventListener("focusin", this.#focusIn.bind(this), {
+      capture: true,
+      signal
     });
-    elemento.addEventListener("focusout", isto.#focusOut.bind(isto), {
-      captura: verdadeiro,
-      sinal
+    element.addEventListener("focusout", this.#focusOut.bind(this), {
+      capture: true,
+      signal
     });
-    element.addEventListener("menu de contexto", noContextMenu, {
-      sinal
+    element.addEventListener("contextmenu", noContextMenu, {
+      signal
     });
   }
-  esconder() {
-    isto.#toolbar.classList.add("oculto");
-    isto.#colorPicker?.hideDropdown();
+  hide() {
+    this.#toolbar.classList.add("hidden");
+    this.#colorPicker?.hideDropdown();
   }
-  mostrar() {
-    isto.#toolbar.classList.remove("oculto");
-    isto.#altText?.mostrado();
+  show() {
+    this.#toolbar.classList.remove("hidden");
+    this.#altText?.shown();
   }
   #addDeleteButton() {
-    constante {
-      editorTipo,
+    const {
+      editorType,
       _uiManager
-    } = este.#editor;
-    botão const = document.createElement("botão");
-    button.className = "excluir";
-    botão.tabIndex = 0;
+    } = this.#editor;
+    const button = document.createElement("button");
+    button.className = "delete";
+    button.tabIndex = 0;
     button.setAttribute("data-l10n-id", EditorToolbar.#l10nRemove[editorType]);
-    isto.#addListenersToElement(botão);
-    botão.addEventListener("clique", e => {
+    this.#addListenersToElement(button);
+    button.addEventListener("click", e => {
       _uiManager.delete();
     }, {
-      sinal: _uiManager._signal
+      signal: _uiManager._signal
     });
-    isto.#botões.acrescentar(botão);
+    this.#buttons.append(button);
   }
-  obter #divisor() {
+  get #divider() {
     const divider = document.createElement("div");
-    divisor.className = "divisor";
-    divisor de retorno;
+    divider.className = "divider";
+    return divider;
   }
   async addAltText(altText) {
-    botão const = await altText.render();
-    isto.#addListenersToElement(botão);
-    isto.#botões.prepend(botão, isto.#divisor);
-    isto.#altText = altText;
+    const button = await altText.render();
+    this.#addListenersToElement(button);
+    this.#buttons.prepend(button, this.#divider);
+    this.#altText = altText;
   }
-  addColorPicker(seletor de cores) {
-    isto.#colorPicker = colorPicker;
-    botão const = colorPicker.renderButton();
-    isto.#addListenersToElement(botão);
-    isto.#botões.prepend(botão, isto.#divisor);
+  addColorPicker(colorPicker) {
+    this.#colorPicker = colorPicker;
+    const button = colorPicker.renderButton();
+    this.#addListenersToElement(button);
+    this.#buttons.prepend(button, this.#divider);
   }
   async addEditSignatureButton(signatureManager) {
-    botão const = this.#signatureDescriptionButton = await signatureManager.renderEditButton(this.#editor);
-    isto.#addListenersToElement(botão);
-    isto.#botões.prepend(botão, isto.#divisor);
+    const button = this.#signatureDescriptionButton = await signatureManager.renderEditButton(this.#editor);
+    this.#addListenersToElement(button);
+    this.#buttons.prepend(button, this.#divider);
   }
-  updateEditSignatureButton(descrição) {
-    se (este.#BotãoDeDescriçãoDaAssinatura) {
-      this.#signatureDescriptionButton.title = descrição;
+  updateEditSignatureButton(description) {
+    if (this.#signatureDescriptionButton) {
+      this.#signatureDescriptionButton.title = description;
     }
   }
-  remover() {
-    isto.#barra de ferramentas.remove();
-    isto.#colorPicker?.destroy();
-    isto.#colorPicker = nulo;
+  remove() {
+    this.#toolbar.remove();
+    this.#colorPicker?.destroy();
+    this.#colorPicker = null;
   }
 }
-classe HighlightToolbar {
-  #botões = nulo;
-  #barra de ferramentas = nulo;
+class HighlightToolbar {
+  #buttons = null;
+  #toolbar = null;
   #uiManager;
-  construtor(uiManager) {
-    isto.#uiManager = uiManager;
+  constructor(uiManager) {
+    this.#uiManager = uiManager;
   }
   #render() {
     const editToolbar = this.#toolbar = document.createElement("div");
     editToolbar.className = "editToolbar";
-    editToolbar.setAttribute("função", "barra de ferramentas");
+    editToolbar.setAttribute("role", "toolbar");
     editToolbar.addEventListener("contextmenu", noContextMenu, {
-      sinal: this.#uiManager._signal
+      signal: this.#uiManager._signal
     });
-    botões const = this.#botões = document.createElement("div");
-    botões.className = "botões";
-    editToolbar.append(botões);
-    isto.#addHighlightButton();
-    retornar editToolbar;
+    const buttons = this.#buttons = document.createElement("div");
+    buttons.className = "buttons";
+    editToolbar.append(buttons);
+    this.#addHighlightButton();
+    return editToolbar;
   }
-  #getLastPoint(caixas, isLTR) {
-    deixe lastY = 0;
-    deixe lastX = 0;
-    para (const caixa de caixas) {
-      const y = caixa.y + caixa.altura;
-      se (y < últimoY) {
-        continuar;
+  #getLastPoint(boxes, isLTR) {
+    let lastY = 0;
+    let lastX = 0;
+    for (const box of boxes) {
+      const y = box.y + box.height;
+      if (y < lastY) {
+        continue;
       }
-      const x = caixa.x + (isLTR ? caixa.largura : 0);
-      se (y > lastY) {
-        últimoX = x;
-        últimoY = y;
-        continuar;
+      const x = box.x + (isLTR ? box.width : 0);
+      if (y > lastY) {
+        lastX = x;
+        lastY = y;
+        continue;
       }
-      se (éLTR) {
-        se (x > últimoX) {
-          últimoX = x;
+      if (isLTR) {
+        if (x > lastX) {
+          lastX = x;
         }
-      } senão se (x < lastX) {
-        últimoX = x;
+      } else if (x < lastX) {
+        lastX = x;
       }
     }
-    retornar [éLTR? 1 - últimoX: últimoX, últimoY];
+    return [isLTR ? 1 - lastX : lastX, lastY];
   }
-  mostrar(pai, caixas, éLTR) {
-    const [x, y] = this.#getLastPoint(caixas, isLTR);
-    constante {
-      estilo
-    } = isto.#barra de ferramentas ||= isto.#renderizar();
-    pai.append(this.#barra de ferramentas);
-    estilo.insetInlineEnd = `${100 * x}%`;
+  show(parent, boxes, isLTR) {
+    const [x, y] = this.#getLastPoint(boxes, isLTR);
+    const {
+      style
+    } = this.#toolbar ||= this.#render();
+    parent.append(this.#toolbar);
+    style.insetInlineEnd = `${100 * x}%`;
     style.top = `calc(${100 * y}% + var(--editor-toolbar-vert-offset))`;
   }
-  esconder() {
-    isto.#barra de ferramentas.remove();
+  hide() {
+    this.#toolbar.remove();
   }
   #addHighlightButton() {
-    botão const = document.createElement("botão");
-    botão.className = "highlightButton";
-    botão.tabIndex = 0;
-    botão.setAttribute("data-l10n-id", `pdfjs-highlight-floating-button1`);
+    const button = document.createElement("button");
+    button.className = "highlightButton";
+    button.tabIndex = 0;
+    button.setAttribute("data-l10n-id", `pdfjs-highlight-floating-button1`);
     const span = document.createElement("span");
-    botão.append(span);
-    span.className = "visualmenteOculto";
-    span.setAttribute("data-l10n-id", "rótulo-do-botão-flutuante-de-destaque-pdfjs");
-    sinal constante = this.#uiManager._signal;
-    botão.addEventListener("contextmenu", noContextMenu, {
-      sinal
+    button.append(span);
+    span.className = "visuallyHidden";
+    span.setAttribute("data-l10n-id", "pdfjs-highlight-floating-button-label");
+    const signal = this.#uiManager._signal;
+    button.addEventListener("contextmenu", noContextMenu, {
+      signal
     });
-    botão.addEventListener("clique", () => {
-      isto.#uiManager.highlightSelection("botão_flutuante");
+    button.addEventListener("click", () => {
+      this.#uiManager.highlightSelection("floating_button");
     }, {
-      sinal
+      signal
     });
-    isto.#botões.acrescentar(botão);
+    this.#buttons.append(button);
   }
 }
 
@@ -1519,2180 +1519,2180 @@ classe HighlightToolbar {
 
 
 
-função bindEvents(obj, elemento, nomes) {
-  para (const nome dos nomes) {
-    element.addEventListener(nome, obj[nome].bind(obj));
+function bindEvents(obj, element, names) {
+  for (const name of names) {
+    element.addEventListener(name, obj[name].bind(obj));
   }
 }
-classe IdManager {
+class IdManager {
   #id = 0;
-  obter id() {
-    retornar `${AnnotationEditorPrefix}${this.#id++}`;
+  get id() {
+    return `${AnnotationEditorPrefix}${this.#id++}`;
   }
 }
-classe ImageManager {
-  #baseId = obterUuid();
+class ImageManager {
+  #baseId = getUuid();
   #id = 0;
-  #cache = nulo;
-  estático obter _isSVGFittingCanvas() {
-    const svg = `dados:imagem/svg+xml;charset=UTF-8,<svg viewBox="0 0 1 1" largura="1" altura="1" xmlns="http://www.w3.org/2000/svg"><rect largura="1" altura="1" estilo="preenchimento:vermelho;"/></svg>`;
-    const canvas = novo OffscreenCanvas(1, 3);
+  #cache = null;
+  static get _isSVGFittingCanvas() {
+    const svg = `data:image/svg+xml;charset=UTF-8,<svg viewBox="0 0 1 1" width="1" height="1" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" style="fill:red;"/></svg>`;
+    const canvas = new OffscreenCanvas(1, 3);
     const ctx = canvas.getContext("2d", {
-      willReadFrequently: verdadeiro
+      willReadFrequently: true
     });
-    const imagem = nova Imagem();
-    imagem.src = svg;
-    const promessa = imagem.decodificar().então(() => {
-      ctx.drawImage(imagem, 0, 0, 1, 1, 0, 0, 1, 3);
-      retornar novo Uint32Array(ctx.getImageData(0, 0, 1, 1).data.buffer)[0] === 0;
+    const image = new Image();
+    image.src = svg;
+    const promise = image.decode().then(() => {
+      ctx.drawImage(image, 0, 0, 1, 1, 0, 0, 1, 3);
+      return new Uint32Array(ctx.getImageData(0, 0, 1, 1).data.buffer)[0] === 0;
     });
-    retornar sombra(isto, "_isSVGFittingCanvas", promessa);
+    return shadow(this, "_isSVGFittingCanvas", promise);
   }
-  assíncrono #get(chave, dados brutos) {
-    isto.#cache ||= novo Mapa();
-    deixe dados = this.#cache.get(chave);
-    se (dados === nulo) {
-      retornar nulo;
+  async #get(key, rawData) {
+    this.#cache ||= new Map();
+    let data = this.#cache.get(key);
+    if (data === null) {
+      return null;
     }
-    se (dados?.bitmap) {
-      dados.refCounter += 1;
-      retornar dados;
+    if (data?.bitmap) {
+      data.refCounter += 1;
+      return data;
     }
-    tentar {
-      dados ||= {
-        bitmap: nulo,
-        id: `imagem_${this.#baseId}_${this.#id++}`,
+    try {
+      data ||= {
+        bitmap: null,
+        id: `image_${this.#baseId}_${this.#id++}`,
         refCounter: 0,
-        isSvg: falso
+        isSvg: false
       };
-      deixe imagem;
-      se (tipo de dados brutos === "string") {
-        dados.url = dadosraros;
-        imagem = await fetchData(rawData, "blob");
-      } senão se (rawData instância de Arquivo) {
-        imagem = dados.arquivo = rawData;
-      } senão se (rawData instância de Blob) {
-        imagem = rawData;
+      let image;
+      if (typeof rawData === "string") {
+        data.url = rawData;
+        image = await fetchData(rawData, "blob");
+      } else if (rawData instanceof File) {
+        image = data.file = rawData;
+      } else if (rawData instanceof Blob) {
+        image = rawData;
       }
-      se (imagem.tipo === "imagem/svg+xml") {
+      if (image.type === "image/svg+xml") {
         const mustRemoveAspectRatioPromise = ImageManager._isSVGFittingCanvas;
-        const fileReader = novo FileReader();
-        const imageElement = nova Imagem();
-        const imagePromise = new Promise((resolver, rejeitar) => {
+        const fileReader = new FileReader();
+        const imageElement = new Image();
+        const imagePromise = new Promise((resolve, reject) => {
           imageElement.onload = () => {
-            dados.bitmap = imageElement;
-            dados.isSvg = verdadeiro;
-            resolver();
+            data.bitmap = imageElement;
+            data.isSvg = true;
+            resolve();
           };
-          fileReader.onload = async() => {
-            const url = dados.svgUrl = fileReader.result;
-            imageElement.src = (aguarde mustRemoveAspectRatioPromise) ? `${url}#svgView(preserveAspectRatio(none))` : url;
+          fileReader.onload = async () => {
+            const url = data.svgUrl = fileReader.result;
+            imageElement.src = (await mustRemoveAspectRatioPromise) ? `${url}#svgView(preserveAspectRatio(none))` : url;
           };
-          imageElement.onerror = fileReader.onerror = rejeitar;
+          imageElement.onerror = fileReader.onerror = reject;
         });
-        fileReader.readAsDataURL(imagem);
-        aguardar imagePromise;
-      } outro {
-        data.bitmap = await createImageBitmap(imagem);
+        fileReader.readAsDataURL(image);
+        await imagePromise;
+      } else {
+        data.bitmap = await createImageBitmap(image);
       }
-      dados.refCounter = 1;
-    } pegar (e) {
-      avisar(e);
-      dados = nulo;
+      data.refCounter = 1;
+    } catch (e) {
+      warn(e);
+      data = null;
     }
-    isto.#cache.set(chave, dados);
-    se (dados) {
-      isto.#cache.set(dados.id, dados);
+    this.#cache.set(key, data);
+    if (data) {
+      this.#cache.set(data.id, data);
     }
-    retornar dados;
+    return data;
   }
-  async getFromFile(arquivo) {
-    constante {
-      última modificação,
-      nome,
-      tamanho,
-      tipo
-    } = arquivo;
-    retorne isto.#get(`${lastModified}_${name}_${size}_${type}`, arquivo);
+  async getFromFile(file) {
+    const {
+      lastModified,
+      name,
+      size,
+      type
+    } = file;
+    return this.#get(`${lastModified}_${name}_${size}_${type}`, file);
   }
-  assíncrono getFromUrl(url) {
-    retorne isto.#get(url, url);
+  async getFromUrl(url) {
+    return this.#get(url, url);
   }
-  assíncrono getFromBlob(id, blobPromise) {
-    const blob = aguardar blobPromise;
-    retorne isto.#get(id, blob);
+  async getFromBlob(id, blobPromise) {
+    const blob = await blobPromise;
+    return this.#get(id, blob);
   }
-  assíncrono getFromId(id) {
-    isto.#cache ||= novo Mapa();
-    const dados = this.#cache.get(id);
-    se (!dados) {
-      retornar nulo;
+  async getFromId(id) {
+    this.#cache ||= new Map();
+    const data = this.#cache.get(id);
+    if (!data) {
+      return null;
     }
-    se (dados.bitmap) {
-      dados.refCounter += 1;
-      retornar dados;
+    if (data.bitmap) {
+      data.refCounter += 1;
+      return data;
     }
-    se (dados.arquivo) {
-      retornar this.getFromFile(dados.arquivo);
+    if (data.file) {
+      return this.getFromFile(data.file);
     }
-    se (dados.blobPromise) {
-      constante {
-        blobPromessa
-      } = dados;
-      excluir dados.blobPromise;
-      retornar isto.getFromBlob(dados.id, blobPromise);
+    if (data.blobPromise) {
+      const {
+        blobPromise
+      } = data;
+      delete data.blobPromise;
+      return this.getFromBlob(data.id, blobPromise);
     }
-    retornar this.getFromUrl(dados.url);
+    return this.getFromUrl(data.url);
   }
-  getFromCanvas(id, tela) {
-    isto.#cache ||= novo Mapa();
-    deixe dados = this.#cache.get(id);
-    se (dados?.bitmap) {
-      dados.refCounter += 1;
-      retornar dados;
+  getFromCanvas(id, canvas) {
+    this.#cache ||= new Map();
+    let data = this.#cache.get(id);
+    if (data?.bitmap) {
+      data.refCounter += 1;
+      return data;
     }
-    const offscreen = novo OffscreenCanvas(tela.largura, tela.altura);
+    const offscreen = new OffscreenCanvas(canvas.width, canvas.height);
     const ctx = offscreen.getContext("2d");
-    ctx.drawImage(tela, 0, 0);
-    dados = {
+    ctx.drawImage(canvas, 0, 0);
+    data = {
       bitmap: offscreen.transferToImageBitmap(),
-      id: `imagem_${this.#baseId}_${this.#id++}`,
+      id: `image_${this.#baseId}_${this.#id++}`,
       refCounter: 1,
-      isSvg: falso
+      isSvg: false
     };
-    isto.#cache.set(id, dados);
-    isto.#cache.set(dados.id, dados);
-    retornar dados;
+    this.#cache.set(id, data);
+    this.#cache.set(data.id, data);
+    return data;
   }
-  obterSvgUrl(id) {
-    const dados = this.#cache.get(id);
-    se (!dados?.isSvg) {
-      retornar nulo;
+  getSvgUrl(id) {
+    const data = this.#cache.get(id);
+    if (!data?.isSvg) {
+      return null;
     }
-    retornar dados.svgUrl;
+    return data.svgUrl;
   }
   deleteId(id) {
-    isto.#cache ||= novo Mapa();
-    const dados = this.#cache.get(id);
-    se (!dados) {
-      retornar;
+    this.#cache ||= new Map();
+    const data = this.#cache.get(id);
+    if (!data) {
+      return;
     }
-    dados.refCounter -= 1;
-    se (dados.refCounter !== 0) {
-      retornar;
+    data.refCounter -= 1;
+    if (data.refCounter !== 0) {
+      return;
     }
-    constante {
+    const {
       bitmap
-    } = dados;
-    se (!dados.url && !dados.arquivo) {
-      const canvas = novo OffscreenCanvas(bitmap.largura, bitmap.altura);
+    } = data;
+    if (!data.url && !data.file) {
+      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
       const ctx = canvas.getContext("bitmaprenderer");
       ctx.transferFromImageBitmap(bitmap);
-      dados.blobPromise = canvas.convertToBlob();
+      data.blobPromise = canvas.convertToBlob();
     }
-    bitmap.fechar?.();
-    dados.bitmap = nulo;
+    bitmap.close?.();
+    data.bitmap = null;
   }
   isValidId(id) {
-    retornar id.startsWith(`image_${this.#baseId}_`);
+    return id.startsWith(`image_${this.#baseId}_`);
   }
 }
-classe CommandManager {
-  #comandos = [];
-  #bloqueado = falso;
-  #tamanhomáximo;
-  #posição = -1;
-  construtor(tamanhomáximo = 128) {
-    isto.#maxSize = maxSize;
+class CommandManager {
+  #commands = [];
+  #locked = false;
+  #maxSize;
+  #position = -1;
+  constructor(maxSize = 128) {
+    this.#maxSize = maxSize;
   }
-  adicionar({
-    comando,
-    desfazer,
-    publicar,
-    deveExecutar,
-    tipo = NaN,
-    sobrescreverSeMesmoTipo = falso,
-    keepUndo = falso
+  add({
+    cmd,
+    undo,
+    post,
+    mustExec,
+    type = NaN,
+    overwriteIfSameType = false,
+    keepUndo = false
   }) {
-    se (mustExec) {
+    if (mustExec) {
       cmd();
     }
-    se (isto.#bloqueado) {
-      retornar;
+    if (this.#locked) {
+      return;
     }
-    const salvar = {
-      comando,
-      desfazer,
-      publicar,
-      tipo
+    const save = {
+      cmd,
+      undo,
+      post,
+      type
     };
-    se (esta.#posição === -1) {
-      se (this.#commands.length > 0) {
-        isto.#comandos.comprimento = 0;
+    if (this.#position === -1) {
+      if (this.#commands.length > 0) {
+        this.#commands.length = 0;
       }
-      esta.#posição = 0;
-      isto.#comandos.push(salvar);
-      retornar;
+      this.#position = 0;
+      this.#commands.push(save);
+      return;
     }
-    se (sobrescreverSeMesmoTipo && isto.#comandos[isto.#posição].tipo === tipo) {
-      se (manterDesfazer) {
-        salvar.desfazer = isto.#comandos[isto.#posição].desfazer;
+    if (overwriteIfSameType && this.#commands[this.#position].type === type) {
+      if (keepUndo) {
+        save.undo = this.#commands[this.#position].undo;
       }
-      isto.#comandos[isto.#posição] = salvar;
-      retornar;
+      this.#commands[this.#position] = save;
+      return;
     }
-    const next = this.#posição + 1;
-    se (próximo === este.#tamanhomáximo) {
-      isto.#comandos.splice(0, 1);
-    } outro {
-      esta.#posição = próximo;
-      se (próximo < este.#comandos.comprimento) {
-        isto.#comandos.splice(próximo);
+    const next = this.#position + 1;
+    if (next === this.#maxSize) {
+      this.#commands.splice(0, 1);
+    } else {
+      this.#position = next;
+      if (next < this.#commands.length) {
+        this.#commands.splice(next);
       }
     }
-    isto.#comandos.push(salvar);
+    this.#commands.push(save);
   }
-  desfazer() {
-    se (esta.#posição === -1) {
-      retornar;
+  undo() {
+    if (this.#position === -1) {
+      return;
     }
-    isto.#bloqueado = verdadeiro;
-    constante {
-      desfazer,
-      publicar
-    } = this.#comandos[this.#posição];
-    desfazer();
-    publicar?.();
-    isto.#bloqueado = falso;
-    esta.#posição -= 1;
+    this.#locked = true;
+    const {
+      undo,
+      post
+    } = this.#commands[this.#position];
+    undo();
+    post?.();
+    this.#locked = false;
+    this.#position -= 1;
   }
-  refazer() {
-    se (isto.#posição < isto.#comandos.comprimento - 1) {
-      esta.#posição += 1;
-      isto.#bloqueado = verdadeiro;
-      constante {
-        comando,
-        publicar
-      } = this.#comandos[this.#posição];
+  redo() {
+    if (this.#position < this.#commands.length - 1) {
+      this.#position += 1;
+      this.#locked = true;
+      const {
+        cmd,
+        post
+      } = this.#commands[this.#position];
       cmd();
-      publicar?.();
-      isto.#bloqueado = falso;
+      post?.();
+      this.#locked = false;
     }
   }
-  temAlgoParaDesfazer() {
-    retorne isto.#posição !== -1;
+  hasSomethingToUndo() {
+    return this.#position !== -1;
   }
-  temAlgoParaRefazer() {
-    retornar isto.#posição < isto.#comandos.comprimento - 1;
+  hasSomethingToRedo() {
+    return this.#position < this.#commands.length - 1;
   }
-  cleanType(tipo) {
-    se (esta.#posição === -1) {
-      retornar;
+  cleanType(type) {
+    if (this.#position === -1) {
+      return;
     }
-    para (seja i = esta.#posição; i >= 0; i--) {
-      se (this.#commands[i].type !== tipo) {
-        isto.#comandos.splice(i + 1, isto.#posição - i);
-        isto.#posição = i;
-        retornar;
+    for (let i = this.#position; i >= 0; i--) {
+      if (this.#commands[i].type !== type) {
+        this.#commands.splice(i + 1, this.#position - i);
+        this.#position = i;
+        return;
       }
     }
-    isto.#comandos.comprimento = 0;
-    esta.#posição = -1;
+    this.#commands.length = 0;
+    this.#position = -1;
   }
-  destruir() {
-    isto.#comandos = nulo;
+  destroy() {
+    this.#commands = null;
   }
 }
-classe KeyboardManager {
-  construtor(retornos de chamada) {
-    este.buffer = [];
-    this.callbacks = novo Mapa();
-    this.allKeys = novo Conjunto();
-    constante {
-      éMac
-    } = util_FeatureTest.plataforma;
-    para (const [chaves, retorno de chamada, opções = {}] de retornos de chamada) {
-      para (const chave de chaves) {
-        const isMacKey = chave.startsWith("mac+");
-        se (isMac && isMacKey) {
-          this.callbacks.set(chave.fatia(4), {
-            ligar de volta,
-            opções
+class KeyboardManager {
+  constructor(callbacks) {
+    this.buffer = [];
+    this.callbacks = new Map();
+    this.allKeys = new Set();
+    const {
+      isMac
+    } = util_FeatureTest.platform;
+    for (const [keys, callback, options = {}] of callbacks) {
+      for (const key of keys) {
+        const isMacKey = key.startsWith("mac+");
+        if (isMac && isMacKey) {
+          this.callbacks.set(key.slice(4), {
+            callback,
+            options
           });
-          isto.allKeys.add(chave.split("+").at(-1));
-        } senão se (!isMac && !isMacKey) {
-          this.callbacks.set(chave, {
-            ligar de volta,
-            opções
+          this.allKeys.add(key.split("+").at(-1));
+        } else if (!isMac && !isMacKey) {
+          this.callbacks.set(key, {
+            callback,
+            options
           });
-          isto.allKeys.add(chave.split("+").at(-1));
+          this.allKeys.add(key.split("+").at(-1));
         }
       }
     }
   }
-  #serialize(evento) {
-    se (evento.altKey) {
-      este.buffer.push("alt");
+  #serialize(event) {
+    if (event.altKey) {
+      this.buffer.push("alt");
     }
-    se (evento.ctrlKey) {
-      este.buffer.push("ctrl");
+    if (event.ctrlKey) {
+      this.buffer.push("ctrl");
     }
-    se (evento.metaKey) {
-      este.buffer.push("meta");
+    if (event.metaKey) {
+      this.buffer.push("meta");
     }
-    se (evento.shiftKey) {
-      este.buffer.push("shift");
+    if (event.shiftKey) {
+      this.buffer.push("shift");
     }
-    this.buffer.push(evento.chave);
+    this.buffer.push(event.key);
     const str = this.buffer.join("+");
-    este.buffer.comprimento = 0;
-    retornar str;
+    this.buffer.length = 0;
+    return str;
   }
-  exec(self, evento) {
-    se (!this.allKeys.has(evento.chave)) {
-      retornar;
+  exec(self, event) {
+    if (!this.allKeys.has(event.key)) {
+      return;
     }
-    const info = this.callbacks.get(this.#serialize(evento));
-    se (!info) {
-      retornar;
+    const info = this.callbacks.get(this.#serialize(event));
+    if (!info) {
+      return;
     }
-    constante {
-      ligar de volta,
-      opções: {
-        bolhas = falso,
-        argumentos = [],
-        verificador = nulo
+    const {
+      callback,
+      options: {
+        bubbles = false,
+        args = [],
+        checker = null
       }
-    } = informação;
-    se (verificador && !verificador(self, evento)) {
-      retornar;
+    } = info;
+    if (checker && !checker(self, event)) {
+      return;
     }
-    retorno de chamada.bind(self, ...args, evento)();
-    se (!bolhas) {
-      stopEvent(evento);
+    callback.bind(self, ...args, event)();
+    if (!bubbles) {
+      stopEvent(event);
     }
   }
 }
-classe ColorManager {
-  static _colorsMapping = novo Mapa([["CanvasText", [0, 0, 0]], ["Tela", [255, 255, 255]]]);
-  obter _cores() {
-    const cores = novo Mapa([["CanvasText", nulo], ["Tela", nulo]]);
-    getColorValues(cores);
-    retornar sombra(isto, "_cores", cores);
+class ColorManager {
+  static _colorsMapping = new Map([["CanvasText", [0, 0, 0]], ["Canvas", [255, 255, 255]]]);
+  get _colors() {
+    const colors = new Map([["CanvasText", null], ["Canvas", null]]);
+    getColorValues(colors);
+    return shadow(this, "_colors", colors);
   }
-  converter(cor) {
-    const rgb = getRGB(cor);
-    se (!window.matchMedia("(cores forçadas: ativo)").corresponde) {
-      retornar rgb;
+  convert(color) {
+    const rgb = getRGB(color);
+    if (!window.matchMedia("(forced-colors: active)").matches) {
+      return rgb;
     }
-    para (const [nome, RGB] de this._colors) {
-      se (RGB.cada((x, i) => x === rgb[i])) {
-        retornar ColorManager._colorsMapping.get(nome);
+    for (const [name, RGB] of this._colors) {
+      if (RGB.every((x, i) => x === rgb[i])) {
+        return ColorManager._colorsMapping.get(name);
       }
     }
-    retornar rgb;
+    return rgb;
   }
-  getHexCode(nome) {
-    const rgb = this._colors.get(nome);
-    se (!rgb) {
-      nome de retorno;
+  getHexCode(name) {
+    const rgb = this._colors.get(name);
+    if (!rgb) {
+      return name;
     }
-    retornar Util.makeHexColor(...rgb);
+    return Util.makeHexColor(...rgb);
   }
 }
-classe AnnotationEditorUIManager {
-  #abortController = novo AbortController();
-  #activeEditor = nulo;
-  #allEditors = novo Mapa();
-  #allLayers = novo Mapa();
-  #altTextManager = nulo;
-  #annotationStorage = nulo;
-  #changedExistingAnnotations = nulo;
-  #commandManager = novo CommandManager();
-  #copyPasteAC = nulo;
-  #currentDrawingSession = nulo;
+class AnnotationEditorUIManager {
+  #abortController = new AbortController();
+  #activeEditor = null;
+  #allEditors = new Map();
+  #allLayers = new Map();
+  #altTextManager = null;
+  #annotationStorage = null;
+  #changedExistingAnnotations = null;
+  #commandManager = new CommandManager();
+  #copyPasteAC = null;
+  #currentDrawingSession = null;
   #currentPageIndex = 0;
-  #deletedAnnotationsElementIds = novo Conjunto();
-  #draggingEditors = nulo;
-  #editorTypes = nulo;
-  #editorsToRescale = novo Conjunto();
-  _editorUndoBar = nulo;
-  #enableHighlightFloatingButton = falso;
-  #enableUpdatedAddImage = falso;
-  #enableNewAltTextWhenAddingImage = falso;
-  #filterFactory = nulo;
-  #focusMainContainerTimeoutId = nulo;
-  #focusManagerAC = nulo;
-  #highlightColors = nulo;
-  #highlightWhenShiftUp = falso;
-  #highlightToolbar = nulo;
-  #idManager = novo IdManager();
-  #isEnabled = falso;
-  #isWaiting = falso;
-  #keyboardManagerAC = nulo;
-  #lastActiveElement = nulo;
-  #mainHighlightColorPicker = nulo;
-  #missingCanvases = nulo;
-  #mlManager = nulo;
+  #deletedAnnotationsElementIds = new Set();
+  #draggingEditors = null;
+  #editorTypes = null;
+  #editorsToRescale = new Set();
+  _editorUndoBar = null;
+  #enableHighlightFloatingButton = false;
+  #enableUpdatedAddImage = false;
+  #enableNewAltTextWhenAddingImage = false;
+  #filterFactory = null;
+  #focusMainContainerTimeoutId = null;
+  #focusManagerAC = null;
+  #highlightColors = null;
+  #highlightWhenShiftUp = false;
+  #highlightToolbar = null;
+  #idManager = new IdManager();
+  #isEnabled = false;
+  #isWaiting = false;
+  #keyboardManagerAC = null;
+  #lastActiveElement = null;
+  #mainHighlightColorPicker = null;
+  #missingCanvases = null;
+  #mlManager = null;
   #mode = AnnotationEditorType.NONE;
-  #selectedEditors = novo Conjunto();
-  #selectedTextNode = nulo;
-  #signatureManager = nulo;
-  #pageColors = nulo;
-  #showAllStates = nulo;
-  #EstadosAnteriores = {
-    isEditing: falso,
-    isEmpty: verdadeiro,
-    temAlgoParaDesfazer: falso,
-    temAlgoParaRefazer: falso,
-    hasSelectedEditor: falso,
-    hasSelectedText: falso
+  #selectedEditors = new Set();
+  #selectedTextNode = null;
+  #signatureManager = null;
+  #pageColors = null;
+  #showAllStates = null;
+  #previousStates = {
+    isEditing: false,
+    isEmpty: true,
+    hasSomethingToUndo: false,
+    hasSomethingToRedo: false,
+    hasSelectedEditor: false,
+    hasSelectedText: false
   };
-  #tradução = [0, 0];
-  #translationTimeoutId = nulo;
-  #container = nulo;
-  #visualizador = nulo;
-  #updateModeCapability = nulo;
-  estático TRANSLATE_SMALL = 1;
-  estático TRANSLATE_BIG = 10;
-  estático obter _keyboardManager() {
+  #translation = [0, 0];
+  #translationTimeoutId = null;
+  #container = null;
+  #viewer = null;
+  #updateModeCapability = null;
+  static TRANSLATE_SMALL = 1;
+  static TRANSLATE_BIG = 10;
+  static get _keyboardManager() {
     const proto = AnnotationEditorUIManager.prototype;
     const arrowChecker = self => self.#container.contains(document.activeElement) && document.activeElement.tagName !== "BUTTON" && self.hasSomethingToControl();
     const textInputChecker = (_self, {
-      alvo: el
+      target: el
     }) => {
-      se (a instância de HTMLInputElement) {
-        constante {
-          tipo
+      if (el instanceof HTMLInputElement) {
+        const {
+          type
         } = el;
-        tipo de retorno !== "texto" && tipo !== "número";
+        return type !== "text" && type !== "number";
       }
-      retornar verdadeiro;
+      return true;
     };
-    const pequeno = this.TRANSLATE_SMALL;
-    const big = isto.TRANSLATE_BIG;
-    retornar sombra(isto, "_keyboardManager", novo KeyboardManager([[["ctrl+a", "mac+meta+a"], proto.selectAll, {
-      verificador: textInputChecker
-    }], [["ctrl+z", "mac+meta+z"], proto.desfazer, {
-      verificador: textInputChecker
+    const small = this.TRANSLATE_SMALL;
+    const big = this.TRANSLATE_BIG;
+    return shadow(this, "_keyboardManager", new KeyboardManager([[["ctrl+a", "mac+meta+a"], proto.selectAll, {
+      checker: textInputChecker
+    }], [["ctrl+z", "mac+meta+z"], proto.undo, {
+      checker: textInputChecker
     }], [["ctrl+y", "ctrl+shift+z", "mac+meta+shift+z", "ctrl+shift+Z", "mac+meta+shift+Z"], proto.redo, {
-      verificador: textInputChecker
-    }], [["Backspace", "alt+Backspace", "ctrl+Backspace", "shift+Backspace", "mac+Backspace", "mac+alt+Backspace", "mac+ctrl+Backspace", "Excluir", "ctrl+Delete", "shift+Delete", "mac+Delete"], proto.delete, {
-      verificador: textInputChecker
+      checker: textInputChecker
+    }], [["Backspace", "alt+Backspace", "ctrl+Backspace", "shift+Backspace", "mac+Backspace", "mac+alt+Backspace", "mac+ctrl+Backspace", "Delete", "ctrl+Delete", "shift+Delete", "mac+Delete"], proto.delete, {
+      checker: textInputChecker
     }], [["Enter", "mac+Enter"], proto.addNewEditorFromKeyboard, {
-      verificador: (self, {
-        alvo: el
-      }) => !(a instância do HTMLButtonElement) && self.#container.contains(el) && !self.isEnterHandled
+      checker: (self, {
+        target: el
+      }) => !(el instanceof HTMLButtonElement) && self.#container.contains(el) && !self.isEnterHandled
     }], [[" ", "mac+ "], proto.addNewEditorFromKeyboard, {
-      verificador: (self, {
-        alvo: el
-      }) => !(a instância do HTMLButtonElement) && self.#container.contains(document.activeElement)
-    }], [["Escape", "mac+Escape"], proto.unselectAll], [["Seta para a esquerda", "mac+Seta para a esquerda"], proto.translateSelectedEditors, {
-      argumentos: [-pequeno, 0],
-      verificador: arrowChecker
-    }], [["ctrl+SetaEsquerda", "mac+shift+SetaEsquerda"], proto.translateSelectedEditors, {
-      argumentos: [-grande, 0],
-      verificador: arrowChecker
-    }], [["Seta para a direita", "mac+Seta para a direita"], proto.translateSelectedEditors, {
-      args: [pequeno, 0],
-      verificador: arrowChecker
-    }], [["ctrl+Seta para a direita", "mac+shift+Seta para a direita"], proto.translateSelectedEditors, {
-      argumentos: [grande, 0],
-      verificador: arrowChecker
-    }], [["Seta para cima", "mac+Seta para cima"], proto.translateSelectedEditors, {
-      argumentos: [0, -pequeno],
-      verificador: arrowChecker
-    }], [["ctrl+Seta para cima", "mac+shift+Seta para cima"], proto.translateSelectedEditors, {
-      argumentos: [0, -grande],
-      verificador: arrowChecker
-    }], [["Seta para baixo", "mac+Seta para baixo"], proto.translateSelectedEditors, {
-      args: [0, pequeno],
-      verificador: arrowChecker
-    }], [["ctrl+Seta para baixo", "mac+shift+Seta para baixo"], proto.translateSelectedEditors, {
-      args: [0, grande],
-      verificador: arrowChecker
+      checker: (self, {
+        target: el
+      }) => !(el instanceof HTMLButtonElement) && self.#container.contains(document.activeElement)
+    }], [["Escape", "mac+Escape"], proto.unselectAll], [["ArrowLeft", "mac+ArrowLeft"], proto.translateSelectedEditors, {
+      args: [-small, 0],
+      checker: arrowChecker
+    }], [["ctrl+ArrowLeft", "mac+shift+ArrowLeft"], proto.translateSelectedEditors, {
+      args: [-big, 0],
+      checker: arrowChecker
+    }], [["ArrowRight", "mac+ArrowRight"], proto.translateSelectedEditors, {
+      args: [small, 0],
+      checker: arrowChecker
+    }], [["ctrl+ArrowRight", "mac+shift+ArrowRight"], proto.translateSelectedEditors, {
+      args: [big, 0],
+      checker: arrowChecker
+    }], [["ArrowUp", "mac+ArrowUp"], proto.translateSelectedEditors, {
+      args: [0, -small],
+      checker: arrowChecker
+    }], [["ctrl+ArrowUp", "mac+shift+ArrowUp"], proto.translateSelectedEditors, {
+      args: [0, -big],
+      checker: arrowChecker
+    }], [["ArrowDown", "mac+ArrowDown"], proto.translateSelectedEditors, {
+      args: [0, small],
+      checker: arrowChecker
+    }], [["ctrl+ArrowDown", "mac+shift+ArrowDown"], proto.translateSelectedEditors, {
+      args: [0, big],
+      checker: arrowChecker
     }]]));
   }
-  construtor(container, visualizador, altTextManager, signatureManager, eventBus, pdfDocument, pageColors, highlightColors, enableHighlightFloatingButton, enableUpdatedAddImage, enableNewAltTextWhenAddingImage, mlManager, editorUndoBar, supportsPinchToZoom) {
-    sinal constante = this._signal = this.#abortController.signal;
-    isto.#container = contêiner;
-    isto.#visualizador = visualizador;
-    isto.#altTextManager = altTextManager;
-    isto.#signatureManager = signatureManager;
+  constructor(container, viewer, altTextManager, signatureManager, eventBus, pdfDocument, pageColors, highlightColors, enableHighlightFloatingButton, enableUpdatedAddImage, enableNewAltTextWhenAddingImage, mlManager, editorUndoBar, supportsPinchToZoom) {
+    const signal = this._signal = this.#abortController.signal;
+    this.#container = container;
+    this.#viewer = viewer;
+    this.#altTextManager = altTextManager;
+    this.#signatureManager = signatureManager;
     this._eventBus = eventBus;
-    eventBus._on("ação de edição", this.onEditingAction.bind(this), {
-      sinal
+    eventBus._on("editingaction", this.onEditingAction.bind(this), {
+      signal
     });
-    eventBus._on("mudança de página", this.onPageChanging.bind(this), {
-      sinal
+    eventBus._on("pagechanging", this.onPageChanging.bind(this), {
+      signal
     });
-    eventBus._on("mudança de escala", this.onScaleChanging.bind(this), {
-      sinal
+    eventBus._on("scalechanging", this.onScaleChanging.bind(this), {
+      signal
     });
-    eventBus._on("rotaçãomudando", this.onRotationChanging.bind(this), {
-      sinal
+    eventBus._on("rotationchanging", this.onRotationChanging.bind(this), {
+      signal
     });
     eventBus._on("setpreference", this.onSetPreference.bind(this), {
-      sinal
+      signal
     });
     eventBus._on("switchannotationeditorparams", evt => this.updateParams(evt.type, evt.value), {
-      sinal
+      signal
     });
-    isto.#addSelectionListener();
-    isto.#addDragAndDropListeners();
-    isto.#addKeyboardManager();
-    isto.#annotationStorage = pdfDocument.annotationStorage;
-    isto.#filterFactory = pdfDocument.filterFactory;
-    isto.#pageColors = pageColors;
-    isto.#highlightColors = coresdestaque || nulo;
-    isto.#enableHighlightFloatingButton = enableHighlightFloatingButton;
-    isto.#enableUpdatedAddImage = enableUpdatedAddImage;
-    isto.#enableNewAltTextWhenAddingImage = enableNewAltTextWhenAddingImage;
-    isto.#mlManager = mlManager || nulo;
+    this.#addSelectionListener();
+    this.#addDragAndDropListeners();
+    this.#addKeyboardManager();
+    this.#annotationStorage = pdfDocument.annotationStorage;
+    this.#filterFactory = pdfDocument.filterFactory;
+    this.#pageColors = pageColors;
+    this.#highlightColors = highlightColors || null;
+    this.#enableHighlightFloatingButton = enableHighlightFloatingButton;
+    this.#enableUpdatedAddImage = enableUpdatedAddImage;
+    this.#enableNewAltTextWhenAddingImage = enableNewAltTextWhenAddingImage;
+    this.#mlManager = mlManager || null;
     this.viewParameters = {
-      realScale: PixelsPorPolegada.PDF_PARA_UNIDADES_CSS,
-      rotação: 0
+      realScale: PixelsPerInch.PDF_TO_CSS_UNITS,
+      rotation: 0
     };
-    this.isShiftKeyDown = falso;
-    this._editorUndoBar = editorUndoBar || nulo;
-    this._supportsPinchToZoom = suportaPinchToZoom !== falso;
+    this.isShiftKeyDown = false;
+    this._editorUndoBar = editorUndoBar || null;
+    this._supportsPinchToZoom = supportsPinchToZoom !== false;
   }
-  destruir() {
-    isto.#updateModeCapability?.resolve();
-    isto.#updateModeCapability = nulo;
-    isto.#abortController?.abort();
-    isto.#abortController = nulo;
-    este._sinal = nulo;
-    para (camada constante de this.#allLayers.values()) {
-      camada.destroy();
+  destroy() {
+    this.#updateModeCapability?.resolve();
+    this.#updateModeCapability = null;
+    this.#abortController?.abort();
+    this.#abortController = null;
+    this._signal = null;
+    for (const layer of this.#allLayers.values()) {
+      layer.destroy();
     }
-    isto.#allLayers.clear();
-    isto.#allEditors.clear();
-    isto.#editorsToRescale.clear();
-    isto.#telasfaltadas?.limpar();
-    isto.#activeEditor = nulo;
-    isto.#selectedEditors.clear();
-    isto.#commandManager.destroy();
-    isto.#altTextManager?.destroy();
-    isto.#signatureManager?.destroy();
-    isto.#highlightToolbar?.hide();
-    isto.#highlightToolbar = nulo;
-    isto.#mainHighlightColorPicker?.destroy();
-    isto.#mainHighlightColorPicker = nulo;
-    se (isto.#focusMainContainerTimeoutId) {
+    this.#allLayers.clear();
+    this.#allEditors.clear();
+    this.#editorsToRescale.clear();
+    this.#missingCanvases?.clear();
+    this.#activeEditor = null;
+    this.#selectedEditors.clear();
+    this.#commandManager.destroy();
+    this.#altTextManager?.destroy();
+    this.#signatureManager?.destroy();
+    this.#highlightToolbar?.hide();
+    this.#highlightToolbar = null;
+    this.#mainHighlightColorPicker?.destroy();
+    this.#mainHighlightColorPicker = null;
+    if (this.#focusMainContainerTimeoutId) {
       clearTimeout(this.#focusMainContainerTimeoutId);
-      isto.#focusMainContainerTimeoutId = nulo;
+      this.#focusMainContainerTimeoutId = null;
     }
-    se (isto.#translationTimeoutId) {
+    if (this.#translationTimeoutId) {
       clearTimeout(this.#translationTimeoutId);
-      isto.#translationTimeoutId = nulo;
+      this.#translationTimeoutId = null;
     }
-    este._editorUndoBar?.destroy();
+    this._editorUndoBar?.destroy();
   }
-  sinalcombinado(ac) {
-    retornar AbortSignal.any([this._signal, ac.signal]);
+  combinedSignal(ac) {
+    return AbortSignal.any([this._signal, ac.signal]);
   }
-  obter mlManager() {
-    retornar isto.#mlManager;
+  get mlManager() {
+    return this.#mlManager;
   }
-  obter useNewAltTextFlow() {
-    retornar isto.#enableUpdatedAddImage;
+  get useNewAltTextFlow() {
+    return this.#enableUpdatedAddImage;
   }
-  obter useNewAltTextWhenAddingImage() {
-    retornar isto.#enableNewAltTextWhenAddingImage;
+  get useNewAltTextWhenAddingImage() {
+    return this.#enableNewAltTextWhenAddingImage;
   }
-  obter hcmFilter() {
-    retornar sombra(isto, "hcmFilter", isto.#pageColors ? isto.#filterFactory.addHCMFilter(isto.#pageColors.foreground, isto.#pageColors.background) : "nenhum");
+  get hcmFilter() {
+    return shadow(this, "hcmFilter", this.#pageColors ? this.#filterFactory.addHCMFilter(this.#pageColors.foreground, this.#pageColors.background) : "none");
   }
-  obter direção() {
-    retornar sombra(isto, "direção", getComputedStyle(isto.#container).direção);
+  get direction() {
+    return shadow(this, "direction", getComputedStyle(this.#container).direction);
   }
-  obter highlightColors() {
-    retornar sombra(isto, "coresdestaques", isto.#coresdestaques ? novo Mapa(isto.#coresdestaques.split(",").mapa(par => par.split("=").mapa(x => x.trim()))) : nulo);
+  get highlightColors() {
+    return shadow(this, "highlightColors", this.#highlightColors ? new Map(this.#highlightColors.split(",").map(pair => pair.split("=").map(x => x.trim()))) : null);
   }
-  obter highlightColorNames() {
-    retornar sombra(isto, "highlightColorNames", isto.highlightColors ? novo Mapa(Array.from(isto.highlightColors, e => e.reverse())) : nulo);
+  get highlightColorNames() {
+    return shadow(this, "highlightColorNames", this.highlightColors ? new Map(Array.from(this.highlightColors, e => e.reverse())) : null);
   }
-  setCurrentDrawingSession(camada) {
-    se (camada) {
-      isto.unselectAll();
-      this.disableUserSelect(verdadeiro);
-    } outro {
-      isto.disableUserSelect(falso);
+  setCurrentDrawingSession(layer) {
+    if (layer) {
+      this.unselectAll();
+      this.disableUserSelect(true);
+    } else {
+      this.disableUserSelect(false);
     }
-    isto.#currentDrawingSession = camada;
+    this.#currentDrawingSession = layer;
   }
-  setMainHighlightColorPicker(seletor de cores) {
-    isto.#mainHighlightColorPicker = colorPicker;
+  setMainHighlightColorPicker(colorPicker) {
+    this.#mainHighlightColorPicker = colorPicker;
   }
   editAltText(editor, firstTime = false) {
-    isto.#altTextManager?.editAltText(isto, editor, primeiraVez);
+    this.#altTextManager?.editAltText(this, editor, firstTime);
   }
-  obterAssinatura(editor) {
-    isto.#signatureManager?.getSignature({
-      uiManager: isto,
+  getSignature(editor) {
+    this.#signatureManager?.getSignature({
+      uiManager: this,
       editor
     });
   }
-  obter signatureManager() {
-    retornar isto.#signatureManager;
+  get signatureManager() {
+    return this.#signatureManager;
   }
-  switchToMode(modo, retorno de chamada) {
-    this._eventBus.on("editordeanotaçãomodoalterado", retorno de chamada, {
-      uma vez: verdadeiro,
-      sinal: este._sinal
+  switchToMode(mode, callback) {
+    this._eventBus.on("annotationeditormodechanged", callback, {
+      once: true,
+      signal: this._signal
     });
-    this._eventBus.dispatch("editor de anotações do show", {
-      fonte: esta,
-      modo
+    this._eventBus.dispatch("showannotationeditorui", {
+      source: this,
+      mode
     });
   }
-  setPreference(nome, valor) {
-    this._eventBus.dispatch("definir preferência", {
-      fonte: esta,
-      nome,
-      valor
+  setPreference(name, value) {
+    this._eventBus.dispatch("setpreference", {
+      source: this,
+      name,
+      value
     });
   }
   onSetPreference({
-    nome,
-    valor
+    name,
+    value
   }) {
-    switch (nome) {
-      caso "enableNewAltTextWhenAddingImage":
-        isto.#enableNewAltTextWhenAddingImage = valor;
-        quebrar;
+    switch (name) {
+      case "enableNewAltTextWhenAddingImage":
+        this.#enableNewAltTextWhenAddingImage = value;
+        break;
     }
   }
   onPageChanging({
-    número da página
+    pageNumber
   }) {
-    isto.#currentPageIndex = pageNumber - 1;
+    this.#currentPageIndex = pageNumber - 1;
   }
   focusMainContainer() {
-    isto.#container.foco();
+    this.#container.focus();
   }
   findParent(x, y) {
-    para (camada constante de this.#allLayers.values()) {
-      constante {
-        x: camadaX,
-        y: camadaY,
-        largura,
-        altura
-      } = camada.div.getBoundingClientRect();
-      se (x >= camadaX && x <= camadaX + largura && y >= camadaY && y <= camadaY + altura) {
-        camada de retorno;
+    for (const layer of this.#allLayers.values()) {
+      const {
+        x: layerX,
+        y: layerY,
+        width,
+        height
+      } = layer.div.getBoundingClientRect();
+      if (x >= layerX && x <= layerX + width && y >= layerY && y <= layerY + height) {
+        return layer;
       }
     }
-    retornar nulo;
+    return null;
   }
-  disableUserSelect(valor = falso) {
-    isto.#viewer.classList.toggle("noUserSelect", valor);
+  disableUserSelect(value = false) {
+    this.#viewer.classList.toggle("noUserSelect", value);
   }
   addShouldRescale(editor) {
-    isto.#editorsToRescale.add(editor);
+    this.#editorsToRescale.add(editor);
   }
   removeShouldRescale(editor) {
-    isto.#editorsToRescale.delete(editor);
+    this.#editorsToRescale.delete(editor);
   }
   onScaleChanging({
-    escala
+    scale
   }) {
-    isto.commitOrRemove();
-    this.viewParameters.realScale = escala * PixelsPerInch.PDF_TO_CSS_UNITS;
-    para (editor constante deste.#editorsToRescale) {
+    this.commitOrRemove();
+    this.viewParameters.realScale = scale * PixelsPerInch.PDF_TO_CSS_UNITS;
+    for (const editor of this.#editorsToRescale) {
       editor.onScaleChanging();
     }
-    isto.#currentDrawingSession?.onScaleChanging();
+    this.#currentDrawingSession?.onScaleChanging();
   }
   onRotationChanging({
-    Rotação de páginas
+    pagesRotation
   }) {
-    isto.commitOrRemove();
-    this.viewParameters.rotation = páginasRotação;
+    this.commitOrRemove();
+    this.viewParameters.rotation = pagesRotation;
   }
   #getAnchorElementForSelection({
-    nó de âncora
+    anchorNode
   }) {
-    retornar anchorNode.nodeType === Node.TEXT_NODE ? anchorNode.parentElement : anchorNode;
+    return anchorNode.nodeType === Node.TEXT_NODE ? anchorNode.parentElement : anchorNode;
   }
-  #getLayerForTextLayer(camadaDeTexto) {
-    constante {
-      camada atual
-    } = isto;
-    se (currentLayer.hasTextLayer(textLayer)) {
-      retornar currentLayer;
+  #getLayerForTextLayer(textLayer) {
+    const {
+      currentLayer
+    } = this;
+    if (currentLayer.hasTextLayer(textLayer)) {
+      return currentLayer;
     }
-    para (camada constante de this.#allLayers.values()) {
-      se (camada.hasTextLayer(textLayer)) {
-        camada de retorno;
+    for (const layer of this.#allLayers.values()) {
+      if (layer.hasTextLayer(textLayer)) {
+        return layer;
       }
     }
-    retornar nulo;
+    return null;
   }
-  destaqueSeleção(métodoDeCriação = "") {
-    const seleção = document.getSelection();
-    se (!seleção || seleção.isCollapsed) {
-      retornar;
+  highlightSelection(methodOfCreation = "") {
+    const selection = document.getSelection();
+    if (!selection || selection.isCollapsed) {
+      return;
     }
-    constante {
-      nó de ancoragem,
-      âncoraOffset,
-      nó de foco,
-      focoDeslocamento
-    } = seleção;
-    const texto = seleção.toString();
-    const anchorElement = this.#getAnchorElementForSelection(seleção);
+    const {
+      anchorNode,
+      anchorOffset,
+      focusNode,
+      focusOffset
+    } = selection;
+    const text = selection.toString();
+    const anchorElement = this.#getAnchorElementForSelection(selection);
     const textLayer = anchorElement.closest(".textLayer");
-    caixas const = this.getSelectionBoxes(textLayer);
-    se (!caixas) {
-      retornar;
+    const boxes = this.getSelectionBoxes(textLayer);
+    if (!boxes) {
+      return;
     }
-    seleção.vazio();
-    const camada = this.#getLayerForTextLayer(textLayer);
+    selection.empty();
+    const layer = this.#getLayerForTextLayer(textLayer);
     const isNoneMode = this.#mode === AnnotationEditorType.NONE;
-    retorno de chamada constante = () => {
-      camada?.createAndAddNewEditor({
+    const callback = () => {
+      layer?.createAndAddNewEditor({
         x: 0,
         y: 0
-      }, falso, {
-        métodoDeCriação,
-        caixas,
-        nó de ancoragem,
-        âncoraOffset,
-        nó de foco,
-        focoDeslocamento,
-        texto
+      }, false, {
+        methodOfCreation,
+        boxes,
+        anchorNode,
+        anchorOffset,
+        focusNode,
+        focusOffset,
+        text
       });
-      se (isNoneMode) {
-        this.showAllEditors("destaque", verdadeiro, verdadeiro);
+      if (isNoneMode) {
+        this.showAllEditors("highlight", true, true);
       }
     };
-    se (isNoneMode) {
-      this.switchToMode(AnnotationEditorType.HIGHLIGHT, retorno de chamada);
-      retornar;
+    if (isNoneMode) {
+      this.switchToMode(AnnotationEditorType.HIGHLIGHT, callback);
+      return;
     }
-    ligar de volta();
+    callback();
   }
   #displayHighlightToolbar() {
-    const seleção = document.getSelection();
-    se (!seleção || seleção.isCollapsed) {
-      retornar;
+    const selection = document.getSelection();
+    if (!selection || selection.isCollapsed) {
+      return;
     }
-    const anchorElement = this.#getAnchorElementForSelection(seleção);
+    const anchorElement = this.#getAnchorElementForSelection(selection);
     const textLayer = anchorElement.closest(".textLayer");
-    caixas const = this.getSelectionBoxes(textLayer);
-    se (!caixas) {
-      retornar;
+    const boxes = this.getSelectionBoxes(textLayer);
+    if (!boxes) {
+      return;
     }
-    isto.#highlightToolbar ||= novo HighlightToolbar(isto);
-    isto.#highlightToolbar.show(textLayer, caixas, isto.direction === "ltr");
+    this.#highlightToolbar ||= new HighlightToolbar(this);
+    this.#highlightToolbar.show(textLayer, boxes, this.direction === "ltr");
   }
   addToAnnotationStorage(editor) {
-    se (!editor.isEmpty() && isto.#annotationStorage && !isto.#annotationStorage.has(editor.id)) {
-      isto.#annotationStorage.setValue(editor.id, editor);
+    if (!editor.isEmpty() && this.#annotationStorage && !this.#annotationStorage.has(editor.id)) {
+      this.#annotationStorage.setValue(editor.id, editor);
     }
   }
   #selectionChange() {
-    const seleção = document.getSelection();
-    se (!seleção || seleção.isCollapsed) {
-      se (isto.#selectedTextNode) {
-        isto.#highlightToolbar?.hide();
-        isto.#selectedTextNode = nulo;
-        isto.#dispatchUpdateStates({
-          hasSelectedText: falso
+    const selection = document.getSelection();
+    if (!selection || selection.isCollapsed) {
+      if (this.#selectedTextNode) {
+        this.#highlightToolbar?.hide();
+        this.#selectedTextNode = null;
+        this.#dispatchUpdateStates({
+          hasSelectedText: false
         });
       }
-      retornar;
+      return;
     }
-    constante {
-      nó de âncora
-    } = seleção;
-    se (anchorNode === this.#selectedTextNode) {
-      retornar;
+    const {
+      anchorNode
+    } = selection;
+    if (anchorNode === this.#selectedTextNode) {
+      return;
     }
-    const anchorElement = this.#getAnchorElementForSelection(seleção);
+    const anchorElement = this.#getAnchorElementForSelection(selection);
     const textLayer = anchorElement.closest(".textLayer");
-    se (!textLayer) {
-      se (isto.#selectedTextNode) {
-        isto.#highlightToolbar?.hide();
-        isto.#selectedTextNode = nulo;
-        isto.#dispatchUpdateStates({
-          hasSelectedText: falso
+    if (!textLayer) {
+      if (this.#selectedTextNode) {
+        this.#highlightToolbar?.hide();
+        this.#selectedTextNode = null;
+        this.#dispatchUpdateStates({
+          hasSelectedText: false
         });
       }
-      retornar;
+      return;
     }
-    isto.#highlightToolbar?.hide();
-    isto.#selectedTextNode = anchorNode;
-    isto.#dispatchUpdateStates({
-      hasSelectedText: verdadeiro
+    this.#highlightToolbar?.hide();
+    this.#selectedTextNode = anchorNode;
+    this.#dispatchUpdateStates({
+      hasSelectedText: true
     });
-    se (este.#modo !== AnnotationEditorType.HIGHLIGHT && este.#modo !== AnnotationEditorType.NONE) {
-      retornar;
+    if (this.#mode !== AnnotationEditorType.HIGHLIGHT && this.#mode !== AnnotationEditorType.NONE) {
+      return;
     }
-    se (este.#modo === AnnotationEditorType.HIGHLIGHT) {
-      this.showAllEditors("destaque", verdadeiro, verdadeiro);
+    if (this.#mode === AnnotationEditorType.HIGHLIGHT) {
+      this.showAllEditors("highlight", true, true);
     }
-    isto.#highlightWhenShiftUp = isto.isShiftKeyDown;
-    se (!this.isShiftKeyDown) {
+    this.#highlightWhenShiftUp = this.isShiftKeyDown;
+    if (!this.isShiftKeyDown) {
       const activeLayer = this.#mode === AnnotationEditorType.HIGHLIGHT ? this.#getLayerForTextLayer(textLayer) : null;
       activeLayer?.toggleDrawing();
-      const ac = novo AbortController();
-      sinal constante = this.combinedSignal(ac);
+      const ac = new AbortController();
+      const signal = this.combinedSignal(ac);
       const pointerup = e => {
-        se (e.type === "pointerup" && e.button !== 0) {
-          retornar;
+        if (e.type === "pointerup" && e.button !== 0) {
+          return;
         }
-        ac.abortar();
-        activeLayer?.toggleDrawing(verdadeiro);
-        se (e.type === "pointerup") {
-          isto.#onSelectEnd("barra_de_ferramentas_principal");
+        ac.abort();
+        activeLayer?.toggleDrawing(true);
+        if (e.type === "pointerup") {
+          this.#onSelectEnd("main_toolbar");
         }
       };
-      janela.addEventListener("ponteiroparacima", ponteiroparacima, {
-        sinal
+      window.addEventListener("pointerup", pointerup, {
+        signal
       });
-      window.addEventListener("desfoque", ponteiro para cima, {
-        sinal
+      window.addEventListener("blur", pointerup, {
+        signal
       });
     }
   }
-  #onSelectEnd(métodoOfCreation = "") {
-    se (este.#modo === AnnotationEditorType.HIGHLIGHT) {
-      isto.highlightSelection(métodoDeCriação);
-    } senão se (this.#enableHighlightFloatingButton) {
-      isto.#displayHighlightToolbar();
+  #onSelectEnd(methodOfCreation = "") {
+    if (this.#mode === AnnotationEditorType.HIGHLIGHT) {
+      this.highlightSelection(methodOfCreation);
+    } else if (this.#enableHighlightFloatingButton) {
+      this.#displayHighlightToolbar();
     }
   }
   #addSelectionListener() {
-    document.addEventListener("alteração de seleção", this.#selectionChange.bind(this), {
-      sinal: este._sinal
+    document.addEventListener("selectionchange", this.#selectionChange.bind(this), {
+      signal: this._signal
     });
   }
   #addFocusManager() {
-    se (isto.#focusManagerAC) {
-      retornar;
+    if (this.#focusManagerAC) {
+      return;
     }
-    isto.#focusManagerAC = novo AbortController();
-    sinal constante = this.combinedSignal(this.#focusManagerAC);
-    window.addEventListener("foco", this.focus.bind(this), {
-      sinal
+    this.#focusManagerAC = new AbortController();
+    const signal = this.combinedSignal(this.#focusManagerAC);
+    window.addEventListener("focus", this.focus.bind(this), {
+      signal
     });
-    window.addEventListener("desfoque", this.blur.bind(this), {
-      sinal
+    window.addEventListener("blur", this.blur.bind(this), {
+      signal
     });
   }
   #removeFocusManager() {
-    isto.#focusManagerAC?.abort();
-    isto.#focusManagerAC = nulo;
+    this.#focusManagerAC?.abort();
+    this.#focusManagerAC = null;
   }
-  desfoque() {
-    this.isShiftKeyDown = falso;
-    se (isto.#destaqueQuandoDeslocarParaCima) {
-      isto.#highlightWhenShiftUp = falso;
-      isto.#onSelectEnd("barra_de_ferramentas_principal");
+  blur() {
+    this.isShiftKeyDown = false;
+    if (this.#highlightWhenShiftUp) {
+      this.#highlightWhenShiftUp = false;
+      this.#onSelectEnd("main_toolbar");
     }
-    se (!isto.temSeleção) {
-      retornar;
+    if (!this.hasSelection) {
+      return;
     }
-    constante {
-      Elemento ativo
-    } = documento;
-    para (editor constante deste.#selectedEditors) {
-      se (editor.div.contains(elementoativo)) {
-        isto.#lastActiveElement = [editor, activeElement];
-        editor._focusEventsAllowed = falso;
-        quebrar;
+    const {
+      activeElement
+    } = document;
+    for (const editor of this.#selectedEditors) {
+      if (editor.div.contains(activeElement)) {
+        this.#lastActiveElement = [editor, activeElement];
+        editor._focusEventsAllowed = false;
+        break;
       }
     }
   }
-  foco() {
-    se (!isso.#últimoElementoAtivo) {
-      retornar;
+  focus() {
+    if (!this.#lastActiveElement) {
+      return;
     }
-    const [últimoEditor, últimoElementoAtivo] = this.#últimoElementoAtivo;
-    isto.#últimoElementoAtivo = nulo;
-    lastActiveElement.addEventListener("foco", () => {
-      lastEditor._focusEventsAllowed = verdadeiro;
+    const [lastEditor, lastActiveElement] = this.#lastActiveElement;
+    this.#lastActiveElement = null;
+    lastActiveElement.addEventListener("focusin", () => {
+      lastEditor._focusEventsAllowed = true;
     }, {
-      uma vez: verdadeiro,
-      sinal: este._sinal
+      once: true,
+      signal: this._signal
     });
-    últimoElementoAtivo.foco();
+    lastActiveElement.focus();
   }
   #addKeyboardManager() {
-    se (isto.#keyboardManagerAC) {
-      retornar;
+    if (this.#keyboardManagerAC) {
+      return;
     }
-    isto.#keyboardManagerAC = novo AbortController();
-    sinal constante = this.combinedSignal(this.#keyboardManagerAC);
-    window.addEventListener("tecla pressionada", this.keydown.bind(this), {
-      sinal
+    this.#keyboardManagerAC = new AbortController();
+    const signal = this.combinedSignal(this.#keyboardManagerAC);
+    window.addEventListener("keydown", this.keydown.bind(this), {
+      signal
     });
     window.addEventListener("keyup", this.keyup.bind(this), {
-      sinal
+      signal
     });
   }
   #removeKeyboardManager() {
-    isto.#keyboardManagerAC?.abort();
-    isto.#keyboardManagerAC = nulo;
+    this.#keyboardManagerAC?.abort();
+    this.#keyboardManagerAC = null;
   }
   #addCopyPasteListeners() {
-    se (isto.#copyPasteAC) {
-      retornar;
+    if (this.#copyPasteAC) {
+      return;
     }
-    isto.#copyPasteAC = novo AbortController();
-    sinal constante = this.combinedSignal(this.#copyPasteAC);
-    document.addEventListener("cópia", this.copy.bind(this), {
-      sinal
+    this.#copyPasteAC = new AbortController();
+    const signal = this.combinedSignal(this.#copyPasteAC);
+    document.addEventListener("copy", this.copy.bind(this), {
+      signal
     });
-    document.addEventListener("cortar", this.cut.bind(this), {
-      sinal
+    document.addEventListener("cut", this.cut.bind(this), {
+      signal
     });
-    document.addEventListener("colar", this.paste.bind(this), {
-      sinal
+    document.addEventListener("paste", this.paste.bind(this), {
+      signal
     });
   }
   #removeCopyPasteListeners() {
-    isto.#copyPasteAC?.abort();
-    isto.#copyPasteAC = nulo;
+    this.#copyPasteAC?.abort();
+    this.#copyPasteAC = null;
   }
   #addDragAndDropListeners() {
-    sinal constante = this._signal;
-    document.addEventListener("arrastar", this.dragOver.bind(this), {
-      sinal
+    const signal = this._signal;
+    document.addEventListener("dragover", this.dragOver.bind(this), {
+      signal
     });
-    document.addEventListener("soltar", this.drop.bind(this), {
-      sinal
+    document.addEventListener("drop", this.drop.bind(this), {
+      signal
     });
   }
   addEditListeners() {
-    isto.#addKeyboardManager();
-    isto.#addCopyPasteListeners();
+    this.#addKeyboardManager();
+    this.#addCopyPasteListeners();
   }
   removeEditListeners() {
-    isto.#removeKeyboardManager();
-    isto.#removeCopyPasteListeners();
+    this.#removeKeyboardManager();
+    this.#removeCopyPasteListeners();
   }
-  dragOver(evento) {
-    para (const {
-      tipo
-    } de event.dataTransfer.items) {
-      para (const editorType deste.#editorTypes) {
-        se (editorType.isHandlingMimeForPasting(tipo)) {
-          event.dataTransfer.dropEffect = "copiar";
-          evento.preventDefault();
-          retornar;
+  dragOver(event) {
+    for (const {
+      type
+    } of event.dataTransfer.items) {
+      for (const editorType of this.#editorTypes) {
+        if (editorType.isHandlingMimeForPasting(type)) {
+          event.dataTransfer.dropEffect = "copy";
+          event.preventDefault();
+          return;
         }
       }
     }
   }
-  drop(evento) {
-    para (item constante de event.dataTransfer.items) {
-      para (const editorType deste.#editorTypes) {
-        se (editorType.isHandlingMimeForPasting(item.type)) {
+  drop(event) {
+    for (const item of event.dataTransfer.items) {
+      for (const editorType of this.#editorTypes) {
+        if (editorType.isHandlingMimeForPasting(item.type)) {
           editorType.paste(item, this.currentLayer);
-          evento.preventDefault();
-          retornar;
+          event.preventDefault();
+          return;
         }
       }
     }
   }
-  copiar(evento) {
-    evento.preventDefault();
-    isto.#activeEditor?.commitOrRemove();
-    se (!isto.temSeleção) {
-      retornar;
+  copy(event) {
+    event.preventDefault();
+    this.#activeEditor?.commitOrRemove();
+    if (!this.hasSelection) {
+      return;
     }
-    editores const = [];
-    para (editor constante deste.#selectedEditors) {
-      const serializado = editor.serialize(true);
-      se (serializado) {
-        editores.push(serializado);
+    const editors = [];
+    for (const editor of this.#selectedEditors) {
+      const serialized = editor.serialize(true);
+      if (serialized) {
+        editors.push(serialized);
       }
     }
-    se (editores.length === 0) {
-      retornar;
+    if (editors.length === 0) {
+      return;
     }
-    event.clipboardData.setData("aplicativo/pdfjs", JSON.stringify(editores));
+    event.clipboardData.setData("application/pdfjs", JSON.stringify(editors));
   }
-  corte(evento) {
-    this.copy(evento);
-    isto.delete();
+  cut(event) {
+    this.copy(event);
+    this.delete();
   }
-  async paste(evento) {
-    evento.preventDefault();
-    constante {
-      Dados da área de transferência
-    } = evento;
-    para (item constante de clipboardData.items) {
-      para (const editorType deste.#editorTypes) {
-        se (editorType.isHandlingMimeForPasting(item.type)) {
+  async paste(event) {
+    event.preventDefault();
+    const {
+      clipboardData
+    } = event;
+    for (const item of clipboardData.items) {
+      for (const editorType of this.#editorTypes) {
+        if (editorType.isHandlingMimeForPasting(item.type)) {
           editorType.paste(item, this.currentLayer);
-          retornar;
+          return;
         }
       }
     }
-    deixe dados = clipboardData.getData("application/pdfjs");
-    se (!dados) {
-      retornar;
+    let data = clipboardData.getData("application/pdfjs");
+    if (!data) {
+      return;
     }
-    tentar {
-      dados = JSON.parse(dados);
-    } pegar (ex) {
-      avisar(`colar: "${ex.message}".`);
-      retornar;
+    try {
+      data = JSON.parse(data);
+    } catch (ex) {
+      warn(`paste: "${ex.message}".`);
+      return;
     }
-    se (!Array.isArray(dados)) {
-      retornar;
+    if (!Array.isArray(data)) {
+      return;
     }
-    isto.unselectAll();
-    constante camada = this.currentLayer;
-    tentar {
-      const novos editores = [];
-      para (editor constante de dados) {
-        const deserializedEditor = aguarda camada.deserialize (editor);
-        se (!deserializedEditor) {
-          retornar;
+    this.unselectAll();
+    const layer = this.currentLayer;
+    try {
+      const newEditors = [];
+      for (const editor of data) {
+        const deserializedEditor = await layer.deserialize(editor);
+        if (!deserializedEditor) {
+          return;
         }
-        newEditors.push(editordesserializado);
+        newEditors.push(deserializedEditor);
       }
       const cmd = () => {
-        para (editor constante de novos editores) {
+        for (const editor of newEditors) {
           this.#addEditorToLayer(editor);
         }
-        isto.#selectEditors(novosEditores);
+        this.#selectEditors(newEditors);
       };
-      const desfazer = () => {
-        para (editor constante de novos editores) {
+      const undo = () => {
+        for (const editor of newEditors) {
           editor.remove();
         }
       };
-      isto.addCommands({
-        comando,
-        desfazer,
-        mustExec: verdadeiro
+      this.addCommands({
+        cmd,
+        undo,
+        mustExec: true
       });
-    } pegar (ex) {
-      avisar(`colar: "${ex.message}".`);
+    } catch (ex) {
+      warn(`paste: "${ex.message}".`);
     }
   }
-  keydown(evento) {
-    se (!this.isShiftKeyDown && evento.key === "Shift") {
-      this.isShiftKeyDown = verdadeiro;
+  keydown(event) {
+    if (!this.isShiftKeyDown && event.key === "Shift") {
+      this.isShiftKeyDown = true;
     }
-    se (este.#modo !== AnnotationEditorType.NONE && !este.isEditorHandlingKeyboard) {
-      AnnotationEditorUIManager._keyboardManager.exec(este, evento);
+    if (this.#mode !== AnnotationEditorType.NONE && !this.isEditorHandlingKeyboard) {
+      AnnotationEditorUIManager._keyboardManager.exec(this, event);
     }
   }
-  keyup(evento) {
-    se (this.isShiftKeyDown && event.key === "Shift") {
-      this.isShiftKeyDown = falso;
-      se (isto.#destaqueQuandoDeslocarParaCima) {
-        isto.#highlightWhenShiftUp = falso;
-        isto.#onSelectEnd("barra_de_ferramentas_principal");
+  keyup(event) {
+    if (this.isShiftKeyDown && event.key === "Shift") {
+      this.isShiftKeyDown = false;
+      if (this.#highlightWhenShiftUp) {
+        this.#highlightWhenShiftUp = false;
+        this.#onSelectEnd("main_toolbar");
       }
     }
   }
   onEditingAction({
-    nome
+    name
   }) {
-    switch (nome) {
-      caso "desfazer":
-      caso "refazer":
-      caso "deletar":
-      caso "selectAll":
-        este[nome]();
-        quebrar;
-      caso "highlightSelection":
-        this.highlightSelection("menu_de_contexto");
-        quebrar;
+    switch (name) {
+      case "undo":
+      case "redo":
+      case "delete":
+      case "selectAll":
+        this[name]();
+        break;
+      case "highlightSelection":
+        this.highlightSelection("context_menu");
+        break;
     }
   }
-  #dispatchUpdateStates(detalhes) {
-    const hasChanged = Object.entries(detalhes).some(([chave, valor]) => this.#previousStates[chave] !== valor);
-    se (mudou) {
-      this._eventBus.dispatch("editor de anotações estados alterados", {
-        fonte: esta,
-        detalhes: Object.assign(this.#previousStates, detalhes)
+  #dispatchUpdateStates(details) {
+    const hasChanged = Object.entries(details).some(([key, value]) => this.#previousStates[key] !== value);
+    if (hasChanged) {
+      this._eventBus.dispatch("annotationeditorstateschanged", {
+        source: this,
+        details: Object.assign(this.#previousStates, details)
       });
-      se (este.#modo === AnnotationEditorType.HIGHLIGHT && detalhes.hasSelectedEditor === falso) {
-        isto.#dispatchUpdateUI([[AnnotationEditorParamsType.HIGHLIGHT_FREE, true]]);
+      if (this.#mode === AnnotationEditorType.HIGHLIGHT && details.hasSelectedEditor === false) {
+        this.#dispatchUpdateUI([[AnnotationEditorParamsType.HIGHLIGHT_FREE, true]]);
       }
     }
   }
-  #dispatchUpdateUI(detalhes) {
-    this._eventBus.dispatch("editor de anotações parâmetros alterados", {
-      fonte: esta,
-      detalhes
+  #dispatchUpdateUI(details) {
+    this._eventBus.dispatch("annotationeditorparamschanged", {
+      source: this,
+      details
     });
   }
-  setEditingState(estáEditando) {
-    se (estáEdição) {
-      isto.#addFocusManager();
-      isto.#addCopyPasteListeners();
-      isto.#dispatchUpdateStates({
+  setEditingState(isEditing) {
+    if (isEditing) {
+      this.#addFocusManager();
+      this.#addCopyPasteListeners();
+      this.#dispatchUpdateStates({
         isEditing: this.#mode !== AnnotationEditorType.NONE,
-        isEmpty: isto.#isEmpty(),
-        temAlgoParaDesfazer: this.#commandManager.temAlgoParaDesfazer(),
-        temAlgoParaRefazer: this.#commandManager.temAlgoParaRefazer(),
-        hasSelectedEditor: falso
+        isEmpty: this.#isEmpty(),
+        hasSomethingToUndo: this.#commandManager.hasSomethingToUndo(),
+        hasSomethingToRedo: this.#commandManager.hasSomethingToRedo(),
+        hasSelectedEditor: false
       });
-    } outro {
-      isto.#removeFocusManager();
-      isto.#removeCopyPasteListeners();
-      isto.#dispatchUpdateStates({
-        isEditing: falso
+    } else {
+      this.#removeFocusManager();
+      this.#removeCopyPasteListeners();
+      this.#dispatchUpdateStates({
+        isEditing: false
       });
-      isto.disableUserSelect(falso);
+      this.disableUserSelect(false);
     }
   }
-  registerEditorTypes(tipos) {
-    se (este.#editorTypes) {
-      retornar;
+  registerEditorTypes(types) {
+    if (this.#editorTypes) {
+      return;
     }
-    isto.#editorTypes = tipos;
-    para (const editorType deste.#editorTypes) {
-      isto.#dispatchUpdateUI(editorType.defaultPropertiesToUpdate);
-    }
-  }
-  obterId() {
-    retornar isto.#idManager.id;
-  }
-  obter currentLayer() {
-    retornar isto.#allLayers.get(isto.#currentPageIndex);
-  }
-  obterCamada(índiceDePágina) {
-    retornar isto.#allLayers.get(pageIndex);
-  }
-  obter currentPageIndex() {
-    retornar isto.#currentPageIndex;
-  }
-  addLayer(camada) {
-    isto.#allLayers.set(camada.pageIndex, camada);
-    se (isto.#estáHabilitado) {
-      camada.enable();
-    } outro {
-      camada.desativar();
+    this.#editorTypes = types;
+    for (const editorType of this.#editorTypes) {
+      this.#dispatchUpdateUI(editorType.defaultPropertiesToUpdate);
     }
   }
-  removeLayer(camada) {
-    isto.#allLayers.delete(camada.pageIndex);
+  getId() {
+    return this.#idManager.id;
   }
-  async updateMode(modo, editId = nulo, isFromKeyboard = falso) {
-    se (este.#modo === modo) {
-      retornar;
+  get currentLayer() {
+    return this.#allLayers.get(this.#currentPageIndex);
+  }
+  getLayer(pageIndex) {
+    return this.#allLayers.get(pageIndex);
+  }
+  get currentPageIndex() {
+    return this.#currentPageIndex;
+  }
+  addLayer(layer) {
+    this.#allLayers.set(layer.pageIndex, layer);
+    if (this.#isEnabled) {
+      layer.enable();
+    } else {
+      layer.disable();
     }
-    se (isto.#updateModeCapability) {
-      aguarde isso.#updateModeCapability.promise;
-      se (!this.#updateModeCapability) {
-        retornar;
+  }
+  removeLayer(layer) {
+    this.#allLayers.delete(layer.pageIndex);
+  }
+  async updateMode(mode, editId = null, isFromKeyboard = false) {
+    if (this.#mode === mode) {
+      return;
+    }
+    if (this.#updateModeCapability) {
+      await this.#updateModeCapability.promise;
+      if (!this.#updateModeCapability) {
+        return;
       }
     }
-    isto.#updateModeCapability = Promise.withResolvers();
-    isto.#currentDrawingSession?.commitOrRemove();
-    isto.#modo = modo;
-    se (modo === AnnotationEditorType.NONE) {
-      this.setEditingState(falso);
-      isto.#desabilitarTudo();
-      este._editorUndoBar?.ocultar();
-      isto.#updateModeCapability.resolve();
-      retornar;
+    this.#updateModeCapability = Promise.withResolvers();
+    this.#currentDrawingSession?.commitOrRemove();
+    this.#mode = mode;
+    if (mode === AnnotationEditorType.NONE) {
+      this.setEditingState(false);
+      this.#disableAll();
+      this._editorUndoBar?.hide();
+      this.#updateModeCapability.resolve();
+      return;
     }
-    se (modo === AnnotationEditorType.SIGNATURE) {
-      aguardar isso.#signatureManager?.loadSignatures();
+    if (mode === AnnotationEditorType.SIGNATURE) {
+      await this.#signatureManager?.loadSignatures();
     }
-    this.setEditingState(verdadeiro);
-    aguarde isso.#enableAll();
-    isto.unselectAll();
-    para (camada constante de this.#allLayers.values()) {
-      camada.updateMode(modo);
+    this.setEditingState(true);
+    await this.#enableAll();
+    this.unselectAll();
+    for (const layer of this.#allLayers.values()) {
+      layer.updateMode(mode);
     }
-    se (!editId) {
-      se (éDoTeclado) {
-        isto.addNewEditorFromKeyboard();
+    if (!editId) {
+      if (isFromKeyboard) {
+        this.addNewEditorFromKeyboard();
       }
-      isto.#updateModeCapability.resolve();
-      retornar;
+      this.#updateModeCapability.resolve();
+      return;
     }
-    para (editor constante deste.#allEditors.values()) {
-      se (editor.annotationElementId === editId) {
+    for (const editor of this.#allEditors.values()) {
+      if (editor.annotationElementId === editId) {
         this.setSelected(editor);
         editor.enterInEditMode();
-      } outro {
+      } else {
         editor.unselect();
       }
     }
-    isto.#updateModeCapability.resolve();
+    this.#updateModeCapability.resolve();
   }
-  adicionarNovoEditorDoTeclado() {
-    se (this.currentLayer.canCreateNewEmptyEditor()) {
+  addNewEditorFromKeyboard() {
+    if (this.currentLayer.canCreateNewEmptyEditor()) {
       this.currentLayer.addNewEditor();
     }
   }
-  updateToolbar(modo) {
-    se (modo === este.#modo) {
-      retornar;
+  updateToolbar(mode) {
+    if (mode === this.#mode) {
+      return;
     }
-    this._eventBus.dispatch("modo de edição de anotações de troca", {
-      fonte: esta,
-      modo
+    this._eventBus.dispatch("switchannotationeditormode", {
+      source: this,
+      mode
     });
   }
-  updateParams(tipo, valor) {
-    se (!this.#editorTypes) {
-      retornar;
+  updateParams(type, value) {
+    if (!this.#editorTypes) {
+      return;
     }
-    switch (tipo) {
-      caso AnnotationEditorParamsType.CREATE:
-        this.currentLayer.addNewEditor(valor);
-        retornar;
-      caso AnnotationEditorParamsType.HIGHLIGHT_DEFAULT_COLOR:
-        isto.#mainHighlightColorPicker?.updateColor(valor);
-        quebrar;
-      caso AnnotationEditorParamsType.HIGHLIGHT_SHOW_ALL:
-        this._eventBus.dispatch("relatório de telemetria", {
-          fonte: esta,
-          detalhes: {
-            tipo: "edição",
-            dados: {
-              tipo: "destaque",
-              ação: "toggle_visibility"
+    switch (type) {
+      case AnnotationEditorParamsType.CREATE:
+        this.currentLayer.addNewEditor(value);
+        return;
+      case AnnotationEditorParamsType.HIGHLIGHT_DEFAULT_COLOR:
+        this.#mainHighlightColorPicker?.updateColor(value);
+        break;
+      case AnnotationEditorParamsType.HIGHLIGHT_SHOW_ALL:
+        this._eventBus.dispatch("reporttelemetry", {
+          source: this,
+          details: {
+            type: "editing",
+            data: {
+              type: "highlight",
+              action: "toggle_visibility"
             }
           }
         });
-        (this.#showAllStates ||= novo Mapa()).definir(tipo, valor);
-        this.showAllEditors("destaque", valor);
-        quebrar;
+        (this.#showAllStates ||= new Map()).set(type, value);
+        this.showAllEditors("highlight", value);
+        break;
     }
-    para (editor constante deste.#selectedEditors) {
-      editor.updateParams(tipo, valor);
+    for (const editor of this.#selectedEditors) {
+      editor.updateParams(type, value);
     }
-    para (const editorType deste.#editorTypes) {
-      editorType.updateDefaultParams(tipo, valor);
-    }
-  }
-  showAllEditors(tipo, visível, updateButton = falso) {
-    para (editor constante deste.#allEditors.values()) {
-      se (editor.editorType === tipo) {
-        editor.show(visível);
-      }
-    }
-    constante estado = isto.#showAllStates?.get(AnnotationEditorParamsType.HIGHLIGHT_SHOW_ALL) ?? verdadeiro;
-    se (estado !== visível) {
-      isto.#dispatchUpdateUI([[AnnotationEditorParamsType.HIGHLIGHT_SHOW_ALL, visível]]);
+    for (const editorType of this.#editorTypes) {
+      editorType.updateDefaultParams(type, value);
     }
   }
-  enableWaiting(mustWait = falso) {
-    se (isto.#estáEsperando === deveEsperar) {
-      retornar;
-    }
-    isto.#estáEsperando = deveEsperar;
-    para (camada constante de this.#allLayers.values()) {
-      se (deveEsperar) {
-        camada.disableClick();
-      } outro {
-        camada.enableClick();
+  showAllEditors(type, visible, updateButton = false) {
+    for (const editor of this.#allEditors.values()) {
+      if (editor.editorType === type) {
+        editor.show(visible);
       }
-      layer.div.classList.toggle("esperando", mustWait);
+    }
+    const state = this.#showAllStates?.get(AnnotationEditorParamsType.HIGHLIGHT_SHOW_ALL) ?? true;
+    if (state !== visible) {
+      this.#dispatchUpdateUI([[AnnotationEditorParamsType.HIGHLIGHT_SHOW_ALL, visible]]);
     }
   }
-  assíncrono #enableAll() {
-    se (!isto.#estáHabilitado) {
-      isto.#isEnabled = verdadeiro;
-      const promessas = [];
-      para (camada constante de this.#allLayers.values()) {
-        promessas.push(camada.enable());
+  enableWaiting(mustWait = false) {
+    if (this.#isWaiting === mustWait) {
+      return;
+    }
+    this.#isWaiting = mustWait;
+    for (const layer of this.#allLayers.values()) {
+      if (mustWait) {
+        layer.disableClick();
+      } else {
+        layer.enableClick();
       }
-      aguarde Promise.all(promessas);
-      para (editor constante deste.#allEditors.values()) {
+      layer.div.classList.toggle("waiting", mustWait);
+    }
+  }
+  async #enableAll() {
+    if (!this.#isEnabled) {
+      this.#isEnabled = true;
+      const promises = [];
+      for (const layer of this.#allLayers.values()) {
+        promises.push(layer.enable());
+      }
+      await Promise.all(promises);
+      for (const editor of this.#allEditors.values()) {
         editor.enable();
       }
     }
   }
-  #desabilitarTudo() {
-    isto.unselectAll();
-    se (isto.#estáHabilitado) {
-      isto.#isEnabled = falso;
-      para (camada constante de this.#allLayers.values()) {
-        camada.desativar();
+  #disableAll() {
+    this.unselectAll();
+    if (this.#isEnabled) {
+      this.#isEnabled = false;
+      for (const layer of this.#allLayers.values()) {
+        layer.disable();
       }
-      para (editor constante deste.#allEditors.values()) {
-        editor.desativar();
+      for (const editor of this.#allEditors.values()) {
+        editor.disable();
       }
     }
   }
-  obterEditores(índiceDePáginas) {
-    editores const = [];
-    para (editor constante deste.#allEditors.values()) {
-      se (editor.pageIndex === pageIndex) {
-        editores.push(editor);
+  getEditors(pageIndex) {
+    const editors = [];
+    for (const editor of this.#allEditors.values()) {
+      if (editor.pageIndex === pageIndex) {
+        editors.push(editor);
       }
     }
-    editores de retorno;
+    return editors;
   }
-  obterEditor(id) {
-    retornar isto.#allEditors.get(id);
+  getEditor(id) {
+    return this.#allEditors.get(id);
   }
   addEditor(editor) {
-    isto.#allEditors.set(editor.id, editor);
+    this.#allEditors.set(editor.id, editor);
   }
   removeEditor(editor) {
-    se (editor.div.contains(document.activeElement)) {
-      se (isto.#focusMainContainerTimeoutId) {
+    if (editor.div.contains(document.activeElement)) {
+      if (this.#focusMainContainerTimeoutId) {
         clearTimeout(this.#focusMainContainerTimeoutId);
       }
-      isto.#focusMainContainerTimeoutId = setTimeout(() => {
-        este.focusMainContainer();
-        isto.#focusMainContainerTimeoutId = nulo;
+      this.#focusMainContainerTimeoutId = setTimeout(() => {
+        this.focusMainContainer();
+        this.#focusMainContainerTimeoutId = null;
       }, 0);
     }
-    isto.#allEditors.delete(editor.id);
-    se (editor.annotationElementId) {
-      isto.#missingCanvases?.delete(editor.annotationElementId);
+    this.#allEditors.delete(editor.id);
+    if (editor.annotationElementId) {
+      this.#missingCanvases?.delete(editor.annotationElementId);
     }
-    isto.desmarcar(editor);
-    se (!editor.annotationElementId || !this.#deletedAnnotationsElementIds.has(editor.annotationElementId)) {
-      isto.#annotationStorage?.remove(editor.id);
+    this.unselect(editor);
+    if (!editor.annotationElementId || !this.#deletedAnnotationsElementIds.has(editor.annotationElementId)) {
+      this.#annotationStorage?.remove(editor.id);
     }
   }
   addDeletedAnnotationElement(editor) {
-    isto.#deletedAnnotationsElementIds.add(editor.annotationElementId);
+    this.#deletedAnnotationsElementIds.add(editor.annotationElementId);
     this.addChangedExistingAnnotation(editor);
-    editor.deleted = verdadeiro;
+    editor.deleted = true;
   }
   isDeletedAnnotationElement(annotationElementId) {
-    retornar isto.#deletedAnnotationsElementIds.has(annotationElementId);
+    return this.#deletedAnnotationsElementIds.has(annotationElementId);
   }
   removeDeletedAnnotationElement(editor) {
-    isto.#deletedAnnotationsElementIds.delete(editor.annotationElementId);
+    this.#deletedAnnotationsElementIds.delete(editor.annotationElementId);
     this.removeChangedExistingAnnotation(editor);
-    editor.deleted = falso;
+    editor.deleted = false;
   }
   #addEditorToLayer(editor) {
-    const camada = this.#allLayers.get(editor.pageIndex);
-    se (camada) {
-      camada.addOrRebuild(editor);
-    } outro {
-      isto.addEditor(editor);
-      isto.addToAnnotationStorage(editor);
+    const layer = this.#allLayers.get(editor.pageIndex);
+    if (layer) {
+      layer.addOrRebuild(editor);
+    } else {
+      this.addEditor(editor);
+      this.addToAnnotationStorage(editor);
     }
   }
   setActiveEditor(editor) {
-    se (este.#activeEditor === editor) {
-      retornar;
+    if (this.#activeEditor === editor) {
+      return;
     }
-    isto.#activeEditor = editor;
-    se (editor) {
-      isto.#dispatchUpdateUI(editor.propertiesToUpdate);
+    this.#activeEditor = editor;
+    if (editor) {
+      this.#dispatchUpdateUI(editor.propertiesToUpdate);
     }
   }
-  obter #lastSelectedEditor() {
-    deixe ed = nulo;
-    para (edição deste.#selectedEditors) {}
-    retornar ed;
+  get #lastSelectedEditor() {
+    let ed = null;
+    for (ed of this.#selectedEditors) {}
+    return ed;
   }
   updateUI(editor) {
-    se (este.#últimoEditorSelecionado === editor) {
-      isto.#dispatchUpdateUI(editor.propertiesToUpdate);
+    if (this.#lastSelectedEditor === editor) {
+      this.#dispatchUpdateUI(editor.propertiesToUpdate);
     }
   }
   updateUIForDefaultProperties(editorType) {
-    isto.#dispatchUpdateUI(editorType.defaultPropertiesToUpdate);
+    this.#dispatchUpdateUI(editorType.defaultPropertiesToUpdate);
   }
-  alternarSelecionado(editor) {
-    se (este.#selectedEditors.tem(editor)) {
-      isto.#selectedEditors.delete(editor);
+  toggleSelected(editor) {
+    if (this.#selectedEditors.has(editor)) {
+      this.#selectedEditors.delete(editor);
       editor.unselect();
-      isto.#dispatchUpdateStates({
-        hasSelectedEditor: isto.temSeleção
+      this.#dispatchUpdateStates({
+        hasSelectedEditor: this.hasSelection
       });
-      retornar;
+      return;
     }
-    isto.#selectedEditors.add(editor);
-    editor.selecionar();
-    isto.#dispatchUpdateUI(editor.propertiesToUpdate);
-    isto.#dispatchUpdateStates({
-      hasSelectedEditor: verdadeiro
+    this.#selectedEditors.add(editor);
+    editor.select();
+    this.#dispatchUpdateUI(editor.propertiesToUpdate);
+    this.#dispatchUpdateStates({
+      hasSelectedEditor: true
     });
   }
   setSelected(editor) {
-    isto.#currentDrawingSession?.commitOrRemove();
-    para (const ed deste.#selectedEditors) {
-      se (ed !== editor) {
-        ed.desmarcar();
+    this.#currentDrawingSession?.commitOrRemove();
+    for (const ed of this.#selectedEditors) {
+      if (ed !== editor) {
+        ed.unselect();
       }
     }
-    isto.#selectedEditors.clear();
-    isto.#selectedEditors.add(editor);
-    editor.selecionar();
-    isto.#dispatchUpdateUI(editor.propertiesToUpdate);
-    isto.#dispatchUpdateStates({
-      hasSelectedEditor: verdadeiro
+    this.#selectedEditors.clear();
+    this.#selectedEditors.add(editor);
+    editor.select();
+    this.#dispatchUpdateUI(editor.propertiesToUpdate);
+    this.#dispatchUpdateStates({
+      hasSelectedEditor: true
     });
   }
   isSelected(editor) {
-    retornar isto.#selectedEditors.has(editor);
+    return this.#selectedEditors.has(editor);
   }
-  obter firstSelectedEditor() {
-    retornar isto.#selectedEditors.values().next().value;
+  get firstSelectedEditor() {
+    return this.#selectedEditors.values().next().value;
   }
-  desmarcar(editor) {
+  unselect(editor) {
     editor.unselect();
-    isto.#selectedEditors.delete(editor);
-    isto.#dispatchUpdateStates({
-      hasSelectedEditor: isto.temSeleção
+    this.#selectedEditors.delete(editor);
+    this.#dispatchUpdateStates({
+      hasSelectedEditor: this.hasSelection
     });
   }
-  obter hasSelection() {
-    retornar isto.#selectedEditors.size !== 0;
+  get hasSelection() {
+    return this.#selectedEditors.size !== 0;
   }
-  obter isEnterHandled() {
-    retornar isto.#selectedEditors.size === 1 && this.firstSelectedEditor.isEnterHandled;
+  get isEnterHandled() {
+    return this.#selectedEditors.size === 1 && this.firstSelectedEditor.isEnterHandled;
   }
-  desfazer() {
-    isto.#commandManager.undo();
-    isto.#dispatchUpdateStates({
-      temAlgoParaDesfazer: this.#commandManager.temAlgoParaDesfazer(),
-      hasSomethingToRedo: verdadeiro,
-      isEmpty: isto.#isEmpty()
+  undo() {
+    this.#commandManager.undo();
+    this.#dispatchUpdateStates({
+      hasSomethingToUndo: this.#commandManager.hasSomethingToUndo(),
+      hasSomethingToRedo: true,
+      isEmpty: this.#isEmpty()
     });
-    este._editorUndoBar?.ocultar();
+    this._editorUndoBar?.hide();
   }
-  refazer() {
-    isto.#commandManager.redo();
-    isto.#dispatchUpdateStates({
-      hasSomethingToUndo: verdadeiro,
-      temAlgoParaRefazer: this.#commandManager.temAlgoParaRefazer(),
-      isEmpty: isto.#isEmpty()
-    });
-  }
-  addCommands(parâmetros) {
-    isto.#commandManager.add(parâmetros);
-    isto.#dispatchUpdateStates({
-      hasSomethingToUndo: verdadeiro,
-      temAlgoParaRefazer: falso,
-      isEmpty: isto.#isEmpty()
+  redo() {
+    this.#commandManager.redo();
+    this.#dispatchUpdateStates({
+      hasSomethingToUndo: true,
+      hasSomethingToRedo: this.#commandManager.hasSomethingToRedo(),
+      isEmpty: this.#isEmpty()
     });
   }
-  cleanUndoStack(tipo) {
-    isto.#commandManager.cleanType(tipo);
+  addCommands(params) {
+    this.#commandManager.add(params);
+    this.#dispatchUpdateStates({
+      hasSomethingToUndo: true,
+      hasSomethingToRedo: false,
+      isEmpty: this.#isEmpty()
+    });
   }
-  #estáVazio() {
-    se (this.#allEditors.size === 0) {
-      retornar verdadeiro;
+  cleanUndoStack(type) {
+    this.#commandManager.cleanType(type);
+  }
+  #isEmpty() {
+    if (this.#allEditors.size === 0) {
+      return true;
     }
-    se (this.#allEditors.size === 1) {
-      para (editor constante deste.#allEditors.values()) {
-        retornar editor.isEmpty();
+    if (this.#allEditors.size === 1) {
+      for (const editor of this.#allEditors.values()) {
+        return editor.isEmpty();
       }
     }
-    retornar falso;
+    return false;
   }
-  excluir() {
-    isto.commitOrRemove();
+  delete() {
+    this.commitOrRemove();
     const drawingEditor = this.currentLayer?.endDrawingSession(true);
-    se (!isto.temSeleção && !editordedesenho) {
-      retornar;
+    if (!this.hasSelection && !drawingEditor) {
+      return;
     }
-    const editores = drawingEditor ? [drawingEditor] : [...this.#selectedEditors];
+    const editors = drawingEditor ? [drawingEditor] : [...this.#selectedEditors];
     const cmd = () => {
-      this._editorUndoBar?.show(desfazer, editores.length === 1 ? editores[0].editorType : editores.length);
-      para (editor constante de editores) {
+      this._editorUndoBar?.show(undo, editors.length === 1 ? editors[0].editorType : editors.length);
+      for (const editor of editors) {
         editor.remove();
       }
     };
-    const desfazer = () => {
-      para (editor constante de editores) {
+    const undo = () => {
+      for (const editor of editors) {
         this.#addEditorToLayer(editor);
       }
     };
-    isto.addCommands({
-      comando,
-      desfazer,
-      mustExec: verdadeiro
+    this.addCommands({
+      cmd,
+      undo,
+      mustExec: true
     });
   }
   commitOrRemove() {
-    isto.#activeEditor?.commitOrRemove();
+    this.#activeEditor?.commitOrRemove();
   }
-  temAlgoParaControlar() {
-    retornar isto.#activeEditor || isto.temSeleção;
+  hasSomethingToControl() {
+    return this.#activeEditor || this.hasSelection;
   }
-  #selectEditors(editores) {
-    para (editor constante deste.#selectedEditors) {
+  #selectEditors(editors) {
+    for (const editor of this.#selectedEditors) {
       editor.unselect();
     }
-    isto.#selectedEditors.clear();
-    para (editor constante de editores) {
-      se (editor.isEmpty()) {
-        continuar;
+    this.#selectedEditors.clear();
+    for (const editor of editors) {
+      if (editor.isEmpty()) {
+        continue;
       }
-      isto.#selectedEditors.add(editor);
-      editor.selecionar();
+      this.#selectedEditors.add(editor);
+      editor.select();
     }
-    isto.#dispatchUpdateStates({
-      hasSelectedEditor: isto.temSeleção
+    this.#dispatchUpdateStates({
+      hasSelectedEditor: this.hasSelection
     });
   }
-  selecionarTudo() {
-    para (editor constante deste.#selectedEditors) {
+  selectAll() {
+    for (const editor of this.#selectedEditors) {
       editor.commit();
     }
-    isto.#selectEditors(isto.#allEditors.values());
+    this.#selectEditors(this.#allEditors.values());
   }
-  desmarcar tudo() {
-    se (este.#activeEditor) {
-      isto.#activeEditor.commitOrRemove();
-      se (este.#modo !== AnnotationEditorType.NONE) {
-        retornar;
+  unselectAll() {
+    if (this.#activeEditor) {
+      this.#activeEditor.commitOrRemove();
+      if (this.#mode !== AnnotationEditorType.NONE) {
+        return;
       }
     }
-    se (isto.#currentDrawingSession?.commitOrRemove()) {
-      retornar;
+    if (this.#currentDrawingSession?.commitOrRemove()) {
+      return;
     }
-    se (!isto.temSeleção) {
-      retornar;
+    if (!this.hasSelection) {
+      return;
     }
-    para (editor constante deste.#selectedEditors) {
+    for (const editor of this.#selectedEditors) {
       editor.unselect();
     }
-    isto.#selectedEditors.clear();
-    isto.#dispatchUpdateStates({
-      hasSelectedEditor: falso
+    this.#selectedEditors.clear();
+    this.#dispatchUpdateStates({
+      hasSelectedEditor: false
     });
   }
-  translateSelectedEditors(x, y, noCommit = falso) {
-    se (!noCommit) {
-      isto.commitOrRemove();
+  translateSelectedEditors(x, y, noCommit = false) {
+    if (!noCommit) {
+      this.commitOrRemove();
     }
-    se (!isto.temSeleção) {
-      retornar;
+    if (!this.hasSelection) {
+      return;
     }
-    isto.#translation[0] += x;
-    isto.#translation[1] += y;
-    const [totalX, totalY] = isto.#tradução;
-    const editores = [...this.#selectedEditors];
-    const TEMPO_DE_ESPERA = 1000;
-    se (isto.#translationTimeoutId) {
+    this.#translation[0] += x;
+    this.#translation[1] += y;
+    const [totalX, totalY] = this.#translation;
+    const editors = [...this.#selectedEditors];
+    const TIME_TO_WAIT = 1000;
+    if (this.#translationTimeoutId) {
       clearTimeout(this.#translationTimeoutId);
     }
-    isto.#translationTimeoutId = setTimeout(() => {
-      isto.#translationTimeoutId = nulo;
-      isto.#tradução[0] = isto.#tradução[1] = 0;
-      isto.addCommands({
-        comando: () => {
-          para (editor constante de editores) {
-            se (isto.#allEditors.tem(editor.id)) {
+    this.#translationTimeoutId = setTimeout(() => {
+      this.#translationTimeoutId = null;
+      this.#translation[0] = this.#translation[1] = 0;
+      this.addCommands({
+        cmd: () => {
+          for (const editor of editors) {
+            if (this.#allEditors.has(editor.id)) {
               editor.translateInPage(totalX, totalY);
               editor.translationDone();
             }
           }
         },
-        desfazer: () => {
-          para (editor constante de editores) {
-            se (isto.#allEditors.tem(editor.id)) {
+        undo: () => {
+          for (const editor of editors) {
+            if (this.#allEditors.has(editor.id)) {
               editor.translateInPage(-totalX, -totalY);
               editor.translationDone();
             }
           }
         },
-        mustExec: falso
+        mustExec: false
       });
-    }, TEMPO_DE_ESPERA);
-    para (editor constante de editores) {
+    }, TIME_TO_WAIT);
+    for (const editor of editors) {
       editor.translateInPage(x, y);
       editor.translationDone();
     }
   }
   setUpDragSession() {
-    se (!isto.temSeleção) {
-      retornar;
+    if (!this.hasSelection) {
+      return;
     }
-    this.disableUserSelect(verdadeiro);
-    isto.#draggingEditors = novo Mapa();
-    para (editor constante deste.#selectedEditors) {
-      isto.#draggingEditors.set(editor, {
+    this.disableUserSelect(true);
+    this.#draggingEditors = new Map();
+    for (const editor of this.#selectedEditors) {
+      this.#draggingEditors.set(editor, {
         savedX: editor.x,
         savedY: editor.y,
         savedPageIndex: editor.pageIndex,
-        novoX: 0,
-        novoY: 0,
-        novoÍndiceDePágina: -1
+        newX: 0,
+        newY: 0,
+        newPageIndex: -1
       });
     }
   }
   endDragSession() {
-    se (!this.#draggingEditors) {
-      retornar falso;
+    if (!this.#draggingEditors) {
+      return false;
     }
-    isto.disableUserSelect(falso);
+    this.disableUserSelect(false);
     const map = this.#draggingEditors;
-    isto.#draggingEditors = nulo;
-    deixe mustBeAddedInUndoStack = false;
-    para (const [{
+    this.#draggingEditors = null;
+    let mustBeAddedInUndoStack = false;
+    for (const [{
       x,
-      e,
-      índice de páginas
-    }, valor] do mapa) {
-      valor.novoX = x;
-      valor.newY = y;
-      valor.newPageIndex = pageIndex;
-      mustBeAddedInUndoStack ||= x !== valor.savedX || y !== valor.savedY || pageIndex !== valor.savedPageIndex;
+      y,
+      pageIndex
+    }, value] of map) {
+      value.newX = x;
+      value.newY = y;
+      value.newPageIndex = pageIndex;
+      mustBeAddedInUndoStack ||= x !== value.savedX || y !== value.savedY || pageIndex !== value.savedPageIndex;
     }
-    se (!mustBeAddedInUndoStack) {
-      retornar falso;
+    if (!mustBeAddedInUndoStack) {
+      return false;
     }
     const move = (editor, x, y, pageIndex) => {
-      se (isto.#allEditors.tem(editor.id)) {
+      if (this.#allEditors.has(editor.id)) {
         const parent = this.#allLayers.get(pageIndex);
-        se (pai) {
-          editor._setParentAndPosition(pai, x, y);
-        } outro {
-          editor.pageIndex = índice de página;
+        if (parent) {
+          editor._setParentAndPosition(parent, x, y);
+        } else {
+          editor.pageIndex = pageIndex;
           editor.x = x;
           editor.y = y;
         }
       }
     };
-    isto.addCommands({
-      comando: () => {
-        para (const [editor, {
-          novoX,
-          novoY,
-          novoÍndiceDePágina
-        }] do mapa) {
-          mover(editor, newX, newY, newPageIndex);
+    this.addCommands({
+      cmd: () => {
+        for (const [editor, {
+          newX,
+          newY,
+          newPageIndex
+        }] of map) {
+          move(editor, newX, newY, newPageIndex);
         }
       },
-      desfazer: () => {
-        para (const [editor, {
-          salvoX,
-          salvoY,
-          Índice de página salvo
-        }] do mapa) {
-          mover(editor, savedX, savedY, savedPageIndex);
+      undo: () => {
+        for (const [editor, {
+          savedX,
+          savedY,
+          savedPageIndex
+        }] of map) {
+          move(editor, savedX, savedY, savedPageIndex);
         }
       },
-      mustExec: verdadeiro
+      mustExec: true
     });
-    retornar verdadeiro;
+    return true;
   }
-  arrasteEditoresSelecionados(tx, ty) {
-    se (!this.#draggingEditors) {
-      retornar;
+  dragSelectedEditors(tx, ty) {
+    if (!this.#draggingEditors) {
+      return;
     }
-    para (editor constante deste.#draggingEditors.keys()) {
-      editor.arrastar(tx, ty);
+    for (const editor of this.#draggingEditors.keys()) {
+      editor.drag(tx, ty);
     }
   }
-  reconstruir(editor) {
-    se (editor.parent === nulo) {
+  rebuild(editor) {
+    if (editor.parent === null) {
       const parent = this.getLayer(editor.pageIndex);
-      se (pai) {
-        pai.changeParent(editor);
-        pai.addOrRebuild(editor);
-      } outro {
-        isto.addEditor(editor);
-        isto.addToAnnotationStorage(editor);
-        editor.reconstruir();
+      if (parent) {
+        parent.changeParent(editor);
+        parent.addOrRebuild(editor);
+      } else {
+        this.addEditor(editor);
+        this.addToAnnotationStorage(editor);
+        editor.rebuild();
       }
-    } outro {
+    } else {
       editor.parent.addOrRebuild(editor);
     }
   }
-  obter isEditorHandlingKeyboard() {
-    retornar isto.getActive()?.shouldGetKeyboardEvents() || isto.#selectedEditors.size === 1 && isto.firstSelectedEditor.shouldGetKeyboardEvents();
+  get isEditorHandlingKeyboard() {
+    return this.getActive()?.shouldGetKeyboardEvents() || this.#selectedEditors.size === 1 && this.firstSelectedEditor.shouldGetKeyboardEvents();
   }
   isActive(editor) {
-    retornar isto.#activeEditor === editor;
+    return this.#activeEditor === editor;
   }
-  obterAtivo() {
-    retornar isto.#activeEditor;
+  getActive() {
+    return this.#activeEditor;
   }
-  obterModo() {
-    retornar isto.#modo;
+  getMode() {
+    return this.#mode;
   }
-  obter imageManager() {
-    retornar sombra(this, "imageManager", novo ImageManager());
+  get imageManager() {
+    return shadow(this, "imageManager", new ImageManager());
   }
-  obterCaixasDeSeleção(CamadaDeTexto) {
-    se (!textLayer) {
-      retornar nulo;
+  getSelectionBoxes(textLayer) {
+    if (!textLayer) {
+      return null;
     }
-    const seleção = document.getSelection();
-    para (seja i = 0, ii = seleção.rangeCount; i < ii; i++) {
-      se (!textLayer.contains(selection.getRangeAt(i).commonAncestorContainer)) {
-        retornar nulo;
+    const selection = document.getSelection();
+    for (let i = 0, ii = selection.rangeCount; i < ii; i++) {
+      if (!textLayer.contains(selection.getRangeAt(i).commonAncestorContainer)) {
+        return null;
       }
     }
-    constante {
-      x: camadaX,
-      y: camadaY,
-      largura: parentWidth,
-      altura: parentHeight
+    const {
+      x: layerX,
+      y: layerY,
+      width: parentWidth,
+      height: parentHeight
     } = textLayer.getBoundingClientRect();
-    deixe o rotador;
-    switch (textLayer.getAttribute("rotação-principal-de-dados")) {
-      caso "90":
-        rotador = (x, y, w, h) => ({
-          x: (y - camadaY) / alturapai,
-          y: 1 - (x + w - camadaX) / largurapai,
-          largura: h / parentHeight,
-          altura: com largura do pai
+    let rotator;
+    switch (textLayer.getAttribute("data-main-rotation")) {
+      case "90":
+        rotator = (x, y, w, h) => ({
+          x: (y - layerY) / parentHeight,
+          y: 1 - (x + w - layerX) / parentWidth,
+          width: h / parentHeight,
+          height: w / parentWidth
         });
-        quebrar;
-      caso "180":
-        rotador = (x, y, w, h) => ({
-          x: 1 - (x + w - camadaX) / largurapai,
-          y: 1 - (y + h - camadaY) / alturapai,
-          largura: com largura_parent,
-          altura: h / parentHeight
+        break;
+      case "180":
+        rotator = (x, y, w, h) => ({
+          x: 1 - (x + w - layerX) / parentWidth,
+          y: 1 - (y + h - layerY) / parentHeight,
+          width: w / parentWidth,
+          height: h / parentHeight
         });
-        quebrar;
-      caso "270":
-        rotador = (x, y, w, h) => ({
-          x: 1 - (y + h - camadaY) / alturapai,
-          y: (x - camadaX) / largurapai,
-          largura: h / parentHeight,
-          altura: com largura do pai
+        break;
+      case "270":
+        rotator = (x, y, w, h) => ({
+          x: 1 - (y + h - layerY) / parentHeight,
+          y: (x - layerX) / parentWidth,
+          width: h / parentHeight,
+          height: w / parentWidth
         });
-        quebrar;
-      padrão:
-        rotador = (x, y, w, h) => ({
-          x: (x - camadaX) / parentWidth,
-          y: (y - camadaY) / alturapai,
-          largura: com largura_parent,
-          altura: h / parentHeight
+        break;
+      default:
+        rotator = (x, y, w, h) => ({
+          x: (x - layerX) / parentWidth,
+          y: (y - layerY) / parentHeight,
+          width: w / parentWidth,
+          height: h / parentHeight
         });
-        quebrar;
+        break;
     }
-    caixas const = [];
-    para (seja i = 0, ii = seleção.rangeCount; i < ii; i++) {
-      const range = seleção.getRangeAt(i);
-      se (intervalo.recolhido) {
-        continuar;
+    const boxes = [];
+    for (let i = 0, ii = selection.rangeCount; i < ii; i++) {
+      const range = selection.getRangeAt(i);
+      if (range.collapsed) {
+        continue;
       }
-      para (const {
+      for (const {
         x,
-        e,
-        largura,
-        altura
-      } de intervalo.getClientRects()) {
-        se (largura === 0 || altura === 0) {
-          continuar;
+        y,
+        width,
+        height
+      } of range.getClientRects()) {
+        if (width === 0 || height === 0) {
+          continue;
         }
-        boxes.push(rotator(x, y, largura, altura));
+        boxes.push(rotator(x, y, width, height));
       }
     }
-    retornar caixas.length === 0 ? null : caixas;
+    return boxes.length === 0 ? null : boxes;
   }
   addChangedExistingAnnotation({
     annotationElementId,
-    eu ia
+    id
   }) {
-    (isto.#alteradoAnotaçõesExistentes ||= novo Mapa()).definir(annotationElementId, id);
+    (this.#changedExistingAnnotations ||= new Map()).set(annotationElementId, id);
   }
   removeChangedExistingAnnotation({
-    ID do elemento de anotação
+    annotationElementId
   }) {
-    isto.#alteradoAnotaçõesExistentes?.excluir(annotationElementId);
+    this.#changedExistingAnnotations?.delete(annotationElementId);
   }
-  renderAnnotationElement(anotação) {
+  renderAnnotationElement(annotation) {
     const editorId = this.#changedExistingAnnotations?.get(annotation.data.id);
-    se (!editorId) {
-      retornar;
+    if (!editorId) {
+      return;
     }
     const editor = this.#annotationStorage.getRawValue(editorId);
-    se (!editor) {
-      retornar;
+    if (!editor) {
+      return;
     }
-    se (este.#modo === AnnotationEditorType.NONE && !editor.hasBeenModified) {
-      retornar;
+    if (this.#mode === AnnotationEditorType.NONE && !editor.hasBeenModified) {
+      return;
     }
-    editor.renderAnnotationElement(anotação);
+    editor.renderAnnotationElement(annotation);
   }
-  setMissingCanvas(annotationId, annotationElementId, tela) {
+  setMissingCanvas(annotationId, annotationElementId, canvas) {
     const editor = this.#missingCanvases?.get(annotationId);
-    se (!editor) {
-      retornar;
+    if (!editor) {
+      return;
     }
-    editor.setCanvas(annotationElementId, tela);
-    isto.#missingCanvases.delete(annotationId);
+    editor.setCanvas(annotationElementId, canvas);
+    this.#missingCanvases.delete(annotationId);
   }
   addMissingCanvas(annotationId, editor) {
-    (this.#missingCanvases ||= novo Mapa()).set(annotationId, editor);
+    (this.#missingCanvases ||= new Map()).set(annotationId, editor);
   }
 }
 
 ;// ./src/display/editor/alt_text.js
 
-classe AltText {
-  #altText = nulo;
-  #altTextDecorative = falso;
-  #altTextButton = nulo;
-  #altTextButtonLabel = nulo;
-  #altTextTooltip = nulo;
-  #altTextTooltipTimeout = nulo;
-  #altTextWasFromKeyBoard = falso;
-  #emblema = nulo;
-  #editor = nulo;
-  #guessedText = nulo;
-  #textWithDisclaimer = nulo;
-  #useNewAltTextFlow = falso;
-  estático #l10nNewButton = nulo;
-  estático _l10n = nulo;
-  construtor(editor) {
-    isto.#editor = editor;
-    isto.#useNewAltTextFlow = editor._uiManager.useNewAltTextFlow;
-    AltText.#l10nNewButton ||= Objeto.congelar({
-      adicionado: "pdfjs-editor-new-alt-text-added-button",
-      "added-label": "editor-pdfjs-novo-texto-alt-adicionado-rótulo-de-botão",
-      faltando: "pdfjs-editor-new-alt-text-missing-button",
-      "missing-label": "editor-pdfjs-novo-texto-alt-rótulo-de-botão-ausente",
-      revisão: "pdfjs-editor-new-alt-text-to-review-button",
-      "review-label": "editor-pdfjs-novo-texto-alt-para-rótulo-do-botão-de-revisão"
+class AltText {
+  #altText = null;
+  #altTextDecorative = false;
+  #altTextButton = null;
+  #altTextButtonLabel = null;
+  #altTextTooltip = null;
+  #altTextTooltipTimeout = null;
+  #altTextWasFromKeyBoard = false;
+  #badge = null;
+  #editor = null;
+  #guessedText = null;
+  #textWithDisclaimer = null;
+  #useNewAltTextFlow = false;
+  static #l10nNewButton = null;
+  static _l10n = null;
+  constructor(editor) {
+    this.#editor = editor;
+    this.#useNewAltTextFlow = editor._uiManager.useNewAltTextFlow;
+    AltText.#l10nNewButton ||= Object.freeze({
+      added: "pdfjs-editor-new-alt-text-added-button",
+      "added-label": "pdfjs-editor-new-alt-text-added-button-label",
+      missing: "pdfjs-editor-new-alt-text-missing-button",
+      "missing-label": "pdfjs-editor-new-alt-text-missing-button-label",
+      review: "pdfjs-editor-new-alt-text-to-review-button",
+      "review-label": "pdfjs-editor-new-alt-text-to-review-button-label"
     });
   }
-  inicialização estática(l10n) {
+  static initialize(l10n) {
     AltText._l10n ??= l10n;
   }
-  renderização assíncrona() {
-    const altText = this.#altTextButton = document.createElement("botão");
+  async render() {
+    const altText = this.#altTextButton = document.createElement("button");
     altText.className = "altText";
     altText.tabIndex = "0";
-    const rótulo = this.#altTextButtonLabel = document.createElement("span");
-    altText.append(rótulo);
-    se (isto.#useNewAltTextFlow) {
-      altText.classList.add("novo");
-      altText.setAttribute("dados-l10n-id", AltText.#l10nNewButton.missing);
-      label.setAttribute("data-l10n-id", AltText.#l10nNewButton["rótulo-ausente"]);
-    } outro {
-      altText.setAttribute("data-l10n-id", "botão-de-texto-alt-do-editor-pdfjs");
-      label.setAttribute("data-l10n-id", "editor-pdfjs-texto-alt-botão-rótulo");
+    const label = this.#altTextButtonLabel = document.createElement("span");
+    altText.append(label);
+    if (this.#useNewAltTextFlow) {
+      altText.classList.add("new");
+      altText.setAttribute("data-l10n-id", AltText.#l10nNewButton.missing);
+      label.setAttribute("data-l10n-id", AltText.#l10nNewButton["missing-label"]);
+    } else {
+      altText.setAttribute("data-l10n-id", "pdfjs-editor-alt-text-button");
+      label.setAttribute("data-l10n-id", "pdfjs-editor-alt-text-button-label");
     }
-    sinal constante = this.#editor._uiManager._signal;
+    const signal = this.#editor._uiManager._signal;
     altText.addEventListener("contextmenu", noContextMenu, {
-      sinal
+      signal
     });
-    altText.addEventListener("ponteiroparabaixo", evento => evento.stopPropagation(), {
-      sinal
+    altText.addEventListener("pointerdown", event => event.stopPropagation(), {
+      signal
     });
-    const onClick = evento => {
-      evento.preventDefault();
+    const onClick = event => {
+      event.preventDefault();
       this.#editor._uiManager.editAltText(this.#editor);
-      se (isto.#useNewAltTextFlow) {
-        este.#editor._reportTelemetria({
-          ação: "pdfjs.image.alt_text.image_status_label_clicked",
-          dados: {
-            rótulo: este.#rótulo
+      if (this.#useNewAltTextFlow) {
+        this.#editor._reportTelemetry({
+          action: "pdfjs.image.alt_text.image_status_label_clicked",
+          data: {
+            label: this.#label
           }
         });
       }
     };
-    altText.addEventListener("clique", onClick, {
-      captura: verdadeiro,
-      sinal
+    altText.addEventListener("click", onClick, {
+      capture: true,
+      signal
     });
-    altText.addEventListener("tecla pressionada", evento => {
-      se (evento.alvo === altText && evento.chave === "Enter") {
-        isto.#altTextWasFromKeyBoard = verdadeiro;
-        onClick(evento);
+    altText.addEventListener("keydown", event => {
+      if (event.target === altText && event.key === "Enter") {
+        this.#altTextWasFromKeyBoard = true;
+        onClick(event);
       }
     }, {
-      sinal
+      signal
     });
-    aguarde isso.#setState();
-    retornar altText;
+    await this.#setState();
+    return altText;
   }
-  obter #label() {
-    retornar isto.#altText && "adicionado" || isto.#altText === nulo && isto.guessedText && "revisão" || "faltando";
+  get #label() {
+    return this.#altText && "added" || this.#altText === null && this.guessedText && "review" || "missing";
   }
-  terminar() {
-    se (!this.#altTextButton) {
-      retornar;
+  finish() {
+    if (!this.#altTextButton) {
+      return;
     }
-    isto.#altTextButton.focus({
-      focusVisible: isto.#altTextWasFromKeyBoard
+    this.#altTextButton.focus({
+      focusVisible: this.#altTextWasFromKeyBoard
     });
-    isto.#altTextWasFromKeyBoard = falso;
+    this.#altTextWasFromKeyBoard = false;
   }
-  estáVazio() {
-    se (isto.#useNewAltTextFlow) {
-      retorne isto.#altText === null;
+  isEmpty() {
+    if (this.#useNewAltTextFlow) {
+      return this.#altText === null;
     }
-    retornar !this.#altText && !this.#altTextDecorative;
+    return !this.#altText && !this.#altTextDecorative;
   }
-  temDados() {
-    se (isto.#useNewAltTextFlow) {
-      retornar isto.#altText !== null || !!isto.#guessedText;
+  hasData() {
+    if (this.#useNewAltTextFlow) {
+      return this.#altText !== null || !!this.#guessedText;
     }
-    retornar this.isEmpty();
+    return this.isEmpty();
   }
-  obter guessedText() {
-    retorne isto.#guessedText;
+  get guessedText() {
+    return this.#guessedText;
   }
-  async setGuessedText(textoadivinhado) {
-    se (this.#altText !== null) {
-      retornar;
+  async setGuessedText(guessedText) {
+    if (this.#altText !== null) {
+      return;
     }
-    isto.#textoadivinhado = textoadivinhado;
-    isto.#textWithDisclaimer = await AltText._l10n.get("editor-pdfjs-novo-texto-alt-gerado-texto-alt-com-aviso-de-responsabilização", {
-      GeneratedAltText: texto adivinhado
+    this.#guessedText = guessedText;
+    this.#textWithDisclaimer = await AltText._l10n.get("pdfjs-editor-new-alt-text-generated-alt-text-with-disclaimer", {
+      generatedAltText: guessedText
     });
-    isto.#setState();
+    this.#setState();
   }
-  toggleAltTextBadge(visibilidade = falso) {
-    se (!isto.#useNewAltTextFlow || isto.#altText) {
-      isto.#emblema?.remover();
-      isto.#emblema = nulo;
-      retornar;
+  toggleAltTextBadge(visibility = false) {
+    if (!this.#useNewAltTextFlow || this.#altText) {
+      this.#badge?.remove();
+      this.#badge = null;
+      return;
     }
-    se (!este.#emblema) {
-      const badge = isto.#badge = document.createElement("div");
+    if (!this.#badge) {
+      const badge = this.#badge = document.createElement("div");
       badge.className = "noAltTextBadge";
-      isto.#editor.div.append(emblema);
+      this.#editor.div.append(badge);
     }
-    isto.#badge.classList.toggle("oculto", !visibilidade);
+    this.#badge.classList.toggle("hidden", !visibility);
   }
-  serializar(isForCopying) {
-    deixe altText = this.#altText;
-    se (!isForCopying && this.#guessedText === altText) {
+  serialize(isForCopying) {
+    let altText = this.#altText;
+    if (!isForCopying && this.#guessedText === altText) {
       altText = this.#textWithDisclaimer;
     }
-    retornar {
+    return {
       altText,
-      decorativo: isto.#altTextDecorativo,
-      guessedText: isto.#guessedText,
-      textoComIsenção de Responsabilidade: isto.#textoComIsenção de Responsabilidade
+      decorative: this.#altTextDecorative,
+      guessedText: this.#guessedText,
+      textWithDisclaimer: this.#textWithDisclaimer
     };
   }
-  obter dados() {
-    retornar {
-      altText: este.#altText,
-      decorativo: isto.#altTextDecorative
+  get data() {
+    return {
+      altText: this.#altText,
+      decorative: this.#altTextDecorative
     };
   }
-  definir dados({
+  set data({
     altText,
-    decorativo,
-    Texto adivinhado,
-    textoComIsenção de responsabilidade,
-    cancelar = falso
+    decorative,
+    guessedText,
+    textWithDisclaimer,
+    cancel = false
   }) {
-    se (texto adivinhado) {
-      isto.#textoadivinhado = textoadivinhado;
-      isto.#textWithDisclaimer = textoComDisclaimer;
+    if (guessedText) {
+      this.#guessedText = guessedText;
+      this.#textWithDisclaimer = textWithDisclaimer;
     }
-    se (isto.#altText === altText && isto.#altTextDecorative === decorativo) {
-      retornar;
+    if (this.#altText === altText && this.#altTextDecorative === decorative) {
+      return;
     }
-    se (!cancelar) {
-      isto.#altText = altText;
-      isto.#altTextDecorative = decorativo;
+    if (!cancel) {
+      this.#altText = altText;
+      this.#altTextDecorative = decorative;
     }
-    isto.#setState();
+    this.#setState();
   }
-  alternar(habilitado = falso) {
-    se (!this.#altTextButton) {
-      retornar;
+  toggle(enabled = false) {
+    if (!this.#altTextButton) {
+      return;
     }
-    se (!habilitado && isto.#altTextTooltipTimeout) {
+    if (!enabled && this.#altTextTooltipTimeout) {
       clearTimeout(this.#altTextTooltipTimeout);
-      isto.#altTextTooltipTimeout = nulo;
+      this.#altTextTooltipTimeout = null;
     }
-    isto.#altTextButton.disabled = !enabled;
+    this.#altTextButton.disabled = !enabled;
   }
-  mostrado() {
-    este.#editor._reportTelemetria({
-      ação: "pdfjs.image.alt_text.image_status_label_displayed",
-      dados: {
-        rótulo: este.#rótulo
+  shown() {
+    this.#editor._reportTelemetry({
+      action: "pdfjs.image.alt_text.image_status_label_displayed",
+      data: {
+        label: this.#label
       }
     });
   }
-  destruir() {
-    isto.#altTextButton?.remove();
-    isto.#altTextButton = nulo;
-    isto.#altTextButtonLabel = nulo;
-    isto.#altTextTooltip = nulo;
-    isto.#emblema?.remover();
-    isto.#emblema = nulo;
+  destroy() {
+    this.#altTextButton?.remove();
+    this.#altTextButton = null;
+    this.#altTextButtonLabel = null;
+    this.#altTextTooltip = null;
+    this.#badge?.remove();
+    this.#badge = null;
   }
-  assíncrono #setState() {
-    botão const = this.#altTextButton;
-    se (!botão) {
-      retornar;
+  async #setState() {
+    const button = this.#altTextButton;
+    if (!button) {
+      return;
     }
-    se (isto.#useNewAltTextFlow) {
-      button.classList.toggle("pronto", !!this.#altText);
-      botão.setAttribute("data-l10n-id", AltText.#l10nNewButton[this.#label]);
-      isto.#altTextButtonLabel?.setAttribute("data-l10n-id", AltText.#l10nNewButton[`${this.#label}-label`]);
-      se (!this.#altText) {
-        isto.#altTextTooltip?.remove();
-        retornar;
+    if (this.#useNewAltTextFlow) {
+      button.classList.toggle("done", !!this.#altText);
+      button.setAttribute("data-l10n-id", AltText.#l10nNewButton[this.#label]);
+      this.#altTextButtonLabel?.setAttribute("data-l10n-id", AltText.#l10nNewButton[`${this.#label}-label`]);
+      if (!this.#altText) {
+        this.#altTextTooltip?.remove();
+        return;
       }
-    } outro {
-      se (!isto.#altTexto && !isto.#altTextoDecorativo) {
-        botão.classList.remove("concluído");
-        isto.#altTextTooltip?.remove();
-        retornar;
+    } else {
+      if (!this.#altText && !this.#altTextDecorative) {
+        button.classList.remove("done");
+        this.#altTextTooltip?.remove();
+        return;
       }
-      botão.classList.add("feito");
-      button.setAttribute("data-l10n-id", "editor-pdfjs-alt-text-edição-botão");
+      button.classList.add("done");
+      button.setAttribute("data-l10n-id", "pdfjs-editor-alt-text-edit-button");
     }
-    deixe dica de ferramenta = this.#altTextTooltip;
-    se (!dica de ferramenta) {
-      isto.#altTextTooltip = dica de ferramenta = document.createElement("span");
-      tooltip.className = "dica de ferramenta";
-      tooltip.setAttribute("função", "dica de ferramenta");
-      dica de ferramenta.id = `alt-text-tooltip-${this.#editor.id}`;
-      const ATRASO_PARA_MOSTRAR_A_IMAGEM_DA_OBJETO = 100;
-      sinal constante = this.#editor._uiManager._signal;
-      signal.addEventListener("abortar", () => {
+    let tooltip = this.#altTextTooltip;
+    if (!tooltip) {
+      this.#altTextTooltip = tooltip = document.createElement("span");
+      tooltip.className = "tooltip";
+      tooltip.setAttribute("role", "tooltip");
+      tooltip.id = `alt-text-tooltip-${this.#editor.id}`;
+      const DELAY_TO_SHOW_TOOLTIP = 100;
+      const signal = this.#editor._uiManager._signal;
+      signal.addEventListener("abort", () => {
         clearTimeout(this.#altTextTooltipTimeout);
-        isto.#altTextTooltipTimeout = nulo;
+        this.#altTextTooltipTimeout = null;
       }, {
-        uma vez: verdadeiro
+        once: true
       });
-      botão.addEventListener("mouseenter", () => {
-        isto.#altTextTooltipTimeout = setTimeout(() => {
-          isto.#altTextTooltipTimeout = nulo;
-          isto.#altTextTooltip.classList.add("mostrar");
-          este.#editor._reportTelemetria({
-            ação: "alt_text_tooltip"
+      button.addEventListener("mouseenter", () => {
+        this.#altTextTooltipTimeout = setTimeout(() => {
+          this.#altTextTooltipTimeout = null;
+          this.#altTextTooltip.classList.add("show");
+          this.#editor._reportTelemetry({
+            action: "alt_text_tooltip"
           });
-        }, ATRASO_PARA_MOSTRAR_A_PILHA_DE_AJUDA);
+        }, DELAY_TO_SHOW_TOOLTIP);
       }, {
-        sinal
+        signal
       });
       button.addEventListener("mouseleave", () => {
-        se (isto.#altTextTooltipTimeout) {
+        if (this.#altTextTooltipTimeout) {
           clearTimeout(this.#altTextTooltipTimeout);
-          isto.#altTextTooltipTimeout = nulo;
+          this.#altTextTooltipTimeout = null;
         }
-        isto.#altTextTooltip?.classList.remove("mostrar");
+        this.#altTextTooltip?.classList.remove("show");
       }, {
-        sinal
+        signal
       });
     }
-    se (isto.#altTextDecorative) {
-      tooltip.setAttribute("data-l10n-id", "editor-pdfjs-texto-alt-dica-decorativa");
-    } outro {
-      dica de ferramenta.removeAttribute("data-l10n-id");
+    if (this.#altTextDecorative) {
+      tooltip.setAttribute("data-l10n-id", "pdfjs-editor-alt-text-decorative-tooltip");
+    } else {
+      tooltip.removeAttribute("data-l10n-id");
       tooltip.textContent = this.#altText;
     }
-    se (!dica de ferramenta.parentNode) {
-      botão.append(dica de ferramenta);
+    if (!tooltip.parentNode) {
+      button.append(tooltip);
     }
-    const elemento = this.#editor.getElementForAltText();
-    elemento?.setAttribute("aria-describedby", tooltip.id);
+    const element = this.#editor.getElementForAltText();
+    element?.setAttribute("aria-describedby", tooltip.id);
   }
 }
 
 ;// ./src/display/touch_manager.js
 
-classe TouchManager {
-  #recipiente;
-  #isPinching = falso;
-  #isPinchingStopped = nulo;
+class TouchManager {
+  #container;
+  #isPinching = false;
+  #isPinchingStopped = null;
   #isPinchingDisabled;
   #onPinchStart;
-  #aobeliscar;
+  #onPinching;
   #onPinchEnd;
-  #pointerDownAC = nulo;
-  #sinal;
-  #touchInfo = nulo;
+  #pointerDownAC = null;
+  #signal;
+  #touchInfo = null;
   #touchManagerAC;
-  #touchMoveAC = nulo;
-  construtor({
-    recipiente,
-    isPinchingDisabled = nulo,
-    isPinchingStopped = nulo,
-    onPinchStart = nulo,
-    onPinching = nulo,
-    onPinchEnd = nulo,
-    sinal
+  #touchMoveAC = null;
+  constructor({
+    container,
+    isPinchingDisabled = null,
+    isPinchingStopped = null,
+    onPinchStart = null,
+    onPinching = null,
+    onPinchEnd = null,
+    signal
   }) {
-    isto.#container = contêiner;
-    isto.#isPinchingStopped = isPinchingStopped;
-    isto.#isPinchingDisabled = isPinchingDisabled;
-    isto.#onPinchStart = onPinchStart;
-    isto.#onPinching = onPinching;
-    isto.#onPinchEnd = onPinchEnd;
-    isto.#touchManagerAC = novo AbortController();
-    isto.#sinal = AbortSignal.qualquer([sinal, isto.#touchManagerAC.sinal]);
-    container.addEventListener("touchstart", isto.#onTouchStart.bind(isto), {
-      passivo: falso,
-      sinal: este.#sinal
+    this.#container = container;
+    this.#isPinchingStopped = isPinchingStopped;
+    this.#isPinchingDisabled = isPinchingDisabled;
+    this.#onPinchStart = onPinchStart;
+    this.#onPinching = onPinching;
+    this.#onPinchEnd = onPinchEnd;
+    this.#touchManagerAC = new AbortController();
+    this.#signal = AbortSignal.any([signal, this.#touchManagerAC.signal]);
+    container.addEventListener("touchstart", this.#onTouchStart.bind(this), {
+      passive: false,
+      signal: this.#signal
     });
   }
-  obter DISTÂNCIA_MIN_TOQUE_PARA_PINCHAR() {
-    retornar 35 / OutputScale.pixelRatio;
+  get MIN_TOUCH_DISTANCE_TO_PINCH() {
+    return 35 / OutputScale.pixelRatio;
   }
   #onTouchStart(evt) {
-    se (isto.#estáPinchandoDesativado?.()) {
-      retornar;
+    if (this.#isPinchingDisabled?.()) {
+      return;
     }
-    se (evt.touches.length === 1) {
-      se (isto.#pointerDownAC) {
-        retornar;
+    if (evt.touches.length === 1) {
+      if (this.#pointerDownAC) {
+        return;
       }
-      const pointerDownAC = this.#pointerDownAC = novo AbortController();
-      sinal constante = AbortSignal.any([this.#signal, pointerDownAC.signal]);
+      const pointerDownAC = this.#pointerDownAC = new AbortController();
+      const signal = AbortSignal.any([this.#signal, pointerDownAC.signal]);
       const container = this.#container;
-      const opta = {
-        captura: verdadeiro,
-        sinal,
-        passivo: falso
+      const opts = {
+        capture: true,
+        signal,
+        passive: false
       };
       const cancelPointerDown = e => {
-        se (e.pointerType === "toque") {
-          isto.#pointerDownAC?.abortar();
-          isto.#pointerDownAC = nulo;
+        if (e.pointerType === "touch") {
+          this.#pointerDownAC?.abort();
+          this.#pointerDownAC = null;
         }
       };
-      container.addEventListener("ponteiroparabaixo", e => {
-        se (e.pointerType === "toque") {
+      container.addEventListener("pointerdown", e => {
+        if (e.pointerType === "touch") {
           stopEvent(e);
           cancelPointerDown(e);
         }
-      }, opta);
+      }, opts);
       container.addEventListener("pointerup", cancelPointerDown, opts);
       container.addEventListener("pointercancel", cancelPointerDown, opts);
-      retornar;
+      return;
     }
-    se (!isso.#touchMoveAC) {
-      isto.#touchMoveAC = novo AbortController();
-      const sinal = AbortSignal.any([este.#sinal, este.#touchMoveAC.signal]);
+    if (!this.#touchMoveAC) {
+      this.#touchMoveAC = new AbortController();
+      const signal = AbortSignal.any([this.#signal, this.#touchMoveAC.signal]);
       const container = this.#container;
-      const opt ​​= {
-        sinal,
-        captura: falsa,
-        passivo: falso
+      const opt = {
+        signal,
+        capture: false,
+        passive: false
       };
-      container.addEventListener("touchmove", isto.#onTouchMove.bind(isto), opt);
-      const onTouchEnd = isto.#onTouchEnd.bind(isto);
+      container.addEventListener("touchmove", this.#onTouchMove.bind(this), opt);
+      const onTouchEnd = this.#onTouchEnd.bind(this);
       container.addEventListener("touchend", onTouchEnd, opt);
       container.addEventListener("touchcancel", onTouchEnd, opt);
-      opt.capture = verdadeiro;
-      container.addEventListener("ponteiroparabaixo", stopEvent, opt);
+      opt.capture = true;
+      container.addEventListener("pointerdown", stopEvent, opt);
       container.addEventListener("pointermove", stopEvent, opt);
       container.addEventListener("pointercancel", stopEvent, opt);
       container.addEventListener("pointerup", stopEvent, opt);
-      isto.#onPinchStart?.();
+      this.#onPinchStart?.();
     }
     stopEvent(evt);
-    se (evt.touches.length !== 2 || isto.#isPinchingStopped?.()) {
-      isto.#touchInfo = nulo;
-      retornar;
+    if (evt.touches.length !== 2 || this.#isPinchingStopped?.()) {
+      this.#touchInfo = null;
+      return;
     }
-    deixe [toque0, toque1] = evt.toques;
-    se (touch0.identifier > touch1.identifier) ​​{
-      [toque0, toque1] = [toque1, toque0];
+    let [touch0, touch1] = evt.touches;
+    if (touch0.identifier > touch1.identifier) {
+      [touch0, touch1] = [touch1, touch0];
     }
-    isto.#touchInfo = {
+    this.#touchInfo = {
       touch0X: touch0.screenX,
       touch0Y: touch0.screenY,
       touch1X: touch1.screenX,
@@ -3700,70 +3700,70 @@ classe TouchManager {
     };
   }
   #onTouchMove(evt) {
-    se (!this.#touchInfo || evt.touches.length !== 2) {
-      retornar;
+    if (!this.#touchInfo || evt.touches.length !== 2) {
+      return;
     }
     stopEvent(evt);
-    deixe [toque0, toque1] = evt.toques;
-    se (touch0.identifier > touch1.identifier) ​​{
-      [toque0, toque1] = [toque1, toque0];
+    let [touch0, touch1] = evt.touches;
+    if (touch0.identifier > touch1.identifier) {
+      [touch0, touch1] = [touch1, touch0];
     }
-    constante {
-      telaX: tela0X,
-      telaY: tela0Y
-    } = toque0;
-    constante {
-      telaX: tela1X,
-      telaY: tela1Y
-    } = toque1;
-    const touchInfo = isto.#touchInfo;
-    constante {
+    const {
+      screenX: screen0X,
+      screenY: screen0Y
+    } = touch0;
+    const {
+      screenX: screen1X,
+      screenY: screen1Y
+    } = touch1;
+    const touchInfo = this.#touchInfo;
+    const {
       touch0X: pTouch0X,
-      toque0Y: pToque0Y,
-      toque1X: pTouch1X,
+      touch0Y: pTouch0Y,
+      touch1X: pTouch1X,
       touch1Y: pTouch1Y
     } = touchInfo;
     const prevGapX = pTouch1X - pTouch0X;
     const prevGapY = pTouch1Y - pTouch0Y;
-    const currGapX = tela1X - tela0X;
-    const currGapY = tela1Y - tela0Y;
-    const distância = Math.hypot(currGapX, currGapY) || 1;
+    const currGapX = screen1X - screen0X;
+    const currGapY = screen1Y - screen0Y;
+    const distance = Math.hypot(currGapX, currGapY) || 1;
     const pDistance = Math.hypot(prevGapX, prevGapY) || 1;
-    se (!this.#isPinching && Math.abs(pDistance - distância) <= TouchManager.MIN_TOUCH_DISTANCE_TO_PINCH) {
-      retornar;
+    if (!this.#isPinching && Math.abs(pDistance - distance) <= TouchManager.MIN_TOUCH_DISTANCE_TO_PINCH) {
+      return;
     }
-    touchInfo.touch0X = tela0X;
-    touchInfo.touch0Y = tela0Y;
-    touchInfo.touch1X = tela1X;
-    touchInfo.touch1Y = tela1Y;
-    se (!isso.#estábeliscando) {
-      isto.#isPinching = verdadeiro;
-      retornar;
+    touchInfo.touch0X = screen0X;
+    touchInfo.touch0Y = screen0Y;
+    touchInfo.touch1X = screen1X;
+    touchInfo.touch1Y = screen1Y;
+    if (!this.#isPinching) {
+      this.#isPinching = true;
+      return;
     }
-    const origem = [(tela0X + tela1X) / 2, (tela0Y + tela1Y) / 2];
-    isto.#onPinching?.(origem, pDistância, distância);
+    const origin = [(screen0X + screen1X) / 2, (screen0Y + screen1Y) / 2];
+    this.#onPinching?.(origin, pDistance, distance);
   }
   #onTouchEnd(evt) {
-    se (evt.touches.length >= 2) {
-      retornar;
+    if (evt.touches.length >= 2) {
+      return;
     }
-    se (isto.#touchMoveAC) {
-      isto.#touchMoveAC.abort();
-      isto.#touchMoveAC = nulo;
-      isto.#onPinchEnd?.();
+    if (this.#touchMoveAC) {
+      this.#touchMoveAC.abort();
+      this.#touchMoveAC = null;
+      this.#onPinchEnd?.();
     }
-    se (!isto.#touchInfo) {
-      retornar;
+    if (!this.#touchInfo) {
+      return;
     }
     stopEvent(evt);
-    isto.#touchInfo = nulo;
-    isto.#isPinching = falso;
+    this.#touchInfo = null;
+    this.#isPinching = false;
   }
-  destruir() {
-    isto.#touchManagerAC?.abort();
-    isto.#touchManagerAC = nulo;
-    isto.#pointerDownAC?.abortar();
-    isto.#pointerDownAC = nulo;
+  destroy() {
+    this.#touchManagerAC?.abort();
+    this.#touchManagerAC = null;
+    this.#pointerDownAC?.abort();
+    this.#pointerDownAC = null;
   }
 }
 
@@ -3774,970 +3774,970 @@ classe TouchManager {
 
 
 
-classe AnnotationEditor {
-  #accessibilityData = nulo;
-  #allResizerDivs = nulo;
-  #altText = nulo;
-  #desativado = falso;
-  #dragPointerId = nulo;
+class AnnotationEditor {
+  #accessibilityData = null;
+  #allResizerDivs = null;
+  #altText = null;
+  #disabled = false;
+  #dragPointerId = null;
   #dragPointerType = "";
-  #keepAspectRatio = falso;
-  #resizersDiv = nulo;
-  #lastPointerCoords = nulo;
-  #savedDimensions = nulo;
-  #focusAC = nulo;
+  #keepAspectRatio = false;
+  #resizersDiv = null;
+  #lastPointerCoords = null;
+  #savedDimensions = null;
+  #focusAC = null;
   #focusedResizerName = "";
-  #hasBeenClicked = falso;
-  #initialRect = nulo;
-  #isEditing = falso;
-  #isInEditMode = falso;
-  #isResizerEnabledForKeyboard = falso;
-  #moveInDOMTimeout = nulo;
+  #hasBeenClicked = false;
+  #initialRect = null;
+  #isEditing = false;
+  #isInEditMode = false;
+  #isResizerEnabledForKeyboard = false;
+  #moveInDOMTimeout = null;
   #prevDragX = 0;
   #prevDragY = 0;
-  #telemetryTimeouts = nulo;
-  #touchManager = nulo;
-  _isCopy = falso;
-  _editToolbar = nulo;
-  _initialOptions = Objeto.create(nulo);
-  _initialData = nulo;
-  _isVisible = verdadeiro;
-  _uiManager = nulo;
-  _focusEventsAllowed = verdadeiro;
-  estático _l10n = nulo;
-  estático _l10nResizer = nulo;
-  #isDraggable = falso;
+  #telemetryTimeouts = null;
+  #touchManager = null;
+  _isCopy = false;
+  _editToolbar = null;
+  _initialOptions = Object.create(null);
+  _initialData = null;
+  _isVisible = true;
+  _uiManager = null;
+  _focusEventsAllowed = true;
+  static _l10n = null;
+  static _l10nResizer = null;
+  #isDraggable = false;
   #zIndex = AnnotationEditor._zIndex++;
-  estático _borderLineWidth = -1;
-  estático _colorManager = novo ColorManager();
-  estático _zIndex = 1;
-  estático _telemetryTimeout = 1000;
-  estático obter _resizerKeyboardManager() {
-    const redimensionamento = AnnotationEditor.prototype._resizeWithKeyboard;
-    const pequeno = AnnotationEditorUIManager.TRANSLATE_SMALL;
+  static _borderLineWidth = -1;
+  static _colorManager = new ColorManager();
+  static _zIndex = 1;
+  static _telemetryTimeout = 1000;
+  static get _resizerKeyboardManager() {
+    const resize = AnnotationEditor.prototype._resizeWithKeyboard;
+    const small = AnnotationEditorUIManager.TRANSLATE_SMALL;
     const big = AnnotationEditorUIManager.TRANSLATE_BIG;
-    retornar sombra(isto, "_resizerKeyboardManager", novo KeyboardManager([[["ArrowLeft", "mac+ArrowLeft"], redimensionar, {
-      argumentos: [-pequeno, 0]
-    }], [["ctrl+SetaEsquerda", "mac+shift+SetaEsquerda"], redimensionar, {
-      argumentos: [-grande, 0]
-    }], [["ArrowRight", "mac+ArrowRight"], redimensionar, {
-      args: [pequeno, 0]
-    }], [["ctrl+SetaParaDireita", "mac+shift+SetaParaDireita"], redimensionar, {
-      args: [grande, 0]
-    }], [["ArrowUp", "mac+ArrowUp"], redimensionar, {
-      argumentos: [0, -pequeno]
-    }], [["ctrl+Seta para cima", "mac+shift+Seta para cima"], redimensionar, {
-      argumentos: [0, -grande]
-    }], [["Seta para baixo", "mac+Seta para baixo"], redimensionar, {
-      args: [0, pequeno]
-    }], [["ctrl+SetaParaBaixo", "mac+shift+SetaParaBaixo"], redimensionar, {
-      args: [0, grande]
+    return shadow(this, "_resizerKeyboardManager", new KeyboardManager([[["ArrowLeft", "mac+ArrowLeft"], resize, {
+      args: [-small, 0]
+    }], [["ctrl+ArrowLeft", "mac+shift+ArrowLeft"], resize, {
+      args: [-big, 0]
+    }], [["ArrowRight", "mac+ArrowRight"], resize, {
+      args: [small, 0]
+    }], [["ctrl+ArrowRight", "mac+shift+ArrowRight"], resize, {
+      args: [big, 0]
+    }], [["ArrowUp", "mac+ArrowUp"], resize, {
+      args: [0, -small]
+    }], [["ctrl+ArrowUp", "mac+shift+ArrowUp"], resize, {
+      args: [0, -big]
+    }], [["ArrowDown", "mac+ArrowDown"], resize, {
+      args: [0, small]
+    }], [["ctrl+ArrowDown", "mac+shift+ArrowDown"], resize, {
+      args: [0, big]
     }], [["Escape", "mac+Escape"], AnnotationEditor.prototype._stopResizingWithKeyboard]]));
   }
-  construtor(parâmetros) {
-    this.parent = parâmetros.parent;
-    this.id = parâmetros.id;
-    esta.largura = esta.altura = nulo;
-    this.pageIndex = parâmetros.parent.pageIndex;
-    this.nome = parâmetros.nome;
-    this.div = nulo;
-    this._uiManager = parâmetros.uiManager;
-    this.annotationElementId = nulo;
-    this._willKeepAspectRatio = falso;
-    this._initialOptions.isCentered = parâmetros.isCentered;
-    this._structTreeParentId = nulo;
-    constante {
-      rotação,
+  constructor(parameters) {
+    this.parent = parameters.parent;
+    this.id = parameters.id;
+    this.width = this.height = null;
+    this.pageIndex = parameters.parent.pageIndex;
+    this.name = parameters.name;
+    this.div = null;
+    this._uiManager = parameters.uiManager;
+    this.annotationElementId = null;
+    this._willKeepAspectRatio = false;
+    this._initialOptions.isCentered = parameters.isCentered;
+    this._structTreeParentId = null;
+    const {
+      rotation,
       rawDims: {
-        largura da página,
-        altura da página,
-        páginaX,
-        páginaY
+        pageWidth,
+        pageHeight,
+        pageX,
+        pageY
       }
-    } = esta.pai.viewport;
-    this.rotation = rotação;
-    this.pageRotation = (360 + rotação - this._uiManager.viewParameters.rotation) % 360;
-    this.pageDimensions = [largura da página, altura da página];
-    this.pageTranslation = [páginaX, páginaY];
-    const [largura, altura] = this.parentDimensions;
-    this.x = parâmetros.x / largura;
-    this.y = parâmetros.y / altura;
-    this.isAttachedToDOM = falso;
-    isto.deletado = falso;
+    } = this.parent.viewport;
+    this.rotation = rotation;
+    this.pageRotation = (360 + rotation - this._uiManager.viewParameters.rotation) % 360;
+    this.pageDimensions = [pageWidth, pageHeight];
+    this.pageTranslation = [pageX, pageY];
+    const [width, height] = this.parentDimensions;
+    this.x = parameters.x / width;
+    this.y = parameters.y / height;
+    this.isAttachedToDOM = false;
+    this.deleted = false;
   }
-  obter editorType() {
-    retornar Objeto.getPrototypeOf(this).constructor._type;
+  get editorType() {
+    return Object.getPrototypeOf(this).constructor._type;
   }
-  estático obter isDrawer() {
-    retornar falso;
+  static get isDrawer() {
+    return false;
   }
-  estático obter _defaultLineColor() {
-    retornar sombra(isto, "_defaultLineColor", isto._colorManager.getHexCode("CanvasText"));
+  static get _defaultLineColor() {
+    return shadow(this, "_defaultLineColor", this._colorManager.getHexCode("CanvasText"));
   }
-  deleteAnnotationElement estático(editor) {
-    const fakeEditor = novo FakeEditor({
+  static deleteAnnotationElement(editor) {
+    const fakeEditor = new FakeEditor({
       id: editor.parent.getNextId(),
-      pai: editor.parent,
-      Gerenciador de interface do usuário: editor._uiManager
+      parent: editor.parent,
+      uiManager: editor._uiManager
     });
     fakeEditor.annotationElementId = editor.annotationElementId;
-    fakeEditor.deleted = verdadeiro;
+    fakeEditor.deleted = true;
     fakeEditor._uiManager.addToAnnotationStorage(fakeEditor);
   }
-  inicialização estática(l10n, _uiManager) {
+  static initialize(l10n, _uiManager) {
     AnnotationEditor._l10n ??= l10n;
-    AnnotationEditor._l10nResizer ||= Objeto.congelar({
-      superior esquerdo: "pdfjs-editor-resizer-superior-esquerdo",
-      topMiddle: "editor-redimensionador-pdfjs-top-middle",
-      superior Direito: "pdfjs-editor-resizer-superior-direito",
-      middleRight: "editor-resizer-pdfjs-middle-right",
-      inferior Direito: "pdfjs-editor-resizer-inferior-direito",
-      bottomMiddle: "editor-redimensionador-pdfjs-bottom-middle",
-      inferiorEsquerda: "pdfjs-editor-resizer-inferior-esquerdo",
-      meio-esquerda: "pdfjs-editor-resizer-meio-esquerda"
+    AnnotationEditor._l10nResizer ||= Object.freeze({
+      topLeft: "pdfjs-editor-resizer-top-left",
+      topMiddle: "pdfjs-editor-resizer-top-middle",
+      topRight: "pdfjs-editor-resizer-top-right",
+      middleRight: "pdfjs-editor-resizer-middle-right",
+      bottomRight: "pdfjs-editor-resizer-bottom-right",
+      bottomMiddle: "pdfjs-editor-resizer-bottom-middle",
+      bottomLeft: "pdfjs-editor-resizer-bottom-left",
+      middleLeft: "pdfjs-editor-resizer-middle-left"
     });
-    se (AnnotationEditor._borderLineWidth !== -1) {
-      retornar;
+    if (AnnotationEditor._borderLineWidth !== -1) {
+      return;
     }
-    estilo const = getComputedStyle(document.documentElement);
+    const style = getComputedStyle(document.documentElement);
     AnnotationEditor._borderLineWidth = parseFloat(style.getPropertyValue("--outline-width")) || 0;
   }
-  updateDefaultParams estático(_tipo, _valor) {}
-  estático obter defaultPropertiesToUpdate() {
-    retornar [];
+  static updateDefaultParams(_type, _value) {}
+  static get defaultPropertiesToUpdate() {
+    return [];
   }
-  estático isHandlingMimeForPasting(mime) {
-    retornar falso;
+  static isHandlingMimeForPasting(mime) {
+    return false;
   }
-  colar estático(item, pai) {
-    inalcançável("Não implementado");
+  static paste(item, parent) {
+    unreachable("Not implemented");
   }
-  obter propertiesToUpdate() {
-    retornar [];
+  get propertiesToUpdate() {
+    return [];
   }
-  obter _isDraggable() {
-    retorne isto.#isDraggable;
+  get _isDraggable() {
+    return this.#isDraggable;
   }
-  definir _isDraggable(valor) {
-    isto.#éArrastável = valor;
-    this.div?.classList.toggle("arrastável", valor);
+  set _isDraggable(value) {
+    this.#isDraggable = value;
+    this.div?.classList.toggle("draggable", value);
   }
-  obter isEnterHandled() {
-    retornar verdadeiro;
+  get isEnterHandled() {
+    return true;
   }
-  centro() {
-    const [largura da página, altura da página] = this.dimensõesdapágina;
-    alternar (this.parentRotation) {
-      caso 90:
-        isto.x -= isto.altura * alturadapagina / (larguradadapagina * 2);
-        isto.y += isto.largura * larguradapagina / (alturadapagina * 2);
-        quebrar;
-      caso 180:
-        isto.x += isto.largura / 2;
-        isto.y += isto.altura / 2;
-        quebrar;
-      caso 270:
-        isto.x += isto.altura * alturadapagina / (larguradadapagina * 2);
-        isto.y -= isto.largura * larguradapagina / (alturadapagina * 2);
-        quebrar;
-      padrão:
-        isto.x -= isto.largura / 2;
-        isto.y -= isto.altura / 2;
-        quebrar;
+  center() {
+    const [pageWidth, pageHeight] = this.pageDimensions;
+    switch (this.parentRotation) {
+      case 90:
+        this.x -= this.height * pageHeight / (pageWidth * 2);
+        this.y += this.width * pageWidth / (pageHeight * 2);
+        break;
+      case 180:
+        this.x += this.width / 2;
+        this.y += this.height / 2;
+        break;
+      case 270:
+        this.x += this.height * pageHeight / (pageWidth * 2);
+        this.y -= this.width * pageWidth / (pageHeight * 2);
+        break;
+      default:
+        this.x -= this.width / 2;
+        this.y -= this.height / 2;
+        break;
     }
-    isto.fixAndSetPosition();
+    this.fixAndSetPosition();
   }
-  addCommands(parâmetros) {
-    this._uiManager.addCommands(parâmetros);
+  addCommands(params) {
+    this._uiManager.addCommands(params);
   }
-  obter currentLayer() {
-    retornar this._uiManager.currentLayer;
+  get currentLayer() {
+    return this._uiManager.currentLayer;
   }
-  definirEmFundo() {
-    este.div.estilo.zIndex = 0;
+  setInBackground() {
+    this.div.style.zIndex = 0;
   }
-  definirEmPrimeiroPlano() {
-    este.div.estilo.zIndex = este.#zIndex;
+  setInForeground() {
+    this.div.style.zIndex = this.#zIndex;
   }
-  setParent(pai) {
-    se (pai !== nulo) {
-      this.pageIndex = pai.pageIndex;
-      this.pageDimensions = pai.pageDimensions;
-    } outro {
-      isto.#stopResizing();
+  setParent(parent) {
+    if (parent !== null) {
+      this.pageIndex = parent.pageIndex;
+      this.pageDimensions = parent.pageDimensions;
+    } else {
+      this.#stopResizing();
     }
-    this.parent = pai;
+    this.parent = parent;
   }
-  focando(evento) {
-    se (!this._focusEventsAllowed) {
-      retornar;
+  focusin(event) {
+    if (!this._focusEventsAllowed) {
+      return;
     }
-    se (!isto.#foiclicado) {
-      este.parent.setSelected(isto);
-    } outro {
-      isto.#foiclicado = falso;
+    if (!this.#hasBeenClicked) {
+      this.parent.setSelected(this);
+    } else {
+      this.#hasBeenClicked = false;
     }
   }
-  focusout(evento) {
-    se (!this._focusEventsAllowed) {
-      retornar;
+  focusout(event) {
+    if (!this._focusEventsAllowed) {
+      return;
     }
-    se (!isto.estáAnexadoAODOM) {
-      retornar;
+    if (!this.isAttachedToDOM) {
+      return;
     }
-    const alvo = evento.relatedTarget;
-    se (alvo?.mais próximo(`#${this.id}`)) {
-      retornar;
+    const target = event.relatedTarget;
+    if (target?.closest(`#${this.id}`)) {
+      return;
     }
-    evento.preventDefault();
-    se (!este.pai?.éSeleçãoMúltipla) {
-      isto.commitOrRemove();
+    event.preventDefault();
+    if (!this.parent?.isMultipleSelection) {
+      this.commitOrRemove();
     }
   }
   commitOrRemove() {
-    se (isto.estáVazio()) {
-      isto.remover();
-    } outro {
-      isto.commit();
+    if (this.isEmpty()) {
+      this.remove();
+    } else {
+      this.commit();
     }
   }
-  comprometer-se() {
-    isto.addToAnnotationStorage();
+  commit() {
+    this.addToAnnotationStorage();
   }
-  adicionarArmazenamentoDeAnotação() {
-    este._uiManager.addToAnnotationStorage(este);
+  addToAnnotationStorage() {
+    this._uiManager.addToAnnotationStorage(this);
   }
-  definir em(x, y, tx, ty) {
-    const [largura, altura] = this.parentDimensions;
+  setAt(x, y, tx, ty) {
+    const [width, height] = this.parentDimensions;
     [tx, ty] = this.screenToPageTranslation(tx, ty);
-    this.x = (x + tx) / largura;
-    this.y = (y + ty) / altura;
-    isto.fixAndSetPosition();
+    this.x = (x + tx) / width;
+    this.y = (y + ty) / height;
+    this.fixAndSetPosition();
   }
   _moveAfterPaste(baseX, baseY) {
     const [parentWidth, parentHeight] = this.parentDimensions;
     this.setAt(baseX * parentWidth, baseY * parentHeight, this.width * parentWidth, this.height * parentHeight);
-    isto._onTranslated();
+    this._onTranslated();
   }
-  #translate([largura, altura], x, y) {
+  #translate([width, height], x, y) {
     [x, y] = this.screenToPageTranslation(x, y);
-    this.x += x / largura;
-    this.y += y / altura;
-    isto._onTranslating(isto.x, isto.y);
-    isto.fixAndSetPosition();
+    this.x += x / width;
+    this.y += y / height;
+    this._onTranslating(this.x, this.y);
+    this.fixAndSetPosition();
   }
-  traduzir(x, y) {
-    isto.#traduzir(isto.parentDimensions, x, y);
+  translate(x, y) {
+    this.#translate(this.parentDimensions, x, y);
   }
-  traduzirNaPágina(x, y) {
-    isto.#initialRect ||= [isto.x, isto.y, isto.largura, isto.altura];
-    isto.#translate(isto.pageDimensions, x, y);
-    este.div.scrollIntoView({
-      bloco: "mais próximo"
+  translateInPage(x, y) {
+    this.#initialRect ||= [this.x, this.y, this.width, this.height];
+    this.#translate(this.pageDimensions, x, y);
+    this.div.scrollIntoView({
+      block: "nearest"
     });
   }
-  traduçãoConcluída() {
-    isto._onTranslated(isto.x, isto.y);
+  translationDone() {
+    this._onTranslated(this.x, this.y);
   }
-  arraste(tx, ty) {
-    isto.#initialRect ||= [isto.x, isto.y, isto.largura, isto.altura];
-    constante {
-      divisão,
+  drag(tx, ty) {
+    this.#initialRect ||= [this.x, this.y, this.width, this.height];
+    const {
+      div,
       parentDimensions: [parentWidth, parentHeight]
-    } = isto;
+    } = this;
     this.x += tx / parentWidth;
-    this.y += ty / altura_pai;
-    se (este.pai && (este.x < 0 || este.x > 1 || este.y < 0 || este.y > 1)) {
-      constante {
+    this.y += ty / parentHeight;
+    if (this.parent && (this.x < 0 || this.x > 1 || this.y < 0 || this.y > 1)) {
+      const {
         x,
-        e
+        y
       } = this.div.getBoundingClientRect();
-      se (este.parent.findNewParent(este, x, y)) {
-        isto.x -= Math.floor(isto.x);
-        isto.y -= Math.floor(isto.y);
+      if (this.parent.findNewParent(this, x, y)) {
+        this.x -= Math.floor(this.x);
+        this.y -= Math.floor(this.y);
       }
     }
-    deixar {
+    let {
       x,
-      e
-    } = isto;
-    const [bx, por] = this.getBaseTranslation();
+      y
+    } = this;
+    const [bx, by] = this.getBaseTranslation();
     x += bx;
-    y += por;
-    constante {
-      estilo
+    y += by;
+    const {
+      style
     } = div;
-    estilo.esquerda = `${(100 * x).toFixed(2)}%`;
-    estilo.top = `${(100 * y).toFixed(2)}%`;
-    isto._onTranslating(x, y);
+    style.left = `${(100 * x).toFixed(2)}%`;
+    style.top = `${(100 * y).toFixed(2)}%`;
+    this._onTranslating(x, y);
     div.scrollIntoView({
-      bloco: "mais próximo"
+      block: "nearest"
     });
   }
   _onTranslating(x, y) {}
   _onTranslated(x, y) {}
-  obter _hasBeenMoved() {
-    retornar !!isto.#retornoinicial && (isto.#retornoinicial[0] !== isto.x || isto.#retornoinicial[1] !== isto.y);
+  get _hasBeenMoved() {
+    return !!this.#initialRect && (this.#initialRect[0] !== this.x || this.#initialRect[1] !== this.y);
   }
-  obter _hasBeenResized() {
-    retornar !!isto.#Ret.inicial && (isto.#Ret.inicial[2] !== isto.largura || isto.#Ret.inicial[3] !== isto.altura);
+  get _hasBeenResized() {
+    return !!this.#initialRect && (this.#initialRect[2] !== this.width || this.#initialRect[3] !== this.height);
   }
-  obterTranslaçãoBase() {
+  getBaseTranslation() {
     const [parentWidth, parentHeight] = this.parentDimensions;
-    constante {
-      _largura da linha de borda
-    } = Editor de Anotações;
+    const {
+      _borderLineWidth
+    } = AnnotationEditor;
     const x = _borderLineWidth / parentWidth;
     const y = _borderLineWidth / parentHeight;
     switch (this.rotation) {
-      caso 90:
-        retornar [-x, y];
-      caso 180:
-        retornar [x, y];
-      caso 270:
-        retornar [x, -y];
-      padrão:
-        retornar [-x, -y];
+      case 90:
+        return [-x, y];
+      case 180:
+        return [x, y];
+      case 270:
+        return [x, -y];
+      default:
+        return [-x, -y];
     }
   }
-  obter _mustFixPosition() {
-    retornar verdadeiro;
+  get _mustFixPosition() {
+    return true;
   }
-  fixAndSetPosition(rotação = this.rotação) {
-    constante {
+  fixAndSetPosition(rotation = this.rotation) {
+    const {
       div: {
-        estilo
+        style
       },
-      Dimensões da página: [largura da página, altura da página]
-    } = isto;
-    deixar {
+      pageDimensions: [pageWidth, pageHeight]
+    } = this;
+    let {
       x,
-      e,
-      largura,
-      altura
-    } = isto;
-    largura *= pageWidth;
-    altura *= pageHeight;
-    x *= larguradapagina;
-    y *= alturadapagina;
-    se (this._mustFixPosition) {
-      interruptor (rotação) {
-        caso 0:
-          x = MathClamp(x, 0, pageWidth - largura);
-          y = MathClamp(y, 0, pageHeight - altura);
-          quebrar;
-        caso 90:
-          x = MathClamp(x, 0, pageWidth - altura);
-          y = MathClamp(y, largura, pageHeight);
-          quebrar;
-        caso 180:
-          x = MathClamp(x, largura, pageWidth);
-          y = MathClamp(y, altura, pageHeight);
-          quebrar;
-        caso 270:
-          x = MathClamp(x, altura, pageWidth);
-          y = MathClamp(y, 0, pageHeight - largura);
-          quebrar;
+      y,
+      width,
+      height
+    } = this;
+    width *= pageWidth;
+    height *= pageHeight;
+    x *= pageWidth;
+    y *= pageHeight;
+    if (this._mustFixPosition) {
+      switch (rotation) {
+        case 0:
+          x = MathClamp(x, 0, pageWidth - width);
+          y = MathClamp(y, 0, pageHeight - height);
+          break;
+        case 90:
+          x = MathClamp(x, 0, pageWidth - height);
+          y = MathClamp(y, width, pageHeight);
+          break;
+        case 180:
+          x = MathClamp(x, width, pageWidth);
+          y = MathClamp(y, height, pageHeight);
+          break;
+        case 270:
+          x = MathClamp(x, height, pageWidth);
+          y = MathClamp(y, 0, pageHeight - width);
+          break;
       }
     }
     this.x = x /= pageWidth;
-    this.y = y /= alturaDaPágina;
-    const [bx, por] = this.getBaseTranslation();
+    this.y = y /= pageHeight;
+    const [bx, by] = this.getBaseTranslation();
     x += bx;
-    y += por;
-    estilo.esquerda = `${(100 * x).toFixed(2)}%`;
-    estilo.top = `${(100 * y).toFixed(2)}%`;
-    isto.moveInDOM();
+    y += by;
+    style.left = `${(100 * x).toFixed(2)}%`;
+    style.top = `${(100 * y).toFixed(2)}%`;
+    this.moveInDOM();
   }
-  estático #rotatePoint(x, y, ângulo) {
-    interruptor (ângulo) {
-      caso 90:
-        retornar [y, -x];
-      caso 180:
-        retornar [-x, -y];
-      caso 270:
-        retornar [-y, x];
-      padrão:
-        retornar [x, y];
+  static #rotatePoint(x, y, angle) {
+    switch (angle) {
+      case 90:
+        return [y, -x];
+      case 180:
+        return [-x, -y];
+      case 270:
+        return [-y, x];
+      default:
+        return [x, y];
     }
   }
   screenToPageTranslation(x, y) {
-    retornar AnnotationEditor.#rotatePoint(x, y, this.parentRotation);
+    return AnnotationEditor.#rotatePoint(x, y, this.parentRotation);
   }
   pageTranslationToScreen(x, y) {
-    retornar AnnotationEditor.#rotatePoint(x, y, 360 - this.parentRotation);
+    return AnnotationEditor.#rotatePoint(x, y, 360 - this.parentRotation);
   }
-  #getRotationMatrix(rotação) {
-    interruptor (rotação) {
-      caso 90:
+  #getRotationMatrix(rotation) {
+    switch (rotation) {
+      case 90:
         {
-          const [largura da página, altura da página] = this.dimensõesdapágina;
-          retornar [0, -pageWidth / pageHeight, pageHeight / pageWidth, 0];
+          const [pageWidth, pageHeight] = this.pageDimensions;
+          return [0, -pageWidth / pageHeight, pageHeight / pageWidth, 0];
         }
-      caso 180:
-        retornar [-1, 0, 0, -1];
-      caso 270:
+      case 180:
+        return [-1, 0, 0, -1];
+      case 270:
         {
-          const [largura da página, altura da página] = this.dimensõesdapágina;
-          retornar [0, pageWidth / pageHeight, -pageHeight / pageWidth, 0];
+          const [pageWidth, pageHeight] = this.pageDimensions;
+          return [0, pageWidth / pageHeight, -pageHeight / pageWidth, 0];
         }
-      padrão:
-        retornar [1, 0, 0, 1];
+      default:
+        return [1, 0, 0, 1];
     }
   }
-  obter parentScale() {
-    retorne this._uiManager.viewParameters.realScale;
+  get parentScale() {
+    return this._uiManager.viewParameters.realScale;
   }
-  obter parentRotation() {
-    retornar (this._uiManager.viewParameters.rotação + this.pageRotation) % 360;
+  get parentRotation() {
+    return (this._uiManager.viewParameters.rotation + this.pageRotation) % 360;
   }
-  obter parentDimensions() {
-    constante {
-      escalaparental,
-      Dimensões da página: [largura da página, altura da página]
-    } = isto;
-    retornar [pageWidth * parentScale, pageHeight * parentScale];
+  get parentDimensions() {
+    const {
+      parentScale,
+      pageDimensions: [pageWidth, pageHeight]
+    } = this;
+    return [pageWidth * parentScale, pageHeight * parentScale];
   }
-  setDims(largura, altura) {
+  setDims(width, height) {
     const [parentWidth, parentHeight] = this.parentDimensions;
-    constante {
-      estilo
-    } = isto.div;
-    estilo.largura = `${(100 * largura / parentWidth).toFixed(2)}%`;
-    se (!isso.#mantenhaRazãoDeAspecto) {
-      estilo.altura = `${(100 * altura / alturapai).toFixed(2)}%`;
+    const {
+      style
+    } = this.div;
+    style.width = `${(100 * width / parentWidth).toFixed(2)}%`;
+    if (!this.#keepAspectRatio) {
+      style.height = `${(100 * height / parentHeight).toFixed(2)}%`;
     }
   }
   fixDims() {
-    constante {
-      estilo
-    } = isto.div;
-    constante {
-      altura,
-      largura
-    } = estilo;
-    const widthPercent = largura.endsWith("%");
+    const {
+      style
+    } = this.div;
+    const {
+      height,
+      width
+    } = style;
+    const widthPercent = width.endsWith("%");
     const heightPercent = !this.#keepAspectRatio && height.endsWith("%");
-    se (larguraPorcentagem && alturaPorcentagem) {
-      retornar;
+    if (widthPercent && heightPercent) {
+      return;
     }
     const [parentWidth, parentHeight] = this.parentDimensions;
-    se (!larguraPorcentagem) {
-      estilo.largura = `${(100 * parseFloat(largura) / parentWidth).toFixed(2)}%`;
+    if (!widthPercent) {
+      style.width = `${(100 * parseFloat(width) / parentWidth).toFixed(2)}%`;
     }
-    se (!this.#keepAspectRatio && !heightPercent) {
-      estilo.altura = `${(100 * parseFloat(altura) / parentHeight).toFixed(2)}%`;
+    if (!this.#keepAspectRatio && !heightPercent) {
+      style.height = `${(100 * parseFloat(height) / parentHeight).toFixed(2)}%`;
     }
   }
-  obterTraduçãoInicial() {
-    retornar [0, 0];
+  getInitialTranslation() {
+    return [0, 0];
   }
   #createResizers() {
-    se (isto.#resizersDiv) {
-      retornar;
+    if (this.#resizersDiv) {
+      return;
     }
-    isto.#resizersDiv = document.createElement("div");
-    isto.#resizersDiv.classList.add("resizers");
-    const classes = this._willKeepAspectRatio ? ["superiorEsquerda", "superiorDireita", "inferiorDireita", "inferiorEsquerda"] : ["superiorEsquerda", "superiorMeio", "superiorDireita", "meioDireita", "inferiorDireita", "inferiorMeio", "inferiorEsquerda", "meioEsquerda"];
-    sinal constante = this._uiManager._signal;
-    para (const nome das classes) {
+    this.#resizersDiv = document.createElement("div");
+    this.#resizersDiv.classList.add("resizers");
+    const classes = this._willKeepAspectRatio ? ["topLeft", "topRight", "bottomRight", "bottomLeft"] : ["topLeft", "topMiddle", "topRight", "middleRight", "bottomRight", "bottomMiddle", "bottomLeft", "middleLeft"];
+    const signal = this._uiManager._signal;
+    for (const name of classes) {
       const div = document.createElement("div");
-      isto.#resizersDiv.append(div);
-      div.classList.add("resizer", nome);
-      div.setAttribute("nome-do-resizer-de-dados", nome);
-      div.addEventListener("pointerdown", this.#resizerPointerdown.bind(this, nome), {
-        sinal
+      this.#resizersDiv.append(div);
+      div.classList.add("resizer", name);
+      div.setAttribute("data-resizer-name", name);
+      div.addEventListener("pointerdown", this.#resizerPointerdown.bind(this, name), {
+        signal
       });
-      div.addEventListener("menu de contexto", noContextMenu, {
-        sinal
+      div.addEventListener("contextmenu", noContextMenu, {
+        signal
       });
       div.tabIndex = -1;
     }
-    esta.div.prepend(esta.#resizersDiv);
+    this.div.prepend(this.#resizersDiv);
   }
-  #resizerPointerdown(nome, evento) {
-    evento.preventDefault();
-    constante {
-      éMac
-    } = util_FeatureTest.plataforma;
-    se (evento. botão !== 0 || evento. ctrlKey && isMac) {
-      retornar;
+  #resizerPointerdown(name, event) {
+    event.preventDefault();
+    const {
+      isMac
+    } = util_FeatureTest.platform;
+    if (event.button !== 0 || event.ctrlKey && isMac) {
+      return;
     }
-    isto.#altText?.toggle(falso);
-    const savedDraggable = isto._éArrastável;
-    this._isDraggable = falso;
-    isto.#lastPointerCoords = [evento.telaX, evento.telaY];
-    const ac = novo AbortController();
-    sinal constante = this._uiManager.combinedSignal(ac);
-    este.parent.togglePointerEvents(falso);
-    window.addEventListener("pointermove", this.#resizerPointermove.bind(this, nome), {
-      passivo: verdadeiro,
-      captura: verdadeiro,
-      sinal
+    this.#altText?.toggle(false);
+    const savedDraggable = this._isDraggable;
+    this._isDraggable = false;
+    this.#lastPointerCoords = [event.screenX, event.screenY];
+    const ac = new AbortController();
+    const signal = this._uiManager.combinedSignal(ac);
+    this.parent.togglePointerEvents(false);
+    window.addEventListener("pointermove", this.#resizerPointermove.bind(this, name), {
+      passive: true,
+      capture: true,
+      signal
     });
-    janela.addEventListener("toqueemova", stopEvent, {
-      passivo: falso,
-      sinal
+    window.addEventListener("touchmove", stopEvent, {
+      passive: false,
+      signal
     });
-    window.addEventListener("menu de contexto", noContextMenu, {
-      sinal
+    window.addEventListener("contextmenu", noContextMenu, {
+      signal
     });
-    isto.#savedDimensions = {
-      savedX: este.x,
-      savedY: isto.y,
-      savedWidth: esta largura,
-      savedHeight: esta.altura
+    this.#savedDimensions = {
+      savedX: this.x,
+      savedY: this.y,
+      savedWidth: this.width,
+      savedHeight: this.height
     };
-    const savedParentCursor = este.parent.div.style.cursor;
+    const savedParentCursor = this.parent.div.style.cursor;
     const savedCursor = this.div.style.cursor;
-    este.div.estilo.cursor = este.parent.div.estilo.cursor = janela.getComputedStyle(evento.alvo).cursor;
+    this.div.style.cursor = this.parent.div.style.cursor = window.getComputedStyle(event.target).cursor;
     const pointerUpCallback = () => {
-      ac.abortar();
-      this.parent.togglePointerEvents(verdadeiro);
-      isto.#altText?.toggle(verdadeiro);
-      this._isDraggable = salvoArrastável;
-      este.parent.div.style.cursor = savedParentCursor;
-      this.div.style.cursor = CursorSalvado;
-      isto.#addResizeToUndoStack();
+      ac.abort();
+      this.parent.togglePointerEvents(true);
+      this.#altText?.toggle(true);
+      this._isDraggable = savedDraggable;
+      this.parent.div.style.cursor = savedParentCursor;
+      this.div.style.cursor = savedCursor;
+      this.#addResizeToUndoStack();
     };
-    janela.addEventListener("pointerup", pointerUpCallback, {
-      sinal
+    window.addEventListener("pointerup", pointerUpCallback, {
+      signal
     });
-    window.addEventListener("desfoque", pointerUpCallback, {
-      sinal
+    window.addEventListener("blur", pointerUpCallback, {
+      signal
     });
   }
-  #resize(x, y, largura, altura) {
-    this.largura = largura;
-    this.height = altura;
-    isto.x = x;
-    isto.y = y;
+  #resize(x, y, width, height) {
+    this.width = width;
+    this.height = height;
+    this.x = x;
+    this.y = y;
     const [parentWidth, parentHeight] = this.parentDimensions;
-    this.setDims(parentWidth * largura, parentHeight * altura);
-    isto.fixAndSetPosition();
-    isto._onResized();
+    this.setDims(parentWidth * width, parentHeight * height);
+    this.fixAndSetPosition();
+    this._onResized();
   }
   _onResized() {}
   #addResizeToUndoStack() {
-    se (!this.#savedDimensions) {
-      retornar;
+    if (!this.#savedDimensions) {
+      return;
     }
-    constante {
-      salvoX,
-      salvoY,
-      largura salva,
-      altura salva
+    const {
+      savedX,
+      savedY,
+      savedWidth,
+      savedHeight
     } = this.#savedDimensions;
-    isto.#savedDimensions = nulo;
+    this.#savedDimensions = null;
     const newX = this.x;
     const newY = this.y;
-    const newWidth = esta.largura;
-    const novaAltura = esta.altura;
-    if (newX === salvoX && newY === salvoY && newWidth === salvoLargura && newHeight === salvoAltura) {
-      retornar;
+    const newWidth = this.width;
+    const newHeight = this.height;
+    if (newX === savedX && newY === savedY && newWidth === savedWidth && newHeight === savedHeight) {
+      return;
     }
-    isto.addCommands({
+    this.addCommands({
       cmd: this.#resize.bind(this, newX, newY, newWidth, newHeight),
-      desfazer: isto.#resize.bind(isto, savedX, savedY, savedWidth, savedHeight),
-      mustExec: verdadeiro
+      undo: this.#resize.bind(this, savedX, savedY, savedWidth, savedHeight),
+      mustExec: true
     });
   }
-  estático _round(x) {
-    retornar Math.round(x * 10000) / 10000;
+  static _round(x) {
+    return Math.round(x * 10000) / 10000;
   }
-  #resizerPointermove(nome, evento) {
+  #resizerPointermove(name, event) {
     const [parentWidth, parentHeight] = this.parentDimensions;
-    const savedX = isto.x;
-    const savedY = isto.y;
-    const savedWidth = esta.largura;
-    const savedHeight = esta.altura;
+    const savedX = this.x;
+    const savedY = this.y;
+    const savedWidth = this.width;
+    const savedHeight = this.height;
     const minWidth = AnnotationEditor.MIN_SIZE / parentWidth;
     const minHeight = AnnotationEditor.MIN_SIZE / parentHeight;
     const rotationMatrix = this.#getRotationMatrix(this.rotation);
-    const transf = (x, y) => [rotaçãoMatriz[0] * x + rotaçãoMatriz[2] * y, rotaçãoMatriz[1] * x + rotaçãoMatriz[3] * y];
-    const invRotationMatrix = this.#getRotationMatrix(360 - this.rotação);
+    const transf = (x, y) => [rotationMatrix[0] * x + rotationMatrix[2] * y, rotationMatrix[1] * x + rotationMatrix[3] * y];
+    const invRotationMatrix = this.#getRotationMatrix(360 - this.rotation);
     const invTransf = (x, y) => [invRotationMatrix[0] * x + invRotationMatrix[2] * y, invRotationMatrix[1] * x + invRotationMatrix[3] * y];
-    deixe getPoint;
-    deixe getOpposite;
-    deixe isDiagonal = falso;
-    deixe isHorizontal = false;
-    switch (nome) {
-      caso "topLeft":
-        isDiagonal = verdadeiro;
-        obterPonto = (w, h) => [0, 0];
-        obterOposto = (w, h) => [w, h];
-        quebrar;
-      caso "topMiddle":
+    let getPoint;
+    let getOpposite;
+    let isDiagonal = false;
+    let isHorizontal = false;
+    switch (name) {
+      case "topLeft":
+        isDiagonal = true;
+        getPoint = (w, h) => [0, 0];
+        getOpposite = (w, h) => [w, h];
+        break;
+      case "topMiddle":
         getPoint = (w, h) => [w / 2, 0];
-        obterOposto = (w, h) => [w / 2, h];
-        quebrar;
-      caso "topRight":
-        isDiagonal = verdadeiro;
-        obterPonto = (w, h) => [w, 0];
-        obterOposto = (w, h) => [0, h];
-        quebrar;
-      caso "middleRight":
-        isHorizontal = verdadeiro;
-        getPoint = (l, a) => [l, a / 2];
-        obterOposto = (w, h) => [0, h / 2];
-        quebrar;
-      caso "bottomRight":
-        isDiagonal = verdadeiro;
-        getPoint = (l, a) => [l, a];
-        obterOposto = (w, h) => [0, 0];
-        quebrar;
-      caso "bottomMiddle":
+        getOpposite = (w, h) => [w / 2, h];
+        break;
+      case "topRight":
+        isDiagonal = true;
+        getPoint = (w, h) => [w, 0];
+        getOpposite = (w, h) => [0, h];
+        break;
+      case "middleRight":
+        isHorizontal = true;
+        getPoint = (w, h) => [w, h / 2];
+        getOpposite = (w, h) => [0, h / 2];
+        break;
+      case "bottomRight":
+        isDiagonal = true;
+        getPoint = (w, h) => [w, h];
+        getOpposite = (w, h) => [0, 0];
+        break;
+      case "bottomMiddle":
         getPoint = (w, h) => [w / 2, h];
-        obterOposto = (w, h) => [w / 2, 0];
-        quebrar;
-      caso "bottomLeft":
-        isDiagonal = verdadeiro;
-        obterPonto = (w, h) => [0, h];
-        obterOposto = (w, h) => [w, 0];
-        quebrar;
-      caso "middleLeft":
-        isHorizontal = verdadeiro;
-        obterPonto = (w, h) => [0, h / 2];
-        obterOposto = (w, h) => [w, h / 2];
-        quebrar;
+        getOpposite = (w, h) => [w / 2, 0];
+        break;
+      case "bottomLeft":
+        isDiagonal = true;
+        getPoint = (w, h) => [0, h];
+        getOpposite = (w, h) => [w, 0];
+        break;
+      case "middleLeft":
+        isHorizontal = true;
+        getPoint = (w, h) => [0, h / 2];
+        getOpposite = (w, h) => [w, h / 2];
+        break;
     }
-    const ponto = getPoint(largura salva, altura salva);
-    const oppositePoint = getOpposite(largura salva, altura salva);
-    deixe transfOppositePoint = transf(...oppositePoint);
+    const point = getPoint(savedWidth, savedHeight);
+    const oppositePoint = getOpposite(savedWidth, savedHeight);
+    let transfOppositePoint = transf(...oppositePoint);
     const oppositeX = AnnotationEditor._round(savedX + transfOppositePoint[0]);
     const oppositeY = AnnotationEditor._round(savedY + transfOppositePoint[1]);
-    deixe ratioX = 1;
-    deixe ratioY = 1;
-    deixe deltaX, deltaY;
-    se (!evento.fromKeyboard) {
-      constante {
-        telaX,
-        telaY
-      } = evento;
-      const [últimaTelaX, últimaTelaY] = this.#lastPointerCoords;
-      [deltaX, deltaY] = this.screenToPageTranslation(telaX - últimaTelaX, telaY - últimaTelaY);
-      isto.#lastPointerCoords[0] = telaX;
-      isto.#lastPointerCoords[1] = telaY;
-    } outro {
+    let ratioX = 1;
+    let ratioY = 1;
+    let deltaX, deltaY;
+    if (!event.fromKeyboard) {
+      const {
+        screenX,
+        screenY
+      } = event;
+      const [lastScreenX, lastScreenY] = this.#lastPointerCoords;
+      [deltaX, deltaY] = this.screenToPageTranslation(screenX - lastScreenX, screenY - lastScreenY);
+      this.#lastPointerCoords[0] = screenX;
+      this.#lastPointerCoords[1] = screenY;
+    } else {
       ({
         deltaX,
         deltaY
-      } = evento);
+      } = event);
     }
     [deltaX, deltaY] = invTransf(deltaX / parentWidth, deltaY / parentHeight);
-    se (éDiagonal) {
-      const oldDiag = Math.hypot(largura salva, altura salva);
+    if (isDiagonal) {
+      const oldDiag = Math.hypot(savedWidth, savedHeight);
       ratioX = ratioY = Math.max(Math.min(Math.hypot(oppositePoint[0] - point[0] - deltaX, oppositePoint[1] - point[1] - deltaY) / oldDiag, 1 / savedWidth, 1 / savedHeight), minWidth / savedWidth, minHeight / savedHeight);
-    } senão se (éHorizontal) {
+    } else if (isHorizontal) {
       ratioX = MathClamp(Math.abs(oppositePoint[0] - point[0] - deltaX), minWidth, 1) / savedWidth;
-    } outro {
+    } else {
       ratioY = MathClamp(Math.abs(oppositePoint[1] - point[1] - deltaY), minHeight, 1) / savedHeight;
     }
     const newWidth = AnnotationEditor._round(savedWidth * ratioX);
-    const newHeight = AnnotationEditor._round(altura salva * razão Y);
-    transfOppositePoint = transf(...getOpposite(novaLargura, novaAltura));
+    const newHeight = AnnotationEditor._round(savedHeight * ratioY);
+    transfOppositePoint = transf(...getOpposite(newWidth, newHeight));
     const newX = oppositeX - transfOppositePoint[0];
-    const novoY = opostoY - transfOppositePoint[1];
-    isto.#initialRect ||= [isto.x, isto.y, isto.largura, isto.altura];
-    this.largura = novaLargura;
-    this.altura = novaAltura;
-    isto.x = novoX;
-    isto.y = novoY;
+    const newY = oppositeY - transfOppositePoint[1];
+    this.#initialRect ||= [this.x, this.y, this.width, this.height];
+    this.width = newWidth;
+    this.height = newHeight;
+    this.x = newX;
+    this.y = newY;
     this.setDims(parentWidth * newWidth, parentHeight * newHeight);
-    isto.fixAndSetPosition();
-    isto._onResizing();
+    this.fixAndSetPosition();
+    this._onResizing();
   }
   _onResizing() {}
   altTextFinish() {
-    isto.#altText?.terminar();
+    this.#altText?.finish();
   }
   async addEditToolbar() {
-    se (isto._editToolbar || isto.#isInEditMode) {
-      retornar isto._editToolbar;
+    if (this._editToolbar || this.#isInEditMode) {
+      return this._editToolbar;
     }
-    this._editToolbar = novo EditorToolbar(isto);
-    isto.div.append(isto._editToolbar.render());
-    se (isto.#altText) {
-      aguarde isto._editToolbar.addAltText(this.#altText);
+    this._editToolbar = new EditorToolbar(this);
+    this.div.append(this._editToolbar.render());
+    if (this.#altText) {
+      await this._editToolbar.addAltText(this.#altText);
     }
-    retornar isto._editToolbar;
+    return this._editToolbar;
   }
   removeEditToolbar() {
-    se (!this._editToolbar) {
-      retornar;
+    if (!this._editToolbar) {
+      return;
     }
-    isto._editToolbar.remove();
-    this._editToolbar = nulo;
-    isto.#altText?.destroy();
+    this._editToolbar.remove();
+    this._editToolbar = null;
+    this.#altText?.destroy();
   }
-  addContainer(recipiente) {
+  addContainer(container) {
     const editToolbarDiv = this._editToolbar?.div;
-    se (editToolbarDiv) {
-      editToolbarDiv.before(contêiner);
-    } outro {
-      this.div.append(recipiente);
+    if (editToolbarDiv) {
+      editToolbarDiv.before(container);
+    } else {
+      this.div.append(container);
     }
   }
-  obterDimensõesCliente() {
-    retornar this.div.getBoundingClientRect();
+  getClientDimensions() {
+    return this.div.getBoundingClientRect();
   }
   async addAltTextButton() {
-    se (isto.#altText) {
-      retornar;
+    if (this.#altText) {
+      return;
     }
     AltText.initialize(AnnotationEditor._l10n);
-    isto.#altText = novo AltText(isto);
-    se (isto.#dadosdeacessibilidade) {
-      isto.#altText.data = isto.#accessibilityData;
-      isto.#accessibilityData = nulo;
+    this.#altText = new AltText(this);
+    if (this.#accessibilityData) {
+      this.#altText.data = this.#accessibilityData;
+      this.#accessibilityData = null;
     }
-    aguarde this.addEditToolbar();
+    await this.addEditToolbar();
   }
-  obter altTextData() {
-    retornar isto.#altText?.data;
+  get altTextData() {
+    return this.#altText?.data;
   }
-  definir altTextData(dados) {
-    se (!this.#altText) {
-      retornar;
+  set altTextData(data) {
+    if (!this.#altText) {
+      return;
     }
-    isto.#altText.data = dados;
+    this.#altText.data = data;
   }
-  obter adivinhadoAltText() {
-    retornar isto.#altText?.guessedText;
+  get guessedAltText() {
+    return this.#altText?.guessedText;
   }
-  async setGuessedAltText(texto) {
-    aguarde isso.#altText?.setGuessedText(texto);
+  async setGuessedAltText(text) {
+    await this.#altText?.setGuessedText(text);
   }
   serializeAltText(isForCopying) {
-    retornar isto.#altText?.serialize(isForCopying);
+    return this.#altText?.serialize(isForCopying);
   }
-  temAltText() {
-    retornar !!isto.#altTexto && !isto.#altTexto.isEmpty();
+  hasAltText() {
+    return !!this.#altText && !this.#altText.isEmpty();
   }
-  temAltTextData() {
-    retornar isto.#altText?.hasData() ?? falso;
+  hasAltTextData() {
+    return this.#altText?.hasData() ?? false;
   }
-  renderizar() {
+  render() {
     const div = this.div = document.createElement("div");
-    div.setAttribute("editor-de-dados-rotação", (360 - this.rotação) % 360);
-    div.className = this.nome;
-    div.setAttribute("id", este.id);
-    div.tabIndex = this.#desabilitado ? -1 : 0;
-    div.setAttribute("função", "aplicativo");
-    se (this.defaultL10nId) {
+    div.setAttribute("data-editor-rotation", (360 - this.rotation) % 360);
+    div.className = this.name;
+    div.setAttribute("id", this.id);
+    div.tabIndex = this.#disabled ? -1 : 0;
+    div.setAttribute("role", "application");
+    if (this.defaultL10nId) {
       div.setAttribute("data-l10n-id", this.defaultL10nId);
     }
-    se (!this._isVisible) {
-      div.classList.add("oculto");
+    if (!this._isVisible) {
+      div.classList.add("hidden");
     }
-    isto.setInForeground();
-    isto.#addFocusListeners();
+    this.setInForeground();
+    this.#addFocusListeners();
     const [parentWidth, parentHeight] = this.parentDimensions;
-    se (this.parentRotation % 180 !== 0) {
+    if (this.parentRotation % 180 !== 0) {
       div.style.maxWidth = `${(100 * parentHeight / parentWidth).toFixed(2)}%`;
       div.style.maxHeight = `${(100 * parentWidth / parentHeight).toFixed(2)}%`;
     }
     const [tx, ty] = this.getInitialTranslation();
-    isto.translate(tx, ty);
-    bindEvents(this, div, ["tecla para baixo", "ponteiro para baixo"]);
-    se (isto é redimensionável && isto._uiManager._supportsPinchToZoom) {
-      isto.#touchManager ||= novo TouchManager({
-        contêiner: div,
+    this.translate(tx, ty);
+    bindEvents(this, div, ["keydown", "pointerdown"]);
+    if (this.isResizable && this._uiManager._supportsPinchToZoom) {
+      this.#touchManager ||= new TouchManager({
+        container: div,
         isPinchingDisabled: () => !this.isSelected,
-        onPinchStart: isto.#touchPinchStartCallback.bind(isto),
-        onPinching: isto.#touchPinchCallback.bind(isto),
-        onPinchEnd: isto.#touchPinchEndCallback.bind(isto),
-        sinal: this._uiManager._signal
+        onPinchStart: this.#touchPinchStartCallback.bind(this),
+        onPinching: this.#touchPinchCallback.bind(this),
+        onPinchEnd: this.#touchPinchEndCallback.bind(this),
+        signal: this._uiManager._signal
       });
     }
-    este._uiManager._editorUndoBar?.hide();
-    retornar div;
+    this._uiManager._editorUndoBar?.hide();
+    return div;
   }
   #touchPinchStartCallback() {
-    isto.#savedDimensions = {
-      savedX: este.x,
-      savedY: isto.y,
-      savedWidth: esta largura,
-      savedHeight: esta.altura
+    this.#savedDimensions = {
+      savedX: this.x,
+      savedY: this.y,
+      savedWidth: this.width,
+      savedHeight: this.height
     };
-    isto.#altText?.toggle(falso);
-    este.parent.togglePointerEvents(falso);
+    this.#altText?.toggle(false);
+    this.parent.togglePointerEvents(false);
   }
-  #touchPinchCallback(_origin, prevDistance, distância) {
-    const slowDownFactor = 0,7;
-    deixe fator = slowDownFactor * (distância / prevDistance) + 1 - slowDownFactor;
-    se (fator === 1) {
-      retornar;
+  #touchPinchCallback(_origin, prevDistance, distance) {
+    const slowDownFactor = 0.7;
+    let factor = slowDownFactor * (distance / prevDistance) + 1 - slowDownFactor;
+    if (factor === 1) {
+      return;
     }
     const rotationMatrix = this.#getRotationMatrix(this.rotation);
-    const transf = (x, y) => [rotaçãoMatriz[0] * x + rotaçãoMatriz[2] * y, rotaçãoMatriz[1] * x + rotaçãoMatriz[3] * y];
+    const transf = (x, y) => [rotationMatrix[0] * x + rotationMatrix[2] * y, rotationMatrix[1] * x + rotationMatrix[3] * y];
     const [parentWidth, parentHeight] = this.parentDimensions;
-    const savedX = isto.x;
-    const savedY = isto.y;
-    const savedWidth = esta.largura;
-    const savedHeight = esta.altura;
+    const savedX = this.x;
+    const savedY = this.y;
+    const savedWidth = this.width;
+    const savedHeight = this.height;
     const minWidth = AnnotationEditor.MIN_SIZE / parentWidth;
     const minHeight = AnnotationEditor.MIN_SIZE / parentHeight;
-    fator = Math.max(Math.min(fator, 1 / largurasalva, 1 / alturasalva), larguramín. / largurasalva, alturamín. / alturasalva);
-    const newWidth = AnnotationEditor._round(savedWidth * fator);
-    const newHeight = AnnotationEditor._round(savedHeight * fator);
-    se (novaLargura === largura salva && novaAltura === altura salva) {
-      retornar;
+    factor = Math.max(Math.min(factor, 1 / savedWidth, 1 / savedHeight), minWidth / savedWidth, minHeight / savedHeight);
+    const newWidth = AnnotationEditor._round(savedWidth * factor);
+    const newHeight = AnnotationEditor._round(savedHeight * factor);
+    if (newWidth === savedWidth && newHeight === savedHeight) {
+      return;
     }
-    isto.#initialRect ||= [salvoX, salvoY, salvoLargura, salvoAltura];
-    const transfCenterPoint = transf(largura salva / 2, altura salva / 2);
+    this.#initialRect ||= [savedX, savedY, savedWidth, savedHeight];
+    const transfCenterPoint = transf(savedWidth / 2, savedHeight / 2);
     const centerX = AnnotationEditor._round(savedX + transfCenterPoint[0]);
     const centerY = AnnotationEditor._round(savedY + transfCenterPoint[1]);
-    const novoTransfCenterPoint = transf(novaLargura/2, novaAltura/2);
+    const newTransfCenterPoint = transf(newWidth / 2, newHeight / 2);
     this.x = centerX - newTransfCenterPoint[0];
-    this.y = centroY - novoPontoCentralTransf[1];
-    this.largura = novaLargura;
-    this.altura = novaAltura;
+    this.y = centerY - newTransfCenterPoint[1];
+    this.width = newWidth;
+    this.height = newHeight;
     this.setDims(parentWidth * newWidth, parentHeight * newHeight);
-    isto.fixAndSetPosition();
-    isto._onResizing();
+    this.fixAndSetPosition();
+    this._onResizing();
   }
   #touchPinchEndCallback() {
-    isto.#altText?.toggle(verdadeiro);
-    this.parent.togglePointerEvents(verdadeiro);
-    isto.#addResizeToUndoStack();
+    this.#altText?.toggle(true);
+    this.parent.togglePointerEvents(true);
+    this.#addResizeToUndoStack();
   }
-  pointerdown(evento) {
-    constante {
-      éMac
-    } = util_FeatureTest.plataforma;
-    se (evento. botão !== 0 || evento. ctrlKey && isMac) {
-      evento.preventDefault();
-      retornar;
+  pointerdown(event) {
+    const {
+      isMac
+    } = util_FeatureTest.platform;
+    if (event.button !== 0 || event.ctrlKey && isMac) {
+      event.preventDefault();
+      return;
     }
-    isto.#foiclicado = verdadeiro;
-    se (isto._éArrastável) {
-      isto.#setUpDragSession(evento);
-      retornar;
+    this.#hasBeenClicked = true;
+    if (this._isDraggable) {
+      this.#setUpDragSession(event);
+      return;
     }
-    isto.#selectOnPointerEvent(evento);
+    this.#selectOnPointerEvent(event);
   }
-  obter isSelected() {
-    retornar this._uiManager.isSelected(isto);
+  get isSelected() {
+    return this._uiManager.isSelected(this);
   }
-  #selectOnPointerEvent(evento) {
-    constante {
-      éMac
-    } = util_FeatureTest.plataforma;
-    se (evento.ctrlKey && !isMac || evento.shiftKey || evento.metaKey && isMac) {
-      este.parent.toggleSelected(este);
-    } outro {
-      este.parent.setSelected(isto);
+  #selectOnPointerEvent(event) {
+    const {
+      isMac
+    } = util_FeatureTest.platform;
+    if (event.ctrlKey && !isMac || event.shiftKey || event.metaKey && isMac) {
+      this.parent.toggleSelected(this);
+    } else {
+      this.parent.setSelected(this);
     }
   }
-  #setUpDragSession(evento) {
-    constante {
-      está selecionado
-    } = isto;
-    este._uiManager.setUpDragSession();
-    deixe hasDraggingStarted = falso;
-    const ac = novo AbortController();
-    sinal constante = this._uiManager.combinedSignal(ac);
-    const opta = {
-      captura: verdadeiro,
-      passivo: falso,
-      sinal
+  #setUpDragSession(event) {
+    const {
+      isSelected
+    } = this;
+    this._uiManager.setUpDragSession();
+    let hasDraggingStarted = false;
+    const ac = new AbortController();
+    const signal = this._uiManager.combinedSignal(ac);
+    const opts = {
+      capture: true,
+      passive: false,
+      signal
     };
     const cancelDrag = e => {
-      ac.abortar();
-      isto.#dragPointerId = nulo;
-      isto.#foiclicado = falso;
-      se (!this._uiManager.endDragSession()) {
-        isto.#selectOnPointerEvent(e);
+      ac.abort();
+      this.#dragPointerId = null;
+      this.#hasBeenClicked = false;
+      if (!this._uiManager.endDragSession()) {
+        this.#selectOnPointerEvent(e);
       }
-      se (hasDraggingStarted) {
-        isto._onStopDragging();
+      if (hasDraggingStarted) {
+        this._onStopDragging();
       }
     };
-    se (éSelecionado) {
-      isto.#prevDragX = evento.clientX;
-      isto.#prevDragY = evento.clientY;
-      isto.#dragPointerId = evento.pointerId;
-      isto.#dragPointerType = evento.pointerType;
+    if (isSelected) {
+      this.#prevDragX = event.clientX;
+      this.#prevDragY = event.clientY;
+      this.#dragPointerId = event.pointerId;
+      this.#dragPointerType = event.pointerType;
       window.addEventListener("pointermove", e => {
-        se (!hasDraggingStarted) {
-          hasDraggingStarted = verdadeiro;
-          isto._onStartDragging();
+        if (!hasDraggingStarted) {
+          hasDraggingStarted = true;
+          this._onStartDragging();
         }
-        constante {
-          clienteX: x,
-          clienteY: y,
-          ponteiroId
+        const {
+          clientX: x,
+          clientY: y,
+          pointerId
         } = e;
-        se (pointerId !== this.#dragPointerId) {
+        if (pointerId !== this.#dragPointerId) {
           stopEvent(e);
-          retornar;
+          return;
         }
-        const [tx, ty] = this.screenToPageTranslation(x - isto.#prevDragX, y - isto.#prevDragY);
-        isto.#prevDragX = x;
-        isto.#prevDragY = y;
+        const [tx, ty] = this.screenToPageTranslation(x - this.#prevDragX, y - this.#prevDragY);
+        this.#prevDragX = x;
+        this.#prevDragY = y;
         this._uiManager.dragSelectedEditors(tx, ty);
-      }, opta);
+      }, opts);
       window.addEventListener("touchmove", stopEvent, opts);
-      window.addEventListener("ponteiroparabaixo", e => {
-        se (e.pointerType === this.#dragPointerType) {
-          se (este.#touchManager || e.isPrimary) {
-            cancelarArrastar(e);
+      window.addEventListener("pointerdown", e => {
+        if (e.pointerType === this.#dragPointerType) {
+          if (this.#touchManager || e.isPrimary) {
+            cancelDrag(e);
           }
         }
         stopEvent(e);
-      }, opta);
+      }, opts);
     }
     const pointerUpCallback = e => {
-      se (!isto.#arrastarId doPonteiro || isto.#arrastarId doPonteiro === e.IddoPonteiro) {
-        cancelarArrastar(e);
-        retornar;
+      if (!this.#dragPointerId || this.#dragPointerId === e.pointerId) {
+        cancelDrag(e);
+        return;
       }
       stopEvent(e);
     };
-    janela.addEventListener("pointerup", pointerUpCallback, {
-      sinal
+    window.addEventListener("pointerup", pointerUpCallback, {
+      signal
     });
-    window.addEventListener("desfoque", pointerUpCallback, {
-      sinal
+    window.addEventListener("blur", pointerUpCallback, {
+      signal
     });
   }
   _onStartDragging() {}
   _onStopDragging() {}
   moveInDOM() {
-    se (isto.#moveInDOMTimeout) {
+    if (this.#moveInDOMTimeout) {
       clearTimeout(this.#moveInDOMTimeout);
     }
-    isto.#moveInDOMTimeout = setTimeout(() => {
-      isto.#moveInDOMTimeout = nulo;
-      isto.pai?.moveEditorInDOM(isto);
+    this.#moveInDOMTimeout = setTimeout(() => {
+      this.#moveInDOMTimeout = null;
+      this.parent?.moveEditorInDOM(this);
     }, 0);
   }
-  _setParentAndPosition(pai, x, y) {
-    pai.changeParent(isso);
-    isto.x = x;
-    isto.y = y;
-    isto.fixAndSetPosition();
-    isto._onTranslated();
+  _setParentAndPosition(parent, x, y) {
+    parent.changeParent(this);
+    this.x = x;
+    this.y = y;
+    this.fixAndSetPosition();
+    this._onTranslated();
   }
-  getRect(tx, ty, rotação = this.rotação) {
-    const escala = this.parentScale;
-    const [largura da página, altura da página] = this.dimensõesdapágina;
-    const [páginaX, páginaY] = this.pageTranslation;
-    const shiftX = tx / escala;
-    const shiftY = ty / escala;
+  getRect(tx, ty, rotation = this.rotation) {
+    const scale = this.parentScale;
+    const [pageWidth, pageHeight] = this.pageDimensions;
+    const [pageX, pageY] = this.pageTranslation;
+    const shiftX = tx / scale;
+    const shiftY = ty / scale;
     const x = this.x * pageWidth;
-    const y = this.y * alturadapagina;
-    const largura = this.largura * pageWidth;
-    const altura = this.height * pageHeight;
-    interruptor (rotação) {
-      caso 0:
-        retornar [x + shiftX + pageX, pageHeight - y - shiftY - altura + pageY, x + shiftX + largura + pageX, pageHeight - y - shiftY + pageY];
-      caso 90:
-        retornar [x + shiftY + pageX, pageHeight - y + shiftX + pageY, x + shiftY + altura + pageX, pageHeight - y + shiftX + largura + pageY];
-      caso 180:
-        retornar [x - shiftX - largura + pageX, pageHeight - y + shiftY + pageY, x - shiftX + pageX, pageHeight - y + shiftY + altura + pageY];
-      caso 270:
+    const y = this.y * pageHeight;
+    const width = this.width * pageWidth;
+    const height = this.height * pageHeight;
+    switch (rotation) {
+      case 0:
+        return [x + shiftX + pageX, pageHeight - y - shiftY - height + pageY, x + shiftX + width + pageX, pageHeight - y - shiftY + pageY];
+      case 90:
+        return [x + shiftY + pageX, pageHeight - y + shiftX + pageY, x + shiftY + height + pageX, pageHeight - y + shiftX + width + pageY];
+      case 180:
+        return [x - shiftX - width + pageX, pageHeight - y + shiftY + pageY, x - shiftX + pageX, pageHeight - y + shiftY + height + pageY];
+      case 270:
         return [x - shiftY - height + pageX, pageHeight - y - shiftX - width + pageY, x - shiftY + pageX, pageHeight - y - shiftX + pageY];
       default:
         throw new Error("Invalid rotation");
@@ -4966,146 +4966,146 @@ classe AnnotationEditor {
     }
   }
   _resizeWithKeyboard(x, y) {
-    se (!isto.#isResizerEnabledForKeyboard) {
-      retornar;
+    if (!this.#isResizerEnabledForKeyboard) {
+      return;
     }
-    isto.#resizerPointermove(isto.#focusedResizerName, {
+    this.#resizerPointermove(this.#focusedResizerName, {
       deltaX: x,
       deltaY: y,
-      fromKeyboard: verdadeiro
+      fromKeyboard: true
     });
   }
   #stopResizing() {
-    isto.#isResizerEnabledForKeyboard = falso;
-    isto.#setResizerTabIndex(-1);
-    isto.#addResizeToUndoStack();
+    this.#isResizerEnabledForKeyboard = false;
+    this.#setResizerTabIndex(-1);
+    this.#addResizeToUndoStack();
   }
   _stopResizingWithKeyboard() {
-    isto.#stopResizing();
-    isto.div.foco();
+    this.#stopResizing();
+    this.div.focus();
   }
-  selecionar() {
-    isto.makeResizable();
-    this.div?.classList.add("Editor selecionado");
-    se (!this._editToolbar) {
-      isto.addEditToolbar().então(() => {
-        se (this.div?.classList.contains("selectedEditor")) {
-          esta._editToolbar?.mostrar();
+  select() {
+    this.makeResizable();
+    this.div?.classList.add("selectedEditor");
+    if (!this._editToolbar) {
+      this.addEditToolbar().then(() => {
+        if (this.div?.classList.contains("selectedEditor")) {
+          this._editToolbar?.show();
         }
       });
-      retornar;
+      return;
     }
-    esta._editToolbar?.mostrar();
-    isto.#altText?.toggleAltTextBadge(false);
+    this._editToolbar?.show();
+    this.#altText?.toggleAltTextBadge(false);
   }
-  desmarcar() {
-    isto.#resizersDiv?.classList.add("oculto");
-    this.div?.classList.remove("Editor selecionado");
-    se (this.div?.contains(document.activeElement)) {
-      este._uiManager.currentLayer.div.focus({
-        preventScroll: verdadeiro
+  unselect() {
+    this.#resizersDiv?.classList.add("hidden");
+    this.div?.classList.remove("selectedEditor");
+    if (this.div?.contains(document.activeElement)) {
+      this._uiManager.currentLayer.div.focus({
+        preventScroll: true
       });
     }
-    esta._editToolbar?.ocultar();
-    isto.#altText?.toggleAltTextBadge(true);
+    this._editToolbar?.hide();
+    this.#altText?.toggleAltTextBadge(true);
   }
-  updateParams(tipo, valor) {}
-  desabilitarEdição() {}
-  habilitarEdição() {}
-  entrarNoModoDeEdição() {}
-  obterElementoParaTextoAlt() {
-    retornar this.div;
+  updateParams(type, value) {}
+  disableEditing() {}
+  enableEditing() {}
+  enterInEditMode() {}
+  getElementForAltText() {
+    return this.div;
   }
-  obter contentDiv() {
-    retornar this.div;
+  get contentDiv() {
+    return this.div;
   }
-  obter isEditing() {
-    retorne isto.#isEditing;
+  get isEditing() {
+    return this.#isEditing;
   }
-  definir isEditing(valor) {
-    isto.#isEditing = valor;
-    se (!este.pai) {
-      retornar;
+  set isEditing(value) {
+    this.#isEditing = value;
+    if (!this.parent) {
+      return;
     }
-    se (valor) {
-      este.parent.setSelected(isto);
-      este.parent.setActiveEditor(este);
-    } outro {
-      this.parent.setActiveEditor(nulo);
+    if (value) {
+      this.parent.setSelected(this);
+      this.parent.setActiveEditor(this);
+    } else {
+      this.parent.setActiveEditor(null);
     }
   }
-  setAspectRatio(largura, altura) {
-    isto.#keepAspectRatio = verdadeiro;
-    const aspectRatio = largura / altura;
-    constante {
-      estilo
-    } = isto.div;
-    estilo.aspectRatio = aspectRatio;
-    estilo.altura = "automático";
+  setAspectRatio(width, height) {
+    this.#keepAspectRatio = true;
+    const aspectRatio = width / height;
+    const {
+      style
+    } = this.div;
+    style.aspectRatio = aspectRatio;
+    style.height = "auto";
   }
-  estático obter MIN_SIZE() {
-    retornar 16;
+  static get MIN_SIZE() {
+    return 16;
   }
-  estático canCreateNewEmptyEditor() {
-    retornar verdadeiro;
+  static canCreateNewEmptyEditor() {
+    return true;
   }
-  obter telemetryInitialData() {
-    retornar {
-      ação: "adicionado"
+  get telemetryInitialData() {
+    return {
+      action: "added"
     };
   }
-  obter telemetriaFinalData() {
-    retornar nulo;
+  get telemetryFinalData() {
+    return null;
   }
-  _reportTelemetry(dados, mustWait = falso) {
-    se (deveEsperar) {
-      isto.#telemetryTimeouts ||= novo Mapa();
-      constante {
-        Ação
-      } = dados;
-      deixe timeout = this.#telemetryTimeouts.get(action);
-      se (tempo limite) {
-        clearTimeout(tempo limite);
+  _reportTelemetry(data, mustWait = false) {
+    if (mustWait) {
+      this.#telemetryTimeouts ||= new Map();
+      const {
+        action
+      } = data;
+      let timeout = this.#telemetryTimeouts.get(action);
+      if (timeout) {
+        clearTimeout(timeout);
       }
-      tempo limite = setTimeout(() => {
-        this._reportTelemetry(dados);
-        isto.#telemetryTimeouts.delete(ação);
-        se (this.#telemetryTimeouts.size === 0) {
-          isto.#telemetryTimeouts = nulo;
+      timeout = setTimeout(() => {
+        this._reportTelemetry(data);
+        this.#telemetryTimeouts.delete(action);
+        if (this.#telemetryTimeouts.size === 0) {
+          this.#telemetryTimeouts = null;
         }
       }, AnnotationEditor._telemetryTimeout);
-      isto.#telemetryTimeouts.set(ação, tempo limite);
-      retornar;
+      this.#telemetryTimeouts.set(action, timeout);
+      return;
     }
-    tipo de dados ||= this.editorType;
-    this._uiManager._eventBus.dispatch("relatório de telemetria", {
-      fonte: esta,
-      detalhes: {
-        tipo: "edição",
-        dados
+    data.type ||= this.editorType;
+    this._uiManager._eventBus.dispatch("reporttelemetry", {
+      source: this,
+      details: {
+        type: "editing",
+        data
       }
     });
   }
-  mostrar(visível = this._isVisible) {
-    this.div.classList.toggle("oculto", !visível);
-    this._isVisible = visível;
+  show(visible = this._isVisible) {
+    this.div.classList.toggle("hidden", !visible);
+    this._isVisible = visible;
   }
-  habilitar() {
-    se (this.div) {
-      este.div.tabIndex = 0;
+  enable() {
+    if (this.div) {
+      this.div.tabIndex = 0;
     }
-    isto.#desativado = falso;
+    this.#disabled = false;
   }
-  desabilitar() {
-    se (this.div) {
-      este.div.tabIndex = -1;
+  disable() {
+    if (this.div) {
+      this.div.tabIndex = -1;
     }
-    isto.#desativado = verdadeiro;
+    this.#disabled = true;
   }
-  renderAnnotationElement(anotação) {
-    deixe conteúdo = annotation.container.querySelector(".annotationContent");
-    se (!conteúdo) {
-      conteúdo = document.createElement("div");
+  renderAnnotationElement(annotation) {
+    let content = annotation.container.querySelector(".annotationContent");
+    if (!content) {
+      content = document.createElement("div");
       content.classList.add("annotationContent", this.editorType);
       annotation.container.prepend(content);
     } else if (content.nodeName === "CANVAS") {
