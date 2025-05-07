@@ -1,5565 +1,683 @@
 /**
- * @licstart The following is the entire license notice for the
- * JavaScript code in this page
+ * @licstart A seguir está o aviso de licença completo para o
+ * Código JavaScript nesta página
  *
- * Copyright 2024 Mozilla Foundation
+ * Copyright 2024 Fundação Mozilla
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licenciado sob a Licença Apache, Versão 2.0 (a "Licença");
+ * você não pode usar este arquivo exceto em conformidade com a Licença.
+ * Você pode obter uma cópia da Licença em
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * A menos que exigido pela lei aplicável ou acordado por escrito, o software
+ * distribuído sob a Licença é distribuído "NO ESTADO EM QUE SE ENCONTRA",
+ * SEM GARANTIAS OU CONDIÇÕES DE QUALQUER TIPO, expressas ou implícitas.
+ * Consulte a Licença para o idioma específico que rege as permissões e
+ * limitações sob a Licença.
  *
- * @licend The above is the entire license notice for the
- * JavaScript code in this page
+ * @licend O acima é o aviso de licença completo para o
+ * Código JavaScript nesta página
  */
 
-/******/ var __webpack_modules__ = ({
 
-/***/ 9306:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var isCallable = __webpack_require__(4901);
-var tryToString = __webpack_require__(6823);
-
-var $TypeError = TypeError;
-
-// `Assert: IsCallable(argument) is true`
-module.exports = function (argument) {
-  if (isCallable(argument)) return argument;
-  throw new $TypeError(tryToString(argument) + ' is not a function');
-};
-
-
-/***/ }),
-
-/***/ 3506:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var isPossiblePrototype = __webpack_require__(3925);
-
-var $String = String;
-var $TypeError = TypeError;
-
-module.exports = function (argument) {
-  if (isPossiblePrototype(argument)) return argument;
-  throw new $TypeError("Can't set " + $String(argument) + ' as a prototype');
-};
-
-
-/***/ }),
-
-/***/ 7080:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var has = (__webpack_require__(4402).has);
-
-// Perform ? RequireInternalSlot(M, [[SetData]])
-module.exports = function (it) {
-  has(it);
-  return it;
-};
-
-
-/***/ }),
-
-/***/ 679:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var isPrototypeOf = __webpack_require__(1625);
-
-var $TypeError = TypeError;
-
-module.exports = function (it, Prototype) {
-  if (isPrototypeOf(Prototype, it)) return it;
-  throw new $TypeError('Incorrect invocation');
-};
-
-
-/***/ }),
-
-/***/ 8551:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var isObject = __webpack_require__(34);
-
-var $String = String;
-var $TypeError = TypeError;
-
-// `Assert: Type(argument) is Object`
-module.exports = function (argument) {
-  if (isObject(argument)) return argument;
-  throw new $TypeError($String(argument) + ' is not an object');
-};
-
-
-/***/ }),
-
-/***/ 7811:
-/***/ ((module) => {
-
-
-// eslint-disable-next-line es/no-typed-arrays -- safe
-module.exports = typeof ArrayBuffer != 'undefined' && typeof DataView != 'undefined';
-
-
-/***/ }),
-
-/***/ 7394:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-var uncurryThisAccessor = __webpack_require__(6706);
-var classof = __webpack_require__(2195);
-
-var ArrayBuffer = globalThis.ArrayBuffer;
-var TypeError = globalThis.TypeError;
-
-// Includes
-// - Perform ? RequireInternalSlot(O, [[ArrayBufferData]]).
-// - If IsSharedArrayBuffer(O) is true, throw a TypeError exception.
-module.exports = ArrayBuffer && uncurryThisAccessor(ArrayBuffer.prototype, 'byteLength', 'get') || function (O) {
-  if (classof(O) !== 'ArrayBuffer') throw new TypeError('ArrayBuffer expected');
-  return O.byteLength;
-};
-
-
-/***/ }),
-
-/***/ 3238:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-var uncurryThis = __webpack_require__(7476);
-var arrayBufferByteLength = __webpack_require__(7394);
-
-var ArrayBuffer = globalThis.ArrayBuffer;
-var ArrayBufferPrototype = ArrayBuffer && ArrayBuffer.prototype;
-var slice = ArrayBufferPrototype && uncurryThis(ArrayBufferPrototype.slice);
-
-module.exports = function (O) {
-  if (arrayBufferByteLength(O) !== 0) return false;
-  if (!slice) return false;
-  try {
-    slice(O, 0, 0);
-    return false;
-  } catch (error) {
-    return true;
-  }
-};
-
-
-/***/ }),
-
-/***/ 5169:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var isDetached = __webpack_require__(3238);
-
-var $TypeError = TypeError;
-
-module.exports = function (it) {
-  if (isDetached(it)) throw new $TypeError('ArrayBuffer is detached');
-  return it;
-};
-
-
-/***/ }),
-
-/***/ 5636:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-var uncurryThis = __webpack_require__(9504);
-var uncurryThisAccessor = __webpack_require__(6706);
-var toIndex = __webpack_require__(7696);
-var notDetached = __webpack_require__(5169);
-var arrayBufferByteLength = __webpack_require__(7394);
-var detachTransferable = __webpack_require__(4483);
-var PROPER_STRUCTURED_CLONE_TRANSFER = __webpack_require__(1548);
-
-var structuredClone = globalThis.structuredClone;
-var ArrayBuffer = globalThis.ArrayBuffer;
-var DataView = globalThis.DataView;
-var min = Math.min;
-var ArrayBufferPrototype = ArrayBuffer.prototype;
-var DataViewPrototype = DataView.prototype;
-var slice = uncurryThis(ArrayBufferPrototype.slice);
-var isResizable = uncurryThisAccessor(ArrayBufferPrototype, 'resizable', 'get');
-var maxByteLength = uncurryThisAccessor(ArrayBufferPrototype, 'maxByteLength', 'get');
-var getInt8 = uncurryThis(DataViewPrototype.getInt8);
-var setInt8 = uncurryThis(DataViewPrototype.setInt8);
-
-module.exports = (PROPER_STRUCTURED_CLONE_TRANSFER || detachTransferable) && function (arrayBuffer, newLength, preserveResizability) {
-  var byteLength = arrayBufferByteLength(arrayBuffer);
-  var newByteLength = newLength === undefined ? byteLength : toIndex(newLength);
-  var fixedLength = !isResizable || !isResizable(arrayBuffer);
-  var newBuffer;
-  notDetached(arrayBuffer);
-  if (PROPER_STRUCTURED_CLONE_TRANSFER) {
-    arrayBuffer = structuredClone(arrayBuffer, { transfer: [arrayBuffer] });
-    if (byteLength === newByteLength && (preserveResizability || fixedLength)) return arrayBuffer;
-  }
-  if (byteLength >= newByteLength && (!preserveResizability || fixedLength)) {
-    newBuffer = slice(arrayBuffer, 0, newByteLength);
-  } else {
-    var options = preserveResizability && !fixedLength && maxByteLength ? { maxByteLength: maxByteLength(arrayBuffer) } : undefined;
-    newBuffer = new ArrayBuffer(newByteLength, options);
-    var a = new DataView(arrayBuffer);
-    var b = new DataView(newBuffer);
-    var copyLength = min(newByteLength, byteLength);
-    for (var i = 0; i < copyLength; i++) setInt8(b, i, getInt8(a, i));
-  }
-  if (!PROPER_STRUCTURED_CLONE_TRANSFER) detachTransferable(arrayBuffer);
-  return newBuffer;
-};
-
-
-/***/ }),
-
-/***/ 4644:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var NATIVE_ARRAY_BUFFER = __webpack_require__(7811);
-var DESCRIPTORS = __webpack_require__(3724);
-var globalThis = __webpack_require__(4576);
-var isCallable = __webpack_require__(4901);
-var isObject = __webpack_require__(34);
-var hasOwn = __webpack_require__(9297);
-var classof = __webpack_require__(6955);
-var tryToString = __webpack_require__(6823);
-var createNonEnumerableProperty = __webpack_require__(6699);
-var defineBuiltIn = __webpack_require__(6840);
-var defineBuiltInAccessor = __webpack_require__(2106);
-var isPrototypeOf = __webpack_require__(1625);
-var getPrototypeOf = __webpack_require__(2787);
-var setPrototypeOf = __webpack_require__(2967);
-var wellKnownSymbol = __webpack_require__(8227);
-var uid = __webpack_require__(3392);
-var InternalStateModule = __webpack_require__(1181);
-
-var enforceInternalState = InternalStateModule.enforce;
-var getInternalState = InternalStateModule.get;
-var Int8Array = globalThis.Int8Array;
-var Int8ArrayPrototype = Int8Array && Int8Array.prototype;
-var Uint8ClampedArray = globalThis.Uint8ClampedArray;
-var Uint8ClampedArrayPrototype = Uint8ClampedArray && Uint8ClampedArray.prototype;
-var TypedArray = Int8Array && getPrototypeOf(Int8Array);
-var TypedArrayPrototype = Int8ArrayPrototype && getPrototypeOf(Int8ArrayPrototype);
-var ObjectPrototype = Object.prototype;
-var TypeError = globalThis.TypeError;
-
-var TO_STRING_TAG = wellKnownSymbol('toStringTag');
-var TYPED_ARRAY_TAG = uid('TYPED_ARRAY_TAG');
-var TYPED_ARRAY_CONSTRUCTOR = 'TypedArrayConstructor';
-// Fixing native typed arrays in Opera Presto crashes the browser, see #595
-var NATIVE_ARRAY_BUFFER_VIEWS = NATIVE_ARRAY_BUFFER && !!setPrototypeOf && classof(globalThis.opera) !== 'Opera';
-var TYPED_ARRAY_TAG_REQUIRED = false;
-var NAME, Constructor, Prototype;
-
-var TypedArrayConstructorsList = {
-  Int8Array: 1,
-  Uint8Array: 1,
-  Uint8ClampedArray: 1,
-  Int16Array: 2,
-  Uint16Array: 2,
-  Int32Array: 4,
-  Uint32Array: 4,
-  Float32Array: 4,
-  Float64Array: 8
-};
-
-var BigIntArrayConstructorsList = {
-  BigInt64Array: 8,
-  BigUint64Array: 8
-};
-
-var isView = function isView(it) {
-  if (!isObject(it)) return false;
-  var klass = classof(it);
-  return klass === 'DataView'
-    || hasOwn(TypedArrayConstructorsList, klass)
-    || hasOwn(BigIntArrayConstructorsList, klass);
-};
-
-var getTypedArrayConstructor = function (it) {
-  var proto = getPrototypeOf(it);
-  if (!isObject(proto)) return;
-  var state = getInternalState(proto);
-  return (state && hasOwn(state, TYPED_ARRAY_CONSTRUCTOR)) ? state[TYPED_ARRAY_CONSTRUCTOR] : getTypedArrayConstructor(proto);
-};
-
-var isTypedArray = function (it) {
-  if (!isObject(it)) return false;
-  var klass = classof(it);
-  return hasOwn(TypedArrayConstructorsList, klass)
-    || hasOwn(BigIntArrayConstructorsList, klass);
-};
-
-var aTypedArray = function (it) {
-  if (isTypedArray(it)) return it;
-  throw new TypeError('Target is not a typed array');
-};
-
-var aTypedArrayConstructor = function (C) {
-  if (isCallable(C) && (!setPrototypeOf || isPrototypeOf(TypedArray, C))) return C;
-  throw new TypeError(tryToString(C) + ' is not a typed array constructor');
-};
-
-var exportTypedArrayMethod = function (KEY, property, forced, options) {
-  if (!DESCRIPTORS) return;
-  if (forced) for (var ARRAY in TypedArrayConstructorsList) {
-    var TypedArrayConstructor = globalThis[ARRAY];
-    if (TypedArrayConstructor && hasOwn(TypedArrayConstructor.prototype, KEY)) try {
-      delete TypedArrayConstructor.prototype[KEY];
-    } catch (error) {
-      // old WebKit bug - some methods are non-configurable
-      try {
-        TypedArrayConstructor.prototype[KEY] = property;
-      } catch (error2) { /* empty */ }
-    }
-  }
-  if (!TypedArrayPrototype[KEY] || forced) {
-    defineBuiltIn(TypedArrayPrototype, KEY, forced ? property
-      : NATIVE_ARRAY_BUFFER_VIEWS && Int8ArrayPrototype[KEY] || property, options);
-  }
-};
-
-var exportTypedArrayStaticMethod = function (KEY, property, forced) {
-  var ARRAY, TypedArrayConstructor;
-  if (!DESCRIPTORS) return;
-  if (setPrototypeOf) {
-    if (forced) for (ARRAY in TypedArrayConstructorsList) {
-      TypedArrayConstructor = globalThis[ARRAY];
-      if (TypedArrayConstructor && hasOwn(TypedArrayConstructor, KEY)) try {
-        delete TypedArrayConstructor[KEY];
-      } catch (error) { /* empty */ }
-    }
-    if (!TypedArray[KEY] || forced) {
-      // V8 ~ Chrome 49-50 `%TypedArray%` methods are non-writable non-configurable
-      try {
-        return defineBuiltIn(TypedArray, KEY, forced ? property : NATIVE_ARRAY_BUFFER_VIEWS && TypedArray[KEY] || property);
-      } catch (error) { /* empty */ }
-    } else return;
-  }
-  for (ARRAY in TypedArrayConstructorsList) {
-    TypedArrayConstructor = globalThis[ARRAY];
-    if (TypedArrayConstructor && (!TypedArrayConstructor[KEY] || forced)) {
-      defineBuiltIn(TypedArrayConstructor, KEY, property);
-    }
-  }
-};
-
-for (NAME in TypedArrayConstructorsList) {
-  Constructor = globalThis[NAME];
-  Prototype = Constructor && Constructor.prototype;
-  if (Prototype) enforceInternalState(Prototype)[TYPED_ARRAY_CONSTRUCTOR] = Constructor;
-  else NATIVE_ARRAY_BUFFER_VIEWS = false;
-}
-
-for (NAME in BigIntArrayConstructorsList) {
-  Constructor = globalThis[NAME];
-  Prototype = Constructor && Constructor.prototype;
-  if (Prototype) enforceInternalState(Prototype)[TYPED_ARRAY_CONSTRUCTOR] = Constructor;
-}
-
-// WebKit bug - typed arrays constructors prototype is Object.prototype
-if (!NATIVE_ARRAY_BUFFER_VIEWS || !isCallable(TypedArray) || TypedArray === Function.prototype) {
-  // eslint-disable-next-line no-shadow -- safe
-  TypedArray = function TypedArray() {
-    throw new TypeError('Incorrect invocation');
-  };
-  if (NATIVE_ARRAY_BUFFER_VIEWS) for (NAME in TypedArrayConstructorsList) {
-    if (globalThis[NAME]) setPrototypeOf(globalThis[NAME], TypedArray);
-  }
-}
-
-if (!NATIVE_ARRAY_BUFFER_VIEWS || !TypedArrayPrototype || TypedArrayPrototype === ObjectPrototype) {
-  TypedArrayPrototype = TypedArray.prototype;
-  if (NATIVE_ARRAY_BUFFER_VIEWS) for (NAME in TypedArrayConstructorsList) {
-    if (globalThis[NAME]) setPrototypeOf(globalThis[NAME].prototype, TypedArrayPrototype);
-  }
-}
-
-// WebKit bug - one more object in Uint8ClampedArray prototype chain
-if (NATIVE_ARRAY_BUFFER_VIEWS && getPrototypeOf(Uint8ClampedArrayPrototype) !== TypedArrayPrototype) {
-  setPrototypeOf(Uint8ClampedArrayPrototype, TypedArrayPrototype);
-}
-
-if (DESCRIPTORS && !hasOwn(TypedArrayPrototype, TO_STRING_TAG)) {
-  TYPED_ARRAY_TAG_REQUIRED = true;
-  defineBuiltInAccessor(TypedArrayPrototype, TO_STRING_TAG, {
-    configurable: true,
-    get: function () {
-      return isObject(this) ? this[TYPED_ARRAY_TAG] : undefined;
-    }
-  });
-  for (NAME in TypedArrayConstructorsList) if (globalThis[NAME]) {
-    createNonEnumerableProperty(globalThis[NAME], TYPED_ARRAY_TAG, NAME);
-  }
-}
-
-module.exports = {
-  NATIVE_ARRAY_BUFFER_VIEWS: NATIVE_ARRAY_BUFFER_VIEWS,
-  TYPED_ARRAY_TAG: TYPED_ARRAY_TAG_REQUIRED && TYPED_ARRAY_TAG,
-  aTypedArray: aTypedArray,
-  aTypedArrayConstructor: aTypedArrayConstructor,
-  exportTypedArrayMethod: exportTypedArrayMethod,
-  exportTypedArrayStaticMethod: exportTypedArrayStaticMethod,
-  getTypedArrayConstructor: getTypedArrayConstructor,
-  isView: isView,
-  isTypedArray: isTypedArray,
-  TypedArray: TypedArray,
-  TypedArrayPrototype: TypedArrayPrototype
-};
-
-
-/***/ }),
-
-/***/ 5370:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var lengthOfArrayLike = __webpack_require__(6198);
-
-module.exports = function (Constructor, list, $length) {
-  var index = 0;
-  var length = arguments.length > 2 ? $length : lengthOfArrayLike(list);
-  var result = new Constructor(length);
-  while (length > index) result[index] = list[index++];
-  return result;
-};
-
-
-/***/ }),
-
-/***/ 9617:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var toIndexedObject = __webpack_require__(5397);
-var toAbsoluteIndex = __webpack_require__(5610);
-var lengthOfArrayLike = __webpack_require__(6198);
-
-// `Array.prototype.{ indexOf, includes }` methods implementation
-var createMethod = function (IS_INCLUDES) {
-  return function ($this, el, fromIndex) {
-    var O = toIndexedObject($this);
-    var length = lengthOfArrayLike(O);
-    if (length === 0) return !IS_INCLUDES && -1;
-    var index = toAbsoluteIndex(fromIndex, length);
-    var value;
-    // Array#includes uses SameValueZero equality algorithm
-    // eslint-disable-next-line no-self-compare -- NaN check
-    if (IS_INCLUDES && el !== el) while (length > index) {
-      value = O[index++];
-      // eslint-disable-next-line no-self-compare -- NaN check
-      if (value !== value) return true;
-    // Array#indexOf ignores holes, Array#includes - not
-    } else for (;length > index; index++) {
-      if ((IS_INCLUDES || index in O) && O[index] === el) return IS_INCLUDES || index || 0;
-    } return !IS_INCLUDES && -1;
-  };
-};
-
-module.exports = {
-  // `Array.prototype.includes` method
-  // https://tc39.es/ecma262/#sec-array.prototype.includes
-  includes: createMethod(true),
-  // `Array.prototype.indexOf` method
-  // https://tc39.es/ecma262/#sec-array.prototype.indexof
-  indexOf: createMethod(false)
-};
-
-
-/***/ }),
-
-/***/ 4527:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var DESCRIPTORS = __webpack_require__(3724);
-var isArray = __webpack_require__(4376);
-
-var $TypeError = TypeError;
-// eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
-var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-
-// Safari < 13 does not throw an error in this case
-var SILENT_ON_NON_WRITABLE_LENGTH_SET = DESCRIPTORS && !function () {
-  // makes no sense without proper strict mode support
-  if (this !== undefined) return true;
-  try {
-    // eslint-disable-next-line es/no-object-defineproperty -- safe
-    Object.defineProperty([], 'length', { writable: false }).length = 1;
-  } catch (error) {
-    return error instanceof TypeError;
-  }
-}();
-
-module.exports = SILENT_ON_NON_WRITABLE_LENGTH_SET ? function (O, length) {
-  if (isArray(O) && !getOwnPropertyDescriptor(O, 'length').writable) {
-    throw new $TypeError('Cannot set read only .length');
-  } return O.length = length;
-} : function (O, length) {
-  return O.length = length;
-};
-
-
-/***/ }),
-
-/***/ 7680:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-
-module.exports = uncurryThis([].slice);
-
-
-/***/ }),
-
-/***/ 7628:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var lengthOfArrayLike = __webpack_require__(6198);
-
-// https://tc39.es/proposal-change-array-by-copy/#sec-array.prototype.toReversed
-// https://tc39.es/proposal-change-array-by-copy/#sec-%typedarray%.prototype.toReversed
-module.exports = function (O, C) {
-  var len = lengthOfArrayLike(O);
-  var A = new C(len);
-  var k = 0;
-  for (; k < len; k++) A[k] = O[len - k - 1];
-  return A;
-};
-
-
-/***/ }),
-
-/***/ 9928:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var lengthOfArrayLike = __webpack_require__(6198);
-var toIntegerOrInfinity = __webpack_require__(1291);
-
-var $RangeError = RangeError;
-
-// https://tc39.es/proposal-change-array-by-copy/#sec-array.prototype.with
-// https://tc39.es/proposal-change-array-by-copy/#sec-%typedarray%.prototype.with
-module.exports = function (O, C, index, value) {
-  var len = lengthOfArrayLike(O);
-  var relativeIndex = toIntegerOrInfinity(index);
-  var actualIndex = relativeIndex < 0 ? len + relativeIndex : relativeIndex;
-  if (actualIndex >= len || actualIndex < 0) throw new $RangeError('Incorrect index');
-  var A = new C(len);
-  var k = 0;
-  for (; k < len; k++) A[k] = k === actualIndex ? value : O[k];
-  return A;
-};
-
-
-/***/ }),
-
-/***/ 6319:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var anObject = __webpack_require__(8551);
-var iteratorClose = __webpack_require__(9539);
-
-// call something on iterator step with safe closing on error
-module.exports = function (iterator, fn, value, ENTRIES) {
-  try {
-    return ENTRIES ? fn(anObject(value)[0], value[1]) : fn(value);
-  } catch (error) {
-    iteratorClose(iterator, 'throw', error);
-  }
-};
-
-
-/***/ }),
-
-/***/ 2195:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-
-var toString = uncurryThis({}.toString);
-var stringSlice = uncurryThis(''.slice);
-
-module.exports = function (it) {
-  return stringSlice(toString(it), 8, -1);
-};
-
-
-/***/ }),
-
-/***/ 6955:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var TO_STRING_TAG_SUPPORT = __webpack_require__(2140);
-var isCallable = __webpack_require__(4901);
-var classofRaw = __webpack_require__(2195);
-var wellKnownSymbol = __webpack_require__(8227);
-
-var TO_STRING_TAG = wellKnownSymbol('toStringTag');
-var $Object = Object;
-
-// ES3 wrong here
-var CORRECT_ARGUMENTS = classofRaw(function () { return arguments; }()) === 'Arguments';
-
-// fallback for IE11 Script Access Denied error
-var tryGet = function (it, key) {
-  try {
-    return it[key];
-  } catch (error) { /* empty */ }
-};
-
-// getting tag from ES6+ `Object.prototype.toString`
-module.exports = TO_STRING_TAG_SUPPORT ? classofRaw : function (it) {
-  var O, tag, result;
-  return it === undefined ? 'Undefined' : it === null ? 'Null'
-    // @@toStringTag case
-    : typeof (tag = tryGet(O = $Object(it), TO_STRING_TAG)) == 'string' ? tag
-    // builtinTag case
-    : CORRECT_ARGUMENTS ? classofRaw(O)
-    // ES3 arguments fallback
-    : (result = classofRaw(O)) === 'Object' && isCallable(O.callee) ? 'Arguments' : result;
-};
-
-
-/***/ }),
-
-/***/ 7740:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var hasOwn = __webpack_require__(9297);
-var ownKeys = __webpack_require__(5031);
-var getOwnPropertyDescriptorModule = __webpack_require__(7347);
-var definePropertyModule = __webpack_require__(4913);
-
-module.exports = function (target, source, exceptions) {
-  var keys = ownKeys(source);
-  var defineProperty = definePropertyModule.f;
-  var getOwnPropertyDescriptor = getOwnPropertyDescriptorModule.f;
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
-    if (!hasOwn(target, key) && !(exceptions && hasOwn(exceptions, key))) {
-      defineProperty(target, key, getOwnPropertyDescriptor(source, key));
-    }
-  }
-};
-
-
-/***/ }),
-
-/***/ 2211:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var fails = __webpack_require__(9039);
-
-module.exports = !fails(function () {
-  function F() { /* empty */ }
-  F.prototype.constructor = null;
-  // eslint-disable-next-line es/no-object-getprototypeof -- required for testing
-  return Object.getPrototypeOf(new F()) !== F.prototype;
-});
-
-
-/***/ }),
-
-/***/ 2529:
-/***/ ((module) => {
-
-
-// `CreateIterResultObject` abstract operation
-// https://tc39.es/ecma262/#sec-createiterresultobject
-module.exports = function (value, done) {
-  return { value: value, done: done };
-};
-
-
-/***/ }),
-
-/***/ 6699:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var DESCRIPTORS = __webpack_require__(3724);
-var definePropertyModule = __webpack_require__(4913);
-var createPropertyDescriptor = __webpack_require__(6980);
-
-module.exports = DESCRIPTORS ? function (object, key, value) {
-  return definePropertyModule.f(object, key, createPropertyDescriptor(1, value));
-} : function (object, key, value) {
-  object[key] = value;
-  return object;
-};
-
-
-/***/ }),
-
-/***/ 6980:
-/***/ ((module) => {
-
-
-module.exports = function (bitmap, value) {
-  return {
-    enumerable: !(bitmap & 1),
-    configurable: !(bitmap & 2),
-    writable: !(bitmap & 4),
-    value: value
-  };
-};
-
-
-/***/ }),
-
-/***/ 4659:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var DESCRIPTORS = __webpack_require__(3724);
-var definePropertyModule = __webpack_require__(4913);
-var createPropertyDescriptor = __webpack_require__(6980);
-
-module.exports = function (object, key, value) {
-  if (DESCRIPTORS) definePropertyModule.f(object, key, createPropertyDescriptor(0, value));
-  else object[key] = value;
-};
-
-
-/***/ }),
-
-/***/ 2106:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var makeBuiltIn = __webpack_require__(283);
-var defineProperty = __webpack_require__(4913);
-
-module.exports = function (target, name, descriptor) {
-  if (descriptor.get) makeBuiltIn(descriptor.get, name, { getter: true });
-  if (descriptor.set) makeBuiltIn(descriptor.set, name, { setter: true });
-  return defineProperty.f(target, name, descriptor);
-};
-
-
-/***/ }),
-
-/***/ 6840:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var isCallable = __webpack_require__(4901);
-var definePropertyModule = __webpack_require__(4913);
-var makeBuiltIn = __webpack_require__(283);
-var defineGlobalProperty = __webpack_require__(9433);
-
-module.exports = function (O, key, value, options) {
-  if (!options) options = {};
-  var simple = options.enumerable;
-  var name = options.name !== undefined ? options.name : key;
-  if (isCallable(value)) makeBuiltIn(value, name, options);
-  if (options.global) {
-    if (simple) O[key] = value;
-    else defineGlobalProperty(key, value);
-  } else {
-    try {
-      if (!options.unsafe) delete O[key];
-      else if (O[key]) simple = true;
-    } catch (error) { /* empty */ }
-    if (simple) O[key] = value;
-    else definePropertyModule.f(O, key, {
-      value: value,
-      enumerable: false,
-      configurable: !options.nonConfigurable,
-      writable: !options.nonWritable
-    });
-  } return O;
-};
-
-
-/***/ }),
-
-/***/ 6279:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var defineBuiltIn = __webpack_require__(6840);
-
-module.exports = function (target, src, options) {
-  for (var key in src) defineBuiltIn(target, key, src[key], options);
-  return target;
-};
-
-
-/***/ }),
-
-/***/ 9433:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-
-// eslint-disable-next-line es/no-object-defineproperty -- safe
-var defineProperty = Object.defineProperty;
-
-module.exports = function (key, value) {
-  try {
-    defineProperty(globalThis, key, { value: value, configurable: true, writable: true });
-  } catch (error) {
-    globalThis[key] = value;
-  } return value;
-};
-
-
-/***/ }),
-
-/***/ 3724:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var fails = __webpack_require__(9039);
-
-// Detect IE8's incomplete defineProperty implementation
-module.exports = !fails(function () {
-  // eslint-disable-next-line es/no-object-defineproperty -- required for testing
-  return Object.defineProperty({}, 1, { get: function () { return 7; } })[1] !== 7;
-});
-
-
-/***/ }),
-
-/***/ 4483:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-var getBuiltInNodeModule = __webpack_require__(9429);
-var PROPER_STRUCTURED_CLONE_TRANSFER = __webpack_require__(1548);
-
-var structuredClone = globalThis.structuredClone;
-var $ArrayBuffer = globalThis.ArrayBuffer;
-var $MessageChannel = globalThis.MessageChannel;
-var detach = false;
-var WorkerThreads, channel, buffer, $detach;
-
-if (PROPER_STRUCTURED_CLONE_TRANSFER) {
-  detach = function (transferable) {
-    structuredClone(transferable, { transfer: [transferable] });
-  };
-} else if ($ArrayBuffer) try {
-  if (!$MessageChannel) {
-    WorkerThreads = getBuiltInNodeModule('worker_threads');
-    if (WorkerThreads) $MessageChannel = WorkerThreads.MessageChannel;
-  }
-
-  if ($MessageChannel) {
-    channel = new $MessageChannel();
-    buffer = new $ArrayBuffer(2);
-
-    $detach = function (transferable) {
-      channel.port1.postMessage(null, [transferable]);
-    };
-
-    if (buffer.byteLength === 2) {
-      $detach(buffer);
-      if (buffer.byteLength === 0) detach = $detach;
-    }
-  }
-} catch (error) { /* empty */ }
-
-module.exports = detach;
-
-
-/***/ }),
-
-/***/ 4055:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-var isObject = __webpack_require__(34);
-
-var document = globalThis.document;
-// typeof document.createElement is 'object' in old IE
-var EXISTS = isObject(document) && isObject(document.createElement);
-
-module.exports = function (it) {
-  return EXISTS ? document.createElement(it) : {};
-};
-
-
-/***/ }),
-
-/***/ 6837:
-/***/ ((module) => {
-
-
-var $TypeError = TypeError;
-var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF; // 2 ** 53 - 1 == 9007199254740991
-
-module.exports = function (it) {
-  if (it > MAX_SAFE_INTEGER) throw $TypeError('Maximum allowed index exceeded');
-  return it;
-};
-
-
-/***/ }),
-
-/***/ 5002:
-/***/ ((module) => {
-
-
-module.exports = {
-  IndexSizeError: { s: 'INDEX_SIZE_ERR', c: 1, m: 1 },
-  DOMStringSizeError: { s: 'DOMSTRING_SIZE_ERR', c: 2, m: 0 },
-  HierarchyRequestError: { s: 'HIERARCHY_REQUEST_ERR', c: 3, m: 1 },
-  WrongDocumentError: { s: 'WRONG_DOCUMENT_ERR', c: 4, m: 1 },
-  InvalidCharacterError: { s: 'INVALID_CHARACTER_ERR', c: 5, m: 1 },
-  NoDataAllowedError: { s: 'NO_DATA_ALLOWED_ERR', c: 6, m: 0 },
-  NoModificationAllowedError: { s: 'NO_MODIFICATION_ALLOWED_ERR', c: 7, m: 1 },
-  NotFoundError: { s: 'NOT_FOUND_ERR', c: 8, m: 1 },
-  NotSupportedError: { s: 'NOT_SUPPORTED_ERR', c: 9, m: 1 },
-  InUseAttributeError: { s: 'INUSE_ATTRIBUTE_ERR', c: 10, m: 1 },
-  InvalidStateError: { s: 'INVALID_STATE_ERR', c: 11, m: 1 },
-  SyntaxError: { s: 'SYNTAX_ERR', c: 12, m: 1 },
-  InvalidModificationError: { s: 'INVALID_MODIFICATION_ERR', c: 13, m: 1 },
-  NamespaceError: { s: 'NAMESPACE_ERR', c: 14, m: 1 },
-  InvalidAccessError: { s: 'INVALID_ACCESS_ERR', c: 15, m: 1 },
-  ValidationError: { s: 'VALIDATION_ERR', c: 16, m: 0 },
-  TypeMismatchError: { s: 'TYPE_MISMATCH_ERR', c: 17, m: 1 },
-  SecurityError: { s: 'SECURITY_ERR', c: 18, m: 1 },
-  NetworkError: { s: 'NETWORK_ERR', c: 19, m: 1 },
-  AbortError: { s: 'ABORT_ERR', c: 20, m: 1 },
-  URLMismatchError: { s: 'URL_MISMATCH_ERR', c: 21, m: 1 },
-  QuotaExceededError: { s: 'QUOTA_EXCEEDED_ERR', c: 22, m: 1 },
-  TimeoutError: { s: 'TIMEOUT_ERR', c: 23, m: 1 },
-  InvalidNodeTypeError: { s: 'INVALID_NODE_TYPE_ERR', c: 24, m: 1 },
-  DataCloneError: { s: 'DATA_CLONE_ERR', c: 25, m: 1 }
-};
-
-
-/***/ }),
-
-/***/ 8727:
-/***/ ((module) => {
-
-
-// IE8- don't enum bug keys
-module.exports = [
-  'constructor',
-  'hasOwnProperty',
-  'isPrototypeOf',
-  'propertyIsEnumerable',
-  'toLocaleString',
-  'toString',
-  'valueOf'
-];
-
-
-/***/ }),
-
-/***/ 6193:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var ENVIRONMENT = __webpack_require__(4215);
-
-module.exports = ENVIRONMENT === 'NODE';
-
-
-/***/ }),
-
-/***/ 2839:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-
-var navigator = globalThis.navigator;
-var userAgent = navigator && navigator.userAgent;
-
-module.exports = userAgent ? String(userAgent) : '';
-
-
-/***/ }),
-
-/***/ 9519:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-var userAgent = __webpack_require__(2839);
-
-var process = globalThis.process;
-var Deno = globalThis.Deno;
-var versions = process && process.versions || Deno && Deno.version;
-var v8 = versions && versions.v8;
-var match, version;
-
-if (v8) {
-  match = v8.split('.');
-  // in old Chrome, versions of V8 isn't V8 = Chrome / 10
-  // but their correct versions are not interesting for us
-  version = match[0] > 0 && match[0] < 4 ? 1 : +(match[0] + match[1]);
-}
-
-// BrowserFS NodeJS `process` polyfill incorrectly set `.v8` to `0.0`
-// so check `userAgent` even if `.v8` exists, but 0
-if (!version && userAgent) {
-  match = userAgent.match(/Edge\/(\d+)/);
-  if (!match || match[1] >= 74) {
-    match = userAgent.match(/Chrome\/(\d+)/);
-    if (match) version = +match[1];
-  }
-}
-
-module.exports = version;
-
-
-/***/ }),
-
-/***/ 4215:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-/* global Bun, Deno -- detection */
-var globalThis = __webpack_require__(4576);
-var userAgent = __webpack_require__(2839);
-var classof = __webpack_require__(2195);
-
-var userAgentStartsWith = function (string) {
-  return userAgent.slice(0, string.length) === string;
-};
-
-module.exports = (function () {
-  if (userAgentStartsWith('Bun/')) return 'BUN';
-  if (userAgentStartsWith('Cloudflare-Workers')) return 'CLOUDFLARE';
-  if (userAgentStartsWith('Deno/')) return 'DENO';
-  if (userAgentStartsWith('Node.js/')) return 'NODE';
-  if (globalThis.Bun && typeof Bun.version == 'string') return 'BUN';
-  if (globalThis.Deno && typeof Deno.version == 'object') return 'DENO';
-  if (classof(globalThis.process) === 'process') return 'NODE';
-  if (globalThis.window && globalThis.document) return 'BROWSER';
-  return 'REST';
-})();
-
-
-/***/ }),
-
-/***/ 8574:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-
-var $Error = Error;
-var replace = uncurryThis(''.replace);
-
-var TEST = (function (arg) { return String(new $Error(arg).stack); })('zxcasd');
-// eslint-disable-next-line redos/no-vulnerable, sonarjs/slow-regex -- safe
-var V8_OR_CHAKRA_STACK_ENTRY = /\n\s*at [^:]*:[^\n]*/;
-var IS_V8_OR_CHAKRA_STACK = V8_OR_CHAKRA_STACK_ENTRY.test(TEST);
-
-module.exports = function (stack, dropEntries) {
-  if (IS_V8_OR_CHAKRA_STACK && typeof stack == 'string' && !$Error.prepareStackTrace) {
-    while (dropEntries--) stack = replace(stack, V8_OR_CHAKRA_STACK_ENTRY, '');
-  } return stack;
-};
-
-
-/***/ }),
-
-/***/ 6518:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-var getOwnPropertyDescriptor = (__webpack_require__(7347).f);
-var createNonEnumerableProperty = __webpack_require__(6699);
-var defineBuiltIn = __webpack_require__(6840);
-var defineGlobalProperty = __webpack_require__(9433);
-var copyConstructorProperties = __webpack_require__(7740);
-var isForced = __webpack_require__(2796);
-
-/*
-  options.target         - name of the target object
-  options.global         - target is the global object
-  options.stat           - export as static methods of target
-  options.proto          - export as prototype methods of target
-  options.real           - real prototype method for the `pure` version
-  options.forced         - export even if the native feature is available
-  options.bind           - bind methods to the target, required for the `pure` version
-  options.wrap           - wrap constructors to preventing global pollution, required for the `pure` version
-  options.unsafe         - use the simple assignment of property instead of delete + defineProperty
-  options.sham           - add a flag to not completely full polyfills
-  options.enumerable     - export as enumerable property
-  options.dontCallGetSet - prevent calling a getter on target
-  options.name           - the .name of the function if it does not match the key
-*/
-module.exports = function (options, source) {
-  var TARGET = options.target;
-  var GLOBAL = options.global;
-  var STATIC = options.stat;
-  var FORCED, target, key, targetProperty, sourceProperty, descriptor;
-  if (GLOBAL) {
-    target = globalThis;
-  } else if (STATIC) {
-    target = globalThis[TARGET] || defineGlobalProperty(TARGET, {});
-  } else {
-    target = globalThis[TARGET] && globalThis[TARGET].prototype;
-  }
-  if (target) for (key in source) {
-    sourceProperty = source[key];
-    if (options.dontCallGetSet) {
-      descriptor = getOwnPropertyDescriptor(target, key);
-      targetProperty = descriptor && descriptor.value;
-    } else targetProperty = target[key];
-    FORCED = isForced(GLOBAL ? key : TARGET + (STATIC ? '.' : '#') + key, options.forced);
-    // contained in target
-    if (!FORCED && targetProperty !== undefined) {
-      if (typeof sourceProperty == typeof targetProperty) continue;
-      copyConstructorProperties(sourceProperty, targetProperty);
-    }
-    // add a flag to not completely full polyfills
-    if (options.sham || (targetProperty && targetProperty.sham)) {
-      createNonEnumerableProperty(sourceProperty, 'sham', true);
-    }
-    defineBuiltIn(target, key, sourceProperty, options);
-  }
-};
-
-
-/***/ }),
-
-/***/ 9039:
-/***/ ((module) => {
-
-
-module.exports = function (exec) {
-  try {
-    return !!exec();
-  } catch (error) {
-    return true;
-  }
-};
-
-
-/***/ }),
-
-/***/ 8745:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var NATIVE_BIND = __webpack_require__(616);
-
-var FunctionPrototype = Function.prototype;
-var apply = FunctionPrototype.apply;
-var call = FunctionPrototype.call;
-
-// eslint-disable-next-line es/no-reflect -- safe
-module.exports = typeof Reflect == 'object' && Reflect.apply || (NATIVE_BIND ? call.bind(apply) : function () {
-  return call.apply(apply, arguments);
-});
-
-
-/***/ }),
-
-/***/ 6080:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(7476);
-var aCallable = __webpack_require__(9306);
-var NATIVE_BIND = __webpack_require__(616);
-
-var bind = uncurryThis(uncurryThis.bind);
-
-// optional / simple context binding
-module.exports = function (fn, that) {
-  aCallable(fn);
-  return that === undefined ? fn : NATIVE_BIND ? bind(fn, that) : function (/* ...args */) {
-    return fn.apply(that, arguments);
-  };
-};
-
-
-/***/ }),
-
-/***/ 616:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var fails = __webpack_require__(9039);
-
-module.exports = !fails(function () {
-  // eslint-disable-next-line es/no-function-prototype-bind -- safe
-  var test = (function () { /* empty */ }).bind();
-  // eslint-disable-next-line no-prototype-builtins -- safe
-  return typeof test != 'function' || test.hasOwnProperty('prototype');
-});
-
-
-/***/ }),
-
-/***/ 9565:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var NATIVE_BIND = __webpack_require__(616);
-
-var call = Function.prototype.call;
-
-module.exports = NATIVE_BIND ? call.bind(call) : function () {
-  return call.apply(call, arguments);
-};
-
-
-/***/ }),
-
-/***/ 350:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var DESCRIPTORS = __webpack_require__(3724);
-var hasOwn = __webpack_require__(9297);
-
-var FunctionPrototype = Function.prototype;
-// eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
-var getDescriptor = DESCRIPTORS && Object.getOwnPropertyDescriptor;
-
-var EXISTS = hasOwn(FunctionPrototype, 'name');
-// additional protection from minified / mangled / dropped function names
-var PROPER = EXISTS && (function something() { /* empty */ }).name === 'something';
-var CONFIGURABLE = EXISTS && (!DESCRIPTORS || (DESCRIPTORS && getDescriptor(FunctionPrototype, 'name').configurable));
-
-module.exports = {
-  EXISTS: EXISTS,
-  PROPER: PROPER,
-  CONFIGURABLE: CONFIGURABLE
-};
-
-
-/***/ }),
-
-/***/ 6706:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-var aCallable = __webpack_require__(9306);
-
-module.exports = function (object, key, method) {
-  try {
-    // eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
-    return uncurryThis(aCallable(Object.getOwnPropertyDescriptor(object, key)[method]));
-  } catch (error) { /* empty */ }
-};
-
-
-/***/ }),
-
-/***/ 7476:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var classofRaw = __webpack_require__(2195);
-var uncurryThis = __webpack_require__(9504);
-
-module.exports = function (fn) {
-  // Nashorn bug:
-  //   https://github.com/zloirock/core-js/issues/1128
-  //   https://github.com/zloirock/core-js/issues/1130
-  if (classofRaw(fn) === 'Function') return uncurryThis(fn);
-};
-
-
-/***/ }),
-
-/***/ 9504:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var NATIVE_BIND = __webpack_require__(616);
-
-var FunctionPrototype = Function.prototype;
-var call = FunctionPrototype.call;
-var uncurryThisWithBind = NATIVE_BIND && FunctionPrototype.bind.bind(call, call);
-
-module.exports = NATIVE_BIND ? uncurryThisWithBind : function (fn) {
-  return function () {
-    return call.apply(fn, arguments);
-  };
-};
-
-
-/***/ }),
-
-/***/ 9429:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-var IS_NODE = __webpack_require__(6193);
-
-module.exports = function (name) {
-  if (IS_NODE) {
-    try {
-      return globalThis.process.getBuiltinModule(name);
-    } catch (error) { /* empty */ }
-    try {
-      // eslint-disable-next-line no-new-func -- safe
-      return Function('return require("' + name + '")')();
-    } catch (error) { /* empty */ }
-  }
-};
-
-
-/***/ }),
-
-/***/ 7751:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-var isCallable = __webpack_require__(4901);
-
-var aFunction = function (argument) {
-  return isCallable(argument) ? argument : undefined;
-};
-
-module.exports = function (namespace, method) {
-  return arguments.length < 2 ? aFunction(globalThis[namespace]) : globalThis[namespace] && globalThis[namespace][method];
-};
-
-
-/***/ }),
-
-/***/ 1767:
-/***/ ((module) => {
-
-
-// `GetIteratorDirect(obj)` abstract operation
-// https://tc39.es/proposal-iterator-helpers/#sec-getiteratordirect
-module.exports = function (obj) {
-  return {
-    iterator: obj,
-    next: obj.next,
-    done: false
-  };
-};
-
-
-/***/ }),
-
-/***/ 8646:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var call = __webpack_require__(9565);
-var anObject = __webpack_require__(8551);
-var getIteratorDirect = __webpack_require__(1767);
-var getIteratorMethod = __webpack_require__(851);
-
-module.exports = function (obj, stringHandling) {
-  if (!stringHandling || typeof obj !== 'string') anObject(obj);
-  var method = getIteratorMethod(obj);
-  return getIteratorDirect(anObject(method !== undefined ? call(method, obj) : obj));
-};
-
-
-/***/ }),
-
-/***/ 851:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var classof = __webpack_require__(6955);
-var getMethod = __webpack_require__(5966);
-var isNullOrUndefined = __webpack_require__(4117);
-var Iterators = __webpack_require__(6269);
-var wellKnownSymbol = __webpack_require__(8227);
-
-var ITERATOR = wellKnownSymbol('iterator');
-
-module.exports = function (it) {
-  if (!isNullOrUndefined(it)) return getMethod(it, ITERATOR)
-    || getMethod(it, '@@iterator')
-    || Iterators[classof(it)];
-};
-
-
-/***/ }),
-
-/***/ 81:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var call = __webpack_require__(9565);
-var aCallable = __webpack_require__(9306);
-var anObject = __webpack_require__(8551);
-var tryToString = __webpack_require__(6823);
-var getIteratorMethod = __webpack_require__(851);
-
-var $TypeError = TypeError;
-
-module.exports = function (argument, usingIterator) {
-  var iteratorMethod = arguments.length < 2 ? getIteratorMethod(argument) : usingIterator;
-  if (aCallable(iteratorMethod)) return anObject(call(iteratorMethod, argument));
-  throw new $TypeError(tryToString(argument) + ' is not iterable');
-};
-
-
-/***/ }),
-
-/***/ 5966:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var aCallable = __webpack_require__(9306);
-var isNullOrUndefined = __webpack_require__(4117);
-
-// `GetMethod` abstract operation
-// https://tc39.es/ecma262/#sec-getmethod
-module.exports = function (V, P) {
-  var func = V[P];
-  return isNullOrUndefined(func) ? undefined : aCallable(func);
-};
-
-
-/***/ }),
-
-/***/ 3789:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var aCallable = __webpack_require__(9306);
-var anObject = __webpack_require__(8551);
-var call = __webpack_require__(9565);
-var toIntegerOrInfinity = __webpack_require__(1291);
-var getIteratorDirect = __webpack_require__(1767);
-
-var INVALID_SIZE = 'Invalid size';
-var $RangeError = RangeError;
-var $TypeError = TypeError;
-var max = Math.max;
-
-var SetRecord = function (set, intSize) {
-  this.set = set;
-  this.size = max(intSize, 0);
-  this.has = aCallable(set.has);
-  this.keys = aCallable(set.keys);
-};
-
-SetRecord.prototype = {
-  getIterator: function () {
-    return getIteratorDirect(anObject(call(this.keys, this.set)));
-  },
-  includes: function (it) {
-    return call(this.has, this.set, it);
-  }
-};
-
-// `GetSetRecord` abstract operation
-// https://tc39.es/proposal-set-methods/#sec-getsetrecord
-module.exports = function (obj) {
-  anObject(obj);
-  var numSize = +obj.size;
-  // NOTE: If size is undefined, then numSize will be NaN
-  // eslint-disable-next-line no-self-compare -- NaN check
-  if (numSize !== numSize) throw new $TypeError(INVALID_SIZE);
-  var intSize = toIntegerOrInfinity(numSize);
-  if (intSize < 0) throw new $RangeError(INVALID_SIZE);
-  return new SetRecord(obj, intSize);
-};
-
-
-/***/ }),
-
-/***/ 4576:
-/***/ (function(module) {
-
-
-var check = function (it) {
-  return it && it.Math === Math && it;
-};
-
-// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
-module.exports =
-  // eslint-disable-next-line es/no-global-this -- safe
-  check(typeof globalThis == 'object' && globalThis) ||
-  check(typeof window == 'object' && window) ||
-  // eslint-disable-next-line no-restricted-globals -- safe
-  check(typeof self == 'object' && self) ||
-  check(typeof global == 'object' && global) ||
-  check(typeof this == 'object' && this) ||
-  // eslint-disable-next-line no-new-func -- fallback
-  (function () { return this; })() || Function('return this')();
-
-
-/***/ }),
-
-/***/ 9297:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-var toObject = __webpack_require__(8981);
-
-var hasOwnProperty = uncurryThis({}.hasOwnProperty);
-
-// `HasOwnProperty` abstract operation
-// https://tc39.es/ecma262/#sec-hasownproperty
-// eslint-disable-next-line es/no-object-hasown -- safe
-module.exports = Object.hasOwn || function hasOwn(it, key) {
-  return hasOwnProperty(toObject(it), key);
-};
-
-
-/***/ }),
-
-/***/ 421:
-/***/ ((module) => {
-
-
-module.exports = {};
-
-
-/***/ }),
-
-/***/ 397:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var getBuiltIn = __webpack_require__(7751);
-
-module.exports = getBuiltIn('document', 'documentElement');
-
-
-/***/ }),
-
-/***/ 5917:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var DESCRIPTORS = __webpack_require__(3724);
-var fails = __webpack_require__(9039);
-var createElement = __webpack_require__(4055);
-
-// Thanks to IE8 for its funny defineProperty
-module.exports = !DESCRIPTORS && !fails(function () {
-  // eslint-disable-next-line es/no-object-defineproperty -- required for testing
-  return Object.defineProperty(createElement('div'), 'a', {
-    get: function () { return 7; }
-  }).a !== 7;
-});
-
-
-/***/ }),
-
-/***/ 7055:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-var fails = __webpack_require__(9039);
-var classof = __webpack_require__(2195);
-
-var $Object = Object;
-var split = uncurryThis(''.split);
-
-// fallback for non-array-like ES3 and non-enumerable old V8 strings
-module.exports = fails(function () {
-  // throws an error in rhino, see https://github.com/mozilla/rhino/issues/346
-  // eslint-disable-next-line no-prototype-builtins -- safe
-  return !$Object('z').propertyIsEnumerable(0);
-}) ? function (it) {
-  return classof(it) === 'String' ? split(it, '') : $Object(it);
-} : $Object;
-
-
-/***/ }),
-
-/***/ 3167:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var isCallable = __webpack_require__(4901);
-var isObject = __webpack_require__(34);
-var setPrototypeOf = __webpack_require__(2967);
-
-// makes subclassing work correct for wrapped built-ins
-module.exports = function ($this, dummy, Wrapper) {
-  var NewTarget, NewTargetPrototype;
-  if (
-    // it can work only with native `setPrototypeOf`
-    setPrototypeOf &&
-    // we haven't completely correct pre-ES6 way for getting `new.target`, so use this
-    isCallable(NewTarget = dummy.constructor) &&
-    NewTarget !== Wrapper &&
-    isObject(NewTargetPrototype = NewTarget.prototype) &&
-    NewTargetPrototype !== Wrapper.prototype
-  ) setPrototypeOf($this, NewTargetPrototype);
-  return $this;
-};
-
-
-/***/ }),
-
-/***/ 3706:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-var isCallable = __webpack_require__(4901);
-var store = __webpack_require__(7629);
-
-var functionToString = uncurryThis(Function.toString);
-
-// this helper broken in `core-js@3.4.1-3.4.4`, so we can't use `shared` helper
-if (!isCallable(store.inspectSource)) {
-  store.inspectSource = function (it) {
-    return functionToString(it);
-  };
-}
-
-module.exports = store.inspectSource;
-
-
-/***/ }),
-
-/***/ 1181:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var NATIVE_WEAK_MAP = __webpack_require__(8622);
-var globalThis = __webpack_require__(4576);
-var isObject = __webpack_require__(34);
-var createNonEnumerableProperty = __webpack_require__(6699);
-var hasOwn = __webpack_require__(9297);
-var shared = __webpack_require__(7629);
-var sharedKey = __webpack_require__(6119);
-var hiddenKeys = __webpack_require__(421);
-
-var OBJECT_ALREADY_INITIALIZED = 'Object already initialized';
-var TypeError = globalThis.TypeError;
-var WeakMap = globalThis.WeakMap;
-var set, get, has;
-
-var enforce = function (it) {
-  return has(it) ? get(it) : set(it, {});
-};
-
-var getterFor = function (TYPE) {
-  return function (it) {
-    var state;
-    if (!isObject(it) || (state = get(it)).type !== TYPE) {
-      throw new TypeError('Incompatible receiver, ' + TYPE + ' required');
-    } return state;
-  };
-};
-
-if (NATIVE_WEAK_MAP || shared.state) {
-  var store = shared.state || (shared.state = new WeakMap());
-  /* eslint-disable no-self-assign -- prototype methods protection */
-  store.get = store.get;
-  store.has = store.has;
-  store.set = store.set;
-  /* eslint-enable no-self-assign -- prototype methods protection */
-  set = function (it, metadata) {
-    if (store.has(it)) throw new TypeError(OBJECT_ALREADY_INITIALIZED);
-    metadata.facade = it;
-    store.set(it, metadata);
-    return metadata;
-  };
-  get = function (it) {
-    return store.get(it) || {};
-  };
-  has = function (it) {
-    return store.has(it);
-  };
-} else {
-  var STATE = sharedKey('state');
-  hiddenKeys[STATE] = true;
-  set = function (it, metadata) {
-    if (hasOwn(it, STATE)) throw new TypeError(OBJECT_ALREADY_INITIALIZED);
-    metadata.facade = it;
-    createNonEnumerableProperty(it, STATE, metadata);
-    return metadata;
-  };
-  get = function (it) {
-    return hasOwn(it, STATE) ? it[STATE] : {};
-  };
-  has = function (it) {
-    return hasOwn(it, STATE);
-  };
-}
-
-module.exports = {
-  set: set,
-  get: get,
-  has: has,
-  enforce: enforce,
-  getterFor: getterFor
-};
-
-
-/***/ }),
-
-/***/ 4209:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var wellKnownSymbol = __webpack_require__(8227);
-var Iterators = __webpack_require__(6269);
-
-var ITERATOR = wellKnownSymbol('iterator');
-var ArrayPrototype = Array.prototype;
-
-// check on default Array iterator
-module.exports = function (it) {
-  return it !== undefined && (Iterators.Array === it || ArrayPrototype[ITERATOR] === it);
-};
-
-
-/***/ }),
-
-/***/ 4376:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var classof = __webpack_require__(2195);
-
-// `IsArray` abstract operation
-// https://tc39.es/ecma262/#sec-isarray
-// eslint-disable-next-line es/no-array-isarray -- safe
-module.exports = Array.isArray || function isArray(argument) {
-  return classof(argument) === 'Array';
-};
-
-
-/***/ }),
-
-/***/ 1108:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var classof = __webpack_require__(6955);
-
-module.exports = function (it) {
-  var klass = classof(it);
-  return klass === 'BigInt64Array' || klass === 'BigUint64Array';
-};
-
-
-/***/ }),
-
-/***/ 4901:
-/***/ ((module) => {
-
-
-// https://tc39.es/ecma262/#sec-IsHTMLDDA-internal-slot
-var documentAll = typeof document == 'object' && document.all;
-
-// `IsCallable` abstract operation
-// https://tc39.es/ecma262/#sec-iscallable
-// eslint-disable-next-line unicorn/no-typeof-undefined -- required for testing
-module.exports = typeof documentAll == 'undefined' && documentAll !== undefined ? function (argument) {
-  return typeof argument == 'function' || argument === documentAll;
-} : function (argument) {
-  return typeof argument == 'function';
-};
-
-
-/***/ }),
-
-/***/ 2796:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var fails = __webpack_require__(9039);
-var isCallable = __webpack_require__(4901);
-
-var replacement = /#|\.prototype\./;
-
-var isForced = function (feature, detection) {
-  var value = data[normalize(feature)];
-  return value === POLYFILL ? true
-    : value === NATIVE ? false
-    : isCallable(detection) ? fails(detection)
-    : !!detection;
-};
-
-var normalize = isForced.normalize = function (string) {
-  return String(string).replace(replacement, '.').toLowerCase();
-};
-
-var data = isForced.data = {};
-var NATIVE = isForced.NATIVE = 'N';
-var POLYFILL = isForced.POLYFILL = 'P';
-
-module.exports = isForced;
-
-
-/***/ }),
-
-/***/ 4117:
-/***/ ((module) => {
-
-
-// we can't use just `it == null` since of `document.all` special case
-// https://tc39.es/ecma262/#sec-IsHTMLDDA-internal-slot-aec
-module.exports = function (it) {
-  return it === null || it === undefined;
-};
-
-
-/***/ }),
-
-/***/ 34:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var isCallable = __webpack_require__(4901);
-
-module.exports = function (it) {
-  return typeof it == 'object' ? it !== null : isCallable(it);
-};
-
-
-/***/ }),
-
-/***/ 3925:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var isObject = __webpack_require__(34);
-
-module.exports = function (argument) {
-  return isObject(argument) || argument === null;
-};
-
-
-/***/ }),
-
-/***/ 6395:
-/***/ ((module) => {
-
-
-module.exports = false;
-
-
-/***/ }),
-
-/***/ 757:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var getBuiltIn = __webpack_require__(7751);
-var isCallable = __webpack_require__(4901);
-var isPrototypeOf = __webpack_require__(1625);
-var USE_SYMBOL_AS_UID = __webpack_require__(7040);
-
-var $Object = Object;
-
-module.exports = USE_SYMBOL_AS_UID ? function (it) {
-  return typeof it == 'symbol';
-} : function (it) {
-  var $Symbol = getBuiltIn('Symbol');
-  return isCallable($Symbol) && isPrototypeOf($Symbol.prototype, $Object(it));
-};
-
-
-/***/ }),
-
-/***/ 507:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var call = __webpack_require__(9565);
-
-module.exports = function (record, fn, ITERATOR_INSTEAD_OF_RECORD) {
-  var iterator = ITERATOR_INSTEAD_OF_RECORD ? record : record.iterator;
-  var next = record.next;
-  var step, result;
-  while (!(step = call(next, iterator)).done) {
-    result = fn(step.value);
-    if (result !== undefined) return result;
-  }
-};
-
-
-/***/ }),
-
-/***/ 2652:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var bind = __webpack_require__(6080);
-var call = __webpack_require__(9565);
-var anObject = __webpack_require__(8551);
-var tryToString = __webpack_require__(6823);
-var isArrayIteratorMethod = __webpack_require__(4209);
-var lengthOfArrayLike = __webpack_require__(6198);
-var isPrototypeOf = __webpack_require__(1625);
-var getIterator = __webpack_require__(81);
-var getIteratorMethod = __webpack_require__(851);
-var iteratorClose = __webpack_require__(9539);
-
-var $TypeError = TypeError;
-
-var Result = function (stopped, result) {
-  this.stopped = stopped;
-  this.result = result;
-};
-
-var ResultPrototype = Result.prototype;
-
-module.exports = function (iterable, unboundFunction, options) {
-  var that = options && options.that;
-  var AS_ENTRIES = !!(options && options.AS_ENTRIES);
-  var IS_RECORD = !!(options && options.IS_RECORD);
-  var IS_ITERATOR = !!(options && options.IS_ITERATOR);
-  var INTERRUPTED = !!(options && options.INTERRUPTED);
-  var fn = bind(unboundFunction, that);
-  var iterator, iterFn, index, length, result, next, step;
-
-  var stop = function (condition) {
-    if (iterator) iteratorClose(iterator, 'normal', condition);
-    return new Result(true, condition);
-  };
-
-  var callFn = function (value) {
-    if (AS_ENTRIES) {
-      anObject(value);
-      return INTERRUPTED ? fn(value[0], value[1], stop) : fn(value[0], value[1]);
-    } return INTERRUPTED ? fn(value, stop) : fn(value);
-  };
-
-  if (IS_RECORD) {
-    iterator = iterable.iterator;
-  } else if (IS_ITERATOR) {
-    iterator = iterable;
-  } else {
-    iterFn = getIteratorMethod(iterable);
-    if (!iterFn) throw new $TypeError(tryToString(iterable) + ' is not iterable');
-    // optimisation for array iterators
-    if (isArrayIteratorMethod(iterFn)) {
-      for (index = 0, length = lengthOfArrayLike(iterable); length > index; index++) {
-        result = callFn(iterable[index]);
-        if (result && isPrototypeOf(ResultPrototype, result)) return result;
-      } return new Result(false);
-    }
-    iterator = getIterator(iterable, iterFn);
-  }
-
-  next = IS_RECORD ? iterable.next : iterator.next;
-  while (!(step = call(next, iterator)).done) {
-    try {
-      result = callFn(step.value);
-    } catch (error) {
-      iteratorClose(iterator, 'throw', error);
-    }
-    if (typeof result == 'object' && result && isPrototypeOf(ResultPrototype, result)) return result;
-  } return new Result(false);
-};
-
-
-/***/ }),
-
-/***/ 9539:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var call = __webpack_require__(9565);
-var anObject = __webpack_require__(8551);
-var getMethod = __webpack_require__(5966);
-
-module.exports = function (iterator, kind, value) {
-  var innerResult, innerError;
-  anObject(iterator);
-  try {
-    innerResult = getMethod(iterator, 'return');
-    if (!innerResult) {
-      if (kind === 'throw') throw value;
-      return value;
-    }
-    innerResult = call(innerResult, iterator);
-  } catch (error) {
-    innerError = true;
-    innerResult = error;
-  }
-  if (kind === 'throw') throw value;
-  if (innerError) throw innerResult;
-  anObject(innerResult);
-  return value;
-};
-
-
-/***/ }),
-
-/***/ 9462:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var call = __webpack_require__(9565);
-var create = __webpack_require__(2360);
-var createNonEnumerableProperty = __webpack_require__(6699);
-var defineBuiltIns = __webpack_require__(6279);
-var wellKnownSymbol = __webpack_require__(8227);
-var InternalStateModule = __webpack_require__(1181);
-var getMethod = __webpack_require__(5966);
-var IteratorPrototype = (__webpack_require__(7657).IteratorPrototype);
-var createIterResultObject = __webpack_require__(2529);
-var iteratorClose = __webpack_require__(9539);
-
-var TO_STRING_TAG = wellKnownSymbol('toStringTag');
-var ITERATOR_HELPER = 'IteratorHelper';
-var WRAP_FOR_VALID_ITERATOR = 'WrapForValidIterator';
-var setInternalState = InternalStateModule.set;
-
-var createIteratorProxyPrototype = function (IS_ITERATOR) {
-  var getInternalState = InternalStateModule.getterFor(IS_ITERATOR ? WRAP_FOR_VALID_ITERATOR : ITERATOR_HELPER);
-
-  return defineBuiltIns(create(IteratorPrototype), {
-    next: function next() {
-      var state = getInternalState(this);
-      // for simplification:
-      //   for `%WrapForValidIteratorPrototype%.next` our `nextHandler` returns `IterResultObject`
-      //   for `%IteratorHelperPrototype%.next` - just a value
-      if (IS_ITERATOR) return state.nextHandler();
-      try {
-        var result = state.done ? undefined : state.nextHandler();
-        return createIterResultObject(result, state.done);
-      } catch (error) {
-        state.done = true;
-        throw error;
-      }
-    },
-    'return': function () {
-      var state = getInternalState(this);
-      var iterator = state.iterator;
-      state.done = true;
-      if (IS_ITERATOR) {
-        var returnMethod = getMethod(iterator, 'return');
-        return returnMethod ? call(returnMethod, iterator) : createIterResultObject(undefined, true);
-      }
-      if (state.inner) try {
-        iteratorClose(state.inner.iterator, 'normal');
-      } catch (error) {
-        return iteratorClose(iterator, 'throw', error);
-      }
-      if (iterator) iteratorClose(iterator, 'normal');
-      return createIterResultObject(undefined, true);
-    }
-  });
-};
-
-var WrapForValidIteratorPrototype = createIteratorProxyPrototype(true);
-var IteratorHelperPrototype = createIteratorProxyPrototype(false);
-
-createNonEnumerableProperty(IteratorHelperPrototype, TO_STRING_TAG, 'Iterator Helper');
-
-module.exports = function (nextHandler, IS_ITERATOR) {
-  var IteratorProxy = function Iterator(record, state) {
-    if (state) {
-      state.iterator = record.iterator;
-      state.next = record.next;
-    } else state = record;
-    state.type = IS_ITERATOR ? WRAP_FOR_VALID_ITERATOR : ITERATOR_HELPER;
-    state.nextHandler = nextHandler;
-    state.counter = 0;
-    state.done = false;
-    setInternalState(this, state);
-  };
-
-  IteratorProxy.prototype = IS_ITERATOR ? WrapForValidIteratorPrototype : IteratorHelperPrototype;
-
-  return IteratorProxy;
-};
-
-
-/***/ }),
-
-/***/ 713:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var call = __webpack_require__(9565);
-var aCallable = __webpack_require__(9306);
-var anObject = __webpack_require__(8551);
-var getIteratorDirect = __webpack_require__(1767);
-var createIteratorProxy = __webpack_require__(9462);
-var callWithSafeIterationClosing = __webpack_require__(6319);
-
-var IteratorProxy = createIteratorProxy(function () {
-  var iterator = this.iterator;
-  var result = anObject(call(this.next, iterator));
-  var done = this.done = !!result.done;
-  if (!done) return callWithSafeIterationClosing(iterator, this.mapper, [result.value, this.counter++], true);
-});
-
-// `Iterator.prototype.map` method
-// https://github.com/tc39/proposal-iterator-helpers
-module.exports = function map(mapper) {
-  anObject(this);
-  aCallable(mapper);
-  return new IteratorProxy(getIteratorDirect(this), {
-    mapper: mapper
-  });
-};
-
-
-/***/ }),
-
-/***/ 7657:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var fails = __webpack_require__(9039);
-var isCallable = __webpack_require__(4901);
-var isObject = __webpack_require__(34);
-var create = __webpack_require__(2360);
-var getPrototypeOf = __webpack_require__(2787);
-var defineBuiltIn = __webpack_require__(6840);
-var wellKnownSymbol = __webpack_require__(8227);
-var IS_PURE = __webpack_require__(6395);
-
-var ITERATOR = wellKnownSymbol('iterator');
-var BUGGY_SAFARI_ITERATORS = false;
-
-// `%IteratorPrototype%` object
-// https://tc39.es/ecma262/#sec-%iteratorprototype%-object
-var IteratorPrototype, PrototypeOfArrayIteratorPrototype, arrayIterator;
-
-/* eslint-disable es/no-array-prototype-keys -- safe */
-if ([].keys) {
-  arrayIterator = [].keys();
-  // Safari 8 has buggy iterators w/o `next`
-  if (!('next' in arrayIterator)) BUGGY_SAFARI_ITERATORS = true;
-  else {
-    PrototypeOfArrayIteratorPrototype = getPrototypeOf(getPrototypeOf(arrayIterator));
-    if (PrototypeOfArrayIteratorPrototype !== Object.prototype) IteratorPrototype = PrototypeOfArrayIteratorPrototype;
-  }
-}
-
-var NEW_ITERATOR_PROTOTYPE = !isObject(IteratorPrototype) || fails(function () {
-  var test = {};
-  // FF44- legacy iterators case
-  return IteratorPrototype[ITERATOR].call(test) !== test;
-});
-
-if (NEW_ITERATOR_PROTOTYPE) IteratorPrototype = {};
-else if (IS_PURE) IteratorPrototype = create(IteratorPrototype);
-
-// `%IteratorPrototype%[@@iterator]()` method
-// https://tc39.es/ecma262/#sec-%iteratorprototype%-@@iterator
-if (!isCallable(IteratorPrototype[ITERATOR])) {
-  defineBuiltIn(IteratorPrototype, ITERATOR, function () {
-    return this;
-  });
-}
-
-module.exports = {
-  IteratorPrototype: IteratorPrototype,
-  BUGGY_SAFARI_ITERATORS: BUGGY_SAFARI_ITERATORS
-};
-
-
-/***/ }),
-
-/***/ 6269:
-/***/ ((module) => {
-
-
-module.exports = {};
-
-
-/***/ }),
-
-/***/ 6198:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var toLength = __webpack_require__(8014);
-
-// `LengthOfArrayLike` abstract operation
-// https://tc39.es/ecma262/#sec-lengthofarraylike
-module.exports = function (obj) {
-  return toLength(obj.length);
-};
-
-
-/***/ }),
-
-/***/ 283:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-var fails = __webpack_require__(9039);
-var isCallable = __webpack_require__(4901);
-var hasOwn = __webpack_require__(9297);
-var DESCRIPTORS = __webpack_require__(3724);
-var CONFIGURABLE_FUNCTION_NAME = (__webpack_require__(350).CONFIGURABLE);
-var inspectSource = __webpack_require__(3706);
-var InternalStateModule = __webpack_require__(1181);
-
-var enforceInternalState = InternalStateModule.enforce;
-var getInternalState = InternalStateModule.get;
-var $String = String;
-// eslint-disable-next-line es/no-object-defineproperty -- safe
-var defineProperty = Object.defineProperty;
-var stringSlice = uncurryThis(''.slice);
-var replace = uncurryThis(''.replace);
-var join = uncurryThis([].join);
-
-var CONFIGURABLE_LENGTH = DESCRIPTORS && !fails(function () {
-  return defineProperty(function () { /* empty */ }, 'length', { value: 8 }).length !== 8;
-});
-
-var TEMPLATE = String(String).split('String');
-
-var makeBuiltIn = module.exports = function (value, name, options) {
-  if (stringSlice($String(name), 0, 7) === 'Symbol(') {
-    name = '[' + replace($String(name), /^Symbol\(([^)]*)\).*$/, '$1') + ']';
-  }
-  if (options && options.getter) name = 'get ' + name;
-  if (options && options.setter) name = 'set ' + name;
-  if (!hasOwn(value, 'name') || (CONFIGURABLE_FUNCTION_NAME && value.name !== name)) {
-    if (DESCRIPTORS) defineProperty(value, 'name', { value: name, configurable: true });
-    else value.name = name;
-  }
-  if (CONFIGURABLE_LENGTH && options && hasOwn(options, 'arity') && value.length !== options.arity) {
-    defineProperty(value, 'length', { value: options.arity });
-  }
-  try {
-    if (options && hasOwn(options, 'constructor') && options.constructor) {
-      if (DESCRIPTORS) defineProperty(value, 'prototype', { writable: false });
-    // in V8 ~ Chrome 53, prototypes of some methods, like `Array.prototype.values`, are non-writable
-    } else if (value.prototype) value.prototype = undefined;
-  } catch (error) { /* empty */ }
-  var state = enforceInternalState(value);
-  if (!hasOwn(state, 'source')) {
-    state.source = join(TEMPLATE, typeof name == 'string' ? name : '');
-  } return value;
-};
-
-// add fake Function#toString for correct work wrapped methods / constructors with methods like LoDash isNative
-// eslint-disable-next-line no-extend-native -- required
-Function.prototype.toString = makeBuiltIn(function toString() {
-  return isCallable(this) && getInternalState(this).source || inspectSource(this);
-}, 'toString');
-
-
-/***/ }),
-
-/***/ 741:
-/***/ ((module) => {
-
-
-var ceil = Math.ceil;
-var floor = Math.floor;
-
-// `Math.trunc` method
-// https://tc39.es/ecma262/#sec-math.trunc
-// eslint-disable-next-line es/no-math-trunc -- safe
-module.exports = Math.trunc || function trunc(x) {
-  var n = +x;
-  return (n > 0 ? floor : ceil)(n);
-};
-
-
-/***/ }),
-
-/***/ 6043:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var aCallable = __webpack_require__(9306);
-
-var $TypeError = TypeError;
-
-var PromiseCapability = function (C) {
-  var resolve, reject;
-  this.promise = new C(function ($$resolve, $$reject) {
-    if (resolve !== undefined || reject !== undefined) throw new $TypeError('Bad Promise constructor');
-    resolve = $$resolve;
-    reject = $$reject;
-  });
-  this.resolve = aCallable(resolve);
-  this.reject = aCallable(reject);
-};
-
-// `NewPromiseCapability` abstract operation
-// https://tc39.es/ecma262/#sec-newpromisecapability
-module.exports.f = function (C) {
-  return new PromiseCapability(C);
-};
-
-
-/***/ }),
-
-/***/ 2603:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var toString = __webpack_require__(655);
-
-module.exports = function (argument, $default) {
-  return argument === undefined ? arguments.length < 2 ? '' : $default : toString(argument);
-};
-
-
-/***/ }),
-
-/***/ 4149:
-/***/ ((module) => {
-
-
-var $RangeError = RangeError;
-
-module.exports = function (it) {
-  // eslint-disable-next-line no-self-compare -- NaN check
-  if (it === it) return it;
-  throw new $RangeError('NaN is not allowed');
-};
-
-
-/***/ }),
-
-/***/ 2360:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-/* global ActiveXObject -- old IE, WSH */
-var anObject = __webpack_require__(8551);
-var definePropertiesModule = __webpack_require__(6801);
-var enumBugKeys = __webpack_require__(8727);
-var hiddenKeys = __webpack_require__(421);
-var html = __webpack_require__(397);
-var documentCreateElement = __webpack_require__(4055);
-var sharedKey = __webpack_require__(6119);
-
-var GT = '>';
-var LT = '<';
-var PROTOTYPE = 'prototype';
-var SCRIPT = 'script';
-var IE_PROTO = sharedKey('IE_PROTO');
-
-var EmptyConstructor = function () { /* empty */ };
-
-var scriptTag = function (content) {
-  return LT + SCRIPT + GT + content + LT + '/' + SCRIPT + GT;
-};
-
-// Create object with fake `null` prototype: use ActiveX Object with cleared prototype
-var NullProtoObjectViaActiveX = function (activeXDocument) {
-  activeXDocument.write(scriptTag(''));
-  activeXDocument.close();
-  var temp = activeXDocument.parentWindow.Object;
-  // eslint-disable-next-line no-useless-assignment -- avoid memory leak
-  activeXDocument = null;
-  return temp;
-};
-
-// Create object with fake `null` prototype: use iframe Object with cleared prototype
-var NullProtoObjectViaIFrame = function () {
-  // Thrash, waste and sodomy: IE GC bug
-  var iframe = documentCreateElement('iframe');
-  var JS = 'java' + SCRIPT + ':';
-  var iframeDocument;
-  iframe.style.display = 'none';
-  html.appendChild(iframe);
-  // https://github.com/zloirock/core-js/issues/475
-  iframe.src = String(JS);
-  iframeDocument = iframe.contentWindow.document;
-  iframeDocument.open();
-  iframeDocument.write(scriptTag('document.F=Object'));
-  iframeDocument.close();
-  return iframeDocument.F;
-};
-
-// Check for document.domain and active x support
-// No need to use active x approach when document.domain is not set
-// see https://github.com/es-shims/es5-shim/issues/150
-// variation of https://github.com/kitcambridge/es5-shim/commit/4f738ac066346
-// avoid IE GC bug
-var activeXDocument;
-var NullProtoObject = function () {
-  try {
-    activeXDocument = new ActiveXObject('htmlfile');
-  } catch (error) { /* ignore */ }
-  NullProtoObject = typeof document != 'undefined'
-    ? document.domain && activeXDocument
-      ? NullProtoObjectViaActiveX(activeXDocument) // old IE
-      : NullProtoObjectViaIFrame()
-    : NullProtoObjectViaActiveX(activeXDocument); // WSH
-  var length = enumBugKeys.length;
-  while (length--) delete NullProtoObject[PROTOTYPE][enumBugKeys[length]];
-  return NullProtoObject();
-};
-
-hiddenKeys[IE_PROTO] = true;
-
-// `Object.create` method
-// https://tc39.es/ecma262/#sec-object.create
-// eslint-disable-next-line es/no-object-create -- safe
-module.exports = Object.create || function create(O, Properties) {
-  var result;
-  if (O !== null) {
-    EmptyConstructor[PROTOTYPE] = anObject(O);
-    result = new EmptyConstructor();
-    EmptyConstructor[PROTOTYPE] = null;
-    // add "__proto__" for Object.getPrototypeOf polyfill
-    result[IE_PROTO] = O;
-  } else result = NullProtoObject();
-  return Properties === undefined ? result : definePropertiesModule.f(result, Properties);
-};
-
-
-/***/ }),
-
-/***/ 6801:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-var DESCRIPTORS = __webpack_require__(3724);
-var V8_PROTOTYPE_DEFINE_BUG = __webpack_require__(8686);
-var definePropertyModule = __webpack_require__(4913);
-var anObject = __webpack_require__(8551);
-var toIndexedObject = __webpack_require__(5397);
-var objectKeys = __webpack_require__(1072);
-
-// `Object.defineProperties` method
-// https://tc39.es/ecma262/#sec-object.defineproperties
-// eslint-disable-next-line es/no-object-defineproperties -- safe
-exports.f = DESCRIPTORS && !V8_PROTOTYPE_DEFINE_BUG ? Object.defineProperties : function defineProperties(O, Properties) {
-  anObject(O);
-  var props = toIndexedObject(Properties);
-  var keys = objectKeys(Properties);
-  var length = keys.length;
-  var index = 0;
-  var key;
-  while (length > index) definePropertyModule.f(O, key = keys[index++], props[key]);
-  return O;
-};
-
-
-/***/ }),
-
-/***/ 4913:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-var DESCRIPTORS = __webpack_require__(3724);
-var IE8_DOM_DEFINE = __webpack_require__(5917);
-var V8_PROTOTYPE_DEFINE_BUG = __webpack_require__(8686);
-var anObject = __webpack_require__(8551);
-var toPropertyKey = __webpack_require__(6969);
-
-var $TypeError = TypeError;
-// eslint-disable-next-line es/no-object-defineproperty -- safe
-var $defineProperty = Object.defineProperty;
-// eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
-var $getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-var ENUMERABLE = 'enumerable';
-var CONFIGURABLE = 'configurable';
-var WRITABLE = 'writable';
-
-// `Object.defineProperty` method
-// https://tc39.es/ecma262/#sec-object.defineproperty
-exports.f = DESCRIPTORS ? V8_PROTOTYPE_DEFINE_BUG ? function defineProperty(O, P, Attributes) {
-  anObject(O);
-  P = toPropertyKey(P);
-  anObject(Attributes);
-  if (typeof O === 'function' && P === 'prototype' && 'value' in Attributes && WRITABLE in Attributes && !Attributes[WRITABLE]) {
-    var current = $getOwnPropertyDescriptor(O, P);
-    if (current && current[WRITABLE]) {
-      O[P] = Attributes.value;
-      Attributes = {
-        configurable: CONFIGURABLE in Attributes ? Attributes[CONFIGURABLE] : current[CONFIGURABLE],
-        enumerable: ENUMERABLE in Attributes ? Attributes[ENUMERABLE] : current[ENUMERABLE],
-        writable: false
-      };
-    }
-  } return $defineProperty(O, P, Attributes);
-} : $defineProperty : function defineProperty(O, P, Attributes) {
-  anObject(O);
-  P = toPropertyKey(P);
-  anObject(Attributes);
-  if (IE8_DOM_DEFINE) try {
-    return $defineProperty(O, P, Attributes);
-  } catch (error) { /* empty */ }
-  if ('get' in Attributes || 'set' in Attributes) throw new $TypeError('Accessors not supported');
-  if ('value' in Attributes) O[P] = Attributes.value;
-  return O;
-};
-
-
-/***/ }),
-
-/***/ 7347:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-var DESCRIPTORS = __webpack_require__(3724);
-var call = __webpack_require__(9565);
-var propertyIsEnumerableModule = __webpack_require__(8773);
-var createPropertyDescriptor = __webpack_require__(6980);
-var toIndexedObject = __webpack_require__(5397);
-var toPropertyKey = __webpack_require__(6969);
-var hasOwn = __webpack_require__(9297);
-var IE8_DOM_DEFINE = __webpack_require__(5917);
-
-// eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
-var $getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-
-// `Object.getOwnPropertyDescriptor` method
-// https://tc39.es/ecma262/#sec-object.getownpropertydescriptor
-exports.f = DESCRIPTORS ? $getOwnPropertyDescriptor : function getOwnPropertyDescriptor(O, P) {
-  O = toIndexedObject(O);
-  P = toPropertyKey(P);
-  if (IE8_DOM_DEFINE) try {
-    return $getOwnPropertyDescriptor(O, P);
-  } catch (error) { /* empty */ }
-  if (hasOwn(O, P)) return createPropertyDescriptor(!call(propertyIsEnumerableModule.f, O, P), O[P]);
-};
-
-
-/***/ }),
-
-/***/ 8480:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-var internalObjectKeys = __webpack_require__(1828);
-var enumBugKeys = __webpack_require__(8727);
-
-var hiddenKeys = enumBugKeys.concat('length', 'prototype');
-
-// `Object.getOwnPropertyNames` method
-// https://tc39.es/ecma262/#sec-object.getownpropertynames
-// eslint-disable-next-line es/no-object-getownpropertynames -- safe
-exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
-  return internalObjectKeys(O, hiddenKeys);
-};
-
-
-/***/ }),
-
-/***/ 3717:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-// eslint-disable-next-line es/no-object-getownpropertysymbols -- safe
-exports.f = Object.getOwnPropertySymbols;
-
-
-/***/ }),
-
-/***/ 2787:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var hasOwn = __webpack_require__(9297);
-var isCallable = __webpack_require__(4901);
-var toObject = __webpack_require__(8981);
-var sharedKey = __webpack_require__(6119);
-var CORRECT_PROTOTYPE_GETTER = __webpack_require__(2211);
-
-var IE_PROTO = sharedKey('IE_PROTO');
-var $Object = Object;
-var ObjectPrototype = $Object.prototype;
-
-// `Object.getPrototypeOf` method
-// https://tc39.es/ecma262/#sec-object.getprototypeof
-// eslint-disable-next-line es/no-object-getprototypeof -- safe
-module.exports = CORRECT_PROTOTYPE_GETTER ? $Object.getPrototypeOf : function (O) {
-  var object = toObject(O);
-  if (hasOwn(object, IE_PROTO)) return object[IE_PROTO];
-  var constructor = object.constructor;
-  if (isCallable(constructor) && object instanceof constructor) {
-    return constructor.prototype;
-  } return object instanceof $Object ? ObjectPrototype : null;
-};
-
-
-/***/ }),
-
-/***/ 1625:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-
-module.exports = uncurryThis({}.isPrototypeOf);
-
-
-/***/ }),
-
-/***/ 1828:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-var hasOwn = __webpack_require__(9297);
-var toIndexedObject = __webpack_require__(5397);
-var indexOf = (__webpack_require__(9617).indexOf);
-var hiddenKeys = __webpack_require__(421);
-
-var push = uncurryThis([].push);
-
-module.exports = function (object, names) {
-  var O = toIndexedObject(object);
-  var i = 0;
-  var result = [];
-  var key;
-  for (key in O) !hasOwn(hiddenKeys, key) && hasOwn(O, key) && push(result, key);
-  // Don't enum bug & hidden keys
-  while (names.length > i) if (hasOwn(O, key = names[i++])) {
-    ~indexOf(result, key) || push(result, key);
-  }
-  return result;
-};
-
-
-/***/ }),
-
-/***/ 1072:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var internalObjectKeys = __webpack_require__(1828);
-var enumBugKeys = __webpack_require__(8727);
-
-// `Object.keys` method
-// https://tc39.es/ecma262/#sec-object.keys
-// eslint-disable-next-line es/no-object-keys -- safe
-module.exports = Object.keys || function keys(O) {
-  return internalObjectKeys(O, enumBugKeys);
-};
-
-
-/***/ }),
-
-/***/ 8773:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-var $propertyIsEnumerable = {}.propertyIsEnumerable;
-// eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
-var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-
-// Nashorn ~ JDK8 bug
-var NASHORN_BUG = getOwnPropertyDescriptor && !$propertyIsEnumerable.call({ 1: 2 }, 1);
-
-// `Object.prototype.propertyIsEnumerable` method implementation
-// https://tc39.es/ecma262/#sec-object.prototype.propertyisenumerable
-exports.f = NASHORN_BUG ? function propertyIsEnumerable(V) {
-  var descriptor = getOwnPropertyDescriptor(this, V);
-  return !!descriptor && descriptor.enumerable;
-} : $propertyIsEnumerable;
-
-
-/***/ }),
-
-/***/ 2967:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-/* eslint-disable no-proto -- safe */
-var uncurryThisAccessor = __webpack_require__(6706);
-var isObject = __webpack_require__(34);
-var requireObjectCoercible = __webpack_require__(7750);
-var aPossiblePrototype = __webpack_require__(3506);
-
-// `Object.setPrototypeOf` method
-// https://tc39.es/ecma262/#sec-object.setprototypeof
-// Works with __proto__ only. Old v8 can't work with null proto objects.
-// eslint-disable-next-line es/no-object-setprototypeof -- safe
-module.exports = Object.setPrototypeOf || ('__proto__' in {} ? function () {
-  var CORRECT_SETTER = false;
-  var test = {};
-  var setter;
-  try {
-    setter = uncurryThisAccessor(Object.prototype, '__proto__', 'set');
-    setter(test, []);
-    CORRECT_SETTER = test instanceof Array;
-  } catch (error) { /* empty */ }
-  return function setPrototypeOf(O, proto) {
-    requireObjectCoercible(O);
-    aPossiblePrototype(proto);
-    if (!isObject(O)) return O;
-    if (CORRECT_SETTER) setter(O, proto);
-    else O.__proto__ = proto;
-    return O;
-  };
-}() : undefined);
-
-
-/***/ }),
-
-/***/ 4270:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var call = __webpack_require__(9565);
-var isCallable = __webpack_require__(4901);
-var isObject = __webpack_require__(34);
-
-var $TypeError = TypeError;
-
-// `OrdinaryToPrimitive` abstract operation
-// https://tc39.es/ecma262/#sec-ordinarytoprimitive
-module.exports = function (input, pref) {
-  var fn, val;
-  if (pref === 'string' && isCallable(fn = input.toString) && !isObject(val = call(fn, input))) return val;
-  if (isCallable(fn = input.valueOf) && !isObject(val = call(fn, input))) return val;
-  if (pref !== 'string' && isCallable(fn = input.toString) && !isObject(val = call(fn, input))) return val;
-  throw new $TypeError("Can't convert object to primitive value");
-};
-
-
-/***/ }),
-
-/***/ 5031:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var getBuiltIn = __webpack_require__(7751);
-var uncurryThis = __webpack_require__(9504);
-var getOwnPropertyNamesModule = __webpack_require__(8480);
-var getOwnPropertySymbolsModule = __webpack_require__(3717);
-var anObject = __webpack_require__(8551);
-
-var concat = uncurryThis([].concat);
-
-// all object keys, includes non-enumerable and symbols
-module.exports = getBuiltIn('Reflect', 'ownKeys') || function ownKeys(it) {
-  var keys = getOwnPropertyNamesModule.f(anObject(it));
-  var getOwnPropertySymbols = getOwnPropertySymbolsModule.f;
-  return getOwnPropertySymbols ? concat(keys, getOwnPropertySymbols(it)) : keys;
-};
-
-
-/***/ }),
-
-/***/ 8235:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-var hasOwn = __webpack_require__(9297);
-
-var $SyntaxError = SyntaxError;
-var $parseInt = parseInt;
-var fromCharCode = String.fromCharCode;
-var at = uncurryThis(''.charAt);
-var slice = uncurryThis(''.slice);
-var exec = uncurryThis(/./.exec);
-
-var codePoints = {
-  '\\"': '"',
-  '\\\\': '\\',
-  '\\/': '/',
-  '\\b': '\b',
-  '\\f': '\f',
-  '\\n': '\n',
-  '\\r': '\r',
-  '\\t': '\t'
-};
-
-var IS_4_HEX_DIGITS = /^[\da-f]{4}$/i;
-// eslint-disable-next-line regexp/no-control-character -- safe
-var IS_C0_CONTROL_CODE = /^[\u0000-\u001F]$/;
-
-module.exports = function (source, i) {
-  var unterminated = true;
-  var value = '';
-  while (i < source.length) {
-    var chr = at(source, i);
-    if (chr === '\\') {
-      var twoChars = slice(source, i, i + 2);
-      if (hasOwn(codePoints, twoChars)) {
-        value += codePoints[twoChars];
-        i += 2;
-      } else if (twoChars === '\\u') {
-        i += 2;
-        var fourHexDigits = slice(source, i, i + 4);
-        if (!exec(IS_4_HEX_DIGITS, fourHexDigits)) throw new $SyntaxError('Bad Unicode escape at: ' + i);
-        value += fromCharCode($parseInt(fourHexDigits, 16));
-        i += 4;
-      } else throw new $SyntaxError('Unknown escape sequence: "' + twoChars + '"');
-    } else if (chr === '"') {
-      unterminated = false;
-      i++;
-      break;
-    } else {
-      if (exec(IS_C0_CONTROL_CODE, chr)) throw new $SyntaxError('Bad control character in string literal at: ' + i);
-      value += chr;
-      i++;
-    }
-  }
-  if (unterminated) throw new $SyntaxError('Unterminated string at: ' + i);
-  return { value: value, end: i };
-};
-
-
-/***/ }),
-
-/***/ 1103:
-/***/ ((module) => {
-
-
-module.exports = function (exec) {
-  try {
-    return { error: false, value: exec() };
-  } catch (error) {
-    return { error: true, value: error };
-  }
-};
-
-
-/***/ }),
-
-/***/ 7750:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var isNullOrUndefined = __webpack_require__(4117);
-
-var $TypeError = TypeError;
-
-// `RequireObjectCoercible` abstract operation
-// https://tc39.es/ecma262/#sec-requireobjectcoercible
-module.exports = function (it) {
-  if (isNullOrUndefined(it)) throw new $TypeError("Can't call method on " + it);
-  return it;
-};
-
-
-/***/ }),
-
-/***/ 9286:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var SetHelpers = __webpack_require__(4402);
-var iterate = __webpack_require__(8469);
-
-var Set = SetHelpers.Set;
-var add = SetHelpers.add;
-
-module.exports = function (set) {
-  var result = new Set();
-  iterate(set, function (it) {
-    add(result, it);
-  });
-  return result;
-};
-
-
-/***/ }),
-
-/***/ 3440:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var aSet = __webpack_require__(7080);
-var SetHelpers = __webpack_require__(4402);
-var clone = __webpack_require__(9286);
-var size = __webpack_require__(5170);
-var getSetRecord = __webpack_require__(3789);
-var iterateSet = __webpack_require__(8469);
-var iterateSimple = __webpack_require__(507);
-
-var has = SetHelpers.has;
-var remove = SetHelpers.remove;
-
-// `Set.prototype.difference` method
-// https://github.com/tc39/proposal-set-methods
-module.exports = function difference(other) {
-  var O = aSet(this);
-  var otherRec = getSetRecord(other);
-  var result = clone(O);
-  if (size(O) <= otherRec.size) iterateSet(O, function (e) {
-    if (otherRec.includes(e)) remove(result, e);
-  });
-  else iterateSimple(otherRec.getIterator(), function (e) {
-    if (has(O, e)) remove(result, e);
-  });
-  return result;
-};
-
-
-/***/ }),
-
-/***/ 4402:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-
-// eslint-disable-next-line es/no-set -- safe
-var SetPrototype = Set.prototype;
-
-module.exports = {
-  // eslint-disable-next-line es/no-set -- safe
-  Set: Set,
-  add: uncurryThis(SetPrototype.add),
-  has: uncurryThis(SetPrototype.has),
-  remove: uncurryThis(SetPrototype['delete']),
-  proto: SetPrototype
-};
-
-
-/***/ }),
-
-/***/ 8750:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var aSet = __webpack_require__(7080);
-var SetHelpers = __webpack_require__(4402);
-var size = __webpack_require__(5170);
-var getSetRecord = __webpack_require__(3789);
-var iterateSet = __webpack_require__(8469);
-var iterateSimple = __webpack_require__(507);
-
-var Set = SetHelpers.Set;
-var add = SetHelpers.add;
-var has = SetHelpers.has;
-
-// `Set.prototype.intersection` method
-// https://github.com/tc39/proposal-set-methods
-module.exports = function intersection(other) {
-  var O = aSet(this);
-  var otherRec = getSetRecord(other);
-  var result = new Set();
-
-  if (size(O) > otherRec.size) {
-    iterateSimple(otherRec.getIterator(), function (e) {
-      if (has(O, e)) add(result, e);
-    });
-  } else {
-    iterateSet(O, function (e) {
-      if (otherRec.includes(e)) add(result, e);
-    });
-  }
-
-  return result;
-};
-
-
-/***/ }),
-
-/***/ 4449:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var aSet = __webpack_require__(7080);
-var has = (__webpack_require__(4402).has);
-var size = __webpack_require__(5170);
-var getSetRecord = __webpack_require__(3789);
-var iterateSet = __webpack_require__(8469);
-var iterateSimple = __webpack_require__(507);
-var iteratorClose = __webpack_require__(9539);
-
-// `Set.prototype.isDisjointFrom` method
-// https://tc39.github.io/proposal-set-methods/#Set.prototype.isDisjointFrom
-module.exports = function isDisjointFrom(other) {
-  var O = aSet(this);
-  var otherRec = getSetRecord(other);
-  if (size(O) <= otherRec.size) return iterateSet(O, function (e) {
-    if (otherRec.includes(e)) return false;
-  }, true) !== false;
-  var iterator = otherRec.getIterator();
-  return iterateSimple(iterator, function (e) {
-    if (has(O, e)) return iteratorClose(iterator, 'normal', false);
-  }) !== false;
-};
-
-
-/***/ }),
-
-/***/ 3838:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var aSet = __webpack_require__(7080);
-var size = __webpack_require__(5170);
-var iterate = __webpack_require__(8469);
-var getSetRecord = __webpack_require__(3789);
-
-// `Set.prototype.isSubsetOf` method
-// https://tc39.github.io/proposal-set-methods/#Set.prototype.isSubsetOf
-module.exports = function isSubsetOf(other) {
-  var O = aSet(this);
-  var otherRec = getSetRecord(other);
-  if (size(O) > otherRec.size) return false;
-  return iterate(O, function (e) {
-    if (!otherRec.includes(e)) return false;
-  }, true) !== false;
-};
-
-
-/***/ }),
-
-/***/ 8527:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var aSet = __webpack_require__(7080);
-var has = (__webpack_require__(4402).has);
-var size = __webpack_require__(5170);
-var getSetRecord = __webpack_require__(3789);
-var iterateSimple = __webpack_require__(507);
-var iteratorClose = __webpack_require__(9539);
-
-// `Set.prototype.isSupersetOf` method
-// https://tc39.github.io/proposal-set-methods/#Set.prototype.isSupersetOf
-module.exports = function isSupersetOf(other) {
-  var O = aSet(this);
-  var otherRec = getSetRecord(other);
-  if (size(O) < otherRec.size) return false;
-  var iterator = otherRec.getIterator();
-  return iterateSimple(iterator, function (e) {
-    if (!has(O, e)) return iteratorClose(iterator, 'normal', false);
-  }) !== false;
-};
-
-
-/***/ }),
-
-/***/ 8469:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-var iterateSimple = __webpack_require__(507);
-var SetHelpers = __webpack_require__(4402);
-
-var Set = SetHelpers.Set;
-var SetPrototype = SetHelpers.proto;
-var forEach = uncurryThis(SetPrototype.forEach);
-var keys = uncurryThis(SetPrototype.keys);
-var next = keys(new Set()).next;
-
-module.exports = function (set, fn, interruptible) {
-  return interruptible ? iterateSimple({ iterator: keys(set), next: next }, fn) : forEach(set, fn);
-};
-
-
-/***/ }),
-
-/***/ 4916:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var getBuiltIn = __webpack_require__(7751);
-
-var createSetLike = function (size) {
-  return {
-    size: size,
-    has: function () {
-      return false;
-    },
-    keys: function () {
-      return {
-        next: function () {
-          return { done: true };
-        }
-      };
-    }
-  };
-};
-
-module.exports = function (name) {
-  var Set = getBuiltIn('Set');
-  try {
-    new Set()[name](createSetLike(0));
-    try {
-      // late spec change, early WebKit ~ Safari 17.0 beta implementation does not pass it
-      // https://github.com/tc39/proposal-set-methods/pull/88
-      new Set()[name](createSetLike(-1));
-      return false;
-    } catch (error2) {
-      return true;
-    }
-  } catch (error) {
-    return false;
-  }
-};
-
-
-/***/ }),
-
-/***/ 5170:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThisAccessor = __webpack_require__(6706);
-var SetHelpers = __webpack_require__(4402);
-
-module.exports = uncurryThisAccessor(SetHelpers.proto, 'size', 'get') || function (set) {
-  return set.size;
-};
-
-
-/***/ }),
-
-/***/ 3650:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var aSet = __webpack_require__(7080);
-var SetHelpers = __webpack_require__(4402);
-var clone = __webpack_require__(9286);
-var getSetRecord = __webpack_require__(3789);
-var iterateSimple = __webpack_require__(507);
-
-var add = SetHelpers.add;
-var has = SetHelpers.has;
-var remove = SetHelpers.remove;
-
-// `Set.prototype.symmetricDifference` method
-// https://github.com/tc39/proposal-set-methods
-module.exports = function symmetricDifference(other) {
-  var O = aSet(this);
-  var keysIter = getSetRecord(other).getIterator();
-  var result = clone(O);
-  iterateSimple(keysIter, function (e) {
-    if (has(O, e)) remove(result, e);
-    else add(result, e);
-  });
-  return result;
-};
-
-
-/***/ }),
-
-/***/ 4204:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var aSet = __webpack_require__(7080);
-var add = (__webpack_require__(4402).add);
-var clone = __webpack_require__(9286);
-var getSetRecord = __webpack_require__(3789);
-var iterateSimple = __webpack_require__(507);
-
-// `Set.prototype.union` method
-// https://github.com/tc39/proposal-set-methods
-module.exports = function union(other) {
-  var O = aSet(this);
-  var keysIter = getSetRecord(other).getIterator();
-  var result = clone(O);
-  iterateSimple(keysIter, function (it) {
-    add(result, it);
-  });
-  return result;
-};
-
-
-/***/ }),
-
-/***/ 6119:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var shared = __webpack_require__(5745);
-var uid = __webpack_require__(3392);
-
-var keys = shared('keys');
-
-module.exports = function (key) {
-  return keys[key] || (keys[key] = uid(key));
-};
-
-
-/***/ }),
-
-/***/ 7629:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var IS_PURE = __webpack_require__(6395);
-var globalThis = __webpack_require__(4576);
-var defineGlobalProperty = __webpack_require__(9433);
-
-var SHARED = '__core-js_shared__';
-var store = module.exports = globalThis[SHARED] || defineGlobalProperty(SHARED, {});
-
-(store.versions || (store.versions = [])).push({
-  version: '3.39.0',
-  mode: IS_PURE ? 'pure' : 'global',
-  copyright: '© 2014-2024 Denis Pushkarev (zloirock.ru)',
-  license: 'https://github.com/zloirock/core-js/blob/v3.39.0/LICENSE',
-  source: 'https://github.com/zloirock/core-js'
-});
-
-
-/***/ }),
-
-/***/ 5745:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var store = __webpack_require__(7629);
-
-module.exports = function (key, value) {
-  return store[key] || (store[key] = value || {});
-};
-
-
-/***/ }),
-
-/***/ 1548:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-var fails = __webpack_require__(9039);
-var V8 = __webpack_require__(9519);
-var ENVIRONMENT = __webpack_require__(4215);
-
-var structuredClone = globalThis.structuredClone;
-
-module.exports = !!structuredClone && !fails(function () {
-  // prevent V8 ArrayBufferDetaching protector cell invalidation and performance degradation
-  // https://github.com/zloirock/core-js/issues/679
-  if ((ENVIRONMENT === 'DENO' && V8 > 92) || (ENVIRONMENT === 'NODE' && V8 > 94) || (ENVIRONMENT === 'BROWSER' && V8 > 97)) return false;
-  var buffer = new ArrayBuffer(8);
-  var clone = structuredClone(buffer, { transfer: [buffer] });
-  return buffer.byteLength !== 0 || clone.byteLength !== 8;
-});
-
-
-/***/ }),
-
-/***/ 4495:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-/* eslint-disable es/no-symbol -- required for testing */
-var V8_VERSION = __webpack_require__(9519);
-var fails = __webpack_require__(9039);
-var globalThis = __webpack_require__(4576);
-
-var $String = globalThis.String;
-
-// eslint-disable-next-line es/no-object-getownpropertysymbols -- required for testing
-module.exports = !!Object.getOwnPropertySymbols && !fails(function () {
-  var symbol = Symbol('symbol detection');
-  // Chrome 38 Symbol has incorrect toString conversion
-  // `get-own-property-symbols` polyfill symbols converted to object are not Symbol instances
-  // nb: Do not call `String` directly to avoid this being optimized out to `symbol+''` which will,
-  // of course, fail.
-  return !$String(symbol) || !(Object(symbol) instanceof Symbol) ||
-    // Chrome 38-40 symbols are not inherited from DOM collections prototypes to instances
-    !Symbol.sham && V8_VERSION && V8_VERSION < 41;
-});
-
-
-/***/ }),
-
-/***/ 5610:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var toIntegerOrInfinity = __webpack_require__(1291);
-
-var max = Math.max;
-var min = Math.min;
-
-// Helper for a popular repeating case of the spec:
-// Let integer be ? ToInteger(index).
-// If integer < 0, let result be max((length + integer), 0); else let result be min(integer, length).
-module.exports = function (index, length) {
-  var integer = toIntegerOrInfinity(index);
-  return integer < 0 ? max(integer + length, 0) : min(integer, length);
-};
-
-
-/***/ }),
-
-/***/ 5854:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var toPrimitive = __webpack_require__(2777);
-
-var $TypeError = TypeError;
-
-// `ToBigInt` abstract operation
-// https://tc39.es/ecma262/#sec-tobigint
-module.exports = function (argument) {
-  var prim = toPrimitive(argument, 'number');
-  if (typeof prim == 'number') throw new $TypeError("Can't convert number to bigint");
-  // eslint-disable-next-line es/no-bigint -- safe
-  return BigInt(prim);
-};
-
-
-/***/ }),
-
-/***/ 7696:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var toIntegerOrInfinity = __webpack_require__(1291);
-var toLength = __webpack_require__(8014);
-
-var $RangeError = RangeError;
-
-// `ToIndex` abstract operation
-// https://tc39.es/ecma262/#sec-toindex
-module.exports = function (it) {
-  if (it === undefined) return 0;
-  var number = toIntegerOrInfinity(it);
-  var length = toLength(number);
-  if (number !== length) throw new $RangeError('Wrong length or index');
-  return length;
-};
-
-
-/***/ }),
-
-/***/ 5397:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-// toObject with fallback for non-array-like ES3 strings
-var IndexedObject = __webpack_require__(7055);
-var requireObjectCoercible = __webpack_require__(7750);
-
-module.exports = function (it) {
-  return IndexedObject(requireObjectCoercible(it));
-};
-
-
-/***/ }),
-
-/***/ 1291:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var trunc = __webpack_require__(741);
-
-// `ToIntegerOrInfinity` abstract operation
-// https://tc39.es/ecma262/#sec-tointegerorinfinity
-module.exports = function (argument) {
-  var number = +argument;
-  // eslint-disable-next-line no-self-compare -- NaN check
-  return number !== number || number === 0 ? 0 : trunc(number);
-};
-
-
-/***/ }),
-
-/***/ 8014:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var toIntegerOrInfinity = __webpack_require__(1291);
-
-var min = Math.min;
-
-// `ToLength` abstract operation
-// https://tc39.es/ecma262/#sec-tolength
-module.exports = function (argument) {
-  var len = toIntegerOrInfinity(argument);
-  return len > 0 ? min(len, 0x1FFFFFFFFFFFFF) : 0; // 2 ** 53 - 1 == 9007199254740991
-};
-
-
-/***/ }),
-
-/***/ 8981:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var requireObjectCoercible = __webpack_require__(7750);
-
-var $Object = Object;
-
-// `ToObject` abstract operation
-// https://tc39.es/ecma262/#sec-toobject
-module.exports = function (argument) {
-  return $Object(requireObjectCoercible(argument));
-};
-
-
-/***/ }),
-
-/***/ 9590:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var toIntegerOrInfinity = __webpack_require__(1291);
-
-var $RangeError = RangeError;
-
-module.exports = function (it) {
-  var result = toIntegerOrInfinity(it);
-  if (result < 0) throw new $RangeError("The argument can't be less than 0");
-  return result;
-};
-
-
-/***/ }),
-
-/***/ 2777:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var call = __webpack_require__(9565);
-var isObject = __webpack_require__(34);
-var isSymbol = __webpack_require__(757);
-var getMethod = __webpack_require__(5966);
-var ordinaryToPrimitive = __webpack_require__(4270);
-var wellKnownSymbol = __webpack_require__(8227);
-
-var $TypeError = TypeError;
-var TO_PRIMITIVE = wellKnownSymbol('toPrimitive');
-
-// `ToPrimitive` abstract operation
-// https://tc39.es/ecma262/#sec-toprimitive
-module.exports = function (input, pref) {
-  if (!isObject(input) || isSymbol(input)) return input;
-  var exoticToPrim = getMethod(input, TO_PRIMITIVE);
-  var result;
-  if (exoticToPrim) {
-    if (pref === undefined) pref = 'default';
-    result = call(exoticToPrim, input, pref);
-    if (!isObject(result) || isSymbol(result)) return result;
-    throw new $TypeError("Can't convert object to primitive value");
-  }
-  if (pref === undefined) pref = 'number';
-  return ordinaryToPrimitive(input, pref);
-};
-
-
-/***/ }),
-
-/***/ 6969:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var toPrimitive = __webpack_require__(2777);
-var isSymbol = __webpack_require__(757);
-
-// `ToPropertyKey` abstract operation
-// https://tc39.es/ecma262/#sec-topropertykey
-module.exports = function (argument) {
-  var key = toPrimitive(argument, 'string');
-  return isSymbol(key) ? key : key + '';
-};
-
-
-/***/ }),
-
-/***/ 2140:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var wellKnownSymbol = __webpack_require__(8227);
-
-var TO_STRING_TAG = wellKnownSymbol('toStringTag');
-var test = {};
-
-test[TO_STRING_TAG] = 'z';
-
-module.exports = String(test) === '[object z]';
-
-
-/***/ }),
-
-/***/ 655:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var classof = __webpack_require__(6955);
-
-var $String = String;
-
-module.exports = function (argument) {
-  if (classof(argument) === 'Symbol') throw new TypeError('Cannot convert a Symbol value to a string');
-  return $String(argument);
-};
-
-
-/***/ }),
-
-/***/ 6823:
-/***/ ((module) => {
-
-
-var $String = String;
-
-module.exports = function (argument) {
-  try {
-    return $String(argument);
-  } catch (error) {
-    return 'Object';
-  }
-};
-
-
-/***/ }),
-
-/***/ 3392:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var uncurryThis = __webpack_require__(9504);
-
-var id = 0;
-var postfix = Math.random();
-var toString = uncurryThis(1.0.toString);
-
-module.exports = function (key) {
-  return 'Symbol(' + (key === undefined ? '' : key) + ')_' + toString(++id + postfix, 36);
-};
-
-
-/***/ }),
-
-/***/ 7040:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-/* eslint-disable es/no-symbol -- required for testing */
-var NATIVE_SYMBOL = __webpack_require__(4495);
-
-module.exports = NATIVE_SYMBOL &&
-  !Symbol.sham &&
-  typeof Symbol.iterator == 'symbol';
-
-
-/***/ }),
-
-/***/ 8686:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var DESCRIPTORS = __webpack_require__(3724);
-var fails = __webpack_require__(9039);
-
-// V8 ~ Chrome 36-
-// https://bugs.chromium.org/p/v8/issues/detail?id=3334
-module.exports = DESCRIPTORS && fails(function () {
-  // eslint-disable-next-line es/no-object-defineproperty -- required for testing
-  return Object.defineProperty(function () { /* empty */ }, 'prototype', {
-    value: 42,
-    writable: false
-  }).prototype !== 42;
-});
-
-
-/***/ }),
-
-/***/ 2812:
-/***/ ((module) => {
-
-
-var $TypeError = TypeError;
-
-module.exports = function (passed, required) {
-  if (passed < required) throw new $TypeError('Not enough arguments');
-  return passed;
-};
-
-
-/***/ }),
-
-/***/ 8622:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-var isCallable = __webpack_require__(4901);
-
-var WeakMap = globalThis.WeakMap;
-
-module.exports = isCallable(WeakMap) && /native code/.test(String(WeakMap));
-
-
-/***/ }),
-
-/***/ 8227:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var globalThis = __webpack_require__(4576);
-var shared = __webpack_require__(5745);
-var hasOwn = __webpack_require__(9297);
-var uid = __webpack_require__(3392);
-var NATIVE_SYMBOL = __webpack_require__(4495);
-var USE_SYMBOL_AS_UID = __webpack_require__(7040);
-
-var Symbol = globalThis.Symbol;
-var WellKnownSymbolsStore = shared('wks');
-var createWellKnownSymbol = USE_SYMBOL_AS_UID ? Symbol['for'] || Symbol : Symbol && Symbol.withoutSetter || uid;
-
-module.exports = function (name) {
-  if (!hasOwn(WellKnownSymbolsStore, name)) {
-    WellKnownSymbolsStore[name] = NATIVE_SYMBOL && hasOwn(Symbol, name)
-      ? Symbol[name]
-      : createWellKnownSymbol('Symbol.' + name);
-  } return WellKnownSymbolsStore[name];
-};
-
-
-/***/ }),
-
-/***/ 6573:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var DESCRIPTORS = __webpack_require__(3724);
-var defineBuiltInAccessor = __webpack_require__(2106);
-var isDetached = __webpack_require__(3238);
-
-var ArrayBufferPrototype = ArrayBuffer.prototype;
-
-// `ArrayBuffer.prototype.detached` getter
-// https://tc39.es/ecma262/#sec-get-arraybuffer.prototype.detached
-if (DESCRIPTORS && !('detached' in ArrayBufferPrototype)) {
-  defineBuiltInAccessor(ArrayBufferPrototype, 'detached', {
-    configurable: true,
-    get: function detached() {
-      return isDetached(this);
-    }
-  });
-}
-
-
-/***/ }),
-
-/***/ 7936:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var $transfer = __webpack_require__(5636);
-
-// `ArrayBuffer.prototype.transferToFixedLength` method
-// https://tc39.es/proposal-arraybuffer-transfer/#sec-arraybuffer.prototype.transfertofixedlength
-if ($transfer) $({ target: 'ArrayBuffer', proto: true }, {
-  transferToFixedLength: function transferToFixedLength() {
-    return $transfer(this, arguments.length ? arguments[0] : undefined, false);
-  }
-});
-
-
-/***/ }),
-
-/***/ 8100:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var $transfer = __webpack_require__(5636);
-
-// `ArrayBuffer.prototype.transfer` method
-// https://tc39.es/proposal-arraybuffer-transfer/#sec-arraybuffer.prototype.transfer
-if ($transfer) $({ target: 'ArrayBuffer', proto: true }, {
-  transfer: function transfer() {
-    return $transfer(this, arguments.length ? arguments[0] : undefined, true);
-  }
-});
-
-
-/***/ }),
-
-/***/ 4114:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var toObject = __webpack_require__(8981);
-var lengthOfArrayLike = __webpack_require__(6198);
-var setArrayLength = __webpack_require__(4527);
-var doesNotExceedSafeInteger = __webpack_require__(6837);
-var fails = __webpack_require__(9039);
-
-var INCORRECT_TO_LENGTH = fails(function () {
-  return [].push.call({ length: 0x100000000 }, 1) !== 4294967297;
-});
-
-// V8 <= 121 and Safari <= 15.4; FF < 23 throws InternalError
-// https://bugs.chromium.org/p/v8/issues/detail?id=12681
-var properErrorOnNonWritableLength = function () {
-  try {
-    // eslint-disable-next-line es/no-object-defineproperty -- safe
-    Object.defineProperty([], 'length', { writable: false }).push();
-  } catch (error) {
-    return error instanceof TypeError;
-  }
-};
-
-var FORCED = INCORRECT_TO_LENGTH || !properErrorOnNonWritableLength();
-
-// `Array.prototype.push` method
-// https://tc39.es/ecma262/#sec-array.prototype.push
-$({ target: 'Array', proto: true, arity: 1, forced: FORCED }, {
-  // eslint-disable-next-line no-unused-vars -- required for `.length`
-  push: function push(item) {
-    var O = toObject(this);
-    var len = lengthOfArrayLike(O);
-    var argCount = arguments.length;
-    doesNotExceedSafeInteger(len + argCount);
-    for (var i = 0; i < argCount; i++) {
-      O[len] = arguments[i];
-      len++;
-    }
-    setArrayLength(O, len);
-    return len;
-  }
-});
-
-
-/***/ }),
-
-/***/ 8111:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var globalThis = __webpack_require__(4576);
-var anInstance = __webpack_require__(679);
-var anObject = __webpack_require__(8551);
-var isCallable = __webpack_require__(4901);
-var getPrototypeOf = __webpack_require__(2787);
-var defineBuiltInAccessor = __webpack_require__(2106);
-var createProperty = __webpack_require__(4659);
-var fails = __webpack_require__(9039);
-var hasOwn = __webpack_require__(9297);
-var wellKnownSymbol = __webpack_require__(8227);
-var IteratorPrototype = (__webpack_require__(7657).IteratorPrototype);
-var DESCRIPTORS = __webpack_require__(3724);
-var IS_PURE = __webpack_require__(6395);
-
-var CONSTRUCTOR = 'constructor';
-var ITERATOR = 'Iterator';
-var TO_STRING_TAG = wellKnownSymbol('toStringTag');
-
-var $TypeError = TypeError;
-var NativeIterator = globalThis[ITERATOR];
-
-// FF56- have non-standard global helper `Iterator`
-var FORCED = IS_PURE
-  || !isCallable(NativeIterator)
-  || NativeIterator.prototype !== IteratorPrototype
-  // FF44- non-standard `Iterator` passes previous tests
-  || !fails(function () { NativeIterator({}); });
-
-var IteratorConstructor = function Iterator() {
-  anInstance(this, IteratorPrototype);
-  if (getPrototypeOf(this) === IteratorPrototype) throw new $TypeError('Abstract class Iterator not directly constructable');
-};
-
-var defineIteratorPrototypeAccessor = function (key, value) {
-  if (DESCRIPTORS) {
-    defineBuiltInAccessor(IteratorPrototype, key, {
-      configurable: true,
-      get: function () {
-        return value;
-      },
-      set: function (replacement) {
-        anObject(this);
-        if (this === IteratorPrototype) throw new $TypeError("You can't redefine this property");
-        if (hasOwn(this, key)) this[key] = replacement;
-        else createProperty(this, key, replacement);
-      }
-    });
-  } else IteratorPrototype[key] = value;
-};
-
-if (!hasOwn(IteratorPrototype, TO_STRING_TAG)) defineIteratorPrototypeAccessor(TO_STRING_TAG, ITERATOR);
-
-if (FORCED || !hasOwn(IteratorPrototype, CONSTRUCTOR) || IteratorPrototype[CONSTRUCTOR] === Object) {
-  defineIteratorPrototypeAccessor(CONSTRUCTOR, IteratorConstructor);
-}
-
-IteratorConstructor.prototype = IteratorPrototype;
-
-// `Iterator` constructor
-// https://tc39.es/ecma262/#sec-iterator
-$({ global: true, constructor: true, forced: FORCED }, {
-  Iterator: IteratorConstructor
-});
-
-
-/***/ }),
-
-/***/ 9314:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var call = __webpack_require__(9565);
-var anObject = __webpack_require__(8551);
-var getIteratorDirect = __webpack_require__(1767);
-var notANaN = __webpack_require__(4149);
-var toPositiveInteger = __webpack_require__(9590);
-var createIteratorProxy = __webpack_require__(9462);
-var IS_PURE = __webpack_require__(6395);
-
-var IteratorProxy = createIteratorProxy(function () {
-  var iterator = this.iterator;
-  var next = this.next;
-  var result, done;
-  while (this.remaining) {
-    this.remaining--;
-    result = anObject(call(next, iterator));
-    done = this.done = !!result.done;
-    if (done) return;
-  }
-  result = anObject(call(next, iterator));
-  done = this.done = !!result.done;
-  if (!done) return result.value;
-});
-
-// `Iterator.prototype.drop` method
-// https://tc39.es/ecma262/#sec-iterator.prototype.drop
-$({ target: 'Iterator', proto: true, real: true, forced: IS_PURE }, {
-  drop: function drop(limit) {
-    anObject(this);
-    var remaining = toPositiveInteger(notANaN(+limit));
-    return new IteratorProxy(getIteratorDirect(this), {
-      remaining: remaining
-    });
-  }
-});
-
-
-/***/ }),
-
-/***/ 1148:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var iterate = __webpack_require__(2652);
-var aCallable = __webpack_require__(9306);
-var anObject = __webpack_require__(8551);
-var getIteratorDirect = __webpack_require__(1767);
-
-// `Iterator.prototype.every` method
-// https://tc39.es/ecma262/#sec-iterator.prototype.every
-$({ target: 'Iterator', proto: true, real: true }, {
-  every: function every(predicate) {
-    anObject(this);
-    aCallable(predicate);
-    var record = getIteratorDirect(this);
-    var counter = 0;
-    return !iterate(record, function (value, stop) {
-      if (!predicate(value, counter++)) return stop();
-    }, { IS_RECORD: true, INTERRUPTED: true }).stopped;
-  }
-});
-
-
-/***/ }),
-
-/***/ 2489:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var call = __webpack_require__(9565);
-var aCallable = __webpack_require__(9306);
-var anObject = __webpack_require__(8551);
-var getIteratorDirect = __webpack_require__(1767);
-var createIteratorProxy = __webpack_require__(9462);
-var callWithSafeIterationClosing = __webpack_require__(6319);
-var IS_PURE = __webpack_require__(6395);
-
-var IteratorProxy = createIteratorProxy(function () {
-  var iterator = this.iterator;
-  var predicate = this.predicate;
-  var next = this.next;
-  var result, done, value;
-  while (true) {
-    result = anObject(call(next, iterator));
-    done = this.done = !!result.done;
-    if (done) return;
-    value = result.value;
-    if (callWithSafeIterationClosing(iterator, predicate, [value, this.counter++], true)) return value;
-  }
-});
-
-// `Iterator.prototype.filter` method
-// https://tc39.es/ecma262/#sec-iterator.prototype.filter
-$({ target: 'Iterator', proto: true, real: true, forced: IS_PURE }, {
-  filter: function filter(predicate) {
-    anObject(this);
-    aCallable(predicate);
-    return new IteratorProxy(getIteratorDirect(this), {
-      predicate: predicate
-    });
-  }
-});
-
-
-/***/ }),
-
-/***/ 531:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var call = __webpack_require__(9565);
-var aCallable = __webpack_require__(9306);
-var anObject = __webpack_require__(8551);
-var getIteratorDirect = __webpack_require__(1767);
-var getIteratorFlattenable = __webpack_require__(8646);
-var createIteratorProxy = __webpack_require__(9462);
-var iteratorClose = __webpack_require__(9539);
-var IS_PURE = __webpack_require__(6395);
-
-var IteratorProxy = createIteratorProxy(function () {
-  var iterator = this.iterator;
-  var mapper = this.mapper;
-  var result, inner;
-
-  while (true) {
-    if (inner = this.inner) try {
-      result = anObject(call(inner.next, inner.iterator));
-      if (!result.done) return result.value;
-      this.inner = null;
-    } catch (error) { iteratorClose(iterator, 'throw', error); }
-
-    result = anObject(call(this.next, iterator));
-
-    if (this.done = !!result.done) return;
-
-    try {
-      this.inner = getIteratorFlattenable(mapper(result.value, this.counter++), false);
-    } catch (error) { iteratorClose(iterator, 'throw', error); }
-  }
-});
-
-// `Iterator.prototype.flatMap` method
-// https://tc39.es/ecma262/#sec-iterator.prototype.flatmap
-$({ target: 'Iterator', proto: true, real: true, forced: IS_PURE }, {
-  flatMap: function flatMap(mapper) {
-    anObject(this);
-    aCallable(mapper);
-    return new IteratorProxy(getIteratorDirect(this), {
-      mapper: mapper,
-      inner: null
-    });
-  }
-});
-
-
-/***/ }),
-
-/***/ 1701:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var map = __webpack_require__(713);
-var IS_PURE = __webpack_require__(6395);
-
-// `Iterator.prototype.map` method
-// https://tc39.es/ecma262/#sec-iterator.prototype.map
-$({ target: 'Iterator', proto: true, real: true, forced: IS_PURE }, {
-  map: map
-});
-
-
-/***/ }),
-
-/***/ 3579:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var iterate = __webpack_require__(2652);
-var aCallable = __webpack_require__(9306);
-var anObject = __webpack_require__(8551);
-var getIteratorDirect = __webpack_require__(1767);
-
-// `Iterator.prototype.some` method
-// https://tc39.es/ecma262/#sec-iterator.prototype.some
-$({ target: 'Iterator', proto: true, real: true }, {
-  some: function some(predicate) {
-    anObject(this);
-    aCallable(predicate);
-    var record = getIteratorDirect(this);
-    var counter = 0;
-    return iterate(record, function (value, stop) {
-      if (predicate(value, counter++)) return stop();
-    }, { IS_RECORD: true, INTERRUPTED: true }).stopped;
-  }
-});
-
-
-/***/ }),
-
-/***/ 1689:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var globalThis = __webpack_require__(4576);
-var apply = __webpack_require__(8745);
-var slice = __webpack_require__(7680);
-var newPromiseCapabilityModule = __webpack_require__(6043);
-var aCallable = __webpack_require__(9306);
-var perform = __webpack_require__(1103);
-
-var Promise = globalThis.Promise;
-
-var ACCEPT_ARGUMENTS = false;
-// Avoiding the use of polyfills of the previous iteration of this proposal
-// that does not accept arguments of the callback
-var FORCED = !Promise || !Promise['try'] || perform(function () {
-  Promise['try'](function (argument) {
-    ACCEPT_ARGUMENTS = argument === 8;
-  }, 8);
-}).error || !ACCEPT_ARGUMENTS;
-
-// `Promise.try` method
-// https://tc39.es/ecma262/#sec-promise.try
-$({ target: 'Promise', stat: true, forced: FORCED }, {
-  'try': function (callbackfn /* , ...args */) {
-    var args = arguments.length > 1 ? slice(arguments, 1) : [];
-    var promiseCapability = newPromiseCapabilityModule.f(this);
-    var result = perform(function () {
-      return apply(aCallable(callbackfn), undefined, args);
-    });
-    (result.error ? promiseCapability.reject : promiseCapability.resolve)(result.value);
-    return promiseCapability.promise;
-  }
-});
-
-
-/***/ }),
-
-/***/ 4628:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var newPromiseCapabilityModule = __webpack_require__(6043);
-
-// `Promise.withResolvers` method
-// https://tc39.es/ecma262/#sec-promise.withResolvers
-$({ target: 'Promise', stat: true }, {
-  withResolvers: function withResolvers() {
-    var promiseCapability = newPromiseCapabilityModule.f(this);
-    return {
-      promise: promiseCapability.promise,
-      resolve: promiseCapability.resolve,
-      reject: promiseCapability.reject
-    };
-  }
-});
-
-
-/***/ }),
-
-/***/ 7642:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var difference = __webpack_require__(3440);
-var setMethodAcceptSetLike = __webpack_require__(4916);
-
-// `Set.prototype.difference` method
-// https://tc39.es/ecma262/#sec-set.prototype.difference
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('difference') }, {
-  difference: difference
-});
-
-
-/***/ }),
-
-/***/ 8004:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var fails = __webpack_require__(9039);
-var intersection = __webpack_require__(8750);
-var setMethodAcceptSetLike = __webpack_require__(4916);
-
-var INCORRECT = !setMethodAcceptSetLike('intersection') || fails(function () {
-  // eslint-disable-next-line es/no-array-from, es/no-set -- testing
-  return String(Array.from(new Set([1, 2, 3]).intersection(new Set([3, 2])))) !== '3,2';
-});
-
-// `Set.prototype.intersection` method
-// https://tc39.es/ecma262/#sec-set.prototype.intersection
-$({ target: 'Set', proto: true, real: true, forced: INCORRECT }, {
-  intersection: intersection
-});
-
-
-/***/ }),
-
-/***/ 3853:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var isDisjointFrom = __webpack_require__(4449);
-var setMethodAcceptSetLike = __webpack_require__(4916);
-
-// `Set.prototype.isDisjointFrom` method
-// https://tc39.es/ecma262/#sec-set.prototype.isdisjointfrom
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isDisjointFrom') }, {
-  isDisjointFrom: isDisjointFrom
-});
-
-
-/***/ }),
-
-/***/ 5876:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var isSubsetOf = __webpack_require__(3838);
-var setMethodAcceptSetLike = __webpack_require__(4916);
-
-// `Set.prototype.isSubsetOf` method
-// https://tc39.es/ecma262/#sec-set.prototype.issubsetof
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isSubsetOf') }, {
-  isSubsetOf: isSubsetOf
-});
-
-
-/***/ }),
-
-/***/ 2475:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var isSupersetOf = __webpack_require__(8527);
-var setMethodAcceptSetLike = __webpack_require__(4916);
-
-// `Set.prototype.isSupersetOf` method
-// https://tc39.es/ecma262/#sec-set.prototype.issupersetof
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('isSupersetOf') }, {
-  isSupersetOf: isSupersetOf
-});
-
-
-/***/ }),
-
-/***/ 5024:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var symmetricDifference = __webpack_require__(3650);
-var setMethodAcceptSetLike = __webpack_require__(4916);
-
-// `Set.prototype.symmetricDifference` method
-// https://tc39.es/ecma262/#sec-set.prototype.symmetricdifference
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('symmetricDifference') }, {
-  symmetricDifference: symmetricDifference
-});
-
-
-/***/ }),
-
-/***/ 1698:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var union = __webpack_require__(4204);
-var setMethodAcceptSetLike = __webpack_require__(4916);
-
-// `Set.prototype.union` method
-// https://tc39.es/ecma262/#sec-set.prototype.union
-$({ target: 'Set', proto: true, real: true, forced: !setMethodAcceptSetLike('union') }, {
-  union: union
-});
-
-
-/***/ }),
-
-/***/ 7467:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var arrayToReversed = __webpack_require__(7628);
-var ArrayBufferViewCore = __webpack_require__(4644);
-
-var aTypedArray = ArrayBufferViewCore.aTypedArray;
-var exportTypedArrayMethod = ArrayBufferViewCore.exportTypedArrayMethod;
-var getTypedArrayConstructor = ArrayBufferViewCore.getTypedArrayConstructor;
-
-// `%TypedArray%.prototype.toReversed` method
-// https://tc39.es/ecma262/#sec-%typedarray%.prototype.toreversed
-exportTypedArrayMethod('toReversed', function toReversed() {
-  return arrayToReversed(aTypedArray(this), getTypedArrayConstructor(this));
-});
-
-
-/***/ }),
-
-/***/ 4732:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var ArrayBufferViewCore = __webpack_require__(4644);
-var uncurryThis = __webpack_require__(9504);
-var aCallable = __webpack_require__(9306);
-var arrayFromConstructorAndList = __webpack_require__(5370);
-
-var aTypedArray = ArrayBufferViewCore.aTypedArray;
-var getTypedArrayConstructor = ArrayBufferViewCore.getTypedArrayConstructor;
-var exportTypedArrayMethod = ArrayBufferViewCore.exportTypedArrayMethod;
-var sort = uncurryThis(ArrayBufferViewCore.TypedArrayPrototype.sort);
-
-// `%TypedArray%.prototype.toSorted` method
-// https://tc39.es/ecma262/#sec-%typedarray%.prototype.tosorted
-exportTypedArrayMethod('toSorted', function toSorted(compareFn) {
-  if (compareFn !== undefined) aCallable(compareFn);
-  var O = aTypedArray(this);
-  var A = arrayFromConstructorAndList(getTypedArrayConstructor(O), O);
-  return sort(A, compareFn);
-});
-
-
-/***/ }),
-
-/***/ 9577:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var arrayWith = __webpack_require__(9928);
-var ArrayBufferViewCore = __webpack_require__(4644);
-var isBigIntArray = __webpack_require__(1108);
-var toIntegerOrInfinity = __webpack_require__(1291);
-var toBigInt = __webpack_require__(5854);
-
-var aTypedArray = ArrayBufferViewCore.aTypedArray;
-var getTypedArrayConstructor = ArrayBufferViewCore.getTypedArrayConstructor;
-var exportTypedArrayMethod = ArrayBufferViewCore.exportTypedArrayMethod;
-
-var PROPER_ORDER = !!function () {
-  try {
-    // eslint-disable-next-line no-throw-literal, es/no-typed-arrays, es/no-array-prototype-with -- required for testing
-    new Int8Array(1)['with'](2, { valueOf: function () { throw 8; } });
-  } catch (error) {
-    // some early implementations, like WebKit, does not follow the final semantic
-    // https://github.com/tc39/proposal-change-array-by-copy/pull/86
-    return error === 8;
-  }
-}();
-
-// `%TypedArray%.prototype.with` method
-// https://tc39.es/ecma262/#sec-%typedarray%.prototype.with
-exportTypedArrayMethod('with', { 'with': function (index, value) {
-  var O = aTypedArray(this);
-  var relativeIndex = toIntegerOrInfinity(index);
-  var actualValue = isBigIntArray(O) ? toBigInt(value) : +value;
-  return arrayWith(O, getTypedArrayConstructor(O), relativeIndex, actualValue);
-} }['with'], !PROPER_ORDER);
-
-
-/***/ }),
-
-/***/ 8992:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-// TODO: Remove from `core-js@4`
-__webpack_require__(8111);
-
-
-/***/ }),
-
-/***/ 4743:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-// TODO: Remove from `core-js@4`
-__webpack_require__(9314);
-
-
-/***/ }),
-
-/***/ 3215:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-// TODO: Remove from `core-js@4`
-__webpack_require__(1148);
-
-
-/***/ }),
-
-/***/ 4520:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-// TODO: Remove from `core-js@4`
-__webpack_require__(2489);
-
-
-/***/ }),
-
-/***/ 670:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-// TODO: Remove from `core-js@4`
-__webpack_require__(531);
-
-
-/***/ }),
-
-/***/ 1454:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-// TODO: Remove from `core-js@4`
-__webpack_require__(1701);
-
-
-/***/ }),
-
-/***/ 7550:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-// TODO: Remove from `core-js@4`
-__webpack_require__(3579);
-
-
-/***/ }),
-
-/***/ 8335:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var DESCRIPTORS = __webpack_require__(3724);
-var globalThis = __webpack_require__(4576);
-var getBuiltIn = __webpack_require__(7751);
-var uncurryThis = __webpack_require__(9504);
-var call = __webpack_require__(9565);
-var isCallable = __webpack_require__(4901);
-var isObject = __webpack_require__(34);
-var isArray = __webpack_require__(4376);
-var hasOwn = __webpack_require__(9297);
-var toString = __webpack_require__(655);
-var lengthOfArrayLike = __webpack_require__(6198);
-var createProperty = __webpack_require__(4659);
-var fails = __webpack_require__(9039);
-var parseJSONString = __webpack_require__(8235);
-var NATIVE_SYMBOL = __webpack_require__(4495);
-
-var JSON = globalThis.JSON;
-var Number = globalThis.Number;
-var SyntaxError = globalThis.SyntaxError;
-var nativeParse = JSON && JSON.parse;
-var enumerableOwnProperties = getBuiltIn('Object', 'keys');
-// eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
-var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-var at = uncurryThis(''.charAt);
-var slice = uncurryThis(''.slice);
-var exec = uncurryThis(/./.exec);
-var push = uncurryThis([].push);
-
-var IS_DIGIT = /^\d$/;
-var IS_NON_ZERO_DIGIT = /^[1-9]$/;
-var IS_NUMBER_START = /^[\d-]$/;
-var IS_WHITESPACE = /^[\t\n\r ]$/;
-
-var PRIMITIVE = 0;
-var OBJECT = 1;
-
-var $parse = function (source, reviver) {
-  source = toString(source);
-  var context = new Context(source, 0, '');
-  var root = context.parse();
-  var value = root.value;
-  var endIndex = context.skip(IS_WHITESPACE, root.end);
-  if (endIndex < source.length) {
-    throw new SyntaxError('Unexpected extra character: "' + at(source, endIndex) + '" after the parsed data at: ' + endIndex);
-  }
-  return isCallable(reviver) ? internalize({ '': value }, '', reviver, root) : value;
-};
-
-var internalize = function (holder, name, reviver, node) {
-  var val = holder[name];
-  var unmodified = node && val === node.value;
-  var context = unmodified && typeof node.source == 'string' ? { source: node.source } : {};
-  var elementRecordsLen, keys, len, i, P;
-  if (isObject(val)) {
-    var nodeIsArray = isArray(val);
-    var nodes = unmodified ? node.nodes : nodeIsArray ? [] : {};
-    if (nodeIsArray) {
-      elementRecordsLen = nodes.length;
-      len = lengthOfArrayLike(val);
-      for (i = 0; i < len; i++) {
-        internalizeProperty(val, i, internalize(val, '' + i, reviver, i < elementRecordsLen ? nodes[i] : undefined));
-      }
-    } else {
-      keys = enumerableOwnProperties(val);
-      len = lengthOfArrayLike(keys);
-      for (i = 0; i < len; i++) {
-        P = keys[i];
-        internalizeProperty(val, P, internalize(val, P, reviver, hasOwn(nodes, P) ? nodes[P] : undefined));
-      }
-    }
-  }
-  return call(reviver, holder, name, val, context);
-};
-
-var internalizeProperty = function (object, key, value) {
-  if (DESCRIPTORS) {
-    var descriptor = getOwnPropertyDescriptor(object, key);
-    if (descriptor && !descriptor.configurable) return;
-  }
-  if (value === undefined) delete object[key];
-  else createProperty(object, key, value);
-};
-
-var Node = function (value, end, source, nodes) {
-  this.value = value;
-  this.end = end;
-  this.source = source;
-  this.nodes = nodes;
-};
-
-var Context = function (source, index) {
-  this.source = source;
-  this.index = index;
-};
-
-// https://www.json.org/json-en.html
-Context.prototype = {
-  fork: function (nextIndex) {
-    return new Context(this.source, nextIndex);
-  },
-  parse: function () {
-    var source = this.source;
-    var i = this.skip(IS_WHITESPACE, this.index);
-    var fork = this.fork(i);
-    var chr = at(source, i);
-    if (exec(IS_NUMBER_START, chr)) return fork.number();
-    switch (chr) {
-      case '{':
-        return fork.object();
-      case '[':
-        return fork.array();
-      case '"':
-        return fork.string();
-      case 't':
-        return fork.keyword(true);
-      case 'f':
-        return fork.keyword(false);
-      case 'n':
-        return fork.keyword(null);
-    } throw new SyntaxError('Unexpected character: "' + chr + '" at: ' + i);
-  },
-  node: function (type, value, start, end, nodes) {
-    return new Node(value, end, type ? null : slice(this.source, start, end), nodes);
-  },
-  object: function () {
-    var source = this.source;
-    var i = this.index + 1;
-    var expectKeypair = false;
-    var object = {};
-    var nodes = {};
-    while (i < source.length) {
-      i = this.until(['"', '}'], i);
-      if (at(source, i) === '}' && !expectKeypair) {
-        i++;
-        break;
-      }
-      // Parsing the key
-      var result = this.fork(i).string();
-      var key = result.value;
-      i = result.end;
-      i = this.until([':'], i) + 1;
-      // Parsing value
-      i = this.skip(IS_WHITESPACE, i);
-      result = this.fork(i).parse();
-      createProperty(nodes, key, result);
-      createProperty(object, key, result.value);
-      i = this.until([',', '}'], result.end);
-      var chr = at(source, i);
-      if (chr === ',') {
-        expectKeypair = true;
-        i++;
-      } else if (chr === '}') {
-        i++;
-        break;
-      }
-    }
-    return this.node(OBJECT, object, this.index, i, nodes);
-  },
-  array: function () {
-    var source = this.source;
-    var i = this.index + 1;
-    var expectElement = false;
-    var array = [];
-    var nodes = [];
-    while (i < source.length) {
-      i = this.skip(IS_WHITESPACE, i);
-      if (at(source, i) === ']' && !expectElement) {
-        i++;
-        break;
-      }
-      var result = this.fork(i).parse();
-      push(nodes, result);
-      push(array, result.value);
-      i = this.until([',', ']'], result.end);
-      if (at(source, i) === ',') {
-        expectElement = true;
-        i++;
-      } else if (at(source, i) === ']') {
-        i++;
-        break;
-      }
-    }
-    return this.node(OBJECT, array, this.index, i, nodes);
-  },
-  string: function () {
-    var index = this.index;
-    var parsed = parseJSONString(this.source, this.index + 1);
-    return this.node(PRIMITIVE, parsed.value, index, parsed.end);
-  },
-  number: function () {
-    var source = this.source;
-    var startIndex = this.index;
-    var i = startIndex;
-    if (at(source, i) === '-') i++;
-    if (at(source, i) === '0') i++;
-    else if (exec(IS_NON_ZERO_DIGIT, at(source, i))) i = this.skip(IS_DIGIT, i + 1);
-    else throw new SyntaxError('Failed to parse number at: ' + i);
-    if (at(source, i) === '.') i = this.skip(IS_DIGIT, i + 1);
-    if (at(source, i) === 'e' || at(source, i) === 'E') {
-      i++;
-      if (at(source, i) === '+' || at(source, i) === '-') i++;
-      var exponentStartIndex = i;
-      i = this.skip(IS_DIGIT, i);
-      if (exponentStartIndex === i) throw new SyntaxError("Failed to parse number's exponent value at: " + i);
-    }
-    return this.node(PRIMITIVE, Number(slice(source, startIndex, i)), startIndex, i);
-  },
-  keyword: function (value) {
-    var keyword = '' + value;
-    var index = this.index;
-    var endIndex = index + keyword.length;
-    if (slice(this.source, index, endIndex) !== keyword) throw new SyntaxError('Failed to parse value at: ' + index);
-    return this.node(PRIMITIVE, value, index, endIndex);
-  },
-  skip: function (regex, i) {
-    var source = this.source;
-    for (; i < source.length; i++) if (!exec(regex, at(source, i))) break;
-    return i;
-  },
-  until: function (array, i) {
-    i = this.skip(IS_WHITESPACE, i);
-    var chr = at(this.source, i);
-    for (var j = 0; j < array.length; j++) if (array[j] === chr) return i;
-    throw new SyntaxError('Unexpected character: "' + chr + '" at: ' + i);
-  }
-};
-
-var NO_SOURCE_SUPPORT = fails(function () {
-  var unsafeInt = '9007199254740993';
-  var source;
-  nativeParse(unsafeInt, function (key, value, context) {
-    source = context.source;
-  });
-  return source !== unsafeInt;
-});
-
-var PROPER_BASE_PARSE = NATIVE_SYMBOL && !fails(function () {
-  // Safari 9 bug
-  return 1 / nativeParse('-0 \t') !== -Infinity;
-});
-
-// `JSON.parse` method
-// https://tc39.es/ecma262/#sec-json.parse
-// https://github.com/tc39/proposal-json-parse-with-source
-$({ target: 'JSON', stat: true, forced: NO_SOURCE_SUPPORT }, {
-  parse: function parse(text, reviver) {
-    return PROPER_BASE_PARSE && !isCallable(reviver) ? nativeParse(text) : $parse(text, reviver);
-  }
-});
-
-
-/***/ }),
-
-/***/ 5247:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-// TODO: Remove from `core-js@4`
-__webpack_require__(1689);
-
-
-/***/ }),
-
-/***/ 4979:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var $ = __webpack_require__(6518);
-var globalThis = __webpack_require__(4576);
-var getBuiltIn = __webpack_require__(7751);
-var createPropertyDescriptor = __webpack_require__(6980);
-var defineProperty = (__webpack_require__(4913).f);
-var hasOwn = __webpack_require__(9297);
-var anInstance = __webpack_require__(679);
-var inheritIfRequired = __webpack_require__(3167);
-var normalizeStringArgument = __webpack_require__(2603);
-var DOMExceptionConstants = __webpack_require__(5002);
-var clearErrorStack = __webpack_require__(8574);
-var DESCRIPTORS = __webpack_require__(3724);
-var IS_PURE = __webpack_require__(6395);
-
-var DOM_EXCEPTION = 'DOMException';
-var Error = getBuiltIn('Error');
-var NativeDOMException = getBuiltIn(DOM_EXCEPTION);
-
-var $DOMException = function DOMException() {
-  anInstance(this, DOMExceptionPrototype);
-  var argumentsLength = arguments.length;
-  var message = normalizeStringArgument(argumentsLength < 1 ? undefined : arguments[0]);
-  var name = normalizeStringArgument(argumentsLength < 2 ? undefined : arguments[1], 'Error');
-  var that = new NativeDOMException(message, name);
-  var error = new Error(message);
-  error.name = DOM_EXCEPTION;
-  defineProperty(that, 'stack', createPropertyDescriptor(1, clearErrorStack(error.stack, 1)));
-  inheritIfRequired(that, this, $DOMException);
-  return that;
-};
-
-var DOMExceptionPrototype = $DOMException.prototype = NativeDOMException.prototype;
-
-var ERROR_HAS_STACK = 'stack' in new Error(DOM_EXCEPTION);
-var DOM_EXCEPTION_HAS_STACK = 'stack' in new NativeDOMException(1, 2);
-
-// eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
-var descriptor = NativeDOMException && DESCRIPTORS && Object.getOwnPropertyDescriptor(globalThis, DOM_EXCEPTION);
-
-// Bun ~ 0.1.1 DOMException have incorrect descriptor and we can't redefine it
-// https://github.com/Jarred-Sumner/bun/issues/399
-var BUGGY_DESCRIPTOR = !!descriptor && !(descriptor.writable && descriptor.configurable);
-
-var FORCED_CONSTRUCTOR = ERROR_HAS_STACK && !BUGGY_DESCRIPTOR && !DOM_EXCEPTION_HAS_STACK;
-
-// `DOMException` constructor patch for `.stack` where it's required
-// https://webidl.spec.whatwg.org/#es-DOMException-specialness
-$({ global: true, constructor: true, forced: IS_PURE || FORCED_CONSTRUCTOR }, { // TODO: fix export logic
-  DOMException: FORCED_CONSTRUCTOR ? $DOMException : NativeDOMException
-});
-
-var PolyfilledDOMException = getBuiltIn(DOM_EXCEPTION);
-var PolyfilledDOMExceptionPrototype = PolyfilledDOMException.prototype;
-
-if (PolyfilledDOMExceptionPrototype.constructor !== PolyfilledDOMException) {
-  if (!IS_PURE) {
-    defineProperty(PolyfilledDOMExceptionPrototype, 'constructor', createPropertyDescriptor(1, PolyfilledDOMException));
-  }
-
-  for (var key in DOMExceptionConstants) if (hasOwn(DOMExceptionConstants, key)) {
-    var constant = DOMExceptionConstants[key];
-    var constantName = constant.s;
-    if (!hasOwn(PolyfilledDOMException, constantName)) {
-      defineProperty(PolyfilledDOMException, constantName, createPropertyDescriptor(6, constant.c));
-    }
-  }
-}
-
-
-/***/ }),
-
-/***/ 4603:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var defineBuiltIn = __webpack_require__(6840);
-var uncurryThis = __webpack_require__(9504);
-var toString = __webpack_require__(655);
-var validateArgumentsLength = __webpack_require__(2812);
-
-var $URLSearchParams = URLSearchParams;
-var URLSearchParamsPrototype = $URLSearchParams.prototype;
-var append = uncurryThis(URLSearchParamsPrototype.append);
-var $delete = uncurryThis(URLSearchParamsPrototype['delete']);
-var forEach = uncurryThis(URLSearchParamsPrototype.forEach);
-var push = uncurryThis([].push);
-var params = new $URLSearchParams('a=1&a=2&b=3');
-
-params['delete']('a', 1);
-// `undefined` case is a Chromium 117 bug
-// https://bugs.chromium.org/p/v8/issues/detail?id=14222
-params['delete']('b', undefined);
-
-if (params + '' !== 'a=2') {
-  defineBuiltIn(URLSearchParamsPrototype, 'delete', function (name /* , value */) {
-    var length = arguments.length;
-    var $value = length < 2 ? undefined : arguments[1];
-    if (length && $value === undefined) return $delete(this, name);
-    var entries = [];
-    forEach(this, function (v, k) { // also validates `this`
-      push(entries, { key: k, value: v });
-    });
-    validateArgumentsLength(length, 1);
-    var key = toString(name);
-    var value = toString($value);
-    var index = 0;
-    var dindex = 0;
-    var found = false;
-    var entriesLength = entries.length;
-    var entry;
-    while (index < entriesLength) {
-      entry = entries[index++];
-      if (found || entry.key === key) {
-        found = true;
-        $delete(this, entry.key);
-      } else dindex++;
-    }
-    while (dindex < entriesLength) {
-      entry = entries[dindex++];
-      if (!(entry.key === key && entry.value === value)) append(this, entry.key, entry.value);
-    }
-  }, { enumerable: true, unsafe: true });
-}
-
-
-/***/ }),
-
-/***/ 7566:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var defineBuiltIn = __webpack_require__(6840);
-var uncurryThis = __webpack_require__(9504);
-var toString = __webpack_require__(655);
-var validateArgumentsLength = __webpack_require__(2812);
-
-var $URLSearchParams = URLSearchParams;
-var URLSearchParamsPrototype = $URLSearchParams.prototype;
-var getAll = uncurryThis(URLSearchParamsPrototype.getAll);
-var $has = uncurryThis(URLSearchParamsPrototype.has);
-var params = new $URLSearchParams('a=1');
-
-// `undefined` case is a Chromium 117 bug
-// https://bugs.chromium.org/p/v8/issues/detail?id=14222
-if (params.has('a', 2) || !params.has('a', undefined)) {
-  defineBuiltIn(URLSearchParamsPrototype, 'has', function has(name /* , value */) {
-    var length = arguments.length;
-    var $value = length < 2 ? undefined : arguments[1];
-    if (length && $value === undefined) return $has(this, name);
-    var values = getAll(this, name); // also validates `this`
-    validateArgumentsLength(length, 1);
-    var value = toString($value);
-    var index = 0;
-    while (index < values.length) {
-      if (values[index++] === value) return true;
-    } return false;
-  }, { enumerable: true, unsafe: true });
-}
-
-
-/***/ }),
-
-/***/ 8721:
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
-
-
-var DESCRIPTORS = __webpack_require__(3724);
-var uncurryThis = __webpack_require__(9504);
-var defineBuiltInAccessor = __webpack_require__(2106);
-
-var URLSearchParamsPrototype = URLSearchParams.prototype;
-var forEach = uncurryThis(URLSearchParamsPrototype.forEach);
-
-// `URLSearchParams.prototype.size` getter
-// https://github.com/whatwg/url/pull/734
-if (DESCRIPTORS && !('size' in URLSearchParamsPrototype)) {
-  defineBuiltInAccessor(URLSearchParamsPrototype, 'size', {
-    get: function size() {
-      var count = 0;
-      forEach(this, function () { count++; });
-      return count;
-    },
-    configurable: true,
-    enumerable: true
-  });
-}
-
-
-/***/ })
-
-/******/ });
-/************************************************************************/
-/******/ // The module cache
-/******/ var __webpack_module_cache__ = {};
-/******/ 
-/******/ // The require function
-/******/ function __webpack_require__(moduleId) {
-/******/ 	// Check if module is in cache
-/******/ 	var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 	if (cachedModule !== undefined) {
-/******/ 		return cachedModule.exports;
-/******/ 	}
-/******/ 	// Create a new module (and put it into the cache)
-/******/ 	var module = __webpack_module_cache__[moduleId] = {
-/******/ 		// no module.id needed
-/******/ 		// no module.loaded needed
-/******/ 		exports: {}
-/******/ 	};
-/******/ 
-/******/ 	// Execute the module function
-/******/ 	__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/ 
-/******/ 	// Return the exports of the module
-/******/ 	return module.exports;
-/******/ }
-/******/ 
-/************************************************************************/
-/******/ /* webpack/runtime/define property getters */
-/******/ (() => {
-/******/ 	// define getter functions for harmony exports
-/******/ 	__webpack_require__.d = (exports, definition) => {
-/******/ 		for(var key in definition) {
-/******/ 			if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 			}
-/******/ 		}
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/hasOwnProperty shorthand */
-/******/ (() => {
-/******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ })();
-/******/ 
-/************************************************************************/
-var __webpack_exports__ = globalThis.pdfjsLib = {};
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  AbortException: () => (/* reexport */ AbortException),
-  AnnotationEditorLayer: () => (/* reexport */ AnnotationEditorLayer),
-  AnnotationEditorParamsType: () => (/* reexport */ AnnotationEditorParamsType),
-  AnnotationEditorType: () => (/* reexport */ AnnotationEditorType),
-  AnnotationEditorUIManager: () => (/* reexport */ AnnotationEditorUIManager),
-  AnnotationLayer: () => (/* reexport */ AnnotationLayer),
-  AnnotationMode: () => (/* reexport */ AnnotationMode),
-  ColorPicker: () => (/* reexport */ ColorPicker),
-  DOMSVGFactory: () => (/* reexport */ DOMSVGFactory),
-  DrawLayer: () => (/* reexport */ DrawLayer),
-  FeatureTest: () => (/* reexport */ util_FeatureTest),
-  GlobalWorkerOptions: () => (/* reexport */ GlobalWorkerOptions),
-  ImageKind: () => (/* reexport */ util_ImageKind),
-  InvalidPDFException: () => (/* reexport */ InvalidPDFException),
-  MissingPDFException: () => (/* reexport */ MissingPDFException),
-  OPS: () => (/* reexport */ OPS),
-  OutputScale: () => (/* reexport */ OutputScale),
-  PDFDataRangeTransport: () => (/* reexport */ PDFDataRangeTransport),
-  PDFDateString: () => (/* reexport */ PDFDateString),
-  PDFWorker: () => (/* reexport */ PDFWorker),
-  PasswordResponses: () => (/* reexport */ PasswordResponses),
-  PermissionFlag: () => (/* reexport */ PermissionFlag),
-  PixelsPerInch: () => (/* reexport */ PixelsPerInch),
-  RenderingCancelledException: () => (/* reexport */ RenderingCancelledException),
-  TextLayer: () => (/* reexport */ TextLayer),
-  TouchManager: () => (/* reexport */ TouchManager),
-  UnexpectedResponseException: () => (/* reexport */ UnexpectedResponseException),
-  Util: () => (/* reexport */ Util),
-  VerbosityLevel: () => (/* reexport */ VerbosityLevel),
-  XfaLayer: () => (/* reexport */ XfaLayer),
-  build: () => (/* reexport */ build),
-  createValidAbsoluteUrl: () => (/* reexport */ createValidAbsoluteUrl),
-  fetchData: () => (/* reexport */ fetchData),
-  getDocument: () => (/* reexport */ getDocument),
-  getFilenameFromUrl: () => (/* reexport */ getFilenameFromUrl),
-  getPdfFilenameFromUrl: () => (/* reexport */ getPdfFilenameFromUrl),
-  getXfaPageViewport: () => (/* reexport */ getXfaPageViewport),
-  isDataScheme: () => (/* reexport */ isDataScheme),
-  isPdfFile: () => (/* reexport */ isPdfFile),
-  noContextMenu: () => (/* reexport */ noContextMenu),
-  normalizeUnicode: () => (/* reexport */ normalizeUnicode),
-  setLayerDimensions: () => (/* reexport */ setLayerDimensions),
-  shadow: () => (/* reexport */ shadow),
-  stopEvent: () => (/* reexport */ stopEvent),
-  version: () => (/* reexport */ version)
-});
-
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.push.js
-var es_array_push = __webpack_require__(4114);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array-buffer.detached.js
-var es_array_buffer_detached = __webpack_require__(6573);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array-buffer.transfer.js
-var es_array_buffer_transfer = __webpack_require__(8100);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array-buffer.transfer-to-fixed-length.js
-var es_array_buffer_transfer_to_fixed_length = __webpack_require__(7936);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.typed-array.to-reversed.js
-var es_typed_array_to_reversed = __webpack_require__(7467);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.typed-array.to-sorted.js
-var es_typed_array_to_sorted = __webpack_require__(4732);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.typed-array.with.js
-var es_typed_array_with = __webpack_require__(9577);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/esnext.promise.try.js
-var esnext_promise_try = __webpack_require__(5247);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/web.dom-exception.stack.js
-var web_dom_exception_stack = __webpack_require__(4979);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/web.url-search-params.delete.js
-var web_url_search_params_delete = __webpack_require__(4603);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/web.url-search-params.has.js
-var web_url_search_params_has = __webpack_require__(7566);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/web.url-search-params.size.js
-var web_url_search_params_size = __webpack_require__(8721);
 ;// ./src/shared/util.js
-
-
-
-
-
-
-
-
-
-
-
-
-const isNodeJS = typeof process === "object" && process + "" === "[object process]" && !process.versions.nw && !(process.versions.electron && process.type && process.type !== "browser");
-const IDENTITY_MATRIX = [1, 0, 0, 1, 0, 0];
-const FONT_IDENTITY_MATRIX = [0.001, 0, 0, 0.001, 0, 0];
-const MAX_IMAGE_SIZE_TO_CACHE = 10e6;
-const LINE_FACTOR = 1.35;
-const LINE_DESCENT_FACTOR = 0.35;
-const BASELINE_FACTOR = LINE_DESCENT_FACTOR / LINE_FACTOR;
+const isNodeJS = typeof processo === "objeto" && processo + "" === "[objeto processo]" && !process.versions.nw && !(process.versions.electron && process.type && process.type !== "navegador");
+const MATRIZ_DE_IDENTIDADE_DA_FONTE = [0,001, 0, 0, 0,001, 0, 0];
+const FATOR_DE_LINHA = 1,35;
+const FATOR_DE_DESCENT_DE_LINHA = 0,35;
+const FATOR_DE_BASE = FATOR_DE_DESCENT_DE_LINHA / FATOR_DE_LINHA;
 const RenderingIntentFlag = {
-  ANY: 0x01,
-  DISPLAY: 0x02,
-  PRINT: 0x04,
-  SAVE: 0x08,
-  ANNOTATIONS_FORMS: 0x10,
-  ANNOTATIONS_STORAGE: 0x20,
-  ANNOTATIONS_DISABLE: 0x40,
-  IS_EDITING: 0x80,
-  OPLIST: 0x100
+  QUALQUER: 0x01,
+  EXIBIÇÃO: 0x02,
+  IMPRESSÃO: 0x04,
+  SALVAR: 0x08,
+  ANOTAÇÕES_FORMULÁRIOS: 0x10,
+  ANOTAÇÕES_ARMAZENAMENTO: 0x20,
+  ANOTAÇÕES_DESATIVADAS: 0x40,
+  EDIÇÃO_IS: 0x80,
+  LISTA OPL: 0x100
 };
-const AnnotationMode = {
-  DISABLE: 0,
-  ENABLE: 1,
-  ENABLE_FORMS: 2,
-  ENABLE_STORAGE: 3
+const ModoDeAnotação = {
+  DESATIVAR: 0,
+  HABILITAR: 1,
+  HABILITAR_FORMULÁRIOS: 2,
+  HABILITAR_ARMAZENAMENTO: 3
 };
 const AnnotationEditorPrefix = "pdfjs_internal_editor_";
-const AnnotationEditorType = {
-  DISABLE: -1,
-  NONE: 0,
-  FREETEXT: 3,
-  HIGHLIGHT: 9,
-  STAMP: 13,
-  INK: 15
+const TipoDeEditorDeAnotação = {
+  DESATIVAR: -1,
+  NENHUM: 0,
+  TEXTO LIVRE: 3,
+  DESTAQUE: 9,
+  SELO: 13,
+  TINTA: 15,
+  ASSINATURA: 101
 };
 const AnnotationEditorParamsType = {
-  RESIZE: 1,
-  CREATE: 2,
-  FREETEXT_SIZE: 11,
-  FREETEXT_COLOR: 12,
-  FREETEXT_OPACITY: 13,
-  INK_COLOR: 21,
-  INK_THICKNESS: 22,
-  INK_OPACITY: 23,
-  HIGHLIGHT_COLOR: 31,
-  HIGHLIGHT_DEFAULT_COLOR: 32,
-  HIGHLIGHT_THICKNESS: 33,
-  HIGHLIGHT_FREE: 34,
-  HIGHLIGHT_SHOW_ALL: 35,
-  DRAW_STEP: 41
+  REDIMENSIONAR: 1,
+  CRIAR: 2,
+  TAMANHO_DO_TEXTO_LIVRE: 11,
+  COR_DO_TEXTO_LIVRE: 12,
+  OPACIDADE_DO_TEXTO_LIVRE: 13,
+  COR_DA_TINTA: 21,
+  ESPESSURA DA TINTA: 22,
+  OPACIDADE_DA_TINTA: 23,
+  COR DE DESTAQUE: 31,
+  COR_PADRÃO_DE_DESTAQUE: 32,
+  ESPESSURA DE DESTAQUE: 33,
+  DESTAQUE_GRÁTIS: 34,
+  DESTAQUE_MOSTRAR_TUDO: 35,
+  ETAPA_DESENHO: 41
 };
 const PermissionFlag = {
-  PRINT: 0x04,
-  MODIFY_CONTENTS: 0x08,
-  COPY: 0x10,
-  MODIFY_ANNOTATIONS: 0x20,
-  FILL_INTERACTIVE_FORMS: 0x100,
-  COPY_FOR_ACCESSIBILITY: 0x200,
-  ASSEMBLE: 0x400,
-  PRINT_HIGH_QUALITY: 0x800
+  IMPRESSÃO: 0x04,
+  MODIFICAR_CONTEÚDO: 0x08,
+  CÓPIA: 0x10,
+  MODIFICAR_ANNOTAÇÕES: 0x20,
+  PREENCHER_FORMULÁRIOS_INTERATIVOS: 0x100,
+  CÓPIA_PARA_ACESSIBILIDADE: 0x200,
+  MONTAGEM: 0x400,
+  IMPRESSÃO_ALTA_QUALIDADE: 0x800
 };
 const TextRenderingMode = {
-  FILL: 0,
-  STROKE: 1,
-  FILL_STROKE: 2,
-  INVISIBLE: 3,
-  FILL_ADD_TO_PATH: 4,
+  PREENCHIMENTO: 0,
+  AVC: 1,
+  CURSO_DE_PREENCHIMENTO: 2,
+  INVISÍVEL: 3,
+  PREENCHER_ADICIONAR_AO_CAMINHO: 4,
   STROKE_ADD_TO_PATH: 5,
-  FILL_STROKE_ADD_TO_PATH: 6,
-  ADD_TO_PATH: 7,
-  FILL_STROKE_MASK: 3,
-  ADD_TO_PATH_FLAG: 4
+  PREENCHIMENTO_TRAÇO_ADICIONAR_AO_CAMINHO: 6,
+  ADICIONAR_AO_CAMINHO: 7,
+  MÁSCARA_DE_TRAÇO_DE_PREENCHIMENTO: 3,
+  ADICIONAR_AO_CAMINHO_FLAG: 4
 };
 const util_ImageKind = {
-  GRAYSCALE_1BPP: 1,
+  ESCALA DE CINZA_1BPP: 1,
   RGB_24BPP: 2,
   RGBA_32BPP: 3
 };
-const AnnotationType = {
-  TEXT: 1,
+const Tipo de Anotação = {
+  TEXTO 1,
   LINK: 2,
-  FREETEXT: 3,
-  LINE: 4,
-  SQUARE: 5,
-  CIRCLE: 6,
-  POLYGON: 7,
-  POLYLINE: 8,
-  HIGHLIGHT: 9,
-  UNDERLINE: 10,
-  SQUIGGLY: 11,
+  TEXTO LIVRE: 3,
+  LINHA: 4,
+  QUADRADO: 5,
+  CÍRCULO: 6,
+  POLÍGONO: 7,
+  POLILINHA: 8,
+  DESTAQUE: 9,
+  SUBLINHADO: 10,
+  OLHADO: 11,
   STRIKEOUT: 12,
-  STAMP: 13,
-  CARET: 14,
-  INK: 15,
-  POPUP: 16,
-  FILEATTACHMENT: 17,
-  SOUND: 18,
-  MOVIE: 19,
+  SELO: 13,
+  CIRCULAÇÃO: 14,
+  TINTA: 15,
+  POP-UP: 16,
+  ANEXO DO ARQUIVO: 17,
+  SOM: 18,
+  FILME: 19,
   WIDGET: 20,
-  SCREEN: 21,
-  PRINTERMARK: 22,
-  TRAPNET: 23,
-  WATERMARK: 24,
-  THREED: 25,
-  REDACT: 26
+  TELA: 21,
+  MARCA DE IMPRESSÃO: 22,
+  ARMADILHA: 23,
+  MARCA D'ÁGUA: 24,
+  TRÊS: 25,
+  REDIGIR: 26
 };
 const AnnotationReplyType = {
-  GROUP: "Group",
-  REPLY: "R"
+  GRUPO: "Grupo",
+  RESPOSTA: "R"
 };
 const AnnotationFlag = {
-  INVISIBLE: 0x01,
-  HIDDEN: 0x02,
-  PRINT: 0x04,
-  NOZOOM: 0x08,
-  NOROTATE: 0x10,
+  INVISÍVEL: 0x01,
+  OCULTO: 0x02,
+  IMPRESSÃO: 0x04,
+  SEM ZOOM: 0x08,
+  NOROTATO: 0x10,
   NOVIEW: 0x20,
-  READONLY: 0x40,
-  LOCKED: 0x80,
-  TOGGLENOVIEW: 0x100,
-  LOCKEDCONTENTS: 0x200
+  SOMENTE LEITURA: 0x40,
+  BLOQUEADO: 0x80,
+  ALTERNARVISUALIZAÇÃO: 0x100,
+  CONTEÚDO BLOQUEADO: 0x200
 };
-const AnnotationFieldFlag = {
-  READONLY: 0x0000001,
-  REQUIRED: 0x0000002,
+const SinalizadorDeCampoDeAnotação = {
+  SOMENTE LEITURA: 0x0000001,
+  OBRIGATÓRIO: 0x0000002,
   NOEXPORT: 0x0000004,
-  MULTILINE: 0x0001000,
-  PASSWORD: 0x0002000,
+  MULTILINHA: 0x0001000,
+  SENHA: 0x0002000,
   NOTOGGLETOOFF: 0x0004000,
-  RADIO: 0x0008000,
-  PUSHBUTTON: 0x0010000,
+  RÁDIO: 0x0008000,
+  BOTÃO DE PRESSÃO: 0x0010000,
   COMBO: 0x0020000,
-  EDIT: 0x0040000,
-  SORT: 0x0080000,
-  FILESELECT: 0x0100000,
+  EDITAR: 0x0040000,
+  CLASSIFICAÇÃO: 0x0080000,
+  SELEÇÃO DE ARQUIVO: 0x0100000,
   MULTISELECT: 0x0200000,
-  DONOTSPELLCHECK: 0x0400000,
-  DONOTSCROLL: 0x0800000,
+  NÃO VERIFICAR ORTOGRAFIA: 0x0400000,
+  NÃO ROLAR: 0x0800000,
   COMB: 0x1000000,
   RICHTEXT: 0x2000000,
   RADIOSINUNISON: 0x2000000,
-  COMMITONSELCHANGE: 0x4000000
+  COMISSÕESALTERAÇÃO: 0x4000000
 };
 const AnnotationBorderStyleType = {
-  SOLID: 1,
-  DASHED: 2,
-  BEVELED: 3,
-  INSET: 4,
-  UNDERLINE: 5
+  SÓLIDO: 1,
+  TRAÇADO: 2,
+  BISOTADO: 3,
+  INSERÇÃO: 4,
+  SUBLINHADO: 5
 };
 const AnnotationActionEventType = {
-  E: "Mouse Enter",
-  X: "Mouse Exit",
-  D: "Mouse Down",
-  U: "Mouse Up",
-  Fo: "Focus",
-  Bl: "Blur",
-  PO: "PageOpen",
-  PC: "PageClose",
-  PV: "PageVisible",
-  PI: "PageInvisible",
-  K: "Keystroke",
-  F: "Format",
-  V: "Validate",
-  C: "Calculate"
+  E: "Enter do mouse",
+  X: "Saída do mouse",
+  D: "Mouse para baixo",
+  U: "Mouse para cima",
+  Fo: "Foco",
+  Bl: "Desfoque",
+  PO: "PáginaAberta",
+  PC: "Fechar Página",
+  PV: "PáginaVisível",
+  PI: "PáginaInvisível",
+  K: "Pressionamento de tecla",
+  F: "Formato",
+  V: "Validar",
+  C: "Calcular"
 };
 const DocumentActionEventType = {
   WC: "WillClose",
-  WS: "WillSave",
-  DS: "DidSave",
-  WP: "WillPrint",
-  DP: "DidPrint"
+  WS: "Salvarei",
+  DS: "Salvou",
+  WP: "Imprimirá",
+  DP: "Imprimiu"
 };
 const PageActionEventType = {
-  O: "PageOpen",
-  C: "PageClose"
+  O: "PáginaAberta",
+  C: "FecharPágina"
 };
-const VerbosityLevel = {
-  ERRORS: 0,
-  WARNINGS: 1,
-  INFOS: 5
+const NívelDeVerbosidade = {
+  ERROS: 0,
+  AVISOS: 1,
+  INFORMAÇÕES: 5
 };
 const OPS = {
-  dependency: 1,
+  dependência: 1,
   setLineWidth: 2,
   setLineCap: 3,
   setLineJoin: 4,
   setMiterLimit: 5,
   setDash: 6,
   setRenderingIntent: 7,
-  setFlatness: 8,
-  setGState: 9,
-  save: 10,
-  restore: 11,
-  transform: 12,
-  moveTo: 13,
-  lineTo: 14,
-  curveTo: 15,
-  curveTo2: 16,
-  curveTo3: 17,
+  conjuntoPlanicidade: 8,
+  definirGState: 9,
+  salvar: 10,
+  restaurar: 11,
+  transformar: 12,
+  mover para: 13,
+  linhaPara: 14,
+  curvaPara: 15,
+  curvaTo2: 16,
+  curvaTo3: 17,
   closePath: 18,
-  rectangle: 19,
-  stroke: 20,
+  retângulo: 19,
+  curso: 20,
   closeStroke: 21,
-  fill: 22,
+  preenchimento: 22,
   eoFill: 23,
   fillStroke: 24,
   eoFillStroke: 25,
   closeFillStroke: 26,
   closeEOFillStroke: 27,
   endPath: 28,
-  clip: 29,
+  clipe: 29,
   eoClip: 30,
   beginText: 31,
-  endText: 32,
+  fim do texto: 32,
   setCharSpacing: 33,
   setWordSpacing: 34,
   setHScale: 35,
-  setLeading: 36,
+  conjuntoLeading: 36,
   setFont: 37,
-  setTextRenderingMode: 38,
+  definirModoDeRenderizaçãoDeTexto: 38,
   setTextRise: 39,
   moveText: 40,
   setLeadingMoveText: 41,
   setTextMatrix: 42,
-  nextLine: 43,
-  showText: 44,
+  próximaLinha: 43,
+  mostrarTexto: 44,
   showSpacedText: 45,
   nextLineShowText: 46,
   nextLineSetSpacingShowText: 47,
   setCharWidth: 48,
-  setCharWidthAndBounds: 49,
+  definirCharWidthAndBounds: 49,
   setStrokeColorSpace: 50,
   setFillColorSpace: 51,
   setStrokeColor: 52,
   setStrokeColorN: 53,
-  setFillColor: 54,
-  setFillColorN: 55,
+  definirFillColor: 54,
+  definirFillColorN: 55,
   setStrokeGray: 56,
   setFillGray: 57,
   setStrokeRGBColor: 58,
   setFillRGBColor: 59,
   setStrokeCMYKColor: 60,
   setFillCMYKColor: 61,
-  shadingFill: 62,
+  sombreamentoPreenchimento: 62,
   beginInlineImage: 63,
   beginImageData: 64,
   endInlineImage: 65,
   paintXObject: 66,
-  markPoint: 67,
+  ponto de marcação: 67,
   markPointProps: 68,
   beginMarkedContent: 69,
   beginMarkedContentProps: 70,
-  endMarkedContent: 71,
+  ConteúdoMarcadofinal: 71,
   beginCompat: 72,
   endCompat: 73,
-  paintFormXObjectBegin: 74,
+  paintFormXObjectInício: 74,
   paintFormXObjectEnd: 75,
-  beginGroup: 76,
-  endGroup: 77,
+  beginGrupo: 76,
+  Grupo final: 77,
   beginAnnotation: 80,
-  endAnnotation: 81,
+  Anotação final: 81,
   paintImageMaskXObject: 83,
   paintImageMaskXObjectGroup: 84,
   paintImageXObject: 85,
   paintInlineImageXObject: 86,
   paintInlineImageXObjectGroup: 87,
-  paintImageXObjectRepeat: 88,
-  paintImageMaskXObjectRepeat: 89,
+  paintImageXObjectRepetir: 88,
+  paintImageMaskXObjectRepetir: 89,
   paintSolidColorImageMask: 90,
   constructPath: 91,
   setStrokeTransparent: 92,
-  setFillTransparent: 93
+  setFillTransparent: 93,
+  rawFillPath: 94
 };
-const PasswordResponses = {
-  NEED_PASSWORD: 1,
-  INCORRECT_PASSWORD: 2
+const DrawOPS = {
+  mover para: 0,
+  linhaPara: 1,
+  curvaPara: 2,
+  closePath: 3
 };
-let verbosity = VerbosityLevel.WARNINGS;
-function setVerbosityLevel(level) {
-  if (Number.isInteger(level)) {
-    verbosity = level;
+const RespostasDeSenha = {
+  SENHA_NECESSÁRIA: 1,
+  SENHA_INCORRETA: 2
+};
+deixe verbosity = VerbosityLevel.WARNINGS;
+função setVerbosityLevel(nível) {
+  se (Number.isInteger(nível)) {
+    verbosidade = nível;
   }
 }
-function getVerbosityLevel() {
-  return verbosity;
+função getVerbosityLevel() {
+  retornar verbosidade;
 }
-function info(msg) {
-  if (verbosity >= VerbosityLevel.INFOS) {
-    console.log(`Info: ${msg}`);
+função info(msg) {
+  se (verbosidade >= VerbosityLevel.INFOS) {
+    console.log(`Informações: ${msg}`);
   }
 }
-function warn(msg) {
-  if (verbosity >= VerbosityLevel.WARNINGS) {
-    console.log(`Warning: ${msg}`);
+função warn(msg) {
+  se (verbosidade >= VerbosidadeNível.AVISOS) {
+    console.log(`Aviso: ${msg}`);
   }
 }
-function unreachable(msg) {
-  throw new Error(msg);
+função inalcançável(msg) {
+  lançar novo erro(msg);
 }
-function assert(cond, msg) {
-  if (!cond) {
-    unreachable(msg);
+função assert(cond, msg) {
+  se (!cond) {
+    inacessível(msg);
   }
 }
-function _isValidProtocol(url) {
-  switch (url?.protocol) {
-    case "http:":
-    case "https:":
-    case "ftp:":
-    case "mailto:":
-    case "tel:":
-      return true;
-    default:
-      return false;
+função _isValidProtocol(url) {
+  switch (url?.protocolo) {
+    caso "http:":
+    caso "https:":
+    caso "ftp:":
+    caso "mailto:":
+    caso "tel:":
+      retornar verdadeiro;
+    padrão:
+      retornar falso;
   }
 }
-function createValidAbsoluteUrl(url, baseUrl = null, options = null) {
-  if (!url) {
-    return null;
+função createValidAbsoluteUrl(url, baseUrl = nulo, opções = nulo) {
+  se (!url) {
+    retornar nulo;
   }
-  try {
-    if (options && typeof url === "string") {
-      if (options.addDefaultProtocol && url.startsWith("www.")) {
-        const dots = url.match(/\./g);
-        if (dots?.length >= 2) {
-          url = `http://${url}`;
-        }
-      }
-      if (options.tryConvertEncoding) {
-        try {
-          url = stringToUTF8String(url);
-        } catch {}
+  se (opções && tipo de url === "string") {
+    se (opções.addDefaultProtocol && url.startsWith("www.")) {
+      const pontos = url.match(/\./g);
+      se (pontos?.comprimento >= 2) {
+        url = `http://${url}`;
       }
     }
-    const absoluteUrl = baseUrl ? new URL(url, baseUrl) : new URL(url);
-    if (_isValidProtocol(absoluteUrl)) {
-      return absoluteUrl;
+    se (opções.tryConvertEncoding) {
+      tentar {
+        url = stringToUTF8String(url);
+      } pegar {}
     }
-  } catch {}
-  return null;
+  }
+  const absoluteUrl = baseUrl ? URL.parse(url, baseUrl) : URL.parse(url);
+  retornar _isValidProtocol(absoluteUrl) ? absoluteUrl : nulo;
 }
-function shadow(obj, prop, value, nonSerializable = false) {
-  Object.defineProperty(obj, prop, {
-    value,
-    enumerable: !nonSerializable,
-    configurable: true,
-    writable: false
+função updateUrlHash(url, hash, allowRel = false) {
+  const res = URL.parse(url);
+  se (res) {
+    res.hash = hash;
+    retornar res.href;
+  }
+  se (allowRel && createValidAbsoluteUrl(url, "http://example.com")) {
+    retornar url.split("#", 1)[0] + `${hash ? `#${hash}` : ""}`;
+  }
+  retornar "";
+}
+função shadow(obj, prop, valor, não serializável = falso) {
+  Objeto.defineProperty(obj, prop, {
+    valor,
+    enumerável: !nãoSerializável,
+    configurável: verdadeiro,
+    gravável: falso
   });
-  return value;
+  valor de retorno;
 }
-const BaseException = function BaseExceptionClosure() {
-  function BaseException(message, name) {
-    this.message = message;
-    this.name = name;
+const BaseException = função BaseExceptionClosure() {
+  função BaseException(mensagem, nome) {
+    this.message = mensagem;
+    this.nome = nome;
   }
-  BaseException.prototype = new Error();
-  BaseException.constructor = BaseException;
-  return BaseException;
+  BaseException.prototype = novo Erro();
+  BaseException.construtor = BaseException;
+  retornar BaseException;
 }();
-class PasswordException extends BaseException {
-  constructor(msg, code) {
+classe PasswordException estende BaseException {
+  construtor(msg, código) {
     super(msg, "PasswordException");
-    this.code = code;
+    this.code = código;
   }
 }
-class UnknownErrorException extends BaseException {
-  constructor(msg, details) {
+classe UnknownErrorException estende BaseException {
+  construtor(msg, detalhes) {
     super(msg, "UnknownErrorException");
-    this.details = details;
+    this.details = detalhes;
   }
 }
-class InvalidPDFException extends BaseException {
-  constructor(msg) {
-    super(msg, "InvalidPDFException");
+classe InvalidPDFException estende BaseException {
+  construtor(msg) {
+    super(msg, "ExceçãoPDFInválida");
   }
 }
-class MissingPDFException extends BaseException {
-  constructor(msg) {
-    super(msg, "MissingPDFException");
+classe ResponseException estende BaseException {
+  construtor(msg, status, ausente) {
+    super(msg, "Exceção de Resposta");
+    este.status = status;
+    this.missing = faltando;
   }
 }
-class UnexpectedResponseException extends BaseException {
-  constructor(msg, status) {
-    super(msg, "UnexpectedResponseException");
-    this.status = status;
+classe FormatError estende BaseException {
+  construtor(msg) {
+    super(msg, "Erro de formatação");
   }
 }
-class FormatError extends BaseException {
-  constructor(msg) {
-    super(msg, "FormatError");
-  }
-}
-class AbortException extends BaseException {
-  constructor(msg) {
+classe AbortException estende BaseException {
+  construtor(msg) {
     super(msg, "AbortException");
   }
 }
-function bytesToString(bytes) {
-  if (typeof bytes !== "object" || bytes?.length === undefined) {
-    unreachable("Invalid argument for bytesToString");
+função bytesToString(bytes) {
+  se (tipo de bytes !== "objeto" || bytes?.comprimento === indefinido) {
+    unreachable("Argumento inválido para bytesToString");
   }
-  const length = bytes.length;
+  comprimento constante = bytes.length;
   const MAX_ARGUMENT_COUNT = 8192;
-  if (length < MAX_ARGUMENT_COUNT) {
-    return String.fromCharCode.apply(null, bytes);
+  se (comprimento < MAX_ARGUMENT_COUNT) {
+    retornar String.fromCharCode.apply(nulo, bytes);
   }
   const strBuf = [];
-  for (let i = 0; i < length; i += MAX_ARGUMENT_COUNT) {
-    const chunkEnd = Math.min(i + MAX_ARGUMENT_COUNT, length);
+  para (seja i = 0; i < comprimento; i += MAX_ARGUMENT_COUNT) {
+    const chunkEnd = Math.min(i + MAX_ARGUMENT_COUNT, comprimento);
     const chunk = bytes.subarray(i, chunkEnd);
-    strBuf.push(String.fromCharCode.apply(null, chunk));
+    strBuf.push(String.fromCharCode.apply(nulo, pedaço));
   }
-  return strBuf.join("");
+  retornar strBuf.join("");
 }
-function stringToBytes(str) {
-  if (typeof str !== "string") {
-    unreachable("Invalid argument for stringToBytes");
+função stringToBytes(str) {
+  se (tipo de str !== "string") {
+    unreachable("Argumento inválido para stringToBytes");
   }
-  const length = str.length;
-  const bytes = new Uint8Array(length);
-  for (let i = 0; i < length; ++i) {
+  comprimento constante = str.length;
+  const bytes = novo Uint8Array(comprimento);
+  para (seja i = 0; i < comprimento; ++i) {
     bytes[i] = str.charCodeAt(i) & 0xff;
   }
-  return bytes;
+  retornar bytes;
 }
-function string32(value) {
-  return String.fromCharCode(value >> 24 & 0xff, value >> 16 & 0xff, value >> 8 & 0xff, value & 0xff);
+função string32(valor) {
+  retornar String.fromCharCode(valor >> 24 e 0xff, valor >> 16 e 0xff, valor >> 8 e 0xff, valor e 0xff);
 }
-function objectSize(obj) {
-  return Object.keys(obj).length;
+função objectSize(obj) {
+  retornar Object.keys(obj).length;
 }
-function objectFromMap(map) {
-  const obj = Object.create(null);
-  for (const [key, value] of map) {
-    obj[key] = value;
-  }
-  return obj;
-}
-function isLittleEndian() {
-  const buffer8 = new Uint8Array(4);
+função isLittleEndian() {
+  const buffer8 = novo Uint8Array(4);
   buffer8[0] = 1;
-  const view32 = new Uint32Array(buffer8.buffer, 0, 1);
-  return view32[0] === 1;
+  const view32 = novo Uint32Array(buffer8.buffer, 0, 1);
+  retornar view32[0] === 1;
 }
-function isEvalSupported() {
-  try {
-    new Function("");
-    return true;
-  } catch {
-    return false;
+função isEvalSupported() {
+  tentar {
+    nova Função("");
+    retornar verdadeiro;
+  } pegar {
+    retornar falso;
   }
 }
-class util_FeatureTest {
-  static get isLittleEndian() {
+classe util_FeatureTest {
+  estático obter isLittleEndian() {
     return shadow(this, "isLittleEndian", isLittleEndian());
   }
-  static get isEvalSupported() {
-    return shadow(this, "isEvalSupported", isEvalSupported());
+  estático obter isEvalSupported() {
+    retornar sombra(isto, "isEvalSupported", isEvalSupported());
   }
-  static get isOffscreenCanvasSupported() {
-    return shadow(this, "isOffscreenCanvasSupported", typeof OffscreenCanvas !== "undefined");
+  estático obter isOffscreenCanvasSupported() {
+    retornar sombra(isto, "OffscreenCanvasSupported", tipo de OffscreenCanvas !== "indefinido");
   }
-  static get isImageDecoderSupported() {
-    return shadow(this, "isImageDecoderSupported", typeof ImageDecoder !== "undefined");
+  estático obter isImageDecoderSupported() {
+    retornar sombra(isto, "éImageDecoderSuportado", tipo de ImageDecoder !== "indefinido");
   }
-  static get platform() {
-    if (typeof navigator !== "undefined" && typeof navigator?.platform === "string") {
-      return shadow(this, "platform", {
-        isMac: navigator.platform.includes("Mac"),
-        isWindows: navigator.platform.includes("Win"),
-        isFirefox: typeof navigator?.userAgent === "string" && navigator.userAgent.includes("Firefox")
-      });
-    }
-    return shadow(this, "platform", {
-      isMac: false,
-      isWindows: false,
-      isFirefox: false
+  estático obter plataforma() {
+    constante {
+      plataforma,
+      Agente do usuário
+    } = navegador;
+    retornar sombra(isto, "plataforma", {
+      éAndroid: userAgent.includes("Android"),
+      isLinux: plataforma.includes("Linux"),
+      isMac: plataforma.includes("Mac"),
+      isWindows: platform.includes("Win"),
+      isFirefox: userAgent.includes("Firefox")
     });
   }
-  static get isCSSRoundSupported() {
-    return shadow(this, "isCSSRoundSupported", globalThis.CSS?.supports?.("width: round(1.5px, 1px)"));
+  estático obter isCSSRoundSupported() {
+    retornar sombra(isto, "CSSRoundSupported", globalThis.CSS?.supports?.("largura: redondo(1,5px, 1px)"));
   }
 }
 const hexNumbers = Array.from(Array(256).keys(), n => n.toString(16).padStart(2, "0"));
-class Util {
-  static makeHexColor(r, g, b) {
-    return `#${hexNumbers[r]}${hexNumbers[g]}${hexNumbers[b]}`;
+classe Util {
+  estático makeHexColor(r, g, b) {
+    retornar `#${hexNumbers[r]}${hexNumbers[g]}${hexNumbers[b]}`;
   }
-  static scaleMinMax(transform, minMax) {
-    let temp;
-    if (transform[0]) {
-      if (transform[0] < 0) {
+  escala estáticaMinMax(transformar, minMax) {
+    deixe temp;
+    se (transformar[0]) {
+      se (transformar[0] < 0) {
         temp = minMax[0];
         minMax[0] = minMax[2];
-        minMax[2] = temp;
+        minMax[2] = temperatura;
       }
-      minMax[0] *= transform[0];
-      minMax[2] *= transform[0];
-      if (transform[3] < 0) {
+      minMax[0] *= transformar[0];
+      minMax[2] *= transformar[0];
+      se (transformar[3] < 0) {
         temp = minMax[1];
         minMax[1] = minMax[3];
-        minMax[3] = temp;
+        minMax[3] = temperatura;
       }
-      minMax[1] *= transform[3];
-      minMax[3] *= transform[3];
-    } else {
+      minMax[1] *= transformar[3];
+      minMax[3] *= transformar[3];
+    } outro {
       temp = minMax[0];
       minMax[0] = minMax[1];
-      minMax[1] = temp;
+      minMax[1] = temperatura;
       temp = minMax[2];
       minMax[2] = minMax[3];
-      minMax[3] = temp;
-      if (transform[1] < 0) {
+      minMax[3] = temperatura;
+      se (transformar[1] < 0) {
         temp = minMax[1];
         minMax[1] = minMax[3];
-        minMax[3] = temp;
+        minMax[3] = temperatura;
       }
-      minMax[1] *= transform[1];
-      minMax[3] *= transform[1];
-      if (transform[2] < 0) {
+      minMax[1] *= transformar[1];
+      minMax[3] *= transformar[1];
+      se (transformar[2] < 0) {
         temp = minMax[0];
         minMax[0] = minMax[2];
-        minMax[2] = temp;
+        minMax[2] = temperatura;
       }
-      minMax[0] *= transform[2];
-      minMax[2] *= transform[2];
+      minMax[0] *= transformar[2];
+      minMax[2] *= transforma[2];
     }
-    minMax[0] += transform[4];
-    minMax[1] += transform[5];
-    minMax[2] += transform[4];
-    minMax[3] += transform[5];
+    minMax[0] += transformar[4];
+    minMax[1] += transformar[5];
+    minMax[2] += transformar[4];
+    minMax[3] += transformar[5];
   }
-  static transform(m1, m2) {
-    return [m1[0] * m2[0] + m1[2] * m2[1], m1[1] * m2[0] + m1[3] * m2[1], m1[0] * m2[2] + m1[2] * m2[3], m1[1] * m2[2] + m1[3] * m2[3], m1[0] * m2[4] + m1[2] * m2[5] + m1[4], m1[1] * m2[4] + m1[3] * m2[5] + m1[5]];
+  transformação estática(m1, m2) {
+    retornar [m1[0] * m2[0] + m1[2] * m2[1], m1[1] * m2[0] + m1[3] * m2[1], m1[0] * m2[2] + m1[2] * m2[3], m1[1] * m2[2] + m1[3] * m2[3], m1[0] * m2[4] + m1[2] * m2[5] + m1[4], m1[1] * m2[4] + m1[3] * m2[5] + m1[5]];
   }
-  static applyTransform(p, m) {
-    const xt = p[0] * m[0] + p[1] * m[2] + m[4];
-    const yt = p[0] * m[1] + p[1] * m[3] + m[5];
-    return [xt, yt];
+  estático applyTransform(p, m, pos = 0) {
+    const p0 = p[pos];
+    const p1 = p[pos + 1];
+    p[pos] = p0 * m[0] + p1 * m[2] + m[4];
+    p[pos + 1] = p0 * m[1] + p1 * m[3] + m[5];
   }
-  static applyInverseTransform(p, m) {
+  estático applyTransformToBezier(p, transformar, pos = 0) {
+    const m0 = transformar[0];
+    const m1 = transformar[1];
+    const m2 = transformar[2];
+    const m3 = transformar[3];
+    const m4 = transformar[4];
+    const m5 = transformar[5];
+    para (seja i = 0; i < 6; i += 2) {
+      const pI = p[pos + i];
+      const pI1 = p[pos + i + 1];
+      p[pos + i] = pI * m0 + pI1 * m2 + m4;
+      p[pos + i + 1] = pI * m1 + pI1 * m3 + m5;
+    }
+  }
+  estático applyInverseTransform(p, m) {
+    const p0 = p[0];
+    const p1 = p[1];
     const d = m[0] * m[3] - m[1] * m[2];
-    const xt = (p[0] * m[3] - p[1] * m[2] + m[2] * m[5] - m[4] * m[3]) / d;
-    const yt = (-p[0] * m[1] + p[1] * m[0] + m[4] * m[1] - m[5] * m[0]) / d;
-    return [xt, yt];
+    p[0] = (p0 * m[3] - p1 * m[2] + m[2] * m[5] - m[4] * m[3]) / d;
+    p[1] = (-p0 * m[1] + p1 * m[0] + m[4] * m[1] - m[5] * m[0]) / d;
   }
-  static getAxialAlignedBoundingBox(r, m) {
-    const p1 = this.applyTransform(r, m);
-    const p2 = this.applyTransform(r.slice(2, 4), m);
-    const p3 = this.applyTransform([r[0], r[3]], m);
-    const p4 = this.applyTransform([r[2], r[1]], m);
-    return [Math.min(p1[0], p2[0], p3[0], p4[0]), Math.min(p1[1], p2[1], p3[1], p4[1]), Math.max(p1[0], p2[0], p3[0], p4[0]), Math.max(p1[1], p2[1], p3[1], p4[1])];
+  axialAlignedBoundingBox estático(retificar, transformar, saída) {
+    const m0 = transformar[0];
+    const m1 = transformar[1];
+    const m2 = transformar[2];
+    const m3 = transformar[3];
+    const m4 = transformar[4];
+    const m5 = transformar[5];
+    const r0 = retângulo[0];
+    const r1 = retângulo[1];
+    const r2 = retângulo[2];
+    const r3 = rect[3];
+    deixe a0 = m0 * r0 + m4;
+    deixe a2 = a0;
+    deixe a1 = m0 * r2 + m4;
+    deixe a3 = a1;
+    seja b0 = m3 * r1 + m5;
+    deixe b2 = b0;
+    seja b1 = m3 * r3 + m5;
+    deixe b3 = b1;
+    se (m1 !== 0 || m2 !== 0) {
+      const m1r0 = m1 * r0;
+      const m1r2 = m1 * r2;
+      const m2r1 = m2 * r1;
+      const m2r3 = m2 * r3;
+      a0 += m2r1;
+      a3 += m2r1;
+      a1 += m2r3;
+      a2 += m2r3;
+      b0 += m1r0;
+      b3 += m1r0;
+      b1 += m1r2;
+      b2 += m1r2;
+    }
+    saída[0] = Math.min(saída[0], a0, a1, a2, a3);
+    saída[1] = Math.min(saída[1], b0, b1, b2, b3);
+    saída[2] = Math.max(saída[2], a0, a1, a2, a3);
+    saída[3] = Math.max(saída[3], b0, b1, b2, b3);
   }
-  static inverseTransform(m) {
+  transformação inversa estática(m) {
     const d = m[0] * m[3] - m[1] * m[2];
-    return [m[3] / d, -m[1] / d, -m[2] / d, m[0] / d, (m[2] * m[5] - m[4] * m[3]) / d, (m[4] * m[1] - m[5] * m[0]) / d];
+    retornar [m[3] / d, -m[1] / d, -m[2] / d, m[0] / d, (m[2] * m[5] - m[4] * m[3]) / d, (m[4] * m[1] - m[5] * m[0]) / d];
   }
-  static singularValueDecompose2dScale(m) {
-    const transpose = [m[0], m[2], m[1], m[3]];
-    const a = m[0] * transpose[0] + m[1] * transpose[2];
-    const b = m[0] * transpose[1] + m[1] * transpose[3];
-    const c = m[2] * transpose[0] + m[3] * transpose[2];
-    const d = m[2] * transpose[1] + m[3] * transpose[3];
-    const first = (a + d) / 2;
-    const second = Math.sqrt((a + d) ** 2 - 4 * (a * d - c * b)) / 2;
-    const sx = first + second || 1;
-    const sy = first - second || 1;
-    return [Math.sqrt(sx), Math.sqrt(sy)];
+  static singularValueDecompose2dScale(matriz, saída) {
+    const m0 = matriz[0];
+    const m1 = matriz[1];
+    const m2 = matriz[2];
+    const m3 = matriz[3];
+    constante a = m0 ** 2 + m1 ** 2;
+    const b = m0 * m2 + m1 * m3;
+    const c = m2 ** 2 + m3 ** 2;
+    const primeiro = (a + c) / 2;
+    const segundo = Math.sqrt(primeiro ** 2 - (a * c - b ** 2));
+    output[0] = Math.sqrt(primeiro + segundo || 1);
+    output[1] = Math.sqrt(primeiro - segundo || 1);
   }
-  static normalizeRect(rect) {
+  estático normalizeRect(rect) {
     const r = rect.slice(0);
-    if (rect[0] > rect[2]) {
-      r[0] = rect[2];
-      r[2] = rect[0];
+    se (rect[0] > rect[2]) {
+      r[0] = retângulo[2];
+      r[2] = retângulo[0];
     }
-    if (rect[1] > rect[3]) {
-      r[1] = rect[3];
-      r[3] = rect[1];
+    se (rect[1] > rect[3]) {
+      r[1] = retângulo[3];
+      r[3] = retângulo[1];
     }
-    return r;
+    retornar r;
   }
-  static intersect(rect1, rect2) {
-    const xLow = Math.max(Math.min(rect1[0], rect1[2]), Math.min(rect2[0], rect2[2]));
+  interseção estática(ret1, ret2) {
+    const xLow = Math.max(Math.min(ret1[0], ret1[2]), Math.min(ret2[0], ret2[2]));
     const xHigh = Math.min(Math.max(rect1[0], rect1[2]), Math.max(rect2[0], rect2[2]));
-    if (xLow > xHigh) {
-      return null;
+    se (xBaixo > xAlto) {
+      retornar nulo;
     }
     const yLow = Math.max(Math.min(rect1[1], rect1[3]), Math.min(rect2[1], rect2[3]));
     const yHigh = Math.min(Math.max(rect1[1], rect1[3]), Math.max(rect2[1], rect2[3]));
-    if (yLow > yHigh) {
-      return null;
+    se (yBaixo > yAlto) {
+      retornar nulo;
     }
-    return [xLow, yLow, xHigh, yHigh];
+    retornar [xBaixo, yBaixo, xAlto, yAlto];
   }
-  static #getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, t, minMax) {
-    if (t <= 0 || t >= 1) {
-      return;
+  pointBoundingBox estático(x, y, minMax) {
+    minMax[0] = Math.min(minMax[0], x);
+    minMax[1] = Math.min(minMax[1], y);
+    minMax[2] = Math.max(minMax[2], x);
+    minMax[3] = Math.max(minMax[3], y);
+  }
+  rectBoundingBox estático(x0, y0, x1, y1, minMax) {
+    minMax[0] = Math.min(minMax[0], x0, x1);
+    minMax[1] = Math.min(minMax[1], y0, y1);
+    minMax[2] = Math.max(minMax[2], x0, x1);
+    minMax[3] = Math.max(minMax[3], y0, y1);
+  }
+  estático #getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, t, minMax) {
+    se (t <= 0 || t >= 1) {
+      retornar;
     }
     const mt = 1 - t;
     const tt = t * t;
@@ -5571,771 +689,829 @@ class Util {
     minMax[2] = Math.max(minMax[2], x);
     minMax[3] = Math.max(minMax[3], y);
   }
-  static #getExtremum(x0, x1, x2, x3, y0, y1, y2, y3, a, b, c, minMax) {
-    if (Math.abs(a) < 1e-12) {
-      if (Math.abs(b) >= 1e-12) {
-        this.#getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, -c / b, minMax);
+  estático #getExtremum(x0, x1, x2, x3, y0, y1, y2, y3, a, b, c, minMax) {
+    se (Math.abs(a) < 1e-12) {
+      se (Math.abs(b) >= 1e-12) {
+        isto.#getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, -c / b, minMax);
       }
-      return;
+      retornar;
     }
-    const delta = b ** 2 - 4 * c * a;
-    if (delta < 0) {
-      return;
+    constante delta = b ** 2 - 4 * c * a;
+    se (delta < 0) {
+      retornar;
     }
     const sqrtDelta = Math.sqrt(delta);
-    const a2 = 2 * a;
+    constante a2 = 2 * a;
     this.#getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, (-b + sqrtDelta) / a2, minMax);
     this.#getExtremumOnCurve(x0, x1, x2, x3, y0, y1, y2, y3, (-b - sqrtDelta) / a2, minMax);
   }
-  static bezierBoundingBox(x0, y0, x1, y1, x2, y2, x3, y3, minMax) {
-    if (minMax) {
-      minMax[0] = Math.min(minMax[0], x0, x3);
-      minMax[1] = Math.min(minMax[1], y0, y3);
-      minMax[2] = Math.max(minMax[2], x0, x3);
-      minMax[3] = Math.max(minMax[3], y0, y3);
-    } else {
-      minMax = [Math.min(x0, x3), Math.min(y0, y3), Math.max(x0, x3), Math.max(y0, y3)];
-    }
-    this.#getExtremum(x0, x1, x2, x3, y0, y1, y2, y3, 3 * (-x0 + 3 * (x1 - x2) + x3), 6 * (x0 - 2 * x1 + x2), 3 * (x1 - x0), minMax);
+  bezierBoundingBox estático(x0, y0, x1, y1, x2, y2, x3, y3, minMax) {
+    minMax[0] = Math.min(minMax[0], x0, x3);
+    minMax[1] = Math.min(minMax[1], y0, y3);
+    minMax[2] = Math.max(minMax[2], x0, x3);
+    minMax[3] = Math.max(minMax[3], y0, y3);
+    isto.#getExtremum(x0, x1, x2, x3, y0, y1, y2, y3, 3 * (-x0 + 3 * (x1 - x2) + x3), 6 * (x0 - 2 * x1 + x2), 3 * (x1 - x0), minMax);
     this.#getExtremum(x0, x1, x2, x3, y0, y1, y2, y3, 3 * (-y0 + 3 * (y1 - y2) + y3), 6 * (y0 - 2 * y1 + y2), 3 * (y1 - y0), minMax);
-    return minMax;
   }
 }
-const PDFStringTranslateTable = (/* unused pure expression or super */ null && ([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x2d8, 0x2c7, 0x2c6, 0x2d9, 0x2dd, 0x2db, 0x2da, 0x2dc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x2022, 0x2020, 0x2021, 0x2026, 0x2014, 0x2013, 0x192, 0x2044, 0x2039, 0x203a, 0x2212, 0x2030, 0x201e, 0x201c, 0x201d, 0x2018, 0x2019, 0x201a, 0x2122, 0xfb01, 0xfb02, 0x141, 0x152, 0x160, 0x178, 0x17d, 0x131, 0x142, 0x153, 0x161, 0x17e, 0, 0x20ac]));
-function stringToPDFString(str) {
-  if (str[0] >= "\xEF") {
-    let encoding;
-    if (str[0] === "\xFE" && str[1] === "\xFF") {
-      encoding = "utf-16be";
-      if (str.length % 2 === 1) {
+const PDFStringTranslateTable = (/* expressão pura não utilizada ou super */ null && ([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x2d8, 0x2c7, 0x2c6, 0x2d9, 0x2dd, 0x2db, 0x2da, 0x2dc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ... 0x192, 0x2044, 0x2039, 0x203a, 0x2212, 0x2030, 0x201e, 0x201c, 0x201d, 0x2018, 0x2019, 0x201a, 0x2122, 0xfb01, 0xfb02, 0x141, 0x152, 0x160, 0x178, 0x17d, 0x131, 0x142, 0x153, 0x161, 0x17e, 0, 0x20ac]));
+função stringToPDFString(str, keepEscapeSequence = false) {
+  se (str[0] >= "\xEF") {
+    deixe codificação;
+    se (str[0] === "\xFE" && str[1] === "\xFF") {
+      codificação = "utf-16be";
+      se (str.length % 2 === 1) {
         str = str.slice(0, -1);
       }
-    } else if (str[0] === "\xFF" && str[1] === "\xFE") {
-      encoding = "utf-16le";
-      if (str.length % 2 === 1) {
+    } senão se (str[0] === "\xFF" && str[1] === "\xFE") {
+      codificação = "utf-16le";
+      se (str.length % 2 === 1) {
         str = str.slice(0, -1);
       }
-    } else if (str[0] === "\xEF" && str[1] === "\xBB" && str[2] === "\xBF") {
-      encoding = "utf-8";
+    } senão se (str[0] === "\xEF" && str[1] === "\xBB" && str[2] === "\xBF") {
+      codificação = "utf-8";
     }
-    if (encoding) {
-      try {
-        const decoder = new TextDecoder(encoding, {
-          fatal: true
+    se (codificação) {
+      tentar {
+        const decodificador = novo TextDecoder(codificação, {
+          fatal: verdadeiro
         });
         const buffer = stringToBytes(str);
-        const decoded = decoder.decode(buffer);
-        if (!decoded.includes("\x1b")) {
-          return decoded;
+        const decodificado = decodificador.decodificar(buffer);
+        se (manterSequênciaDeEscape || !decodificado.inclui("\x1b")) {
+          retornar decodificado;
         }
-        return decoded.replaceAll(/\x1b[^\x1b]*(?:\x1b|$)/g, "");
-      } catch (ex) {
-        warn(`stringToPDFString: "${ex}".`);
+        retornar decodificado.replaceAll(/\x1b[^\x1b]*(?:\x1b|$)/g, "");
+      } pegar (ex) {
+        avisar(`stringToPDFString: "${ex}".`);
       }
     }
   }
   const strBuf = [];
-  for (let i = 0, ii = str.length; i < ii; i++) {
+  para (seja i = 0, ii = str.length; i < ii; i++) {
     const charCode = str.charCodeAt(i);
-    if (charCode === 0x1b) {
-      while (++i < ii && str.charCodeAt(i) !== 0x1b) {}
-      continue;
+    se (!keepEscapeSequence && charCode === 0x1b) {
+      enquanto (++i < ii && str.charCodeAt(i) !== 0x1b) {}
+      continuar;
     }
-    const code = PDFStringTranslateTable[charCode];
-    strBuf.push(code ? String.fromCharCode(code) : str.charAt(i));
+    const código = PDFStringTranslateTable[charCode];
+    strBuf.push(código ? String.fromCharCode(código) : str.charAt(i));
   }
-  return strBuf.join("");
+  retornar strBuf.join("");
 }
-function stringToUTF8String(str) {
-  return decodeURIComponent(escape(str));
+função stringToUTF8String(str) {
+  retornar decodeURIComponent(escape(str));
 }
-function utf8StringToString(str) {
-  return unescape(encodeURIComponent(str));
+função utf8StringToString(str) {
+  retornar unescape(encodeURIComponent(str));
 }
 function isArrayEqual(arr1, arr2) {
-  if (arr1.length !== arr2.length) {
-    return false;
+  se (arr1.length !== arr2.length) {
+    retornar falso;
   }
-  for (let i = 0, ii = arr1.length; i < ii; i++) {
-    if (arr1[i] !== arr2[i]) {
-      return false;
+  para (seja i = 0, ii = arr1.length; i < ii; i++) {
+    se (arr1[i] !== arr2[i]) {
+      retornar falso;
     }
   }
-  return true;
+  retornar verdadeiro;
 }
-function getModificationDate(date = new Date()) {
-  const buffer = [date.getUTCFullYear().toString(), (date.getUTCMonth() + 1).toString().padStart(2, "0"), date.getUTCDate().toString().padStart(2, "0"), date.getUTCHours().toString().padStart(2, "0"), date.getUTCMinutes().toString().padStart(2, "0"), date.getUTCSeconds().toString().padStart(2, "0")];
-  return buffer.join("");
+função getModificationDate(data = nova Data()) {
+  buffer const = [date.getUTCFullYear().toString(), (date.getUTCMonth() + 1).toString().padStart(2, "0"), date.getUTCDate().toString().padStart(2, "0"), date.getUTCHours().toString().padStart(2, "0"), date.getUTCMinutes().toString().padStart(2, "0"), date.getUTCSeconds().toString().padStart(2, "0")];
+  retornar buffer.join("");
 }
-let NormalizeRegex = null;
-let NormalizationMap = null;
-function normalizeUnicode(str) {
-  if (!NormalizeRegex) {
-    NormalizeRegex = /([\u00a0\u00b5\u037e\u0eb3\u2000-\u200a\u202f\u2126\ufb00-\ufb04\ufb06\ufb20-\ufb36\ufb38-\ufb3c\ufb3e\ufb40-\ufb41\ufb43-\ufb44\ufb46-\ufba1\ufba4-\ufba9\ufbae-\ufbb1\ufbd3-\ufbdc\ufbde-\ufbe7\ufbea-\ufbf8\ufbfc-\ufbfd\ufc00-\ufc5d\ufc64-\ufcf1\ufcf5-\ufd3d\ufd88\ufdf4\ufdfa-\ufdfb\ufe71\ufe77\ufe79\ufe7b\ufe7d]+)|(\ufb05+)/gu;
-    NormalizationMap = new Map([["ﬅ", "ſt"]]);
+deixe NormalizeRegex = nulo;
+deixe NormalizationMap = nulo;
+função normalizeUnicode(str) {
+  se (!NormalizeRegex) {
+    NormalizeRegex = /([\u00a0\u00a5\u00e\u00eb3\u2000-\u200a\u202f\u2126\ufb00-\ufb04\ufb06\ufb20-\ufb36\ufb38-\ufb3c\ufb3e\ufb40-\ufb41\ufb43-\ufb44\ufb46-\ufba1\ufba4-\ufba9\ufbae-\uf bb1\ufbd3-\ufbdc\ufbde-\ufbe7\ufbea-\ufbf8\ufbfc-\ufbfd\ufc00-\ufc5d\ufc64-\ufcf1\u fcf5-\ufd3d\ufd88\ufdf4\ufdfa-\ufdfb\ufe71\ufe77\ufe79\ufe7b\ue7d]+)|(\ufb05+)/gu;
+    NormalizationMap = novo Mapa([["ﬅ", "ſt"]]);
   }
-  return str.replaceAll(NormalizeRegex, (_, p1, p2) => p1 ? p1.normalize("NFKC") : NormalizationMap.get(p2));
+  retornar str.replaceAll(NormalizeRegex, (_, p1, p2) => p1 ? p1.normalize("NFKC") : NormalizationMap.get(p2));
 }
-function getUuid() {
-  if (typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
+função getUuid() {
+  se (tipo de criptografia.randomUUID === "função") {
+    retornar crypto.randomUUID();
   }
-  const buf = new Uint8Array(32);
-  crypto.getRandomValues(buf);
-  return bytesToString(buf);
+  const buf = novo Uint8Array(32);
+  cripto.obterValoresAleatórios(buf);
+  retornar bytesToString(buf);
 }
 const AnnotationPrefix = "pdfjs_internal_id_";
-function toHexUtil(arr) {
-  if (Uint8Array.prototype.toHex) {
-    return arr.toHex();
+função _isValidExplicitDest(validRef, validName, dest) {
+  se (!Array.isArray(dest) || dest.length < 2) {
+    retornar falso;
   }
-  return Array.from(arr, num => hexNumbers[num]).join("");
+  const [página, zoom, ...args] = dest;
+  se (!validRef(página) && !Number.isInteger(página)) {
+    retornar falso;
+  }
+  se (!nomevalido(zoom)) {
+    retornar falso;
+  }
+  const argsLen = args.length;
+  deixe allowNull = true;
+  alternar (zoom.nome) {
+    caso "XYZ":
+      se (argsLen < 2 || argsLen > 3) {
+        retornar falso;
+      }
+      quebrar;
+    caso "Ajuste":
+    caso "FitB":
+      retornar argsLen === 0;
+    caso "FitH":
+    caso "FitBH":
+    caso "FitV":
+    caso "FitBV":
+      se (argsLen > 1) {
+        retornar falso;
+      }
+      quebrar;
+    caso "FitR":
+      se (argsLen !== 4) {
+        retornar falso;
+      }
+      allowNull = falso;
+      quebrar;
+    padrão:
+      retornar falso;
+  }
+  para (const arg de args) {
+    se (tipo de argumento === "número" || permitir Nulo && argumento === nulo) {
+      continuar;
+    }
+    retornar falso;
+  }
+  retornar verdadeiro;
 }
-function toBase64Util(arr) {
-  if (Uint8Array.prototype.toBase64) {
-    return arr.toBase64();
-  }
-  return btoa(bytesToString(arr));
+função MathClamp(v, min, max) {
+  retornar Math.min(Math.max(v, min), max);
 }
-function fromBase64Util(str) {
-  if (Uint8Array.fromBase64) {
-    return Uint8Array.fromBase64(str);
+função toHexUtil(arr) {
+  se (Uint8Array.prototype.toHex) {
+    retornar arr.toHex();
   }
-  return stringToBytes(atob(str));
+  retornar Array.from(arr, num => hexNumbers[num]).join("");
+}
+função toBase64Util(arr) {
+  se (Uint8Array.prototype.toBase64) {
+    retornar arr.toBase64();
+  }
+  retornar btoa(bytesToString(arr));
+}
+função deBase64Util(str) {
+  se (Uint8Array.fromBase64) {
+    retornar Uint8Array.fromBase64(str);
+  }
+  retornar stringToBytes(atob(str));
+}
+se (tipo de Promessa.tentar !== "função") {
+  Promessa.try = função (fn, ...args) {
+    retornar nova Promessa(resolver => {
+      resolver(fn(...args));
+    });
+  };
+}
+se (tipo de Math.sumPrecise !== "função") {
+  Math.sumPrecise = função (números) {
+    retornar números.reduce((a, b) => a + b, 0);
+  };
 }
 
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.promise.with-resolvers.js
-var es_promise_with_resolvers = __webpack_require__(4628);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.set.difference.v2.js
-var es_set_difference_v2 = __webpack_require__(7642);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.set.intersection.v2.js
-var es_set_intersection_v2 = __webpack_require__(8004);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.set.is-disjoint-from.v2.js
-var es_set_is_disjoint_from_v2 = __webpack_require__(3853);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.set.is-subset-of.v2.js
-var es_set_is_subset_of_v2 = __webpack_require__(5876);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.set.is-superset-of.v2.js
-var es_set_is_superset_of_v2 = __webpack_require__(2475);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.set.symmetric-difference.v2.js
-var es_set_symmetric_difference_v2 = __webpack_require__(5024);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.set.union.v2.js
-var es_set_union_v2 = __webpack_require__(1698);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/esnext.iterator.map.js
-var esnext_iterator_map = __webpack_require__(1454);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/esnext.iterator.constructor.js
-var esnext_iterator_constructor = __webpack_require__(8992);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/esnext.iterator.drop.js
-var esnext_iterator_drop = __webpack_require__(4743);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/esnext.iterator.every.js
-var esnext_iterator_every = __webpack_require__(3215);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/esnext.iterator.some.js
-var esnext_iterator_some = __webpack_require__(7550);
-// EXTERNAL MODULE: ./node_modules/core-js/modules/esnext.json.parse.js
-var esnext_json_parse = __webpack_require__(8335);
 ;// ./src/display/display_utils.js
 
-
-
-
-
-
 const SVG_NS = "http://www.w3.org/2000/svg";
-class PixelsPerInch {
-  static CSS = 96.0;
-  static PDF = 72.0;
-  static PDF_TO_CSS_UNITS = this.CSS / this.PDF;
+classe PixelsPorPolegada {
+  CSS estático = 96,0;
+  PDF estático = 72,0;
+  PDF_TO_CSS_UNITS estático = this.CSS / this.PDF;
 }
-async function fetchData(url, type = "text") {
-  if (isValidFetchUrl(url, document.baseURI)) {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(response.statusText);
+função assíncrona fetchData(url, tipo = "texto") {
+  se (isValidFetchUrl(url, document.baseURI)) {
+    const resposta = await fetch(url);
+    se (!resposta.ok) {
+      lançar novo erro(response.statusText);
     }
-    switch (type) {
-      case "arraybuffer":
-        return response.arrayBuffer();
-      case "blob":
-        return response.blob();
-      case "json":
-        return response.json();
+    switch (tipo) {
+      caso "arraybuffer":
+        retornar resposta.arrayBuffer();
+      caso "blob":
+        retornar resposta.blob();
+      caso "json":
+        retornar resposta.json();
     }
-    return response.text();
+    retornar resposta.texto();
   }
-  return new Promise((resolve, reject) => {
-    const request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.responseType = type;
-    request.onreadystatechange = () => {
-      if (request.readyState !== XMLHttpRequest.DONE) {
-        return;
+  retornar nova Promessa((resolver, rejeitar) => {
+    const request = novo XMLHttpRequest();
+    request.open("GET", url, verdadeiro);
+    request.responseType = tipo;
+    solicitação.onreadystatechange = () => {
+      se (solicitação.readyState !== XMLHttpRequest.DONE) {
+        retornar;
       }
-      if (request.status === 200 || request.status === 0) {
-        switch (type) {
-          case "arraybuffer":
-          case "blob":
-          case "json":
-            resolve(request.response);
-            return;
+      se (solicitação.status === 200 || solicitação.status === 0) {
+        switch (tipo) {
+          caso "arraybuffer":
+          caso "blob":
+          caso "json":
+            resolver(solicitação.resposta);
+            retornar;
         }
-        resolve(request.responseText);
-        return;
+        resolver(solicitação.responseText);
+        retornar;
       }
-      reject(new Error(request.statusText));
+      rejeitar(novo erro(request.statusText));
     };
-    request.send(null);
+    solicitação.enviar(nulo);
   });
 }
-class PageViewport {
-  constructor({
-    viewBox,
-    userUnit,
-    scale,
-    rotation,
-    offsetX = 0,
-    offsetY = 0,
-    dontFlip = false
+classe PageViewport {
+  construtor({
+    Caixa de visualização,
+    unidade de usuário,
+    escala,
+    rotação,
+    deslocamentoX = 0,
+    deslocamentoY = 0,
+    dontFlip = falso
   }) {
     this.viewBox = viewBox;
-    this.userUnit = userUnit;
-    this.scale = scale;
-    this.rotation = rotation;
-    this.offsetX = offsetX;
-    this.offsetY = offsetY;
-    scale *= userUnit;
+    this.userUnit = UnidadeUsuário;
+    this.scale = escala;
+    this.rotation = rotação;
+    isto.offsetX = offsetX;
+    isto.offsetY = offsetY;
+    escala *= userUnit;
     const centerX = (viewBox[2] + viewBox[0]) / 2;
     const centerY = (viewBox[3] + viewBox[1]) / 2;
-    let rotateA, rotateB, rotateC, rotateD;
-    rotation %= 360;
-    if (rotation < 0) {
-      rotation += 360;
+    deixe girarA, girarB, girarC, girarD;
+    rotação %= 360;
+    se (rotação < 0) {
+      rotação += 360;
     }
-    switch (rotation) {
-      case 180:
-        rotateA = -1;
-        rotateB = 0;
-        rotateC = 0;
-        rotateD = 1;
-        break;
-      case 90:
-        rotateA = 0;
-        rotateB = 1;
-        rotateC = 1;
-        rotateD = 0;
-        break;
-      case 270:
-        rotateA = 0;
-        rotateB = -1;
-        rotateC = -1;
-        rotateD = 0;
-        break;
-      case 0:
-        rotateA = 1;
-        rotateB = 0;
-        rotateC = 0;
-        rotateD = -1;
-        break;
-      default:
-        throw new Error("PageViewport: Invalid rotation, must be a multiple of 90 degrees.");
+    interruptor (rotação) {
+      caso 180:
+        girarA = -1;
+        girarB = 0;
+        girarC = 0;
+        girarD = 1;
+        quebrar;
+      caso 90:
+        girarA = 0;
+        girarB = 1;
+        girarC = 1;
+        girarD = 0;
+        quebrar;
+      caso 270:
+        girarA = 0;
+        girarB = -1;
+        girarC = -1;
+        girarD = 0;
+        quebrar;
+      caso 0:
+        girarA = 1;
+        girarB = 0;
+        girarC = 0;
+        girarD = -1;
+        quebrar;
+      padrão:
+        lançar novo erro("PageViewport: Rotação inválida, deve ser um múltiplo de 90 graus.");
     }
-    if (dontFlip) {
-      rotateC = -rotateC;
-      rotateD = -rotateD;
+    se (nãoInverter) {
+      girarC = -rotateC;
+      girarD = -rotateD;
     }
-    let offsetCanvasX, offsetCanvasY;
-    let width, height;
-    if (rotateA === 0) {
-      offsetCanvasX = Math.abs(centerY - viewBox[1]) * scale + offsetX;
-      offsetCanvasY = Math.abs(centerX - viewBox[0]) * scale + offsetY;
-      width = (viewBox[3] - viewBox[1]) * scale;
-      height = (viewBox[2] - viewBox[0]) * scale;
-    } else {
-      offsetCanvasX = Math.abs(centerX - viewBox[0]) * scale + offsetX;
-      offsetCanvasY = Math.abs(centerY - viewBox[1]) * scale + offsetY;
-      width = (viewBox[2] - viewBox[0]) * scale;
-      height = (viewBox[3] - viewBox[1]) * scale;
+    deixe offsetCanvasX, offsetCanvasY;
+    deixe largura, altura;
+    se (rotateA === 0) {
+      offsetCanvasX = Math.abs(centerY - viewBox[1]) * escala + offsetX;
+      offsetCanvasY = Math.abs(centerX - viewBox[0]) * escala + offsetY;
+      largura = (viewBox[3] - viewBox[1]) * escala;
+      altura = (viewBox[2] - viewBox[0]) * escala;
+    } outro {
+      offsetCanvasX = Math.abs(centerX - viewBox[0]) * escala + offsetX;
+      offsetCanvasY = Math.abs(centerY - viewBox[1]) * escala + offsetY;
+      largura = (viewBox[2] - viewBox[0]) * escala;
+      altura = (viewBox[3] - viewBox[1]) * escala;
     }
-    this.transform = [rotateA * scale, rotateB * scale, rotateC * scale, rotateD * scale, offsetCanvasX - rotateA * scale * centerX - rotateC * scale * centerY, offsetCanvasY - rotateB * scale * centerX - rotateD * scale * centerY];
-    this.width = width;
-    this.height = height;
+    this.transform = [rotateA * escala, rotateB * escala, rotateC * escala, rotateD * escala, offsetCanvasX - rotateA * escala * centerX - rotateC * escala * centerY, offsetCanvasY - rotateB * escala * centerX - rotateD * escala * centerY];
+    this.largura = largura;
+    this.height = altura;
   }
-  get rawDims() {
-    const {
-      userUnit,
-      viewBox
-    } = this;
-    const dims = viewBox.map(x => x * userUnit);
-    return shadow(this, "rawDims", {
+  obter rawDims() {
+    const dims = esta.viewBox;
+    retornar sombra(isto, "rawDims", {
       pageWidth: dims[2] - dims[0],
       pageHeight: dims[3] - dims[1],
-      pageX: dims[0],
-      pageY: dims[1]
+      páginaX: escurece[0],
+      páginaY: escurece[1]
     });
   }
   clone({
-    scale = this.scale,
-    rotation = this.rotation,
+    escala = this.scale,
+    rotação = this.rotação,
     offsetX = this.offsetX,
     offsetY = this.offsetY,
-    dontFlip = false
+    dontFlip = falso
   } = {}) {
-    return new PageViewport({
+    retornar novo PageViewport({
       viewBox: this.viewBox.slice(),
-      userUnit: this.userUnit,
-      scale,
-      rotation,
+      userUnit: esta.userUnit,
+      escala,
+      rotação,
       offsetX,
       offsetY,
-      dontFlip
+      não vire
     });
   }
-  convertToViewportPoint(x, y) {
-    return Util.applyTransform([x, y], this.transform);
+  converterParaPontoDeVisualização(x, y) {
+    constante p = [x, y];
+    Util.applyTransform(p, this.transform);
+    retornar p;
   }
-  convertToViewportRectangle(rect) {
-    const topLeft = Util.applyTransform([rect[0], rect[1]], this.transform);
-    const bottomRight = Util.applyTransform([rect[2], rect[3]], this.transform);
-    return [topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]];
+  convertToViewportRectangle(retângulo) {
+    const topLeft = [retângulo[0], retângulo[1]];
+    Util.applyTransform(topLeft, this.transform);
+    const bottomRight = [ret[2], rect[3]];
+    Util.applyTransform(inferiorDireita, this.transform);
+    retornar [topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]];
   }
-  convertToPdfPoint(x, y) {
-    return Util.applyInverseTransform([x, y], this.transform);
+  converterParaPontoPdf(x, y) {
+    constante p = [x, y];
+    Util.applyInverseTransform(p, this.transform);
+    retornar p;
   }
 }
-class RenderingCancelledException extends BaseException {
-  constructor(msg, extraDelay = 0) {
+classe RenderingCancelledException estende BaseException {
+  construtor(msg, extraDelay = 0) {
     super(msg, "RenderingCancelledException");
-    this.extraDelay = extraDelay;
+    isto.extraDelay = extraDelay;
   }
 }
-function isDataScheme(url) {
+função isDataScheme(url) {
   const ii = url.length;
-  let i = 0;
-  while (i < ii && url[i].trim() === "") {
+  deixe i = 0;
+  enquanto (i < ii && url[i].trim() === "") {
     i++;
   }
-  return url.substring(i, i + 5).toLowerCase() === "data:";
+  retornar url.substring(i, i + 5).toLowerCase() === "dados:";
 }
-function isPdfFile(filename) {
-  return typeof filename === "string" && /\.pdf$/i.test(filename);
+função isPdfFile(nome do arquivo) {
+  retornar tipo de nome de arquivo === "string" && /\.pdf$/i.test(nome de arquivo);
 }
-function getFilenameFromUrl(url) {
+função getFilenameFromUrl(url) {
   [url] = url.split(/[#?]/, 1);
-  return url.substring(url.lastIndexOf("/") + 1);
+  retornar url.substring(url.lastIndexOf("/") + 1);
 }
-function getPdfFilenameFromUrl(url, defaultFilename = "document.pdf") {
-  if (typeof url !== "string") {
-    return defaultFilename;
+função getPdfFilenameFromUrl(url, defaultFilename = "document.pdf") {
+  se (tipo de url !== "string") {
+    retornar nome_do_arquivo_padrão;
   }
-  if (isDataScheme(url)) {
-    warn('getPdfFilenameFromUrl: ignore "data:"-URL for performance reasons.');
-    return defaultFilename;
+  se (isDataScheme(url)) {
+    warn('getPdfFilenameFromUrl: ignore "data:"-URL por motivos de desempenho.');
+    retornar nome_do_arquivo_padrão;
   }
   const reURI = /^(?:(?:[^:]+:)?\/\/[^/]+)?([^?#]*)(\?[^#]*)?(#.*)?$/;
   const reFilename = /[^/?#=]+\.pdf\b(?!.*\.pdf\b)/i;
   const splitURI = reURI.exec(url);
-  let suggestedFilename = reFilename.exec(splitURI[1]) || reFilename.exec(splitURI[2]) || reFilename.exec(splitURI[3]);
-  if (suggestedFilename) {
-    suggestedFilename = suggestedFilename[0];
-    if (suggestedFilename.includes("%")) {
-      try {
-        suggestedFilename = reFilename.exec(decodeURIComponent(suggestedFilename))[0];
-      } catch {}
+  deixe suggestedFilename = reFilename.exec(splitURI[1]) || reFilename.exec(splitURI[2]) || reFilename.exec(splitURI[3]);
+  se (nome de arquivo sugerido) {
+    Nome de arquivo sugerido = Nome de arquivo sugerido[0];
+    se (nome de arquivo sugerido.includes("%")) {
+      tentar {
+        Nome de arquivo sugerido = reNome de arquivo.exec(decodeURIComponent(nome de arquivo sugerido))[0];
+      } pegar {}
     }
   }
-  return suggestedFilename || defaultFilename;
+  retornar nome de arquivo sugerido || nome de arquivo padrão;
 }
-class StatTimer {
-  started = Object.create(null);
-  times = [];
-  time(name) {
-    if (name in this.started) {
-      warn(`Timer is already running for ${name}`);
+classe StatTimer {
+  iniciado = Objeto.criar(nulo);
+  vezes = [];
+  tempo(nome) {
+    se (nome em this.started) {
+      warn(`O temporizador já está em execução para ${name}`);
     }
-    this.started[name] = Date.now();
+    this.started[nome] = Data.agora();
   }
-  timeEnd(name) {
-    if (!(name in this.started)) {
-      warn(`Timer has not been started for ${name}`);
+  timeEnd(nome) {
+    se (!(nome neste.iniciado)) {
+      warn(`O temporizador não foi iniciado para ${name}`);
     }
-    this.times.push({
-      name,
-      start: this.started[name],
-      end: Date.now()
+    isso.vezes.push({
+      nome,
+      início: this.started[nome],
+      fim: Date.now()
     });
-    delete this.started[name];
+    excluir isto.iniciado[nome];
   }
-  toString() {
+  paraString() {
     const outBuf = [];
-    let longest = 0;
-    for (const {
-      name
-    } of this.times) {
-      longest = Math.max(name.length, longest);
+    deixe o mais longo = 0;
+    para (const {
+      nome
+    } deste.vezes) {
+      mais longo = Math.max(nome.comprimento, mais longo);
     }
-    for (const {
-      name,
-      start,
-      end
-    } of this.times) {
+    para (const {
+      nome,
+      começar,
+      fim
+    } deste.vezes) {
       outBuf.push(`${name.padEnd(longest)} ${end - start}ms\n`);
     }
-    return outBuf.join("");
+    retornar outBuf.join("");
   }
 }
-function isValidFetchUrl(url, baseUrl) {
-  try {
-    const {
-      protocol
-    } = baseUrl ? new URL(url, baseUrl) : new URL(url);
-    return protocol === "http:" || protocol === "https:";
-  } catch {
-    return false;
-  }
+função isValidFetchUrl(url, baseUrl) {
+  const res = baseUrl ? URL.parse(url, baseUrl) : URL.parse(url);
+  retornar res?.protocol === "http:" || res?.protocol === "https:";
 }
-function noContextMenu(e) {
+função noContextMenu(e) {
   e.preventDefault();
 }
-function stopEvent(e) {
+função stopEvent(e) {
   e.preventDefault();
   e.stopPropagation();
 }
-function deprecated(details) {
-  console.log("Deprecated API usage: " + details);
+função obsoleta(detalhes) {
+  console.log("Uso de API obsoleto: " + detalhes);
 }
-class PDFDateString {
-  static #regex;
-  static toDateObject(input) {
-    if (!input || typeof input !== "string") {
-      return null;
+classe PDFDateString {
+  #regex estático;
+  estático toDateObject(entrada) {
+    se (!entrada || tipo de entrada !== "string") {
+      retornar nulo;
     }
-    this.#regex ||= new RegExp("^D:" + "(\\d{4})" + "(\\d{2})?" + "(\\d{2})?" + "(\\d{2})?" + "(\\d{2})?" + "(\\d{2})?" + "([Z|+|-])?" + "(\\d{2})?" + "'?" + "(\\d{2})?" + "'?");
-    const matches = this.#regex.exec(input);
-    if (!matches) {
-      return null;
+    isto.#regex ||= novo RegExp("^D:" + "(\\d{4})" + "(\\d{2})?" + "(\\d{2})?" + "(\\d{2})?" + "(\\d{2})?" + "(\\d{2})?" + "([Z|+|-])?" + "(\\d{2})?" + "'?" + "(\\d{2})?" + "'?");
+    const matches = this.#regex.exec(entrada);
+    se (!corresponde) {
+      retornar nulo;
     }
-    const year = parseInt(matches[1], 10);
-    let month = parseInt(matches[2], 10);
-    month = month >= 1 && month <= 12 ? month - 1 : 0;
-    let day = parseInt(matches[3], 10);
-    day = day >= 1 && day <= 31 ? day : 1;
-    let hour = parseInt(matches[4], 10);
-    hour = hour >= 0 && hour <= 23 ? hour : 0;
-    let minute = parseInt(matches[5], 10);
-    minute = minute >= 0 && minute <= 59 ? minute : 0;
-    let second = parseInt(matches[6], 10);
-    second = second >= 0 && second <= 59 ? second : 0;
+    const ano = parseInt(corresponde[1], 10);
+    deixe mês = parseInt(matches[2], 10);
+    mês = mês >= 1 && mês <= 12 ? mês - 1 : 0;
+    deixe dia = parseInt(correspondências[3], 10);
+    dia = dia >= 1 && dia <= 31 ? dia : 1;
+    deixe hora = parseInt(matches[4], 10);
+    hora = hora >= 0 && hora <= 23 ? hora : 0;
+    deixe minuto = parseInt(matches[5], 10);
+    minuto = minuto >= 0 && minuto <= 59 ? minuto : 0;
+    deixe segundo = parseInt(matches[6], 10);
+    segundo = segundo >= 0 && segundo <= 59 ? segundo : 0;
     const universalTimeRelation = matches[7] || "Z";
-    let offsetHour = parseInt(matches[8], 10);
+    deixe offsetHour = parseInt(matches[8], 10);
     offsetHour = offsetHour >= 0 && offsetHour <= 23 ? offsetHour : 0;
-    let offsetMinute = parseInt(matches[9], 10) || 0;
+    deixe offsetMinute = parseInt(matches[9], 10) || 0;
     offsetMinute = offsetMinute >= 0 && offsetMinute <= 59 ? offsetMinute : 0;
-    if (universalTimeRelation === "-") {
-      hour += offsetHour;
-      minute += offsetMinute;
-    } else if (universalTimeRelation === "+") {
-      hour -= offsetHour;
-      minute -= offsetMinute;
+    se (universalTimeRelation === "-") {
+      hora += offsetHour;
+      minuto += offsetMinute;
+    } senão se (universalTimeRelation === "+") {
+      hora -= offsetHour;
+      minuto -= offsetMinute;
     }
-    return new Date(Date.UTC(year, month, day, hour, minute, second));
+    retornar nova Data(Data.UTC(ano, mês, dia, hora, minuto, segundo));
   }
 }
-function getXfaPageViewport(xfaPage, {
-  scale = 1,
-  rotation = 0
+função getXfaPageViewport(xfaPage, {
+  escala = 1,
+  rotação = 0
 }) {
-  const {
-    width,
-    height
+  constante {
+    largura,
+    altura
   } = xfaPage.attributes.style;
-  const viewBox = [0, 0, parseInt(width), parseInt(height)];
-  return new PageViewport({
-    viewBox,
-    userUnit: 1,
-    scale,
-    rotation
+  const viewBox = [0, 0, parseInt(largura), parseInt(altura)];
+  retornar novo PageViewport({
+    Caixa de visualização,
+    unidade de usuário: 1,
+    escala,
+    rotação
   });
 }
-function getRGB(color) {
-  if (color.startsWith("#")) {
-    const colorRGB = parseInt(color.slice(1), 16);
-    return [(colorRGB & 0xff0000) >> 16, (colorRGB & 0x00ff00) >> 8, colorRGB & 0x0000ff];
+função getRGB(cor) {
+  se (color.startsWith("#")) {
+    const colorRGB = parseInt(cor.slice(1), 16);
+    retornar [(colorRGB & 0xff0000) >> 16, (colorRGB & 0x00ff00) >> 8, colorRGB & 0x0000ff];
   }
-  if (color.startsWith("rgb(")) {
-    return color.slice(4, -1).split(",").map(x => parseInt(x));
+  se (cor.startsWith("rgb(")) {
+    retornar cor.slice(4, -1).split(",").map(x => parseInt(x));
   }
-  if (color.startsWith("rgba(")) {
-    return color.slice(5, -1).split(",").map(x => parseInt(x)).slice(0, 3);
+  se (color.startsWith("rgba(")) {
+    retornar cor.slice(5, -1).split(",").map(x => parseInt(x)).slice(0, 3);
   }
-  warn(`Not a valid color format: "${color}"`);
-  return [0, 0, 0];
+  warn(`Não é um formato de cor válido: "${color}"`);
+  retornar [0, 0, 0];
 }
-function getColorValues(colors) {
+função getColorValues(cores) {
   const span = document.createElement("span");
-  span.style.visibility = "hidden";
-  document.body.append(span);
-  for (const name of colors.keys()) {
-    span.style.color = name;
-    const computedColor = window.getComputedStyle(span).color;
-    colors.set(name, getRGB(computedColor));
+  span.style.visibility = "oculto";
+  span.style.colorScheme = "somente luz";
+  documento.corpo.acrescentar(extensão);
+  para (const nome de cores.chaves()) {
+    span.style.color = nome;
+    const computedColor = janela.getComputedStyle(span).color;
+    cores.set(nome, getRGB(computedColor));
   }
   span.remove();
 }
-function getCurrentTransform(ctx) {
-  const {
-    a,
+função getCurrentTransform(ctx) {
+  constante {
+    um,
     b,
     c,
     d,
     e,
     f
   } = ctx.getTransform();
-  return [a, b, c, d, e, f];
+  retornar [a, b, c, d, e, f];
 }
-function getCurrentTransformInverse(ctx) {
-  const {
-    a,
+função getCurrentTransformInverse(ctx) {
+  constante {
+    um,
     b,
     c,
     d,
     e,
     f
   } = ctx.getTransform().invertSelf();
-  return [a, b, c, d, e, f];
+  retornar [a, b, c, d, e, f];
 }
-function setLayerDimensions(div, viewport, mustFlip = false, mustRotate = true) {
-  if (viewport instanceof PageViewport) {
-    const {
-      pageWidth,
-      pageHeight
+função setLayerDimensions(div, viewport, mustFlip = false, mustRotate = true) {
+  se (instância de viewport de PageViewport) {
+    constante {
+      largura da página,
+      altura da página
     } = viewport.rawDims;
-    const {
-      style
+    constante {
+      estilo
     } = div;
     const useRound = util_FeatureTest.isCSSRoundSupported;
-    const w = `var(--scale-factor) * ${pageWidth}px`,
-      h = `var(--scale-factor) * ${pageHeight}px`;
-    const widthStr = useRound ? `round(down, ${w}, var(--scale-round-x, 1px))` : `calc(${w})`,
-      heightStr = useRound ? `round(down, ${h}, var(--scale-round-y, 1px))` : `calc(${h})`;
-    if (!mustFlip || viewport.rotation % 180 === 0) {
-      style.width = widthStr;
-      style.height = heightStr;
-    } else {
-      style.width = heightStr;
-      style.height = widthStr;
+    const w = `var(--fator-de-escala-total) * ${pageWidth}px`,
+      h = `var(--fator-de-escala-total) * ${pageHeight}px`;
+    const widthStr = useRound ? `round(baixo, ${w}, var(--scale-round-x))` : `calc(${w})`,
+      heightStr = useRound ? `round(down, ${h}, var(--scale-round-y))` : `calc(${h})`;
+    se (!mustFlip || viewport.rotação % 180 === 0) {
+      estilo.largura = widthStr;
+      estilo.altura = alturaStr;
+    } outro {
+      estilo.largura = alturaStr;
+      estilo.altura = widthStr;
     }
   }
-  if (mustRotate) {
-    div.setAttribute("data-main-rotation", viewport.rotation);
+  se (deveGirar) {
+    div.setAttribute("rotação-principal-de-dados", viewport.rotação);
   }
 }
-class OutputScale {
-  constructor() {
-    const pixelRatio = window.devicePixelRatio || 1;
+classe OutputScale {
+  construtor() {
+    constante {
+      Proporção de pixels
+    } = Escala de Saída;
     this.sx = pixelRatio;
     this.sy = pixelRatio;
   }
-  get scaled() {
-    return this.sx !== 1 || this.sy !== 1;
+  obter escalado() {
+    retornar isto.sx !== 1 || isto.sy !== 1;
   }
-  get symmetric() {
-    return this.sx === this.sy;
+  obter simétrico() {
+    retornar isto.sx === isto.sy;
+  }
+  limitCanvas(largura, altura, maxPixels, maxDim) {
+    deixe maxAreaScale = Infinito,
+      maxWidthScale = Infinito,
+      maxHeightScale = Infinito;
+    se (maxPixels > 0) {
+      maxAreaScale = Math.sqrt(maxPixels / (largura * altura));
+    }
+    se (maxDim !== -1) {
+      maxWidthScale = maxDim / largura;
+      maxHeightScale = maxDim / altura;
+    }
+    const maxScale = Math.min(maxAreaScale, maxWidthScale, maxHeightScale);
+    se (this.sx > maxScale || this.sy > maxScale) {
+      isto.sx = maxScale;
+      isto.sy = maxScale;
+      retornar verdadeiro;
+    }
+    retornar falso;
+  }
+  estático obter pixelRatio() {
+    retornar globalThis.devicePixelRatio || 1;
   }
 }
+const SupportedImageMimeTypes = ["imagem/apng", "imagem/avif", "imagem/bmp", "imagem/gif", "imagem/jpeg", "imagem/png", "imagem/svg+xml", "imagem/webp", "imagem/x-icon"];
 
 ;// ./src/display/editor/toolbar.js
 
-class EditorToolbar {
-  #toolbar = null;
-  #colorPicker = null;
+classe EditorToolbar {
+  #barra de ferramentas = nulo;
+  #colorPicker = nulo;
   #editor;
-  #buttons = null;
-  #altText = null;
-  static #l10nRemove = null;
-  constructor(editor) {
-    this.#editor = editor;
-    EditorToolbar.#l10nRemove ||= Object.freeze({
-      freetext: "pdfjs-editor-remove-freetext-button",
-      highlight: "pdfjs-editor-remove-highlight-button",
-      ink: "pdfjs-editor-remove-ink-button",
-      stamp: "pdfjs-editor-remove-stamp-button"
+  #botões = nulo;
+  #altText = nulo;
+  #signatureDescriptionButton = nulo;
+  estático #l10nRemove = nulo;
+  construtor(editor) {
+    isto.#editor = editor;
+    Barra de ferramentas do editor.#l10nRemover ||= Objeto.congelar({
+      texto livre: "editor-pdfjs-remove-botão-de-texto-livre",
+      destaque: "pdfjs-editor-remove-highlight-button",
+      tinta: "pdfjs-editor-remove-ink-button",
+      carimbo: "pdfjs-editor-remove-stamp-button",
+      assinatura: "pdfjs-editor-remove-signature-button"
     });
   }
-  render() {
+  renderizar() {
     const editToolbar = this.#toolbar = document.createElement("div");
-    editToolbar.classList.add("editToolbar", "hidden");
-    editToolbar.setAttribute("role", "toolbar");
-    const signal = this.#editor._uiManager._signal;
+    editToolbar.classList.add("editToolbar", "oculto");
+    editToolbar.setAttribute("função", "barra de ferramentas");
+    sinal constante = this.#editor._uiManager._signal;
     editToolbar.addEventListener("contextmenu", noContextMenu, {
-      signal
+      sinal
     });
-    editToolbar.addEventListener("pointerdown", EditorToolbar.#pointerDown, {
-      signal
+    editToolbar.addEventListener("ponteiroparabaixo", EditorToolbar.#ponteiroparabaixo, {
+      sinal
     });
-    const buttons = this.#buttons = document.createElement("div");
-    buttons.className = "buttons";
-    editToolbar.append(buttons);
-    const position = this.#editor.toolbarPosition;
-    if (position) {
-      const {
-        style
-      } = editToolbar;
-      const x = this.#editor._uiManager.direction === "ltr" ? 1 - position[0] : position[0];
-      style.insetInlineEnd = `${100 * x}%`;
-      style.top = `calc(${100 * position[1]}% + var(--editor-toolbar-vert-offset))`;
+    botões const = this.#botões = document.createElement("div");
+    botões.className = "botões";
+    editToolbar.append(botões);
+    const posição = this.#editor.toolbarPosition;
+    se (posição) {
+      constante {
+        estilo
+      } = editarBarra de ferramentas;
+      const x = this.#editor._uiManager.direction === "ltr" ? 1 - posição[0] : posição[0];
+      estilo.insetInlineEnd = `${100 * x}%`;
+      style.top = `calc(${100 * posição[1]}% + var(--editor-toolbar-vert-offset))`;
     }
-    this.#addDeleteButton();
-    return editToolbar;
+    isto.#addDeleteButton();
+    retornar editToolbar;
   }
-  get div() {
-    return this.#toolbar;
+  obter div() {
+    retornar isto.#barra de ferramentas;
   }
-  static #pointerDown(e) {
+  estático #pointerDown(e) {
     e.stopPropagation();
   }
-  #focusIn(e) {
-    this.#editor._focusEventsAllowed = false;
+  #focoEm(e) {
+    isto.#editor._focusEventsAllowed = falso;
     stopEvent(e);
   }
   #focusOut(e) {
-    this.#editor._focusEventsAllowed = true;
+    isto.#editor._focusEventsAllowed = verdadeiro;
     stopEvent(e);
   }
-  #addListenersToElement(element) {
-    const signal = this.#editor._uiManager._signal;
-    element.addEventListener("focusin", this.#focusIn.bind(this), {
-      capture: true,
-      signal
+  #addListenersToElement(elemento) {
+    sinal constante = this.#editor._uiManager._signal;
+    elemento.addEventListener("foco em", isto.#focoEm.vincular(isto), {
+      captura: verdadeiro,
+      sinal
     });
-    element.addEventListener("focusout", this.#focusOut.bind(this), {
-      capture: true,
-      signal
+    elemento.addEventListener("focusout", isto.#focusOut.bind(isto), {
+      captura: verdadeiro,
+      sinal
     });
-    element.addEventListener("contextmenu", noContextMenu, {
-      signal
+    element.addEventListener("menu de contexto", noContextMenu, {
+      sinal
     });
   }
-  hide() {
-    this.#toolbar.classList.add("hidden");
-    this.#colorPicker?.hideDropdown();
+  esconder() {
+    isto.#toolbar.classList.add("oculto");
+    isto.#colorPicker?.hideDropdown();
   }
-  show() {
-    this.#toolbar.classList.remove("hidden");
-    this.#altText?.shown();
+  mostrar() {
+    isto.#toolbar.classList.remove("oculto");
+    isto.#altText?.mostrado();
   }
   #addDeleteButton() {
-    const {
-      editorType,
+    constante {
+      editorTipo,
       _uiManager
-    } = this.#editor;
-    const button = document.createElement("button");
-    button.className = "delete";
-    button.tabIndex = 0;
+    } = este.#editor;
+    botão const = document.createElement("botão");
+    button.className = "excluir";
+    botão.tabIndex = 0;
     button.setAttribute("data-l10n-id", EditorToolbar.#l10nRemove[editorType]);
-    this.#addListenersToElement(button);
-    button.addEventListener("click", e => {
+    isto.#addListenersToElement(botão);
+    botão.addEventListener("clique", e => {
       _uiManager.delete();
     }, {
-      signal: _uiManager._signal
+      sinal: _uiManager._signal
     });
-    this.#buttons.append(button);
+    isto.#botões.acrescentar(botão);
   }
-  get #divider() {
+  obter #divisor() {
     const divider = document.createElement("div");
-    divider.className = "divider";
-    return divider;
+    divisor.className = "divisor";
+    divisor de retorno;
   }
   async addAltText(altText) {
-    const button = await altText.render();
-    this.#addListenersToElement(button);
-    this.#buttons.prepend(button, this.#divider);
-    this.#altText = altText;
+    botão const = await altText.render();
+    isto.#addListenersToElement(botão);
+    isto.#botões.prepend(botão, isto.#divisor);
+    isto.#altText = altText;
   }
-  addColorPicker(colorPicker) {
-    this.#colorPicker = colorPicker;
-    const button = colorPicker.renderButton();
-    this.#addListenersToElement(button);
-    this.#buttons.prepend(button, this.#divider);
+  addColorPicker(seletor de cores) {
+    isto.#colorPicker = colorPicker;
+    botão const = colorPicker.renderButton();
+    isto.#addListenersToElement(botão);
+    isto.#botões.prepend(botão, isto.#divisor);
   }
-  remove() {
-    this.#toolbar.remove();
-    this.#colorPicker?.destroy();
-    this.#colorPicker = null;
+  async addEditSignatureButton(signatureManager) {
+    botão const = this.#signatureDescriptionButton = await signatureManager.renderEditButton(this.#editor);
+    isto.#addListenersToElement(botão);
+    isto.#botões.prepend(botão, isto.#divisor);
+  }
+  updateEditSignatureButton(descrição) {
+    se (este.#BotãoDeDescriçãoDaAssinatura) {
+      this.#signatureDescriptionButton.title = descrição;
+    }
+  }
+  remover() {
+    isto.#barra de ferramentas.remove();
+    isto.#colorPicker?.destroy();
+    isto.#colorPicker = nulo;
   }
 }
-class HighlightToolbar {
-  #buttons = null;
-  #toolbar = null;
+classe HighlightToolbar {
+  #botões = nulo;
+  #barra de ferramentas = nulo;
   #uiManager;
-  constructor(uiManager) {
-    this.#uiManager = uiManager;
+  construtor(uiManager) {
+    isto.#uiManager = uiManager;
   }
   #render() {
     const editToolbar = this.#toolbar = document.createElement("div");
     editToolbar.className = "editToolbar";
-    editToolbar.setAttribute("role", "toolbar");
+    editToolbar.setAttribute("função", "barra de ferramentas");
     editToolbar.addEventListener("contextmenu", noContextMenu, {
-      signal: this.#uiManager._signal
+      sinal: this.#uiManager._signal
     });
-    const buttons = this.#buttons = document.createElement("div");
-    buttons.className = "buttons";
-    editToolbar.append(buttons);
-    this.#addHighlightButton();
-    return editToolbar;
+    botões const = this.#botões = document.createElement("div");
+    botões.className = "botões";
+    editToolbar.append(botões);
+    isto.#addHighlightButton();
+    retornar editToolbar;
   }
-  #getLastPoint(boxes, isLTR) {
-    let lastY = 0;
-    let lastX = 0;
-    for (const box of boxes) {
-      const y = box.y + box.height;
-      if (y < lastY) {
-        continue;
+  #getLastPoint(caixas, isLTR) {
+    deixe lastY = 0;
+    deixe lastX = 0;
+    para (const caixa de caixas) {
+      const y = caixa.y + caixa.altura;
+      se (y < últimoY) {
+        continuar;
       }
-      const x = box.x + (isLTR ? box.width : 0);
-      if (y > lastY) {
-        lastX = x;
-        lastY = y;
-        continue;
+      const x = caixa.x + (isLTR ? caixa.largura : 0);
+      se (y > lastY) {
+        últimoX = x;
+        últimoY = y;
+        continuar;
       }
-      if (isLTR) {
-        if (x > lastX) {
-          lastX = x;
+      se (éLTR) {
+        se (x > últimoX) {
+          últimoX = x;
         }
-      } else if (x < lastX) {
-        lastX = x;
+      } senão se (x < lastX) {
+        últimoX = x;
       }
     }
-    return [isLTR ? 1 - lastX : lastX, lastY];
+    retornar [éLTR? 1 - últimoX: últimoX, últimoY];
   }
-  show(parent, boxes, isLTR) {
-    const [x, y] = this.#getLastPoint(boxes, isLTR);
-    const {
-      style
-    } = this.#toolbar ||= this.#render();
-    parent.append(this.#toolbar);
-    style.insetInlineEnd = `${100 * x}%`;
+  mostrar(pai, caixas, éLTR) {
+    const [x, y] = this.#getLastPoint(caixas, isLTR);
+    constante {
+      estilo
+    } = isto.#barra de ferramentas ||= isto.#renderizar();
+    pai.append(this.#barra de ferramentas);
+    estilo.insetInlineEnd = `${100 * x}%`;
     style.top = `calc(${100 * y}% + var(--editor-toolbar-vert-offset))`;
   }
-  hide() {
-    this.#toolbar.remove();
+  esconder() {
+    isto.#barra de ferramentas.remove();
   }
   #addHighlightButton() {
-    const button = document.createElement("button");
-    button.className = "highlightButton";
-    button.tabIndex = 0;
-    button.setAttribute("data-l10n-id", `pdfjs-highlight-floating-button1`);
+    botão const = document.createElement("botão");
+    botão.className = "highlightButton";
+    botão.tabIndex = 0;
+    botão.setAttribute("data-l10n-id", `pdfjs-highlight-floating-button1`);
     const span = document.createElement("span");
-    button.append(span);
-    span.className = "visuallyHidden";
-    span.setAttribute("data-l10n-id", "pdfjs-highlight-floating-button-label");
-    const signal = this.#uiManager._signal;
-    button.addEventListener("contextmenu", noContextMenu, {
-      signal
+    botão.append(span);
+    span.className = "visualmenteOculto";
+    span.setAttribute("data-l10n-id", "rótulo-do-botão-flutuante-de-destaque-pdfjs");
+    sinal constante = this.#uiManager._signal;
+    botão.addEventListener("contextmenu", noContextMenu, {
+      sinal
     });
-    button.addEventListener("click", () => {
-      this.#uiManager.highlightSelection("floating_button");
+    botão.addEventListener("clique", () => {
+      isto.#uiManager.highlightSelection("botão_flutuante");
     }, {
-      signal
+      sinal
     });
-    this.#buttons.append(button);
+    isto.#botões.acrescentar(botão);
   }
 }
 
@@ -6343,2132 +1519,2180 @@ class HighlightToolbar {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function bindEvents(obj, element, names) {
-  for (const name of names) {
-    element.addEventListener(name, obj[name].bind(obj));
+função bindEvents(obj, elemento, nomes) {
+  para (const nome dos nomes) {
+    element.addEventListener(nome, obj[nome].bind(obj));
   }
 }
-function opacityToHex(opacity) {
-  return Math.round(Math.min(255, Math.max(1, 255 * opacity))).toString(16).padStart(2, "0");
-}
-class IdManager {
+classe IdManager {
   #id = 0;
-  get id() {
-    return `${AnnotationEditorPrefix}${this.#id++}`;
+  obter id() {
+    retornar `${AnnotationEditorPrefix}${this.#id++}`;
   }
 }
-class ImageManager {
-  #baseId = getUuid();
+classe ImageManager {
+  #baseId = obterUuid();
   #id = 0;
-  #cache = null;
-  static get _isSVGFittingCanvas() {
-    const svg = `data:image/svg+xml;charset=UTF-8,<svg viewBox="0 0 1 1" width="1" height="1" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" style="fill:red;"/></svg>`;
-    const canvas = new OffscreenCanvas(1, 3);
+  #cache = nulo;
+  estático obter _isSVGFittingCanvas() {
+    const svg = `dados:imagem/svg+xml;charset=UTF-8,<svg viewBox="0 0 1 1" largura="1" altura="1" xmlns="http://www.w3.org/2000/svg"><rect largura="1" altura="1" estilo="preenchimento:vermelho;"/></svg>`;
+    const canvas = novo OffscreenCanvas(1, 3);
     const ctx = canvas.getContext("2d", {
-      willReadFrequently: true
+      willReadFrequently: verdadeiro
     });
-    const image = new Image();
-    image.src = svg;
-    const promise = image.decode().then(() => {
-      ctx.drawImage(image, 0, 0, 1, 1, 0, 0, 1, 3);
-      return new Uint32Array(ctx.getImageData(0, 0, 1, 1).data.buffer)[0] === 0;
+    const imagem = nova Imagem();
+    imagem.src = svg;
+    const promessa = imagem.decodificar().então(() => {
+      ctx.drawImage(imagem, 0, 0, 1, 1, 0, 0, 1, 3);
+      retornar novo Uint32Array(ctx.getImageData(0, 0, 1, 1).data.buffer)[0] === 0;
     });
-    return shadow(this, "_isSVGFittingCanvas", promise);
+    retornar sombra(isto, "_isSVGFittingCanvas", promessa);
   }
-  async #get(key, rawData) {
-    this.#cache ||= new Map();
-    let data = this.#cache.get(key);
-    if (data === null) {
-      return null;
+  assíncrono #get(chave, dados brutos) {
+    isto.#cache ||= novo Mapa();
+    deixe dados = this.#cache.get(chave);
+    se (dados === nulo) {
+      retornar nulo;
     }
-    if (data?.bitmap) {
-      data.refCounter += 1;
-      return data;
+    se (dados?.bitmap) {
+      dados.refCounter += 1;
+      retornar dados;
     }
-    try {
-      data ||= {
-        bitmap: null,
-        id: `image_${this.#baseId}_${this.#id++}`,
+    tentar {
+      dados ||= {
+        bitmap: nulo,
+        id: `imagem_${this.#baseId}_${this.#id++}`,
         refCounter: 0,
-        isSvg: false
+        isSvg: falso
       };
-      let image;
-      if (typeof rawData === "string") {
-        data.url = rawData;
-        image = await fetchData(rawData, "blob");
-      } else if (rawData instanceof File) {
-        image = data.file = rawData;
-      } else if (rawData instanceof Blob) {
-        image = rawData;
+      deixe imagem;
+      se (tipo de dados brutos === "string") {
+        dados.url = dadosraros;
+        imagem = await fetchData(rawData, "blob");
+      } senão se (rawData instância de Arquivo) {
+        imagem = dados.arquivo = rawData;
+      } senão se (rawData instância de Blob) {
+        imagem = rawData;
       }
-      if (image.type === "image/svg+xml") {
+      se (imagem.tipo === "imagem/svg+xml") {
         const mustRemoveAspectRatioPromise = ImageManager._isSVGFittingCanvas;
-        const fileReader = new FileReader();
-        const imageElement = new Image();
-        const imagePromise = new Promise((resolve, reject) => {
+        const fileReader = novo FileReader();
+        const imageElement = nova Imagem();
+        const imagePromise = new Promise((resolver, rejeitar) => {
           imageElement.onload = () => {
-            data.bitmap = imageElement;
-            data.isSvg = true;
-            resolve();
+            dados.bitmap = imageElement;
+            dados.isSvg = verdadeiro;
+            resolver();
           };
-          fileReader.onload = async () => {
-            const url = data.svgUrl = fileReader.result;
-            imageElement.src = (await mustRemoveAspectRatioPromise) ? `${url}#svgView(preserveAspectRatio(none))` : url;
+          fileReader.onload = async() => {
+            const url = dados.svgUrl = fileReader.result;
+            imageElement.src = (aguarde mustRemoveAspectRatioPromise) ? `${url}#svgView(preserveAspectRatio(none))` : url;
           };
-          imageElement.onerror = fileReader.onerror = reject;
+          imageElement.onerror = fileReader.onerror = rejeitar;
         });
-        fileReader.readAsDataURL(image);
-        await imagePromise;
-      } else {
-        data.bitmap = await createImageBitmap(image);
+        fileReader.readAsDataURL(imagem);
+        aguardar imagePromise;
+      } outro {
+        data.bitmap = await createImageBitmap(imagem);
       }
-      data.refCounter = 1;
-    } catch (e) {
-      warn(e);
-      data = null;
+      dados.refCounter = 1;
+    } pegar (e) {
+      avisar(e);
+      dados = nulo;
     }
-    this.#cache.set(key, data);
-    if (data) {
-      this.#cache.set(data.id, data);
+    isto.#cache.set(chave, dados);
+    se (dados) {
+      isto.#cache.set(dados.id, dados);
     }
-    return data;
+    retornar dados;
   }
-  async getFromFile(file) {
-    const {
-      lastModified,
-      name,
-      size,
-      type
-    } = file;
-    return this.#get(`${lastModified}_${name}_${size}_${type}`, file);
+  async getFromFile(arquivo) {
+    constante {
+      última modificação,
+      nome,
+      tamanho,
+      tipo
+    } = arquivo;
+    retorne isto.#get(`${lastModified}_${name}_${size}_${type}`, arquivo);
   }
-  async getFromUrl(url) {
-    return this.#get(url, url);
+  assíncrono getFromUrl(url) {
+    retorne isto.#get(url, url);
   }
-  async getFromBlob(id, blobPromise) {
-    const blob = await blobPromise;
-    return this.#get(id, blob);
+  assíncrono getFromBlob(id, blobPromise) {
+    const blob = aguardar blobPromise;
+    retorne isto.#get(id, blob);
   }
-  async getFromId(id) {
-    this.#cache ||= new Map();
-    const data = this.#cache.get(id);
-    if (!data) {
-      return null;
+  assíncrono getFromId(id) {
+    isto.#cache ||= novo Mapa();
+    const dados = this.#cache.get(id);
+    se (!dados) {
+      retornar nulo;
     }
-    if (data.bitmap) {
-      data.refCounter += 1;
-      return data;
+    se (dados.bitmap) {
+      dados.refCounter += 1;
+      retornar dados;
     }
-    if (data.file) {
-      return this.getFromFile(data.file);
+    se (dados.arquivo) {
+      retornar this.getFromFile(dados.arquivo);
     }
-    if (data.blobPromise) {
-      const {
-        blobPromise
-      } = data;
-      delete data.blobPromise;
-      return this.getFromBlob(data.id, blobPromise);
+    se (dados.blobPromise) {
+      constante {
+        blobPromessa
+      } = dados;
+      excluir dados.blobPromise;
+      retornar isto.getFromBlob(dados.id, blobPromise);
     }
-    return this.getFromUrl(data.url);
+    retornar this.getFromUrl(dados.url);
   }
-  getFromCanvas(id, canvas) {
-    this.#cache ||= new Map();
-    let data = this.#cache.get(id);
-    if (data?.bitmap) {
-      data.refCounter += 1;
-      return data;
+  getFromCanvas(id, tela) {
+    isto.#cache ||= novo Mapa();
+    deixe dados = this.#cache.get(id);
+    se (dados?.bitmap) {
+      dados.refCounter += 1;
+      retornar dados;
     }
-    const offscreen = new OffscreenCanvas(canvas.width, canvas.height);
+    const offscreen = novo OffscreenCanvas(tela.largura, tela.altura);
     const ctx = offscreen.getContext("2d");
-    ctx.drawImage(canvas, 0, 0);
-    data = {
+    ctx.drawImage(tela, 0, 0);
+    dados = {
       bitmap: offscreen.transferToImageBitmap(),
-      id: `image_${this.#baseId}_${this.#id++}`,
+      id: `imagem_${this.#baseId}_${this.#id++}`,
       refCounter: 1,
-      isSvg: false
+      isSvg: falso
     };
-    this.#cache.set(id, data);
-    this.#cache.set(data.id, data);
-    return data;
+    isto.#cache.set(id, dados);
+    isto.#cache.set(dados.id, dados);
+    retornar dados;
   }
-  getSvgUrl(id) {
-    const data = this.#cache.get(id);
-    if (!data?.isSvg) {
-      return null;
+  obterSvgUrl(id) {
+    const dados = this.#cache.get(id);
+    se (!dados?.isSvg) {
+      retornar nulo;
     }
-    return data.svgUrl;
+    retornar dados.svgUrl;
   }
   deleteId(id) {
-    this.#cache ||= new Map();
-    const data = this.#cache.get(id);
-    if (!data) {
-      return;
+    isto.#cache ||= novo Mapa();
+    const dados = this.#cache.get(id);
+    se (!dados) {
+      retornar;
     }
-    data.refCounter -= 1;
-    if (data.refCounter !== 0) {
-      return;
+    dados.refCounter -= 1;
+    se (dados.refCounter !== 0) {
+      retornar;
     }
-    const {
+    constante {
       bitmap
-    } = data;
-    if (!data.url && !data.file) {
-      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+    } = dados;
+    se (!dados.url && !dados.arquivo) {
+      const canvas = novo OffscreenCanvas(bitmap.largura, bitmap.altura);
       const ctx = canvas.getContext("bitmaprenderer");
       ctx.transferFromImageBitmap(bitmap);
-      data.blobPromise = canvas.convertToBlob();
+      dados.blobPromise = canvas.convertToBlob();
     }
-    bitmap.close?.();
-    data.bitmap = null;
+    bitmap.fechar?.();
+    dados.bitmap = nulo;
   }
   isValidId(id) {
-    return id.startsWith(`image_${this.#baseId}_`);
+    retornar id.startsWith(`image_${this.#baseId}_`);
   }
 }
-class CommandManager {
-  #commands = [];
-  #locked = false;
-  #maxSize;
-  #position = -1;
-  constructor(maxSize = 128) {
-    this.#maxSize = maxSize;
+classe CommandManager {
+  #comandos = [];
+  #bloqueado = falso;
+  #tamanhomáximo;
+  #posição = -1;
+  construtor(tamanhomáximo = 128) {
+    isto.#maxSize = maxSize;
   }
-  add({
-    cmd,
-    undo,
-    post,
-    mustExec,
-    type = NaN,
-    overwriteIfSameType = false,
-    keepUndo = false
+  adicionar({
+    comando,
+    desfazer,
+    publicar,
+    deveExecutar,
+    tipo = NaN,
+    sobrescreverSeMesmoTipo = falso,
+    keepUndo = falso
   }) {
-    if (mustExec) {
+    se (mustExec) {
       cmd();
     }
-    if (this.#locked) {
-      return;
+    se (isto.#bloqueado) {
+      retornar;
     }
-    const save = {
-      cmd,
-      undo,
-      post,
-      type
+    const salvar = {
+      comando,
+      desfazer,
+      publicar,
+      tipo
     };
-    if (this.#position === -1) {
-      if (this.#commands.length > 0) {
-        this.#commands.length = 0;
+    se (esta.#posição === -1) {
+      se (this.#commands.length > 0) {
+        isto.#comandos.comprimento = 0;
       }
-      this.#position = 0;
-      this.#commands.push(save);
-      return;
+      esta.#posição = 0;
+      isto.#comandos.push(salvar);
+      retornar;
     }
-    if (overwriteIfSameType && this.#commands[this.#position].type === type) {
-      if (keepUndo) {
-        save.undo = this.#commands[this.#position].undo;
+    se (sobrescreverSeMesmoTipo && isto.#comandos[isto.#posição].tipo === tipo) {
+      se (manterDesfazer) {
+        salvar.desfazer = isto.#comandos[isto.#posição].desfazer;
       }
-      this.#commands[this.#position] = save;
-      return;
+      isto.#comandos[isto.#posição] = salvar;
+      retornar;
     }
-    const next = this.#position + 1;
-    if (next === this.#maxSize) {
-      this.#commands.splice(0, 1);
-    } else {
-      this.#position = next;
-      if (next < this.#commands.length) {
-        this.#commands.splice(next);
+    const next = this.#posição + 1;
+    se (próximo === este.#tamanhomáximo) {
+      isto.#comandos.splice(0, 1);
+    } outro {
+      esta.#posição = próximo;
+      se (próximo < este.#comandos.comprimento) {
+        isto.#comandos.splice(próximo);
       }
     }
-    this.#commands.push(save);
+    isto.#comandos.push(salvar);
   }
-  undo() {
-    if (this.#position === -1) {
-      return;
+  desfazer() {
+    se (esta.#posição === -1) {
+      retornar;
     }
-    this.#locked = true;
-    const {
-      undo,
-      post
-    } = this.#commands[this.#position];
-    undo();
-    post?.();
-    this.#locked = false;
-    this.#position -= 1;
+    isto.#bloqueado = verdadeiro;
+    constante {
+      desfazer,
+      publicar
+    } = this.#comandos[this.#posição];
+    desfazer();
+    publicar?.();
+    isto.#bloqueado = falso;
+    esta.#posição -= 1;
   }
-  redo() {
-    if (this.#position < this.#commands.length - 1) {
-      this.#position += 1;
-      this.#locked = true;
-      const {
-        cmd,
-        post
-      } = this.#commands[this.#position];
+  refazer() {
+    se (isto.#posição < isto.#comandos.comprimento - 1) {
+      esta.#posição += 1;
+      isto.#bloqueado = verdadeiro;
+      constante {
+        comando,
+        publicar
+      } = this.#comandos[this.#posição];
       cmd();
-      post?.();
-      this.#locked = false;
+      publicar?.();
+      isto.#bloqueado = falso;
     }
   }
-  hasSomethingToUndo() {
-    return this.#position !== -1;
+  temAlgoParaDesfazer() {
+    retorne isto.#posição !== -1;
   }
-  hasSomethingToRedo() {
-    return this.#position < this.#commands.length - 1;
+  temAlgoParaRefazer() {
+    retornar isto.#posição < isto.#comandos.comprimento - 1;
   }
-  cleanType(type) {
-    if (this.#position === -1) {
-      return;
+  cleanType(tipo) {
+    se (esta.#posição === -1) {
+      retornar;
     }
-    for (let i = this.#position; i >= 0; i--) {
-      if (this.#commands[i].type !== type) {
-        this.#commands.splice(i + 1, this.#position - i);
-        this.#position = i;
-        return;
+    para (seja i = esta.#posição; i >= 0; i--) {
+      se (this.#commands[i].type !== tipo) {
+        isto.#comandos.splice(i + 1, isto.#posição - i);
+        isto.#posição = i;
+        retornar;
       }
     }
-    this.#commands.length = 0;
-    this.#position = -1;
+    isto.#comandos.comprimento = 0;
+    esta.#posição = -1;
   }
-  destroy() {
-    this.#commands = null;
+  destruir() {
+    isto.#comandos = nulo;
   }
 }
-class KeyboardManager {
-  constructor(callbacks) {
-    this.buffer = [];
-    this.callbacks = new Map();
-    this.allKeys = new Set();
-    const {
-      isMac
-    } = util_FeatureTest.platform;
-    for (const [keys, callback, options = {}] of callbacks) {
-      for (const key of keys) {
-        const isMacKey = key.startsWith("mac+");
-        if (isMac && isMacKey) {
-          this.callbacks.set(key.slice(4), {
-            callback,
-            options
+classe KeyboardManager {
+  construtor(retornos de chamada) {
+    este.buffer = [];
+    this.callbacks = novo Mapa();
+    this.allKeys = novo Conjunto();
+    constante {
+      éMac
+    } = util_FeatureTest.plataforma;
+    para (const [chaves, retorno de chamada, opções = {}] de retornos de chamada) {
+      para (const chave de chaves) {
+        const isMacKey = chave.startsWith("mac+");
+        se (isMac && isMacKey) {
+          this.callbacks.set(chave.fatia(4), {
+            ligar de volta,
+            opções
           });
-          this.allKeys.add(key.split("+").at(-1));
-        } else if (!isMac && !isMacKey) {
-          this.callbacks.set(key, {
-            callback,
-            options
+          isto.allKeys.add(chave.split("+").at(-1));
+        } senão se (!isMac && !isMacKey) {
+          this.callbacks.set(chave, {
+            ligar de volta,
+            opções
           });
-          this.allKeys.add(key.split("+").at(-1));
+          isto.allKeys.add(chave.split("+").at(-1));
         }
       }
     }
   }
-  #serialize(event) {
-    if (event.altKey) {
-      this.buffer.push("alt");
+  #serialize(evento) {
+    se (evento.altKey) {
+      este.buffer.push("alt");
     }
-    if (event.ctrlKey) {
-      this.buffer.push("ctrl");
+    se (evento.ctrlKey) {
+      este.buffer.push("ctrl");
     }
-    if (event.metaKey) {
-      this.buffer.push("meta");
+    se (evento.metaKey) {
+      este.buffer.push("meta");
     }
-    if (event.shiftKey) {
-      this.buffer.push("shift");
+    se (evento.shiftKey) {
+      este.buffer.push("shift");
     }
-    this.buffer.push(event.key);
+    this.buffer.push(evento.chave);
     const str = this.buffer.join("+");
-    this.buffer.length = 0;
-    return str;
+    este.buffer.comprimento = 0;
+    retornar str;
   }
-  exec(self, event) {
-    if (!this.allKeys.has(event.key)) {
-      return;
+  exec(self, evento) {
+    se (!this.allKeys.has(evento.chave)) {
+      retornar;
     }
-    const info = this.callbacks.get(this.#serialize(event));
-    if (!info) {
-      return;
+    const info = this.callbacks.get(this.#serialize(evento));
+    se (!info) {
+      retornar;
     }
-    const {
-      callback,
-      options: {
-        bubbles = false,
-        args = [],
-        checker = null
+    constante {
+      ligar de volta,
+      opções: {
+        bolhas = falso,
+        argumentos = [],
+        verificador = nulo
       }
-    } = info;
-    if (checker && !checker(self, event)) {
-      return;
+    } = informação;
+    se (verificador && !verificador(self, evento)) {
+      retornar;
     }
-    callback.bind(self, ...args, event)();
-    if (!bubbles) {
-      stopEvent(event);
+    retorno de chamada.bind(self, ...args, evento)();
+    se (!bolhas) {
+      stopEvent(evento);
     }
   }
 }
-class ColorManager {
-  static _colorsMapping = new Map([["CanvasText", [0, 0, 0]], ["Canvas", [255, 255, 255]]]);
-  get _colors() {
-    const colors = new Map([["CanvasText", null], ["Canvas", null]]);
-    getColorValues(colors);
-    return shadow(this, "_colors", colors);
+classe ColorManager {
+  static _colorsMapping = novo Mapa([["CanvasText", [0, 0, 0]], ["Tela", [255, 255, 255]]]);
+  obter _cores() {
+    const cores = novo Mapa([["CanvasText", nulo], ["Tela", nulo]]);
+    getColorValues(cores);
+    retornar sombra(isto, "_cores", cores);
   }
-  convert(color) {
-    const rgb = getRGB(color);
-    if (!window.matchMedia("(forced-colors: active)").matches) {
-      return rgb;
+  converter(cor) {
+    const rgb = getRGB(cor);
+    se (!window.matchMedia("(cores forçadas: ativo)").corresponde) {
+      retornar rgb;
     }
-    for (const [name, RGB] of this._colors) {
-      if (RGB.every((x, i) => x === rgb[i])) {
-        return ColorManager._colorsMapping.get(name);
+    para (const [nome, RGB] de this._colors) {
+      se (RGB.cada((x, i) => x === rgb[i])) {
+        retornar ColorManager._colorsMapping.get(nome);
       }
     }
-    return rgb;
+    retornar rgb;
   }
-  getHexCode(name) {
-    const rgb = this._colors.get(name);
-    if (!rgb) {
-      return name;
+  getHexCode(nome) {
+    const rgb = this._colors.get(nome);
+    se (!rgb) {
+      nome de retorno;
     }
-    return Util.makeHexColor(...rgb);
+    retornar Util.makeHexColor(...rgb);
   }
 }
-class AnnotationEditorUIManager {
-  #abortController = new AbortController();
-  #activeEditor = null;
-  #allEditors = new Map();
-  #allLayers = new Map();
-  #altTextManager = null;
-  #annotationStorage = null;
-  #changedExistingAnnotations = null;
-  #commandManager = new CommandManager();
-  #copyPasteAC = null;
-  #currentDrawingSession = null;
+classe AnnotationEditorUIManager {
+  #abortController = novo AbortController();
+  #activeEditor = nulo;
+  #allEditors = novo Mapa();
+  #allLayers = novo Mapa();
+  #altTextManager = nulo;
+  #annotationStorage = nulo;
+  #changedExistingAnnotations = nulo;
+  #commandManager = novo CommandManager();
+  #copyPasteAC = nulo;
+  #currentDrawingSession = nulo;
   #currentPageIndex = 0;
-  #deletedAnnotationsElementIds = new Set();
-  #draggingEditors = null;
-  #editorTypes = null;
-  #editorsToRescale = new Set();
-  _editorUndoBar = null;
-  #enableHighlightFloatingButton = false;
-  #enableUpdatedAddImage = false;
-  #enableNewAltTextWhenAddingImage = false;
-  #filterFactory = null;
-  #focusMainContainerTimeoutId = null;
-  #focusManagerAC = null;
-  #highlightColors = null;
-  #highlightWhenShiftUp = false;
-  #highlightToolbar = null;
-  #idManager = new IdManager();
-  #isEnabled = false;
-  #isWaiting = false;
-  #keyboardManagerAC = null;
-  #lastActiveElement = null;
-  #mainHighlightColorPicker = null;
-  #mlManager = null;
+  #deletedAnnotationsElementIds = novo Conjunto();
+  #draggingEditors = nulo;
+  #editorTypes = nulo;
+  #editorsToRescale = novo Conjunto();
+  _editorUndoBar = nulo;
+  #enableHighlightFloatingButton = falso;
+  #enableUpdatedAddImage = falso;
+  #enableNewAltTextWhenAddingImage = falso;
+  #filterFactory = nulo;
+  #focusMainContainerTimeoutId = nulo;
+  #focusManagerAC = nulo;
+  #highlightColors = nulo;
+  #highlightWhenShiftUp = falso;
+  #highlightToolbar = nulo;
+  #idManager = novo IdManager();
+  #isEnabled = falso;
+  #isWaiting = falso;
+  #keyboardManagerAC = nulo;
+  #lastActiveElement = nulo;
+  #mainHighlightColorPicker = nulo;
+  #missingCanvases = nulo;
+  #mlManager = nulo;
   #mode = AnnotationEditorType.NONE;
-  #selectedEditors = new Set();
-  #selectedTextNode = null;
-  #pageColors = null;
-  #showAllStates = null;
-  #previousStates = {
-    isEditing: false,
-    isEmpty: true,
-    hasSomethingToUndo: false,
-    hasSomethingToRedo: false,
-    hasSelectedEditor: false,
-    hasSelectedText: false
+  #selectedEditors = novo Conjunto();
+  #selectedTextNode = nulo;
+  #signatureManager = nulo;
+  #pageColors = nulo;
+  #showAllStates = nulo;
+  #EstadosAnteriores = {
+    isEditing: falso,
+    isEmpty: verdadeiro,
+    temAlgoParaDesfazer: falso,
+    temAlgoParaRefazer: falso,
+    hasSelectedEditor: falso,
+    hasSelectedText: falso
   };
-  #translation = [0, 0];
-  #translationTimeoutId = null;
-  #container = null;
-  #viewer = null;
-  #updateModeCapability = null;
-  static TRANSLATE_SMALL = 1;
-  static TRANSLATE_BIG = 10;
-  static get _keyboardManager() {
+  #tradução = [0, 0];
+  #translationTimeoutId = nulo;
+  #container = nulo;
+  #visualizador = nulo;
+  #updateModeCapability = nulo;
+  estático TRANSLATE_SMALL = 1;
+  estático TRANSLATE_BIG = 10;
+  estático obter _keyboardManager() {
     const proto = AnnotationEditorUIManager.prototype;
     const arrowChecker = self => self.#container.contains(document.activeElement) && document.activeElement.tagName !== "BUTTON" && self.hasSomethingToControl();
     const textInputChecker = (_self, {
-      target: el
+      alvo: el
     }) => {
-      if (el instanceof HTMLInputElement) {
-        const {
-          type
+      se (a instância de HTMLInputElement) {
+        constante {
+          tipo
         } = el;
-        return type !== "text" && type !== "number";
+        tipo de retorno !== "texto" && tipo !== "número";
       }
-      return true;
+      retornar verdadeiro;
     };
-    const small = this.TRANSLATE_SMALL;
-    const big = this.TRANSLATE_BIG;
-    return shadow(this, "_keyboardManager", new KeyboardManager([[["ctrl+a", "mac+meta+a"], proto.selectAll, {
-      checker: textInputChecker
-    }], [["ctrl+z", "mac+meta+z"], proto.undo, {
-      checker: textInputChecker
+    const pequeno = this.TRANSLATE_SMALL;
+    const big = isto.TRANSLATE_BIG;
+    retornar sombra(isto, "_keyboardManager", novo KeyboardManager([[["ctrl+a", "mac+meta+a"], proto.selectAll, {
+      verificador: textInputChecker
+    }], [["ctrl+z", "mac+meta+z"], proto.desfazer, {
+      verificador: textInputChecker
     }], [["ctrl+y", "ctrl+shift+z", "mac+meta+shift+z", "ctrl+shift+Z", "mac+meta+shift+Z"], proto.redo, {
-      checker: textInputChecker
-    }], [["Backspace", "alt+Backspace", "ctrl+Backspace", "shift+Backspace", "mac+Backspace", "mac+alt+Backspace", "mac+ctrl+Backspace", "Delete", "ctrl+Delete", "shift+Delete", "mac+Delete"], proto.delete, {
-      checker: textInputChecker
+      verificador: textInputChecker
+    }], [["Backspace", "alt+Backspace", "ctrl+Backspace", "shift+Backspace", "mac+Backspace", "mac+alt+Backspace", "mac+ctrl+Backspace", "Excluir", "ctrl+Delete", "shift+Delete", "mac+Delete"], proto.delete, {
+      verificador: textInputChecker
     }], [["Enter", "mac+Enter"], proto.addNewEditorFromKeyboard, {
-      checker: (self, {
-        target: el
-      }) => !(el instanceof HTMLButtonElement) && self.#container.contains(el) && !self.isEnterHandled
+      verificador: (self, {
+        alvo: el
+      }) => !(a instância do HTMLButtonElement) && self.#container.contains(el) && !self.isEnterHandled
     }], [[" ", "mac+ "], proto.addNewEditorFromKeyboard, {
-      checker: (self, {
-        target: el
-      }) => !(el instanceof HTMLButtonElement) && self.#container.contains(document.activeElement)
-    }], [["Escape", "mac+Escape"], proto.unselectAll], [["ArrowLeft", "mac+ArrowLeft"], proto.translateSelectedEditors, {
-      args: [-small, 0],
-      checker: arrowChecker
-    }], [["ctrl+ArrowLeft", "mac+shift+ArrowLeft"], proto.translateSelectedEditors, {
-      args: [-big, 0],
-      checker: arrowChecker
-    }], [["ArrowRight", "mac+ArrowRight"], proto.translateSelectedEditors, {
-      args: [small, 0],
-      checker: arrowChecker
-    }], [["ctrl+ArrowRight", "mac+shift+ArrowRight"], proto.translateSelectedEditors, {
-      args: [big, 0],
-      checker: arrowChecker
-    }], [["ArrowUp", "mac+ArrowUp"], proto.translateSelectedEditors, {
-      args: [0, -small],
-      checker: arrowChecker
-    }], [["ctrl+ArrowUp", "mac+shift+ArrowUp"], proto.translateSelectedEditors, {
-      args: [0, -big],
-      checker: arrowChecker
-    }], [["ArrowDown", "mac+ArrowDown"], proto.translateSelectedEditors, {
-      args: [0, small],
-      checker: arrowChecker
-    }], [["ctrl+ArrowDown", "mac+shift+ArrowDown"], proto.translateSelectedEditors, {
-      args: [0, big],
-      checker: arrowChecker
+      verificador: (self, {
+        alvo: el
+      }) => !(a instância do HTMLButtonElement) && self.#container.contains(document.activeElement)
+    }], [["Escape", "mac+Escape"], proto.unselectAll], [["Seta para a esquerda", "mac+Seta para a esquerda"], proto.translateSelectedEditors, {
+      argumentos: [-pequeno, 0],
+      verificador: arrowChecker
+    }], [["ctrl+SetaEsquerda", "mac+shift+SetaEsquerda"], proto.translateSelectedEditors, {
+      argumentos: [-grande, 0],
+      verificador: arrowChecker
+    }], [["Seta para a direita", "mac+Seta para a direita"], proto.translateSelectedEditors, {
+      args: [pequeno, 0],
+      verificador: arrowChecker
+    }], [["ctrl+Seta para a direita", "mac+shift+Seta para a direita"], proto.translateSelectedEditors, {
+      argumentos: [grande, 0],
+      verificador: arrowChecker
+    }], [["Seta para cima", "mac+Seta para cima"], proto.translateSelectedEditors, {
+      argumentos: [0, -pequeno],
+      verificador: arrowChecker
+    }], [["ctrl+Seta para cima", "mac+shift+Seta para cima"], proto.translateSelectedEditors, {
+      argumentos: [0, -grande],
+      verificador: arrowChecker
+    }], [["Seta para baixo", "mac+Seta para baixo"], proto.translateSelectedEditors, {
+      args: [0, pequeno],
+      verificador: arrowChecker
+    }], [["ctrl+Seta para baixo", "mac+shift+Seta para baixo"], proto.translateSelectedEditors, {
+      args: [0, grande],
+      verificador: arrowChecker
     }]]));
   }
-  constructor(container, viewer, altTextManager, eventBus, pdfDocument, pageColors, highlightColors, enableHighlightFloatingButton, enableUpdatedAddImage, enableNewAltTextWhenAddingImage, mlManager, editorUndoBar, supportsPinchToZoom) {
-    const signal = this._signal = this.#abortController.signal;
-    this.#container = container;
-    this.#viewer = viewer;
-    this.#altTextManager = altTextManager;
+  construtor(container, visualizador, altTextManager, signatureManager, eventBus, pdfDocument, pageColors, highlightColors, enableHighlightFloatingButton, enableUpdatedAddImage, enableNewAltTextWhenAddingImage, mlManager, editorUndoBar, supportsPinchToZoom) {
+    sinal constante = this._signal = this.#abortController.signal;
+    isto.#container = contêiner;
+    isto.#visualizador = visualizador;
+    isto.#altTextManager = altTextManager;
+    isto.#signatureManager = signatureManager;
     this._eventBus = eventBus;
-    eventBus._on("editingaction", this.onEditingAction.bind(this), {
-      signal
+    eventBus._on("ação de edição", this.onEditingAction.bind(this), {
+      sinal
     });
-    eventBus._on("pagechanging", this.onPageChanging.bind(this), {
-      signal
+    eventBus._on("mudança de página", this.onPageChanging.bind(this), {
+      sinal
     });
-    eventBus._on("scalechanging", this.onScaleChanging.bind(this), {
-      signal
+    eventBus._on("mudança de escala", this.onScaleChanging.bind(this), {
+      sinal
     });
-    eventBus._on("rotationchanging", this.onRotationChanging.bind(this), {
-      signal
+    eventBus._on("rotaçãomudando", this.onRotationChanging.bind(this), {
+      sinal
     });
     eventBus._on("setpreference", this.onSetPreference.bind(this), {
-      signal
+      sinal
     });
     eventBus._on("switchannotationeditorparams", evt => this.updateParams(evt.type, evt.value), {
-      signal
+      sinal
     });
-    this.#addSelectionListener();
-    this.#addDragAndDropListeners();
-    this.#addKeyboardManager();
-    this.#annotationStorage = pdfDocument.annotationStorage;
-    this.#filterFactory = pdfDocument.filterFactory;
-    this.#pageColors = pageColors;
-    this.#highlightColors = highlightColors || null;
-    this.#enableHighlightFloatingButton = enableHighlightFloatingButton;
-    this.#enableUpdatedAddImage = enableUpdatedAddImage;
-    this.#enableNewAltTextWhenAddingImage = enableNewAltTextWhenAddingImage;
-    this.#mlManager = mlManager || null;
+    isto.#addSelectionListener();
+    isto.#addDragAndDropListeners();
+    isto.#addKeyboardManager();
+    isto.#annotationStorage = pdfDocument.annotationStorage;
+    isto.#filterFactory = pdfDocument.filterFactory;
+    isto.#pageColors = pageColors;
+    isto.#highlightColors = coresdestaque || nulo;
+    isto.#enableHighlightFloatingButton = enableHighlightFloatingButton;
+    isto.#enableUpdatedAddImage = enableUpdatedAddImage;
+    isto.#enableNewAltTextWhenAddingImage = enableNewAltTextWhenAddingImage;
+    isto.#mlManager = mlManager || nulo;
     this.viewParameters = {
-      realScale: PixelsPerInch.PDF_TO_CSS_UNITS,
-      rotation: 0
+      realScale: PixelsPorPolegada.PDF_PARA_UNIDADES_CSS,
+      rotação: 0
     };
-    this.isShiftKeyDown = false;
-    this._editorUndoBar = editorUndoBar || null;
-    this._supportsPinchToZoom = supportsPinchToZoom !== false;
+    this.isShiftKeyDown = falso;
+    this._editorUndoBar = editorUndoBar || nulo;
+    this._supportsPinchToZoom = suportaPinchToZoom !== falso;
   }
-  destroy() {
-    this.#updateModeCapability?.resolve();
-    this.#updateModeCapability = null;
-    this.#abortController?.abort();
-    this.#abortController = null;
-    this._signal = null;
-    for (const layer of this.#allLayers.values()) {
-      layer.destroy();
+  destruir() {
+    isto.#updateModeCapability?.resolve();
+    isto.#updateModeCapability = nulo;
+    isto.#abortController?.abort();
+    isto.#abortController = nulo;
+    este._sinal = nulo;
+    para (camada constante de this.#allLayers.values()) {
+      camada.destroy();
     }
-    this.#allLayers.clear();
-    this.#allEditors.clear();
-    this.#editorsToRescale.clear();
-    this.#activeEditor = null;
-    this.#selectedEditors.clear();
-    this.#commandManager.destroy();
-    this.#altTextManager?.destroy();
-    this.#highlightToolbar?.hide();
-    this.#highlightToolbar = null;
-    if (this.#focusMainContainerTimeoutId) {
+    isto.#allLayers.clear();
+    isto.#allEditors.clear();
+    isto.#editorsToRescale.clear();
+    isto.#telasfaltadas?.limpar();
+    isto.#activeEditor = nulo;
+    isto.#selectedEditors.clear();
+    isto.#commandManager.destroy();
+    isto.#altTextManager?.destroy();
+    isto.#signatureManager?.destroy();
+    isto.#highlightToolbar?.hide();
+    isto.#highlightToolbar = nulo;
+    isto.#mainHighlightColorPicker?.destroy();
+    isto.#mainHighlightColorPicker = nulo;
+    se (isto.#focusMainContainerTimeoutId) {
       clearTimeout(this.#focusMainContainerTimeoutId);
-      this.#focusMainContainerTimeoutId = null;
+      isto.#focusMainContainerTimeoutId = nulo;
     }
-    if (this.#translationTimeoutId) {
+    se (isto.#translationTimeoutId) {
       clearTimeout(this.#translationTimeoutId);
-      this.#translationTimeoutId = null;
+      isto.#translationTimeoutId = nulo;
     }
-    this._editorUndoBar?.destroy();
+    este._editorUndoBar?.destroy();
   }
-  combinedSignal(ac) {
-    return AbortSignal.any([this._signal, ac.signal]);
+  sinalcombinado(ac) {
+    retornar AbortSignal.any([this._signal, ac.signal]);
   }
-  get mlManager() {
-    return this.#mlManager;
+  obter mlManager() {
+    retornar isto.#mlManager;
   }
-  get useNewAltTextFlow() {
-    return this.#enableUpdatedAddImage;
+  obter useNewAltTextFlow() {
+    retornar isto.#enableUpdatedAddImage;
   }
-  get useNewAltTextWhenAddingImage() {
-    return this.#enableNewAltTextWhenAddingImage;
+  obter useNewAltTextWhenAddingImage() {
+    retornar isto.#enableNewAltTextWhenAddingImage;
   }
-  get hcmFilter() {
-    return shadow(this, "hcmFilter", this.#pageColors ? this.#filterFactory.addHCMFilter(this.#pageColors.foreground, this.#pageColors.background) : "none");
+  obter hcmFilter() {
+    retornar sombra(isto, "hcmFilter", isto.#pageColors ? isto.#filterFactory.addHCMFilter(isto.#pageColors.foreground, isto.#pageColors.background) : "nenhum");
   }
-  get direction() {
-    return shadow(this, "direction", getComputedStyle(this.#container).direction);
+  obter direção() {
+    retornar sombra(isto, "direção", getComputedStyle(isto.#container).direção);
   }
-  get highlightColors() {
-    return shadow(this, "highlightColors", this.#highlightColors ? new Map(this.#highlightColors.split(",").map(pair => pair.split("=").map(x => x.trim()))) : null);
+  obter highlightColors() {
+    retornar sombra(isto, "coresdestaques", isto.#coresdestaques ? novo Mapa(isto.#coresdestaques.split(",").mapa(par => par.split("=").mapa(x => x.trim()))) : nulo);
   }
-  get highlightColorNames() {
-    return shadow(this, "highlightColorNames", this.highlightColors ? new Map(Array.from(this.highlightColors, e => e.reverse())) : null);
+  obter highlightColorNames() {
+    retornar sombra(isto, "highlightColorNames", isto.highlightColors ? novo Mapa(Array.from(isto.highlightColors, e => e.reverse())) : nulo);
   }
-  setCurrentDrawingSession(layer) {
-    if (layer) {
-      this.unselectAll();
-      this.disableUserSelect(true);
-    } else {
-      this.disableUserSelect(false);
+  setCurrentDrawingSession(camada) {
+    se (camada) {
+      isto.unselectAll();
+      this.disableUserSelect(verdadeiro);
+    } outro {
+      isto.disableUserSelect(falso);
     }
-    this.#currentDrawingSession = layer;
+    isto.#currentDrawingSession = camada;
   }
-  setMainHighlightColorPicker(colorPicker) {
-    this.#mainHighlightColorPicker = colorPicker;
+  setMainHighlightColorPicker(seletor de cores) {
+    isto.#mainHighlightColorPicker = colorPicker;
   }
   editAltText(editor, firstTime = false) {
-    this.#altTextManager?.editAltText(this, editor, firstTime);
+    isto.#altTextManager?.editAltText(isto, editor, primeiraVez);
   }
-  switchToMode(mode, callback) {
-    this._eventBus.on("annotationeditormodechanged", callback, {
-      once: true,
-      signal: this._signal
-    });
-    this._eventBus.dispatch("showannotationeditorui", {
-      source: this,
-      mode
+  obterAssinatura(editor) {
+    isto.#signatureManager?.getSignature({
+      uiManager: isto,
+      editor
     });
   }
-  setPreference(name, value) {
-    this._eventBus.dispatch("setpreference", {
-      source: this,
-      name,
-      value
+  obter signatureManager() {
+    retornar isto.#signatureManager;
+  }
+  switchToMode(modo, retorno de chamada) {
+    this._eventBus.on("editordeanotaçãomodoalterado", retorno de chamada, {
+      uma vez: verdadeiro,
+      sinal: este._sinal
+    });
+    this._eventBus.dispatch("editor de anotações do show", {
+      fonte: esta,
+      modo
+    });
+  }
+  setPreference(nome, valor) {
+    this._eventBus.dispatch("definir preferência", {
+      fonte: esta,
+      nome,
+      valor
     });
   }
   onSetPreference({
-    name,
-    value
+    nome,
+    valor
   }) {
-    switch (name) {
-      case "enableNewAltTextWhenAddingImage":
-        this.#enableNewAltTextWhenAddingImage = value;
-        break;
+    switch (nome) {
+      caso "enableNewAltTextWhenAddingImage":
+        isto.#enableNewAltTextWhenAddingImage = valor;
+        quebrar;
     }
   }
   onPageChanging({
-    pageNumber
+    número da página
   }) {
-    this.#currentPageIndex = pageNumber - 1;
+    isto.#currentPageIndex = pageNumber - 1;
   }
   focusMainContainer() {
-    this.#container.focus();
+    isto.#container.foco();
   }
   findParent(x, y) {
-    for (const layer of this.#allLayers.values()) {
-      const {
-        x: layerX,
-        y: layerY,
-        width,
-        height
-      } = layer.div.getBoundingClientRect();
-      if (x >= layerX && x <= layerX + width && y >= layerY && y <= layerY + height) {
-        return layer;
+    para (camada constante de this.#allLayers.values()) {
+      constante {
+        x: camadaX,
+        y: camadaY,
+        largura,
+        altura
+      } = camada.div.getBoundingClientRect();
+      se (x >= camadaX && x <= camadaX + largura && y >= camadaY && y <= camadaY + altura) {
+        camada de retorno;
       }
     }
-    return null;
+    retornar nulo;
   }
-  disableUserSelect(value = false) {
-    this.#viewer.classList.toggle("noUserSelect", value);
+  disableUserSelect(valor = falso) {
+    isto.#viewer.classList.toggle("noUserSelect", valor);
   }
   addShouldRescale(editor) {
-    this.#editorsToRescale.add(editor);
+    isto.#editorsToRescale.add(editor);
   }
   removeShouldRescale(editor) {
-    this.#editorsToRescale.delete(editor);
+    isto.#editorsToRescale.delete(editor);
   }
   onScaleChanging({
-    scale
+    escala
   }) {
-    this.commitOrRemove();
-    this.viewParameters.realScale = scale * PixelsPerInch.PDF_TO_CSS_UNITS;
-    for (const editor of this.#editorsToRescale) {
+    isto.commitOrRemove();
+    this.viewParameters.realScale = escala * PixelsPerInch.PDF_TO_CSS_UNITS;
+    para (editor constante deste.#editorsToRescale) {
       editor.onScaleChanging();
     }
-    this.#currentDrawingSession?.onScaleChanging();
+    isto.#currentDrawingSession?.onScaleChanging();
   }
   onRotationChanging({
-    pagesRotation
+    Rotação de páginas
   }) {
-    this.commitOrRemove();
-    this.viewParameters.rotation = pagesRotation;
+    isto.commitOrRemove();
+    this.viewParameters.rotation = páginasRotação;
   }
   #getAnchorElementForSelection({
-    anchorNode
+    nó de âncora
   }) {
-    return anchorNode.nodeType === Node.TEXT_NODE ? anchorNode.parentElement : anchorNode;
+    retornar anchorNode.nodeType === Node.TEXT_NODE ? anchorNode.parentElement : anchorNode;
   }
-  #getLayerForTextLayer(textLayer) {
-    const {
-      currentLayer
-    } = this;
-    if (currentLayer.hasTextLayer(textLayer)) {
-      return currentLayer;
+  #getLayerForTextLayer(camadaDeTexto) {
+    constante {
+      camada atual
+    } = isto;
+    se (currentLayer.hasTextLayer(textLayer)) {
+      retornar currentLayer;
     }
-    for (const layer of this.#allLayers.values()) {
-      if (layer.hasTextLayer(textLayer)) {
-        return layer;
+    para (camada constante de this.#allLayers.values()) {
+      se (camada.hasTextLayer(textLayer)) {
+        camada de retorno;
       }
     }
-    return null;
+    retornar nulo;
   }
-  highlightSelection(methodOfCreation = "") {
-    const selection = document.getSelection();
-    if (!selection || selection.isCollapsed) {
-      return;
+  destaqueSeleção(métodoDeCriação = "") {
+    const seleção = document.getSelection();
+    se (!seleção || seleção.isCollapsed) {
+      retornar;
     }
-    const {
-      anchorNode,
-      anchorOffset,
-      focusNode,
-      focusOffset
-    } = selection;
-    const text = selection.toString();
-    const anchorElement = this.#getAnchorElementForSelection(selection);
+    constante {
+      nó de ancoragem,
+      âncoraOffset,
+      nó de foco,
+      focoDeslocamento
+    } = seleção;
+    const texto = seleção.toString();
+    const anchorElement = this.#getAnchorElementForSelection(seleção);
     const textLayer = anchorElement.closest(".textLayer");
-    const boxes = this.getSelectionBoxes(textLayer);
-    if (!boxes) {
-      return;
+    caixas const = this.getSelectionBoxes(textLayer);
+    se (!caixas) {
+      retornar;
     }
-    selection.empty();
-    const layer = this.#getLayerForTextLayer(textLayer);
+    seleção.vazio();
+    const camada = this.#getLayerForTextLayer(textLayer);
     const isNoneMode = this.#mode === AnnotationEditorType.NONE;
-    const callback = () => {
-      layer?.createAndAddNewEditor({
+    retorno de chamada constante = () => {
+      camada?.createAndAddNewEditor({
         x: 0,
         y: 0
-      }, false, {
-        methodOfCreation,
-        boxes,
-        anchorNode,
-        anchorOffset,
-        focusNode,
-        focusOffset,
-        text
+      }, falso, {
+        métodoDeCriação,
+        caixas,
+        nó de ancoragem,
+        âncoraOffset,
+        nó de foco,
+        focoDeslocamento,
+        texto
       });
-      if (isNoneMode) {
-        this.showAllEditors("highlight", true, true);
+      se (isNoneMode) {
+        this.showAllEditors("destaque", verdadeiro, verdadeiro);
       }
     };
-    if (isNoneMode) {
-      this.switchToMode(AnnotationEditorType.HIGHLIGHT, callback);
-      return;
+    se (isNoneMode) {
+      this.switchToMode(AnnotationEditorType.HIGHLIGHT, retorno de chamada);
+      retornar;
     }
-    callback();
+    ligar de volta();
   }
   #displayHighlightToolbar() {
-    const selection = document.getSelection();
-    if (!selection || selection.isCollapsed) {
-      return;
+    const seleção = document.getSelection();
+    se (!seleção || seleção.isCollapsed) {
+      retornar;
     }
-    const anchorElement = this.#getAnchorElementForSelection(selection);
+    const anchorElement = this.#getAnchorElementForSelection(seleção);
     const textLayer = anchorElement.closest(".textLayer");
-    const boxes = this.getSelectionBoxes(textLayer);
-    if (!boxes) {
-      return;
+    caixas const = this.getSelectionBoxes(textLayer);
+    se (!caixas) {
+      retornar;
     }
-    this.#highlightToolbar ||= new HighlightToolbar(this);
-    this.#highlightToolbar.show(textLayer, boxes, this.direction === "ltr");
+    isto.#highlightToolbar ||= novo HighlightToolbar(isto);
+    isto.#highlightToolbar.show(textLayer, caixas, isto.direction === "ltr");
   }
   addToAnnotationStorage(editor) {
-    if (!editor.isEmpty() && this.#annotationStorage && !this.#annotationStorage.has(editor.id)) {
-      this.#annotationStorage.setValue(editor.id, editor);
+    se (!editor.isEmpty() && isto.#annotationStorage && !isto.#annotationStorage.has(editor.id)) {
+      isto.#annotationStorage.setValue(editor.id, editor);
     }
   }
   #selectionChange() {
-    const selection = document.getSelection();
-    if (!selection || selection.isCollapsed) {
-      if (this.#selectedTextNode) {
-        this.#highlightToolbar?.hide();
-        this.#selectedTextNode = null;
-        this.#dispatchUpdateStates({
-          hasSelectedText: false
+    const seleção = document.getSelection();
+    se (!seleção || seleção.isCollapsed) {
+      se (isto.#selectedTextNode) {
+        isto.#highlightToolbar?.hide();
+        isto.#selectedTextNode = nulo;
+        isto.#dispatchUpdateStates({
+          hasSelectedText: falso
         });
       }
-      return;
+      retornar;
     }
-    const {
-      anchorNode
-    } = selection;
-    if (anchorNode === this.#selectedTextNode) {
-      return;
+    constante {
+      nó de âncora
+    } = seleção;
+    se (anchorNode === this.#selectedTextNode) {
+      retornar;
     }
-    const anchorElement = this.#getAnchorElementForSelection(selection);
+    const anchorElement = this.#getAnchorElementForSelection(seleção);
     const textLayer = anchorElement.closest(".textLayer");
-    if (!textLayer) {
-      if (this.#selectedTextNode) {
-        this.#highlightToolbar?.hide();
-        this.#selectedTextNode = null;
-        this.#dispatchUpdateStates({
-          hasSelectedText: false
+    se (!textLayer) {
+      se (isto.#selectedTextNode) {
+        isto.#highlightToolbar?.hide();
+        isto.#selectedTextNode = nulo;
+        isto.#dispatchUpdateStates({
+          hasSelectedText: falso
         });
       }
-      return;
+      retornar;
     }
-    this.#highlightToolbar?.hide();
-    this.#selectedTextNode = anchorNode;
-    this.#dispatchUpdateStates({
-      hasSelectedText: true
+    isto.#highlightToolbar?.hide();
+    isto.#selectedTextNode = anchorNode;
+    isto.#dispatchUpdateStates({
+      hasSelectedText: verdadeiro
     });
-    if (this.#mode !== AnnotationEditorType.HIGHLIGHT && this.#mode !== AnnotationEditorType.NONE) {
-      return;
+    se (este.#modo !== AnnotationEditorType.HIGHLIGHT && este.#modo !== AnnotationEditorType.NONE) {
+      retornar;
     }
-    if (this.#mode === AnnotationEditorType.HIGHLIGHT) {
-      this.showAllEditors("highlight", true, true);
+    se (este.#modo === AnnotationEditorType.HIGHLIGHT) {
+      this.showAllEditors("destaque", verdadeiro, verdadeiro);
     }
-    this.#highlightWhenShiftUp = this.isShiftKeyDown;
-    if (!this.isShiftKeyDown) {
+    isto.#highlightWhenShiftUp = isto.isShiftKeyDown;
+    se (!this.isShiftKeyDown) {
       const activeLayer = this.#mode === AnnotationEditorType.HIGHLIGHT ? this.#getLayerForTextLayer(textLayer) : null;
       activeLayer?.toggleDrawing();
-      const ac = new AbortController();
-      const signal = this.combinedSignal(ac);
+      const ac = novo AbortController();
+      sinal constante = this.combinedSignal(ac);
       const pointerup = e => {
-        if (e.type === "pointerup" && e.button !== 0) {
-          return;
+        se (e.type === "pointerup" && e.button !== 0) {
+          retornar;
         }
-        ac.abort();
-        activeLayer?.toggleDrawing(true);
-        if (e.type === "pointerup") {
-          this.#onSelectEnd("main_toolbar");
+        ac.abortar();
+        activeLayer?.toggleDrawing(verdadeiro);
+        se (e.type === "pointerup") {
+          isto.#onSelectEnd("barra_de_ferramentas_principal");
         }
       };
-      window.addEventListener("pointerup", pointerup, {
-        signal
+      janela.addEventListener("ponteiroparacima", ponteiroparacima, {
+        sinal
       });
-      window.addEventListener("blur", pointerup, {
-        signal
+      window.addEventListener("desfoque", ponteiro para cima, {
+        sinal
       });
     }
   }
-  #onSelectEnd(methodOfCreation = "") {
-    if (this.#mode === AnnotationEditorType.HIGHLIGHT) {
-      this.highlightSelection(methodOfCreation);
-    } else if (this.#enableHighlightFloatingButton) {
-      this.#displayHighlightToolbar();
+  #onSelectEnd(métodoOfCreation = "") {
+    se (este.#modo === AnnotationEditorType.HIGHLIGHT) {
+      isto.highlightSelection(métodoDeCriação);
+    } senão se (this.#enableHighlightFloatingButton) {
+      isto.#displayHighlightToolbar();
     }
   }
   #addSelectionListener() {
-    document.addEventListener("selectionchange", this.#selectionChange.bind(this), {
-      signal: this._signal
+    document.addEventListener("alteração de seleção", this.#selectionChange.bind(this), {
+      sinal: este._sinal
     });
   }
   #addFocusManager() {
-    if (this.#focusManagerAC) {
-      return;
+    se (isto.#focusManagerAC) {
+      retornar;
     }
-    this.#focusManagerAC = new AbortController();
-    const signal = this.combinedSignal(this.#focusManagerAC);
-    window.addEventListener("focus", this.focus.bind(this), {
-      signal
+    isto.#focusManagerAC = novo AbortController();
+    sinal constante = this.combinedSignal(this.#focusManagerAC);
+    window.addEventListener("foco", this.focus.bind(this), {
+      sinal
     });
-    window.addEventListener("blur", this.blur.bind(this), {
-      signal
+    window.addEventListener("desfoque", this.blur.bind(this), {
+      sinal
     });
   }
   #removeFocusManager() {
-    this.#focusManagerAC?.abort();
-    this.#focusManagerAC = null;
+    isto.#focusManagerAC?.abort();
+    isto.#focusManagerAC = nulo;
   }
-  blur() {
-    this.isShiftKeyDown = false;
-    if (this.#highlightWhenShiftUp) {
-      this.#highlightWhenShiftUp = false;
-      this.#onSelectEnd("main_toolbar");
+  desfoque() {
+    this.isShiftKeyDown = falso;
+    se (isto.#destaqueQuandoDeslocarParaCima) {
+      isto.#highlightWhenShiftUp = falso;
+      isto.#onSelectEnd("barra_de_ferramentas_principal");
     }
-    if (!this.hasSelection) {
-      return;
+    se (!isto.temSeleção) {
+      retornar;
     }
-    const {
-      activeElement
-    } = document;
-    for (const editor of this.#selectedEditors) {
-      if (editor.div.contains(activeElement)) {
-        this.#lastActiveElement = [editor, activeElement];
-        editor._focusEventsAllowed = false;
-        break;
+    constante {
+      Elemento ativo
+    } = documento;
+    para (editor constante deste.#selectedEditors) {
+      se (editor.div.contains(elementoativo)) {
+        isto.#lastActiveElement = [editor, activeElement];
+        editor._focusEventsAllowed = falso;
+        quebrar;
       }
     }
   }
-  focus() {
-    if (!this.#lastActiveElement) {
-      return;
+  foco() {
+    se (!isso.#últimoElementoAtivo) {
+      retornar;
     }
-    const [lastEditor, lastActiveElement] = this.#lastActiveElement;
-    this.#lastActiveElement = null;
-    lastActiveElement.addEventListener("focusin", () => {
-      lastEditor._focusEventsAllowed = true;
+    const [últimoEditor, últimoElementoAtivo] = this.#últimoElementoAtivo;
+    isto.#últimoElementoAtivo = nulo;
+    lastActiveElement.addEventListener("foco", () => {
+      lastEditor._focusEventsAllowed = verdadeiro;
     }, {
-      once: true,
-      signal: this._signal
+      uma vez: verdadeiro,
+      sinal: este._sinal
     });
-    lastActiveElement.focus();
+    últimoElementoAtivo.foco();
   }
   #addKeyboardManager() {
-    if (this.#keyboardManagerAC) {
-      return;
+    se (isto.#keyboardManagerAC) {
+      retornar;
     }
-    this.#keyboardManagerAC = new AbortController();
-    const signal = this.combinedSignal(this.#keyboardManagerAC);
-    window.addEventListener("keydown", this.keydown.bind(this), {
-      signal
+    isto.#keyboardManagerAC = novo AbortController();
+    sinal constante = this.combinedSignal(this.#keyboardManagerAC);
+    window.addEventListener("tecla pressionada", this.keydown.bind(this), {
+      sinal
     });
     window.addEventListener("keyup", this.keyup.bind(this), {
-      signal
+      sinal
     });
   }
   #removeKeyboardManager() {
-    this.#keyboardManagerAC?.abort();
-    this.#keyboardManagerAC = null;
+    isto.#keyboardManagerAC?.abort();
+    isto.#keyboardManagerAC = nulo;
   }
   #addCopyPasteListeners() {
-    if (this.#copyPasteAC) {
-      return;
+    se (isto.#copyPasteAC) {
+      retornar;
     }
-    this.#copyPasteAC = new AbortController();
-    const signal = this.combinedSignal(this.#copyPasteAC);
-    document.addEventListener("copy", this.copy.bind(this), {
-      signal
+    isto.#copyPasteAC = novo AbortController();
+    sinal constante = this.combinedSignal(this.#copyPasteAC);
+    document.addEventListener("cópia", this.copy.bind(this), {
+      sinal
     });
-    document.addEventListener("cut", this.cut.bind(this), {
-      signal
+    document.addEventListener("cortar", this.cut.bind(this), {
+      sinal
     });
-    document.addEventListener("paste", this.paste.bind(this), {
-      signal
+    document.addEventListener("colar", this.paste.bind(this), {
+      sinal
     });
   }
   #removeCopyPasteListeners() {
-    this.#copyPasteAC?.abort();
-    this.#copyPasteAC = null;
+    isto.#copyPasteAC?.abort();
+    isto.#copyPasteAC = nulo;
   }
   #addDragAndDropListeners() {
-    const signal = this._signal;
-    document.addEventListener("dragover", this.dragOver.bind(this), {
-      signal
+    sinal constante = this._signal;
+    document.addEventListener("arrastar", this.dragOver.bind(this), {
+      sinal
     });
-    document.addEventListener("drop", this.drop.bind(this), {
-      signal
+    document.addEventListener("soltar", this.drop.bind(this), {
+      sinal
     });
   }
   addEditListeners() {
-    this.#addKeyboardManager();
-    this.#addCopyPasteListeners();
+    isto.#addKeyboardManager();
+    isto.#addCopyPasteListeners();
   }
   removeEditListeners() {
-    this.#removeKeyboardManager();
-    this.#removeCopyPasteListeners();
+    isto.#removeKeyboardManager();
+    isto.#removeCopyPasteListeners();
   }
-  dragOver(event) {
-    for (const {
-      type
-    } of event.dataTransfer.items) {
-      for (const editorType of this.#editorTypes) {
-        if (editorType.isHandlingMimeForPasting(type)) {
-          event.dataTransfer.dropEffect = "copy";
-          event.preventDefault();
-          return;
+  dragOver(evento) {
+    para (const {
+      tipo
+    } de event.dataTransfer.items) {
+      para (const editorType deste.#editorTypes) {
+        se (editorType.isHandlingMimeForPasting(tipo)) {
+          event.dataTransfer.dropEffect = "copiar";
+          evento.preventDefault();
+          retornar;
         }
       }
     }
   }
-  drop(event) {
-    for (const item of event.dataTransfer.items) {
-      for (const editorType of this.#editorTypes) {
-        if (editorType.isHandlingMimeForPasting(item.type)) {
+  drop(evento) {
+    para (item constante de event.dataTransfer.items) {
+      para (const editorType deste.#editorTypes) {
+        se (editorType.isHandlingMimeForPasting(item.type)) {
           editorType.paste(item, this.currentLayer);
-          event.preventDefault();
-          return;
+          evento.preventDefault();
+          retornar;
         }
       }
     }
   }
-  copy(event) {
-    event.preventDefault();
-    this.#activeEditor?.commitOrRemove();
-    if (!this.hasSelection) {
-      return;
+  copiar(evento) {
+    evento.preventDefault();
+    isto.#activeEditor?.commitOrRemove();
+    se (!isto.temSeleção) {
+      retornar;
     }
-    const editors = [];
-    for (const editor of this.#selectedEditors) {
-      const serialized = editor.serialize(true);
-      if (serialized) {
-        editors.push(serialized);
+    editores const = [];
+    para (editor constante deste.#selectedEditors) {
+      const serializado = editor.serialize(true);
+      se (serializado) {
+        editores.push(serializado);
       }
     }
-    if (editors.length === 0) {
-      return;
+    se (editores.length === 0) {
+      retornar;
     }
-    event.clipboardData.setData("application/pdfjs", JSON.stringify(editors));
+    event.clipboardData.setData("aplicativo/pdfjs", JSON.stringify(editores));
   }
-  cut(event) {
-    this.copy(event);
-    this.delete();
+  corte(evento) {
+    this.copy(evento);
+    isto.delete();
   }
-  async paste(event) {
-    event.preventDefault();
-    const {
-      clipboardData
-    } = event;
-    for (const item of clipboardData.items) {
-      for (const editorType of this.#editorTypes) {
-        if (editorType.isHandlingMimeForPasting(item.type)) {
+  async paste(evento) {
+    evento.preventDefault();
+    constante {
+      Dados da área de transferência
+    } = evento;
+    para (item constante de clipboardData.items) {
+      para (const editorType deste.#editorTypes) {
+        se (editorType.isHandlingMimeForPasting(item.type)) {
           editorType.paste(item, this.currentLayer);
-          return;
+          retornar;
         }
       }
     }
-    let data = clipboardData.getData("application/pdfjs");
-    if (!data) {
-      return;
+    deixe dados = clipboardData.getData("application/pdfjs");
+    se (!dados) {
+      retornar;
     }
-    try {
-      data = JSON.parse(data);
-    } catch (ex) {
-      warn(`paste: "${ex.message}".`);
-      return;
+    tentar {
+      dados = JSON.parse(dados);
+    } pegar (ex) {
+      avisar(`colar: "${ex.message}".`);
+      retornar;
     }
-    if (!Array.isArray(data)) {
-      return;
+    se (!Array.isArray(dados)) {
+      retornar;
     }
-    this.unselectAll();
-    const layer = this.currentLayer;
-    try {
-      const newEditors = [];
-      for (const editor of data) {
-        const deserializedEditor = await layer.deserialize(editor);
-        if (!deserializedEditor) {
-          return;
+    isto.unselectAll();
+    constante camada = this.currentLayer;
+    tentar {
+      const novos editores = [];
+      para (editor constante de dados) {
+        const deserializedEditor = aguarda camada.deserialize (editor);
+        se (!deserializedEditor) {
+          retornar;
         }
-        newEditors.push(deserializedEditor);
+        newEditors.push(editordesserializado);
       }
       const cmd = () => {
-        for (const editor of newEditors) {
+        para (editor constante de novos editores) {
           this.#addEditorToLayer(editor);
         }
-        this.#selectEditors(newEditors);
+        isto.#selectEditors(novosEditores);
       };
-      const undo = () => {
-        for (const editor of newEditors) {
+      const desfazer = () => {
+        para (editor constante de novos editores) {
           editor.remove();
         }
       };
-      this.addCommands({
-        cmd,
-        undo,
-        mustExec: true
+      isto.addCommands({
+        comando,
+        desfazer,
+        mustExec: verdadeiro
       });
-    } catch (ex) {
-      warn(`paste: "${ex.message}".`);
+    } pegar (ex) {
+      avisar(`colar: "${ex.message}".`);
     }
   }
-  keydown(event) {
-    if (!this.isShiftKeyDown && event.key === "Shift") {
-      this.isShiftKeyDown = true;
+  keydown(evento) {
+    se (!this.isShiftKeyDown && evento.key === "Shift") {
+      this.isShiftKeyDown = verdadeiro;
     }
-    if (this.#mode !== AnnotationEditorType.NONE && !this.isEditorHandlingKeyboard) {
-      AnnotationEditorUIManager._keyboardManager.exec(this, event);
+    se (este.#modo !== AnnotationEditorType.NONE && !este.isEditorHandlingKeyboard) {
+      AnnotationEditorUIManager._keyboardManager.exec(este, evento);
     }
   }
-  keyup(event) {
-    if (this.isShiftKeyDown && event.key === "Shift") {
-      this.isShiftKeyDown = false;
-      if (this.#highlightWhenShiftUp) {
-        this.#highlightWhenShiftUp = false;
-        this.#onSelectEnd("main_toolbar");
+  keyup(evento) {
+    se (this.isShiftKeyDown && event.key === "Shift") {
+      this.isShiftKeyDown = falso;
+      se (isto.#destaqueQuandoDeslocarParaCima) {
+        isto.#highlightWhenShiftUp = falso;
+        isto.#onSelectEnd("barra_de_ferramentas_principal");
       }
     }
   }
   onEditingAction({
-    name
+    nome
   }) {
-    switch (name) {
-      case "undo":
-      case "redo":
-      case "delete":
-      case "selectAll":
-        this[name]();
-        break;
-      case "highlightSelection":
-        this.highlightSelection("context_menu");
-        break;
+    switch (nome) {
+      caso "desfazer":
+      caso "refazer":
+      caso "deletar":
+      caso "selectAll":
+        este[nome]();
+        quebrar;
+      caso "highlightSelection":
+        this.highlightSelection("menu_de_contexto");
+        quebrar;
     }
   }
-  #dispatchUpdateStates(details) {
-    const hasChanged = Object.entries(details).some(([key, value]) => this.#previousStates[key] !== value);
-    if (hasChanged) {
-      this._eventBus.dispatch("annotationeditorstateschanged", {
-        source: this,
-        details: Object.assign(this.#previousStates, details)
+  #dispatchUpdateStates(detalhes) {
+    const hasChanged = Object.entries(detalhes).some(([chave, valor]) => this.#previousStates[chave] !== valor);
+    se (mudou) {
+      this._eventBus.dispatch("editor de anotações estados alterados", {
+        fonte: esta,
+        detalhes: Object.assign(this.#previousStates, detalhes)
       });
-      if (this.#mode === AnnotationEditorType.HIGHLIGHT && details.hasSelectedEditor === false) {
-        this.#dispatchUpdateUI([[AnnotationEditorParamsType.HIGHLIGHT_FREE, true]]);
+      se (este.#modo === AnnotationEditorType.HIGHLIGHT && detalhes.hasSelectedEditor === falso) {
+        isto.#dispatchUpdateUI([[AnnotationEditorParamsType.HIGHLIGHT_FREE, true]]);
       }
     }
   }
-  #dispatchUpdateUI(details) {
-    this._eventBus.dispatch("annotationeditorparamschanged", {
-      source: this,
-      details
+  #dispatchUpdateUI(detalhes) {
+    this._eventBus.dispatch("editor de anotações parâmetros alterados", {
+      fonte: esta,
+      detalhes
     });
   }
-  setEditingState(isEditing) {
-    if (isEditing) {
-      this.#addFocusManager();
-      this.#addCopyPasteListeners();
-      this.#dispatchUpdateStates({
+  setEditingState(estáEditando) {
+    se (estáEdição) {
+      isto.#addFocusManager();
+      isto.#addCopyPasteListeners();
+      isto.#dispatchUpdateStates({
         isEditing: this.#mode !== AnnotationEditorType.NONE,
-        isEmpty: this.#isEmpty(),
-        hasSomethingToUndo: this.#commandManager.hasSomethingToUndo(),
-        hasSomethingToRedo: this.#commandManager.hasSomethingToRedo(),
-        hasSelectedEditor: false
+        isEmpty: isto.#isEmpty(),
+        temAlgoParaDesfazer: this.#commandManager.temAlgoParaDesfazer(),
+        temAlgoParaRefazer: this.#commandManager.temAlgoParaRefazer(),
+        hasSelectedEditor: falso
       });
-    } else {
-      this.#removeFocusManager();
-      this.#removeCopyPasteListeners();
-      this.#dispatchUpdateStates({
-        isEditing: false
+    } outro {
+      isto.#removeFocusManager();
+      isto.#removeCopyPasteListeners();
+      isto.#dispatchUpdateStates({
+        isEditing: falso
       });
-      this.disableUserSelect(false);
+      isto.disableUserSelect(falso);
     }
   }
-  registerEditorTypes(types) {
-    if (this.#editorTypes) {
-      return;
+  registerEditorTypes(tipos) {
+    se (este.#editorTypes) {
+      retornar;
     }
-    this.#editorTypes = types;
-    for (const editorType of this.#editorTypes) {
-      this.#dispatchUpdateUI(editorType.defaultPropertiesToUpdate);
-    }
-  }
-  getId() {
-    return this.#idManager.id;
-  }
-  get currentLayer() {
-    return this.#allLayers.get(this.#currentPageIndex);
-  }
-  getLayer(pageIndex) {
-    return this.#allLayers.get(pageIndex);
-  }
-  get currentPageIndex() {
-    return this.#currentPageIndex;
-  }
-  addLayer(layer) {
-    this.#allLayers.set(layer.pageIndex, layer);
-    if (this.#isEnabled) {
-      layer.enable();
-    } else {
-      layer.disable();
+    isto.#editorTypes = tipos;
+    para (const editorType deste.#editorTypes) {
+      isto.#dispatchUpdateUI(editorType.defaultPropertiesToUpdate);
     }
   }
-  removeLayer(layer) {
-    this.#allLayers.delete(layer.pageIndex);
+  obterId() {
+    retornar isto.#idManager.id;
   }
-  async updateMode(mode, editId = null, isFromKeyboard = false) {
-    if (this.#mode === mode) {
-      return;
+  obter currentLayer() {
+    retornar isto.#allLayers.get(isto.#currentPageIndex);
+  }
+  obterCamada(índiceDePágina) {
+    retornar isto.#allLayers.get(pageIndex);
+  }
+  obter currentPageIndex() {
+    retornar isto.#currentPageIndex;
+  }
+  addLayer(camada) {
+    isto.#allLayers.set(camada.pageIndex, camada);
+    se (isto.#estáHabilitado) {
+      camada.enable();
+    } outro {
+      camada.desativar();
     }
-    if (this.#updateModeCapability) {
-      await this.#updateModeCapability.promise;
-      if (!this.#updateModeCapability) {
-        return;
+  }
+  removeLayer(camada) {
+    isto.#allLayers.delete(camada.pageIndex);
+  }
+  async updateMode(modo, editId = nulo, isFromKeyboard = falso) {
+    se (este.#modo === modo) {
+      retornar;
+    }
+    se (isto.#updateModeCapability) {
+      aguarde isso.#updateModeCapability.promise;
+      se (!this.#updateModeCapability) {
+        retornar;
       }
     }
-    this.#updateModeCapability = Promise.withResolvers();
-    this.#mode = mode;
-    if (mode === AnnotationEditorType.NONE) {
-      this.setEditingState(false);
-      this.#disableAll();
-      this._editorUndoBar?.hide();
-      this.#updateModeCapability.resolve();
-      return;
+    isto.#updateModeCapability = Promise.withResolvers();
+    isto.#currentDrawingSession?.commitOrRemove();
+    isto.#modo = modo;
+    se (modo === AnnotationEditorType.NONE) {
+      this.setEditingState(falso);
+      isto.#desabilitarTudo();
+      este._editorUndoBar?.ocultar();
+      isto.#updateModeCapability.resolve();
+      retornar;
     }
-    this.setEditingState(true);
-    await this.#enableAll();
-    this.unselectAll();
-    for (const layer of this.#allLayers.values()) {
-      layer.updateMode(mode);
+    se (modo === AnnotationEditorType.SIGNATURE) {
+      aguardar isso.#signatureManager?.loadSignatures();
     }
-    if (!editId) {
-      if (isFromKeyboard) {
-        this.addNewEditorFromKeyboard();
+    this.setEditingState(verdadeiro);
+    aguarde isso.#enableAll();
+    isto.unselectAll();
+    para (camada constante de this.#allLayers.values()) {
+      camada.updateMode(modo);
+    }
+    se (!editId) {
+      se (éDoTeclado) {
+        isto.addNewEditorFromKeyboard();
       }
-      this.#updateModeCapability.resolve();
-      return;
+      isto.#updateModeCapability.resolve();
+      retornar;
     }
-    for (const editor of this.#allEditors.values()) {
-      if (editor.annotationElementId === editId) {
+    para (editor constante deste.#allEditors.values()) {
+      se (editor.annotationElementId === editId) {
         this.setSelected(editor);
         editor.enterInEditMode();
-      } else {
+      } outro {
         editor.unselect();
       }
     }
-    this.#updateModeCapability.resolve();
+    isto.#updateModeCapability.resolve();
   }
-  addNewEditorFromKeyboard() {
-    if (this.currentLayer.canCreateNewEmptyEditor()) {
+  adicionarNovoEditorDoTeclado() {
+    se (this.currentLayer.canCreateNewEmptyEditor()) {
       this.currentLayer.addNewEditor();
     }
   }
-  updateToolbar(mode) {
-    if (mode === this.#mode) {
-      return;
+  updateToolbar(modo) {
+    se (modo === este.#modo) {
+      retornar;
     }
-    this._eventBus.dispatch("switchannotationeditormode", {
-      source: this,
-      mode
+    this._eventBus.dispatch("modo de edição de anotações de troca", {
+      fonte: esta,
+      modo
     });
   }
-  updateParams(type, value) {
-    if (!this.#editorTypes) {
-      return;
+  updateParams(tipo, valor) {
+    se (!this.#editorTypes) {
+      retornar;
     }
-    switch (type) {
-      case AnnotationEditorParamsType.CREATE:
-        this.currentLayer.addNewEditor();
-        return;
-      case AnnotationEditorParamsType.HIGHLIGHT_DEFAULT_COLOR:
-        this.#mainHighlightColorPicker?.updateColor(value);
-        break;
-      case AnnotationEditorParamsType.HIGHLIGHT_SHOW_ALL:
-        this._eventBus.dispatch("reporttelemetry", {
-          source: this,
-          details: {
-            type: "editing",
-            data: {
-              type: "highlight",
-              action: "toggle_visibility"
+    switch (tipo) {
+      caso AnnotationEditorParamsType.CREATE:
+        this.currentLayer.addNewEditor(valor);
+        retornar;
+      caso AnnotationEditorParamsType.HIGHLIGHT_DEFAULT_COLOR:
+        isto.#mainHighlightColorPicker?.updateColor(valor);
+        quebrar;
+      caso AnnotationEditorParamsType.HIGHLIGHT_SHOW_ALL:
+        this._eventBus.dispatch("relatório de telemetria", {
+          fonte: esta,
+          detalhes: {
+            tipo: "edição",
+            dados: {
+              tipo: "destaque",
+              ação: "toggle_visibility"
             }
           }
         });
-        (this.#showAllStates ||= new Map()).set(type, value);
-        this.showAllEditors("highlight", value);
-        break;
+        (this.#showAllStates ||= novo Mapa()).definir(tipo, valor);
+        this.showAllEditors("destaque", valor);
+        quebrar;
     }
-    for (const editor of this.#selectedEditors) {
-      editor.updateParams(type, value);
+    para (editor constante deste.#selectedEditors) {
+      editor.updateParams(tipo, valor);
     }
-    for (const editorType of this.#editorTypes) {
-      editorType.updateDefaultParams(type, value);
-    }
-  }
-  showAllEditors(type, visible, updateButton = false) {
-    for (const editor of this.#allEditors.values()) {
-      if (editor.editorType === type) {
-        editor.show(visible);
-      }
-    }
-    const state = this.#showAllStates?.get(AnnotationEditorParamsType.HIGHLIGHT_SHOW_ALL) ?? true;
-    if (state !== visible) {
-      this.#dispatchUpdateUI([[AnnotationEditorParamsType.HIGHLIGHT_SHOW_ALL, visible]]);
+    para (const editorType deste.#editorTypes) {
+      editorType.updateDefaultParams(tipo, valor);
     }
   }
-  enableWaiting(mustWait = false) {
-    if (this.#isWaiting === mustWait) {
-      return;
-    }
-    this.#isWaiting = mustWait;
-    for (const layer of this.#allLayers.values()) {
-      if (mustWait) {
-        layer.disableClick();
-      } else {
-        layer.enableClick();
+  showAllEditors(tipo, visível, updateButton = falso) {
+    para (editor constante deste.#allEditors.values()) {
+      se (editor.editorType === tipo) {
+        editor.show(visível);
       }
-      layer.div.classList.toggle("waiting", mustWait);
+    }
+    constante estado = isto.#showAllStates?.get(AnnotationEditorParamsType.HIGHLIGHT_SHOW_ALL) ?? verdadeiro;
+    se (estado !== visível) {
+      isto.#dispatchUpdateUI([[AnnotationEditorParamsType.HIGHLIGHT_SHOW_ALL, visível]]);
     }
   }
-  async #enableAll() {
-    if (!this.#isEnabled) {
-      this.#isEnabled = true;
-      const promises = [];
-      for (const layer of this.#allLayers.values()) {
-        promises.push(layer.enable());
+  enableWaiting(mustWait = falso) {
+    se (isto.#estáEsperando === deveEsperar) {
+      retornar;
+    }
+    isto.#estáEsperando = deveEsperar;
+    para (camada constante de this.#allLayers.values()) {
+      se (deveEsperar) {
+        camada.disableClick();
+      } outro {
+        camada.enableClick();
       }
-      await Promise.all(promises);
-      for (const editor of this.#allEditors.values()) {
+      layer.div.classList.toggle("esperando", mustWait);
+    }
+  }
+  assíncrono #enableAll() {
+    se (!isto.#estáHabilitado) {
+      isto.#isEnabled = verdadeiro;
+      const promessas = [];
+      para (camada constante de this.#allLayers.values()) {
+        promessas.push(camada.enable());
+      }
+      aguarde Promise.all(promessas);
+      para (editor constante deste.#allEditors.values()) {
         editor.enable();
       }
     }
   }
-  #disableAll() {
-    this.unselectAll();
-    if (this.#isEnabled) {
-      this.#isEnabled = false;
-      for (const layer of this.#allLayers.values()) {
-        layer.disable();
+  #desabilitarTudo() {
+    isto.unselectAll();
+    se (isto.#estáHabilitado) {
+      isto.#isEnabled = falso;
+      para (camada constante de this.#allLayers.values()) {
+        camada.desativar();
       }
-      for (const editor of this.#allEditors.values()) {
-        editor.disable();
+      para (editor constante deste.#allEditors.values()) {
+        editor.desativar();
       }
     }
   }
-  getEditors(pageIndex) {
-    const editors = [];
-    for (const editor of this.#allEditors.values()) {
-      if (editor.pageIndex === pageIndex) {
-        editors.push(editor);
+  obterEditores(índiceDePáginas) {
+    editores const = [];
+    para (editor constante deste.#allEditors.values()) {
+      se (editor.pageIndex === pageIndex) {
+        editores.push(editor);
       }
     }
-    return editors;
+    editores de retorno;
   }
-  getEditor(id) {
-    return this.#allEditors.get(id);
+  obterEditor(id) {
+    retornar isto.#allEditors.get(id);
   }
   addEditor(editor) {
-    this.#allEditors.set(editor.id, editor);
+    isto.#allEditors.set(editor.id, editor);
   }
   removeEditor(editor) {
-    if (editor.div.contains(document.activeElement)) {
-      if (this.#focusMainContainerTimeoutId) {
+    se (editor.div.contains(document.activeElement)) {
+      se (isto.#focusMainContainerTimeoutId) {
         clearTimeout(this.#focusMainContainerTimeoutId);
       }
-      this.#focusMainContainerTimeoutId = setTimeout(() => {
-        this.focusMainContainer();
-        this.#focusMainContainerTimeoutId = null;
+      isto.#focusMainContainerTimeoutId = setTimeout(() => {
+        este.focusMainContainer();
+        isto.#focusMainContainerTimeoutId = nulo;
       }, 0);
     }
-    this.#allEditors.delete(editor.id);
-    this.unselect(editor);
-    if (!editor.annotationElementId || !this.#deletedAnnotationsElementIds.has(editor.annotationElementId)) {
-      this.#annotationStorage?.remove(editor.id);
+    isto.#allEditors.delete(editor.id);
+    se (editor.annotationElementId) {
+      isto.#missingCanvases?.delete(editor.annotationElementId);
+    }
+    isto.desmarcar(editor);
+    se (!editor.annotationElementId || !this.#deletedAnnotationsElementIds.has(editor.annotationElementId)) {
+      isto.#annotationStorage?.remove(editor.id);
     }
   }
   addDeletedAnnotationElement(editor) {
-    this.#deletedAnnotationsElementIds.add(editor.annotationElementId);
+    isto.#deletedAnnotationsElementIds.add(editor.annotationElementId);
     this.addChangedExistingAnnotation(editor);
-    editor.deleted = true;
+    editor.deleted = verdadeiro;
   }
   isDeletedAnnotationElement(annotationElementId) {
-    return this.#deletedAnnotationsElementIds.has(annotationElementId);
+    retornar isto.#deletedAnnotationsElementIds.has(annotationElementId);
   }
   removeDeletedAnnotationElement(editor) {
-    this.#deletedAnnotationsElementIds.delete(editor.annotationElementId);
+    isto.#deletedAnnotationsElementIds.delete(editor.annotationElementId);
     this.removeChangedExistingAnnotation(editor);
-    editor.deleted = false;
+    editor.deleted = falso;
   }
   #addEditorToLayer(editor) {
-    const layer = this.#allLayers.get(editor.pageIndex);
-    if (layer) {
-      layer.addOrRebuild(editor);
-    } else {
-      this.addEditor(editor);
-      this.addToAnnotationStorage(editor);
+    const camada = this.#allLayers.get(editor.pageIndex);
+    se (camada) {
+      camada.addOrRebuild(editor);
+    } outro {
+      isto.addEditor(editor);
+      isto.addToAnnotationStorage(editor);
     }
   }
   setActiveEditor(editor) {
-    if (this.#activeEditor === editor) {
-      return;
+    se (este.#activeEditor === editor) {
+      retornar;
     }
-    this.#activeEditor = editor;
-    if (editor) {
-      this.#dispatchUpdateUI(editor.propertiesToUpdate);
+    isto.#activeEditor = editor;
+    se (editor) {
+      isto.#dispatchUpdateUI(editor.propertiesToUpdate);
     }
   }
-  get #lastSelectedEditor() {
-    let ed = null;
-    for (ed of this.#selectedEditors) {}
-    return ed;
+  obter #lastSelectedEditor() {
+    deixe ed = nulo;
+    para (edição deste.#selectedEditors) {}
+    retornar ed;
   }
   updateUI(editor) {
-    if (this.#lastSelectedEditor === editor) {
-      this.#dispatchUpdateUI(editor.propertiesToUpdate);
+    se (este.#últimoEditorSelecionado === editor) {
+      isto.#dispatchUpdateUI(editor.propertiesToUpdate);
     }
   }
   updateUIForDefaultProperties(editorType) {
-    this.#dispatchUpdateUI(editorType.defaultPropertiesToUpdate);
+    isto.#dispatchUpdateUI(editorType.defaultPropertiesToUpdate);
   }
-  toggleSelected(editor) {
-    if (this.#selectedEditors.has(editor)) {
-      this.#selectedEditors.delete(editor);
+  alternarSelecionado(editor) {
+    se (este.#selectedEditors.tem(editor)) {
+      isto.#selectedEditors.delete(editor);
       editor.unselect();
-      this.#dispatchUpdateStates({
-        hasSelectedEditor: this.hasSelection
+      isto.#dispatchUpdateStates({
+        hasSelectedEditor: isto.temSeleção
       });
-      return;
+      retornar;
     }
-    this.#selectedEditors.add(editor);
-    editor.select();
-    this.#dispatchUpdateUI(editor.propertiesToUpdate);
-    this.#dispatchUpdateStates({
-      hasSelectedEditor: true
+    isto.#selectedEditors.add(editor);
+    editor.selecionar();
+    isto.#dispatchUpdateUI(editor.propertiesToUpdate);
+    isto.#dispatchUpdateStates({
+      hasSelectedEditor: verdadeiro
     });
   }
   setSelected(editor) {
-    this.#currentDrawingSession?.commitOrRemove();
-    for (const ed of this.#selectedEditors) {
-      if (ed !== editor) {
-        ed.unselect();
+    isto.#currentDrawingSession?.commitOrRemove();
+    para (const ed deste.#selectedEditors) {
+      se (ed !== editor) {
+        ed.desmarcar();
       }
     }
-    this.#selectedEditors.clear();
-    this.#selectedEditors.add(editor);
-    editor.select();
-    this.#dispatchUpdateUI(editor.propertiesToUpdate);
-    this.#dispatchUpdateStates({
-      hasSelectedEditor: true
+    isto.#selectedEditors.clear();
+    isto.#selectedEditors.add(editor);
+    editor.selecionar();
+    isto.#dispatchUpdateUI(editor.propertiesToUpdate);
+    isto.#dispatchUpdateStates({
+      hasSelectedEditor: verdadeiro
     });
   }
   isSelected(editor) {
-    return this.#selectedEditors.has(editor);
+    retornar isto.#selectedEditors.has(editor);
   }
-  get firstSelectedEditor() {
-    return this.#selectedEditors.values().next().value;
+  obter firstSelectedEditor() {
+    retornar isto.#selectedEditors.values().next().value;
   }
-  unselect(editor) {
+  desmarcar(editor) {
     editor.unselect();
-    this.#selectedEditors.delete(editor);
-    this.#dispatchUpdateStates({
-      hasSelectedEditor: this.hasSelection
+    isto.#selectedEditors.delete(editor);
+    isto.#dispatchUpdateStates({
+      hasSelectedEditor: isto.temSeleção
     });
   }
-  get hasSelection() {
-    return this.#selectedEditors.size !== 0;
+  obter hasSelection() {
+    retornar isto.#selectedEditors.size !== 0;
   }
-  get isEnterHandled() {
-    return this.#selectedEditors.size === 1 && this.firstSelectedEditor.isEnterHandled;
+  obter isEnterHandled() {
+    retornar isto.#selectedEditors.size === 1 && this.firstSelectedEditor.isEnterHandled;
   }
-  undo() {
-    this.#commandManager.undo();
-    this.#dispatchUpdateStates({
-      hasSomethingToUndo: this.#commandManager.hasSomethingToUndo(),
-      hasSomethingToRedo: true,
-      isEmpty: this.#isEmpty()
+  desfazer() {
+    isto.#commandManager.undo();
+    isto.#dispatchUpdateStates({
+      temAlgoParaDesfazer: this.#commandManager.temAlgoParaDesfazer(),
+      hasSomethingToRedo: verdadeiro,
+      isEmpty: isto.#isEmpty()
     });
-    this._editorUndoBar?.hide();
+    este._editorUndoBar?.ocultar();
   }
-  redo() {
-    this.#commandManager.redo();
-    this.#dispatchUpdateStates({
-      hasSomethingToUndo: true,
-      hasSomethingToRedo: this.#commandManager.hasSomethingToRedo(),
-      isEmpty: this.#isEmpty()
-    });
-  }
-  addCommands(params) {
-    this.#commandManager.add(params);
-    this.#dispatchUpdateStates({
-      hasSomethingToUndo: true,
-      hasSomethingToRedo: false,
-      isEmpty: this.#isEmpty()
+  refazer() {
+    isto.#commandManager.redo();
+    isto.#dispatchUpdateStates({
+      hasSomethingToUndo: verdadeiro,
+      temAlgoParaRefazer: this.#commandManager.temAlgoParaRefazer(),
+      isEmpty: isto.#isEmpty()
     });
   }
-  cleanUndoStack(type) {
-    this.#commandManager.cleanType(type);
+  addCommands(parâmetros) {
+    isto.#commandManager.add(parâmetros);
+    isto.#dispatchUpdateStates({
+      hasSomethingToUndo: verdadeiro,
+      temAlgoParaRefazer: falso,
+      isEmpty: isto.#isEmpty()
+    });
   }
-  #isEmpty() {
-    if (this.#allEditors.size === 0) {
-      return true;
+  cleanUndoStack(tipo) {
+    isto.#commandManager.cleanType(tipo);
+  }
+  #estáVazio() {
+    se (this.#allEditors.size === 0) {
+      retornar verdadeiro;
     }
-    if (this.#allEditors.size === 1) {
-      for (const editor of this.#allEditors.values()) {
-        return editor.isEmpty();
+    se (this.#allEditors.size === 1) {
+      para (editor constante deste.#allEditors.values()) {
+        retornar editor.isEmpty();
       }
     }
-    return false;
+    retornar falso;
   }
-  delete() {
-    this.commitOrRemove();
+  excluir() {
+    isto.commitOrRemove();
     const drawingEditor = this.currentLayer?.endDrawingSession(true);
-    if (!this.hasSelection && !drawingEditor) {
-      return;
+    se (!isto.temSeleção && !editordedesenho) {
+      retornar;
     }
-    const editors = drawingEditor ? [drawingEditor] : [...this.#selectedEditors];
+    const editores = drawingEditor ? [drawingEditor] : [...this.#selectedEditors];
     const cmd = () => {
-      this._editorUndoBar?.show(undo, editors.length === 1 ? editors[0].editorType : editors.length);
-      for (const editor of editors) {
+      this._editorUndoBar?.show(desfazer, editores.length === 1 ? editores[0].editorType : editores.length);
+      para (editor constante de editores) {
         editor.remove();
       }
     };
-    const undo = () => {
-      for (const editor of editors) {
+    const desfazer = () => {
+      para (editor constante de editores) {
         this.#addEditorToLayer(editor);
       }
     };
-    this.addCommands({
-      cmd,
-      undo,
-      mustExec: true
+    isto.addCommands({
+      comando,
+      desfazer,
+      mustExec: verdadeiro
     });
   }
   commitOrRemove() {
-    this.#activeEditor?.commitOrRemove();
+    isto.#activeEditor?.commitOrRemove();
   }
-  hasSomethingToControl() {
-    return this.#activeEditor || this.hasSelection;
+  temAlgoParaControlar() {
+    retornar isto.#activeEditor || isto.temSeleção;
   }
-  #selectEditors(editors) {
-    for (const editor of this.#selectedEditors) {
+  #selectEditors(editores) {
+    para (editor constante deste.#selectedEditors) {
       editor.unselect();
     }
-    this.#selectedEditors.clear();
-    for (const editor of editors) {
-      if (editor.isEmpty()) {
-        continue;
+    isto.#selectedEditors.clear();
+    para (editor constante de editores) {
+      se (editor.isEmpty()) {
+        continuar;
       }
-      this.#selectedEditors.add(editor);
-      editor.select();
+      isto.#selectedEditors.add(editor);
+      editor.selecionar();
     }
-    this.#dispatchUpdateStates({
-      hasSelectedEditor: this.hasSelection
+    isto.#dispatchUpdateStates({
+      hasSelectedEditor: isto.temSeleção
     });
   }
-  selectAll() {
-    for (const editor of this.#selectedEditors) {
+  selecionarTudo() {
+    para (editor constante deste.#selectedEditors) {
       editor.commit();
     }
-    this.#selectEditors(this.#allEditors.values());
+    isto.#selectEditors(isto.#allEditors.values());
   }
-  unselectAll() {
-    if (this.#activeEditor) {
-      this.#activeEditor.commitOrRemove();
-      if (this.#mode !== AnnotationEditorType.NONE) {
-        return;
+  desmarcar tudo() {
+    se (este.#activeEditor) {
+      isto.#activeEditor.commitOrRemove();
+      se (este.#modo !== AnnotationEditorType.NONE) {
+        retornar;
       }
     }
-    if (this.#currentDrawingSession?.commitOrRemove()) {
-      return;
+    se (isto.#currentDrawingSession?.commitOrRemove()) {
+      retornar;
     }
-    if (!this.hasSelection) {
-      return;
+    se (!isto.temSeleção) {
+      retornar;
     }
-    for (const editor of this.#selectedEditors) {
+    para (editor constante deste.#selectedEditors) {
       editor.unselect();
     }
-    this.#selectedEditors.clear();
-    this.#dispatchUpdateStates({
-      hasSelectedEditor: false
+    isto.#selectedEditors.clear();
+    isto.#dispatchUpdateStates({
+      hasSelectedEditor: falso
     });
   }
-  translateSelectedEditors(x, y, noCommit = false) {
-    if (!noCommit) {
-      this.commitOrRemove();
+  translateSelectedEditors(x, y, noCommit = falso) {
+    se (!noCommit) {
+      isto.commitOrRemove();
     }
-    if (!this.hasSelection) {
-      return;
+    se (!isto.temSeleção) {
+      retornar;
     }
-    this.#translation[0] += x;
-    this.#translation[1] += y;
-    const [totalX, totalY] = this.#translation;
-    const editors = [...this.#selectedEditors];
-    const TIME_TO_WAIT = 1000;
-    if (this.#translationTimeoutId) {
+    isto.#translation[0] += x;
+    isto.#translation[1] += y;
+    const [totalX, totalY] = isto.#tradução;
+    const editores = [...this.#selectedEditors];
+    const TEMPO_DE_ESPERA = 1000;
+    se (isto.#translationTimeoutId) {
       clearTimeout(this.#translationTimeoutId);
     }
-    this.#translationTimeoutId = setTimeout(() => {
-      this.#translationTimeoutId = null;
-      this.#translation[0] = this.#translation[1] = 0;
-      this.addCommands({
-        cmd: () => {
-          for (const editor of editors) {
-            if (this.#allEditors.has(editor.id)) {
+    isto.#translationTimeoutId = setTimeout(() => {
+      isto.#translationTimeoutId = nulo;
+      isto.#tradução[0] = isto.#tradução[1] = 0;
+      isto.addCommands({
+        comando: () => {
+          para (editor constante de editores) {
+            se (isto.#allEditors.tem(editor.id)) {
               editor.translateInPage(totalX, totalY);
+              editor.translationDone();
             }
           }
         },
-        undo: () => {
-          for (const editor of editors) {
-            if (this.#allEditors.has(editor.id)) {
+        desfazer: () => {
+          para (editor constante de editores) {
+            se (isto.#allEditors.tem(editor.id)) {
               editor.translateInPage(-totalX, -totalY);
+              editor.translationDone();
             }
           }
         },
-        mustExec: false
+        mustExec: falso
       });
-    }, TIME_TO_WAIT);
-    for (const editor of editors) {
+    }, TEMPO_DE_ESPERA);
+    para (editor constante de editores) {
       editor.translateInPage(x, y);
+      editor.translationDone();
     }
   }
   setUpDragSession() {
-    if (!this.hasSelection) {
-      return;
+    se (!isto.temSeleção) {
+      retornar;
     }
-    this.disableUserSelect(true);
-    this.#draggingEditors = new Map();
-    for (const editor of this.#selectedEditors) {
-      this.#draggingEditors.set(editor, {
+    this.disableUserSelect(verdadeiro);
+    isto.#draggingEditors = novo Mapa();
+    para (editor constante deste.#selectedEditors) {
+      isto.#draggingEditors.set(editor, {
         savedX: editor.x,
         savedY: editor.y,
         savedPageIndex: editor.pageIndex,
-        newX: 0,
-        newY: 0,
-        newPageIndex: -1
+        novoX: 0,
+        novoY: 0,
+        novoÍndiceDePágina: -1
       });
     }
   }
   endDragSession() {
-    if (!this.#draggingEditors) {
-      return false;
+    se (!this.#draggingEditors) {
+      retornar falso;
     }
-    this.disableUserSelect(false);
+    isto.disableUserSelect(falso);
     const map = this.#draggingEditors;
-    this.#draggingEditors = null;
-    let mustBeAddedInUndoStack = false;
-    for (const [{
+    isto.#draggingEditors = nulo;
+    deixe mustBeAddedInUndoStack = false;
+    para (const [{
       x,
-      y,
-      pageIndex
-    }, value] of map) {
-      value.newX = x;
-      value.newY = y;
-      value.newPageIndex = pageIndex;
-      mustBeAddedInUndoStack ||= x !== value.savedX || y !== value.savedY || pageIndex !== value.savedPageIndex;
+      e,
+      índice de páginas
+    }, valor] do mapa) {
+      valor.novoX = x;
+      valor.newY = y;
+      valor.newPageIndex = pageIndex;
+      mustBeAddedInUndoStack ||= x !== valor.savedX || y !== valor.savedY || pageIndex !== valor.savedPageIndex;
     }
-    if (!mustBeAddedInUndoStack) {
-      return false;
+    se (!mustBeAddedInUndoStack) {
+      retornar falso;
     }
     const move = (editor, x, y, pageIndex) => {
-      if (this.#allEditors.has(editor.id)) {
+      se (isto.#allEditors.tem(editor.id)) {
         const parent = this.#allLayers.get(pageIndex);
-        if (parent) {
-          editor._setParentAndPosition(parent, x, y);
-        } else {
-          editor.pageIndex = pageIndex;
+        se (pai) {
+          editor._setParentAndPosition(pai, x, y);
+        } outro {
+          editor.pageIndex = índice de página;
           editor.x = x;
           editor.y = y;
         }
       }
     };
-    this.addCommands({
-      cmd: () => {
-        for (const [editor, {
-          newX,
-          newY,
-          newPageIndex
-        }] of map) {
-          move(editor, newX, newY, newPageIndex);
+    isto.addCommands({
+      comando: () => {
+        para (const [editor, {
+          novoX,
+          novoY,
+          novoÍndiceDePágina
+        }] do mapa) {
+          mover(editor, newX, newY, newPageIndex);
         }
       },
-      undo: () => {
-        for (const [editor, {
-          savedX,
-          savedY,
-          savedPageIndex
-        }] of map) {
-          move(editor, savedX, savedY, savedPageIndex);
+      desfazer: () => {
+        para (const [editor, {
+          salvoX,
+          salvoY,
+          Índice de página salvo
+        }] do mapa) {
+          mover(editor, savedX, savedY, savedPageIndex);
         }
       },
-      mustExec: true
+      mustExec: verdadeiro
     });
-    return true;
+    retornar verdadeiro;
   }
-  dragSelectedEditors(tx, ty) {
-    if (!this.#draggingEditors) {
-      return;
+  arrasteEditoresSelecionados(tx, ty) {
+    se (!this.#draggingEditors) {
+      retornar;
     }
-    for (const editor of this.#draggingEditors.keys()) {
-      editor.drag(tx, ty);
+    para (editor constante deste.#draggingEditors.keys()) {
+      editor.arrastar(tx, ty);
     }
   }
-  rebuild(editor) {
-    if (editor.parent === null) {
+  reconstruir(editor) {
+    se (editor.parent === nulo) {
       const parent = this.getLayer(editor.pageIndex);
-      if (parent) {
-        parent.changeParent(editor);
-        parent.addOrRebuild(editor);
-      } else {
-        this.addEditor(editor);
-        this.addToAnnotationStorage(editor);
-        editor.rebuild();
+      se (pai) {
+        pai.changeParent(editor);
+        pai.addOrRebuild(editor);
+      } outro {
+        isto.addEditor(editor);
+        isto.addToAnnotationStorage(editor);
+        editor.reconstruir();
       }
-    } else {
+    } outro {
       editor.parent.addOrRebuild(editor);
     }
   }
-  get isEditorHandlingKeyboard() {
-    return this.getActive()?.shouldGetKeyboardEvents() || this.#selectedEditors.size === 1 && this.firstSelectedEditor.shouldGetKeyboardEvents();
+  obter isEditorHandlingKeyboard() {
+    retornar isto.getActive()?.shouldGetKeyboardEvents() || isto.#selectedEditors.size === 1 && isto.firstSelectedEditor.shouldGetKeyboardEvents();
   }
   isActive(editor) {
-    return this.#activeEditor === editor;
+    retornar isto.#activeEditor === editor;
   }
-  getActive() {
-    return this.#activeEditor;
+  obterAtivo() {
+    retornar isto.#activeEditor;
   }
-  getMode() {
-    return this.#mode;
+  obterModo() {
+    retornar isto.#modo;
   }
-  get imageManager() {
-    return shadow(this, "imageManager", new ImageManager());
+  obter imageManager() {
+    retornar sombra(this, "imageManager", novo ImageManager());
   }
-  getSelectionBoxes(textLayer) {
-    if (!textLayer) {
-      return null;
+  obterCaixasDeSeleção(CamadaDeTexto) {
+    se (!textLayer) {
+      retornar nulo;
     }
-    const selection = document.getSelection();
-    for (let i = 0, ii = selection.rangeCount; i < ii; i++) {
-      if (!textLayer.contains(selection.getRangeAt(i).commonAncestorContainer)) {
-        return null;
+    const seleção = document.getSelection();
+    para (seja i = 0, ii = seleção.rangeCount; i < ii; i++) {
+      se (!textLayer.contains(selection.getRangeAt(i).commonAncestorContainer)) {
+        retornar nulo;
       }
     }
-    const {
-      x: layerX,
-      y: layerY,
-      width: parentWidth,
-      height: parentHeight
+    constante {
+      x: camadaX,
+      y: camadaY,
+      largura: parentWidth,
+      altura: parentHeight
     } = textLayer.getBoundingClientRect();
-    let rotator;
-    switch (textLayer.getAttribute("data-main-rotation")) {
-      case "90":
-        rotator = (x, y, w, h) => ({
-          x: (y - layerY) / parentHeight,
-          y: 1 - (x + w - layerX) / parentWidth,
-          width: h / parentHeight,
-          height: w / parentWidth
+    deixe o rotador;
+    switch (textLayer.getAttribute("rotação-principal-de-dados")) {
+      caso "90":
+        rotador = (x, y, w, h) => ({
+          x: (y - camadaY) / alturapai,
+          y: 1 - (x + w - camadaX) / largurapai,
+          largura: h / parentHeight,
+          altura: com largura do pai
         });
-        break;
-      case "180":
-        rotator = (x, y, w, h) => ({
-          x: 1 - (x + w - layerX) / parentWidth,
-          y: 1 - (y + h - layerY) / parentHeight,
-          width: w / parentWidth,
-          height: h / parentHeight
+        quebrar;
+      caso "180":
+        rotador = (x, y, w, h) => ({
+          x: 1 - (x + w - camadaX) / largurapai,
+          y: 1 - (y + h - camadaY) / alturapai,
+          largura: com largura_parent,
+          altura: h / parentHeight
         });
-        break;
-      case "270":
-        rotator = (x, y, w, h) => ({
-          x: 1 - (y + h - layerY) / parentHeight,
-          y: (x - layerX) / parentWidth,
-          width: h / parentHeight,
-          height: w / parentWidth
+        quebrar;
+      caso "270":
+        rotador = (x, y, w, h) => ({
+          x: 1 - (y + h - camadaY) / alturapai,
+          y: (x - camadaX) / largurapai,
+          largura: h / parentHeight,
+          altura: com largura do pai
         });
-        break;
-      default:
-        rotator = (x, y, w, h) => ({
-          x: (x - layerX) / parentWidth,
-          y: (y - layerY) / parentHeight,
-          width: w / parentWidth,
-          height: h / parentHeight
+        quebrar;
+      padrão:
+        rotador = (x, y, w, h) => ({
+          x: (x - camadaX) / parentWidth,
+          y: (y - camadaY) / alturapai,
+          largura: com largura_parent,
+          altura: h / parentHeight
         });
-        break;
+        quebrar;
     }
-    const boxes = [];
-    for (let i = 0, ii = selection.rangeCount; i < ii; i++) {
-      const range = selection.getRangeAt(i);
-      if (range.collapsed) {
-        continue;
+    caixas const = [];
+    para (seja i = 0, ii = seleção.rangeCount; i < ii; i++) {
+      const range = seleção.getRangeAt(i);
+      se (intervalo.recolhido) {
+        continuar;
       }
-      for (const {
+      para (const {
         x,
-        y,
-        width,
-        height
-      } of range.getClientRects()) {
-        if (width === 0 || height === 0) {
-          continue;
+        e,
+        largura,
+        altura
+      } de intervalo.getClientRects()) {
+        se (largura === 0 || altura === 0) {
+          continuar;
         }
-        boxes.push(rotator(x, y, width, height));
+        boxes.push(rotator(x, y, largura, altura));
       }
     }
-    return boxes.length === 0 ? null : boxes;
+    retornar caixas.length === 0 ? null : caixas;
   }
   addChangedExistingAnnotation({
     annotationElementId,
-    id
+    eu ia
   }) {
-    (this.#changedExistingAnnotations ||= new Map()).set(annotationElementId, id);
+    (isto.#alteradoAnotaçõesExistentes ||= novo Mapa()).definir(annotationElementId, id);
   }
   removeChangedExistingAnnotation({
-    annotationElementId
+    ID do elemento de anotação
   }) {
-    this.#changedExistingAnnotations?.delete(annotationElementId);
+    isto.#alteradoAnotaçõesExistentes?.excluir(annotationElementId);
   }
-  renderAnnotationElement(annotation) {
+  renderAnnotationElement(anotação) {
     const editorId = this.#changedExistingAnnotations?.get(annotation.data.id);
-    if (!editorId) {
-      return;
+    se (!editorId) {
+      retornar;
     }
     const editor = this.#annotationStorage.getRawValue(editorId);
-    if (!editor) {
-      return;
+    se (!editor) {
+      retornar;
     }
-    if (this.#mode === AnnotationEditorType.NONE && !editor.hasBeenModified) {
-      return;
+    se (este.#modo === AnnotationEditorType.NONE && !editor.hasBeenModified) {
+      retornar;
     }
-    editor.renderAnnotationElement(annotation);
+    editor.renderAnnotationElement(anotação);
+  }
+  setMissingCanvas(annotationId, annotationElementId, tela) {
+    const editor = this.#missingCanvases?.get(annotationId);
+    se (!editor) {
+      retornar;
+    }
+    editor.setCanvas(annotationElementId, tela);
+    isto.#missingCanvases.delete(annotationId);
+  }
+  addMissingCanvas(annotationId, editor) {
+    (this.#missingCanvases ||= novo Mapa()).set(annotationId, editor);
   }
 }
 
 ;// ./src/display/editor/alt_text.js
 
-class AltText {
-  #altText = null;
-  #altTextDecorative = false;
-  #altTextButton = null;
-  #altTextButtonLabel = null;
-  #altTextTooltip = null;
-  #altTextTooltipTimeout = null;
-  #altTextWasFromKeyBoard = false;
-  #badge = null;
-  #editor = null;
-  #guessedText = null;
-  #textWithDisclaimer = null;
-  #useNewAltTextFlow = false;
-  static #l10nNewButton = null;
-  static _l10n = null;
-  constructor(editor) {
-    this.#editor = editor;
-    this.#useNewAltTextFlow = editor._uiManager.useNewAltTextFlow;
-    AltText.#l10nNewButton ||= Object.freeze({
-      added: "pdfjs-editor-new-alt-text-added-button",
-      "added-label": "pdfjs-editor-new-alt-text-added-button-label",
-      missing: "pdfjs-editor-new-alt-text-missing-button",
-      "missing-label": "pdfjs-editor-new-alt-text-missing-button-label",
-      review: "pdfjs-editor-new-alt-text-to-review-button",
-      "review-label": "pdfjs-editor-new-alt-text-to-review-button-label"
+classe AltText {
+  #altText = nulo;
+  #altTextDecorative = falso;
+  #altTextButton = nulo;
+  #altTextButtonLabel = nulo;
+  #altTextTooltip = nulo;
+  #altTextTooltipTimeout = nulo;
+  #altTextWasFromKeyBoard = falso;
+  #emblema = nulo;
+  #editor = nulo;
+  #guessedText = nulo;
+  #textWithDisclaimer = nulo;
+  #useNewAltTextFlow = falso;
+  estático #l10nNewButton = nulo;
+  estático _l10n = nulo;
+  construtor(editor) {
+    isto.#editor = editor;
+    isto.#useNewAltTextFlow = editor._uiManager.useNewAltTextFlow;
+    AltText.#l10nNewButton ||= Objeto.congelar({
+      adicionado: "pdfjs-editor-new-alt-text-added-button",
+      "added-label": "editor-pdfjs-novo-texto-alt-adicionado-rótulo-de-botão",
+      faltando: "pdfjs-editor-new-alt-text-missing-button",
+      "missing-label": "editor-pdfjs-novo-texto-alt-rótulo-de-botão-ausente",
+      revisão: "pdfjs-editor-new-alt-text-to-review-button",
+      "review-label": "editor-pdfjs-novo-texto-alt-para-rótulo-do-botão-de-revisão"
     });
   }
-  static initialize(l10n) {
+  inicialização estática(l10n) {
     AltText._l10n ??= l10n;
   }
-  async render() {
-    const altText = this.#altTextButton = document.createElement("button");
+  renderização assíncrona() {
+    const altText = this.#altTextButton = document.createElement("botão");
     altText.className = "altText";
     altText.tabIndex = "0";
-    const label = this.#altTextButtonLabel = document.createElement("span");
-    altText.append(label);
-    if (this.#useNewAltTextFlow) {
-      altText.classList.add("new");
-      altText.setAttribute("data-l10n-id", AltText.#l10nNewButton.missing);
-      label.setAttribute("data-l10n-id", AltText.#l10nNewButton["missing-label"]);
-    } else {
-      altText.setAttribute("data-l10n-id", "pdfjs-editor-alt-text-button");
-      label.setAttribute("data-l10n-id", "pdfjs-editor-alt-text-button-label");
+    const rótulo = this.#altTextButtonLabel = document.createElement("span");
+    altText.append(rótulo);
+    se (isto.#useNewAltTextFlow) {
+      altText.classList.add("novo");
+      altText.setAttribute("dados-l10n-id", AltText.#l10nNewButton.missing);
+      label.setAttribute("data-l10n-id", AltText.#l10nNewButton["rótulo-ausente"]);
+    } outro {
+      altText.setAttribute("data-l10n-id", "botão-de-texto-alt-do-editor-pdfjs");
+      label.setAttribute("data-l10n-id", "editor-pdfjs-texto-alt-botão-rótulo");
     }
-    const signal = this.#editor._uiManager._signal;
+    sinal constante = this.#editor._uiManager._signal;
     altText.addEventListener("contextmenu", noContextMenu, {
-      signal
+      sinal
     });
-    altText.addEventListener("pointerdown", event => event.stopPropagation(), {
-      signal
+    altText.addEventListener("ponteiroparabaixo", evento => evento.stopPropagation(), {
+      sinal
     });
-    const onClick = event => {
-      event.preventDefault();
+    const onClick = evento => {
+      evento.preventDefault();
       this.#editor._uiManager.editAltText(this.#editor);
-      if (this.#useNewAltTextFlow) {
-        this.#editor._reportTelemetry({
-          action: "pdfjs.image.alt_text.image_status_label_clicked",
-          data: {
-            label: this.#label
+      se (isto.#useNewAltTextFlow) {
+        este.#editor._reportTelemetria({
+          ação: "pdfjs.image.alt_text.image_status_label_clicked",
+          dados: {
+            rótulo: este.#rótulo
           }
         });
       }
     };
-    altText.addEventListener("click", onClick, {
-      capture: true,
-      signal
+    altText.addEventListener("clique", onClick, {
+      captura: verdadeiro,
+      sinal
     });
-    altText.addEventListener("keydown", event => {
-      if (event.target === altText && event.key === "Enter") {
-        this.#altTextWasFromKeyBoard = true;
-        onClick(event);
+    altText.addEventListener("tecla pressionada", evento => {
+      se (evento.alvo === altText && evento.chave === "Enter") {
+        isto.#altTextWasFromKeyBoard = verdadeiro;
+        onClick(evento);
       }
     }, {
-      signal
+      sinal
     });
-    await this.#setState();
-    return altText;
+    aguarde isso.#setState();
+    retornar altText;
   }
-  get #label() {
-    return this.#altText && "added" || this.#altText === null && this.guessedText && "review" || "missing";
+  obter #label() {
+    retornar isto.#altText && "adicionado" || isto.#altText === nulo && isto.guessedText && "revisão" || "faltando";
   }
-  finish() {
-    if (!this.#altTextButton) {
-      return;
+  terminar() {
+    se (!this.#altTextButton) {
+      retornar;
     }
-    this.#altTextButton.focus({
-      focusVisible: this.#altTextWasFromKeyBoard
+    isto.#altTextButton.focus({
+      focusVisible: isto.#altTextWasFromKeyBoard
     });
-    this.#altTextWasFromKeyBoard = false;
+    isto.#altTextWasFromKeyBoard = falso;
   }
-  isEmpty() {
-    if (this.#useNewAltTextFlow) {
-      return this.#altText === null;
+  estáVazio() {
+    se (isto.#useNewAltTextFlow) {
+      retorne isto.#altText === null;
     }
-    return !this.#altText && !this.#altTextDecorative;
+    retornar !this.#altText && !this.#altTextDecorative;
   }
-  hasData() {
-    if (this.#useNewAltTextFlow) {
-      return this.#altText !== null || !!this.#guessedText;
+  temDados() {
+    se (isto.#useNewAltTextFlow) {
+      retornar isto.#altText !== null || !!isto.#guessedText;
     }
-    return this.isEmpty();
+    retornar this.isEmpty();
   }
-  get guessedText() {
-    return this.#guessedText;
+  obter guessedText() {
+    retorne isto.#guessedText;
   }
-  async setGuessedText(guessedText) {
-    if (this.#altText !== null) {
-      return;
+  async setGuessedText(textoadivinhado) {
+    se (this.#altText !== null) {
+      retornar;
     }
-    this.#guessedText = guessedText;
-    this.#textWithDisclaimer = await AltText._l10n.get("pdfjs-editor-new-alt-text-generated-alt-text-with-disclaimer", {
-      generatedAltText: guessedText
+    isto.#textoadivinhado = textoadivinhado;
+    isto.#textWithDisclaimer = await AltText._l10n.get("editor-pdfjs-novo-texto-alt-gerado-texto-alt-com-aviso-de-responsabilização", {
+      GeneratedAltText: texto adivinhado
     });
-    this.#setState();
+    isto.#setState();
   }
-  toggleAltTextBadge(visibility = false) {
-    if (!this.#useNewAltTextFlow || this.#altText) {
-      this.#badge?.remove();
-      this.#badge = null;
-      return;
+  toggleAltTextBadge(visibilidade = falso) {
+    se (!isto.#useNewAltTextFlow || isto.#altText) {
+      isto.#emblema?.remover();
+      isto.#emblema = nulo;
+      retornar;
     }
-    if (!this.#badge) {
-      const badge = this.#badge = document.createElement("div");
+    se (!este.#emblema) {
+      const badge = isto.#badge = document.createElement("div");
       badge.className = "noAltTextBadge";
-      this.#editor.div.append(badge);
+      isto.#editor.div.append(emblema);
     }
-    this.#badge.classList.toggle("hidden", !visibility);
+    isto.#badge.classList.toggle("oculto", !visibilidade);
   }
-  serialize(isForCopying) {
-    let altText = this.#altText;
-    if (!isForCopying && this.#guessedText === altText) {
+  serializar(isForCopying) {
+    deixe altText = this.#altText;
+    se (!isForCopying && this.#guessedText === altText) {
       altText = this.#textWithDisclaimer;
     }
-    return {
+    retornar {
       altText,
-      decorative: this.#altTextDecorative,
-      guessedText: this.#guessedText,
-      textWithDisclaimer: this.#textWithDisclaimer
+      decorativo: isto.#altTextDecorativo,
+      guessedText: isto.#guessedText,
+      textoComIsenção de Responsabilidade: isto.#textoComIsenção de Responsabilidade
     };
   }
-  get data() {
-    return {
-      altText: this.#altText,
-      decorative: this.#altTextDecorative
+  obter dados() {
+    retornar {
+      altText: este.#altText,
+      decorativo: isto.#altTextDecorative
     };
   }
-  set data({
+  definir dados({
     altText,
-    decorative,
-    guessedText,
-    textWithDisclaimer,
-    cancel = false
+    decorativo,
+    Texto adivinhado,
+    textoComIsenção de responsabilidade,
+    cancelar = falso
   }) {
-    if (guessedText) {
-      this.#guessedText = guessedText;
-      this.#textWithDisclaimer = textWithDisclaimer;
+    se (texto adivinhado) {
+      isto.#textoadivinhado = textoadivinhado;
+      isto.#textWithDisclaimer = textoComDisclaimer;
     }
-    if (this.#altText === altText && this.#altTextDecorative === decorative) {
-      return;
+    se (isto.#altText === altText && isto.#altTextDecorative === decorativo) {
+      retornar;
     }
-    if (!cancel) {
-      this.#altText = altText;
-      this.#altTextDecorative = decorative;
+    se (!cancelar) {
+      isto.#altText = altText;
+      isto.#altTextDecorative = decorativo;
     }
-    this.#setState();
+    isto.#setState();
   }
-  toggle(enabled = false) {
-    if (!this.#altTextButton) {
-      return;
+  alternar(habilitado = falso) {
+    se (!this.#altTextButton) {
+      retornar;
     }
-    if (!enabled && this.#altTextTooltipTimeout) {
+    se (!habilitado && isto.#altTextTooltipTimeout) {
       clearTimeout(this.#altTextTooltipTimeout);
-      this.#altTextTooltipTimeout = null;
+      isto.#altTextTooltipTimeout = nulo;
     }
-    this.#altTextButton.disabled = !enabled;
+    isto.#altTextButton.disabled = !enabled;
   }
-  shown() {
-    this.#editor._reportTelemetry({
-      action: "pdfjs.image.alt_text.image_status_label_displayed",
-      data: {
-        label: this.#label
+  mostrado() {
+    este.#editor._reportTelemetria({
+      ação: "pdfjs.image.alt_text.image_status_label_displayed",
+      dados: {
+        rótulo: este.#rótulo
       }
     });
   }
-  destroy() {
-    this.#altTextButton?.remove();
-    this.#altTextButton = null;
-    this.#altTextButtonLabel = null;
-    this.#altTextTooltip = null;
-    this.#badge?.remove();
-    this.#badge = null;
+  destruir() {
+    isto.#altTextButton?.remove();
+    isto.#altTextButton = nulo;
+    isto.#altTextButtonLabel = nulo;
+    isto.#altTextTooltip = nulo;
+    isto.#emblema?.remover();
+    isto.#emblema = nulo;
   }
-  async #setState() {
-    const button = this.#altTextButton;
-    if (!button) {
-      return;
+  assíncrono #setState() {
+    botão const = this.#altTextButton;
+    se (!botão) {
+      retornar;
     }
-    if (this.#useNewAltTextFlow) {
-      button.classList.toggle("done", !!this.#altText);
-      button.setAttribute("data-l10n-id", AltText.#l10nNewButton[this.#label]);
-      this.#altTextButtonLabel?.setAttribute("data-l10n-id", AltText.#l10nNewButton[`${this.#label}-label`]);
-      if (!this.#altText) {
-        this.#altTextTooltip?.remove();
-        return;
+    se (isto.#useNewAltTextFlow) {
+      button.classList.toggle("pronto", !!this.#altText);
+      botão.setAttribute("data-l10n-id", AltText.#l10nNewButton[this.#label]);
+      isto.#altTextButtonLabel?.setAttribute("data-l10n-id", AltText.#l10nNewButton[`${this.#label}-label`]);
+      se (!this.#altText) {
+        isto.#altTextTooltip?.remove();
+        retornar;
       }
-    } else {
-      if (!this.#altText && !this.#altTextDecorative) {
-        button.classList.remove("done");
-        this.#altTextTooltip?.remove();
-        return;
+    } outro {
+      se (!isto.#altTexto && !isto.#altTextoDecorativo) {
+        botão.classList.remove("concluído");
+        isto.#altTextTooltip?.remove();
+        retornar;
       }
-      button.classList.add("done");
-      button.setAttribute("data-l10n-id", "pdfjs-editor-alt-text-edit-button");
+      botão.classList.add("feito");
+      button.setAttribute("data-l10n-id", "editor-pdfjs-alt-text-edição-botão");
     }
-    let tooltip = this.#altTextTooltip;
-    if (!tooltip) {
-      this.#altTextTooltip = tooltip = document.createElement("span");
-      tooltip.className = "tooltip";
-      tooltip.setAttribute("role", "tooltip");
-      tooltip.id = `alt-text-tooltip-${this.#editor.id}`;
-      const DELAY_TO_SHOW_TOOLTIP = 100;
-      const signal = this.#editor._uiManager._signal;
-      signal.addEventListener("abort", () => {
+    deixe dica de ferramenta = this.#altTextTooltip;
+    se (!dica de ferramenta) {
+      isto.#altTextTooltip = dica de ferramenta = document.createElement("span");
+      tooltip.className = "dica de ferramenta";
+      tooltip.setAttribute("função", "dica de ferramenta");
+      dica de ferramenta.id = `alt-text-tooltip-${this.#editor.id}`;
+      const ATRASO_PARA_MOSTRAR_A_IMAGEM_DA_OBJETO = 100;
+      sinal constante = this.#editor._uiManager._signal;
+      signal.addEventListener("abortar", () => {
         clearTimeout(this.#altTextTooltipTimeout);
-        this.#altTextTooltipTimeout = null;
+        isto.#altTextTooltipTimeout = nulo;
       }, {
-        once: true
+        uma vez: verdadeiro
       });
-      button.addEventListener("mouseenter", () => {
-        this.#altTextTooltipTimeout = setTimeout(() => {
-          this.#altTextTooltipTimeout = null;
-          this.#altTextTooltip.classList.add("show");
-          this.#editor._reportTelemetry({
-            action: "alt_text_tooltip"
+      botão.addEventListener("mouseenter", () => {
+        isto.#altTextTooltipTimeout = setTimeout(() => {
+          isto.#altTextTooltipTimeout = nulo;
+          isto.#altTextTooltip.classList.add("mostrar");
+          este.#editor._reportTelemetria({
+            ação: "alt_text_tooltip"
           });
-        }, DELAY_TO_SHOW_TOOLTIP);
+        }, ATRASO_PARA_MOSTRAR_A_PILHA_DE_AJUDA);
       }, {
-        signal
+        sinal
       });
       button.addEventListener("mouseleave", () => {
-        if (this.#altTextTooltipTimeout) {
+        se (isto.#altTextTooltipTimeout) {
           clearTimeout(this.#altTextTooltipTimeout);
-          this.#altTextTooltipTimeout = null;
+          isto.#altTextTooltipTimeout = nulo;
         }
-        this.#altTextTooltip?.classList.remove("show");
+        isto.#altTextTooltip?.classList.remove("mostrar");
       }, {
-        signal
+        sinal
       });
     }
-    if (this.#altTextDecorative) {
-      tooltip.setAttribute("data-l10n-id", "pdfjs-editor-alt-text-decorative-tooltip");
-    } else {
-      tooltip.removeAttribute("data-l10n-id");
+    se (isto.#altTextDecorative) {
+      tooltip.setAttribute("data-l10n-id", "editor-pdfjs-texto-alt-dica-decorativa");
+    } outro {
+      dica de ferramenta.removeAttribute("data-l10n-id");
       tooltip.textContent = this.#altText;
     }
-    if (!tooltip.parentNode) {
-      button.append(tooltip);
+    se (!dica de ferramenta.parentNode) {
+      botão.append(dica de ferramenta);
     }
-    const element = this.#editor.getImageForAltText();
-    element?.setAttribute("aria-describedby", tooltip.id);
+    const elemento = this.#editor.getElementForAltText();
+    elemento?.setAttribute("aria-describedby", tooltip.id);
   }
 }
 
 ;// ./src/display/touch_manager.js
 
-
-class TouchManager {
-  #container;
-  #isPinching = false;
-  #isPinchingStopped = null;
+classe TouchManager {
+  #recipiente;
+  #isPinching = falso;
+  #isPinchingStopped = nulo;
   #isPinchingDisabled;
   #onPinchStart;
-  #onPinching;
+  #aobeliscar;
   #onPinchEnd;
-  #signal;
-  #touchInfo = null;
+  #pointerDownAC = nulo;
+  #sinal;
+  #touchInfo = nulo;
   #touchManagerAC;
-  #touchMoveAC = null;
-  constructor({
-    container,
-    isPinchingDisabled = null,
-    isPinchingStopped = null,
-    onPinchStart = null,
-    onPinching = null,
-    onPinchEnd = null,
-    signal
+  #touchMoveAC = nulo;
+  construtor({
+    recipiente,
+    isPinchingDisabled = nulo,
+    isPinchingStopped = nulo,
+    onPinchStart = nulo,
+    onPinching = nulo,
+    onPinchEnd = nulo,
+    sinal
   }) {
-    this.#container = container;
-    this.#isPinchingStopped = isPinchingStopped;
-    this.#isPinchingDisabled = isPinchingDisabled;
-    this.#onPinchStart = onPinchStart;
-    this.#onPinching = onPinching;
-    this.#onPinchEnd = onPinchEnd;
-    this.#touchManagerAC = new AbortController();
-    this.#signal = AbortSignal.any([signal, this.#touchManagerAC.signal]);
-    container.addEventListener("touchstart", this.#onTouchStart.bind(this), {
-      passive: false,
-      signal: this.#signal
+    isto.#container = contêiner;
+    isto.#isPinchingStopped = isPinchingStopped;
+    isto.#isPinchingDisabled = isPinchingDisabled;
+    isto.#onPinchStart = onPinchStart;
+    isto.#onPinching = onPinching;
+    isto.#onPinchEnd = onPinchEnd;
+    isto.#touchManagerAC = novo AbortController();
+    isto.#sinal = AbortSignal.qualquer([sinal, isto.#touchManagerAC.sinal]);
+    container.addEventListener("touchstart", isto.#onTouchStart.bind(isto), {
+      passivo: falso,
+      sinal: este.#sinal
     });
   }
-  get MIN_TOUCH_DISTANCE_TO_PINCH() {
-    return shadow(this, "MIN_TOUCH_DISTANCE_TO_PINCH", 35 / (window.devicePixelRatio || 1));
+  obter DISTÂNCIA_MIN_TOQUE_PARA_PINCHAR() {
+    retornar 35 / OutputScale.pixelRatio;
   }
   #onTouchStart(evt) {
-    if (this.#isPinchingDisabled?.() || evt.touches.length < 2) {
-      return;
+    se (isto.#estáPinchandoDesativado?.()) {
+      retornar;
     }
-    if (!this.#touchMoveAC) {
-      this.#touchMoveAC = new AbortController();
-      const signal = AbortSignal.any([this.#signal, this.#touchMoveAC.signal]);
+    se (evt.touches.length === 1) {
+      se (isto.#pointerDownAC) {
+        retornar;
+      }
+      const pointerDownAC = this.#pointerDownAC = novo AbortController();
+      sinal constante = AbortSignal.any([this.#signal, pointerDownAC.signal]);
       const container = this.#container;
-      const opt = {
-        signal,
-        passive: false
+      const opta = {
+        captura: verdadeiro,
+        sinal,
+        passivo: falso
       };
-      container.addEventListener("touchmove", this.#onTouchMove.bind(this), opt);
-      container.addEventListener("touchend", this.#onTouchEnd.bind(this), opt);
-      container.addEventListener("touchcancel", this.#onTouchEnd.bind(this), opt);
-      this.#onPinchStart?.();
+      const cancelPointerDown = e => {
+        se (e.pointerType === "toque") {
+          isto.#pointerDownAC?.abortar();
+          isto.#pointerDownAC = nulo;
+        }
+      };
+      container.addEventListener("ponteiroparabaixo", e => {
+        se (e.pointerType === "toque") {
+          stopEvent(e);
+          cancelPointerDown(e);
+        }
+      }, opta);
+      container.addEventListener("pointerup", cancelPointerDown, opts);
+      container.addEventListener("pointercancel", cancelPointerDown, opts);
+      retornar;
+    }
+    se (!isso.#touchMoveAC) {
+      isto.#touchMoveAC = novo AbortController();
+      const sinal = AbortSignal.any([este.#sinal, este.#touchMoveAC.signal]);
+      const container = this.#container;
+      const opt ​​= {
+        sinal,
+        captura: falsa,
+        passivo: falso
+      };
+      container.addEventListener("touchmove", isto.#onTouchMove.bind(isto), opt);
+      const onTouchEnd = isto.#onTouchEnd.bind(isto);
+      container.addEventListener("touchend", onTouchEnd, opt);
+      container.addEventListener("touchcancel", onTouchEnd, opt);
+      opt.capture = verdadeiro;
+      container.addEventListener("ponteiroparabaixo", stopEvent, opt);
+      container.addEventListener("pointermove", stopEvent, opt);
+      container.addEventListener("pointercancel", stopEvent, opt);
+      container.addEventListener("pointerup", stopEvent, opt);
+      isto.#onPinchStart?.();
     }
     stopEvent(evt);
-    if (evt.touches.length !== 2 || this.#isPinchingStopped?.()) {
-      this.#touchInfo = null;
-      return;
+    se (evt.touches.length !== 2 || isto.#isPinchingStopped?.()) {
+      isto.#touchInfo = nulo;
+      retornar;
     }
-    let [touch0, touch1] = evt.touches;
-    if (touch0.identifier > touch1.identifier) {
-      [touch0, touch1] = [touch1, touch0];
+    deixe [toque0, toque1] = evt.toques;
+    se (touch0.identifier > touch1.identifier) ​​{
+      [toque0, toque1] = [toque1, toque0];
     }
-    this.#touchInfo = {
+    isto.#touchInfo = {
       touch0X: touch0.screenX,
       touch0Y: touch0.screenY,
       touch1X: touch1.screenX,
@@ -8476,63 +3700,70 @@ class TouchManager {
     };
   }
   #onTouchMove(evt) {
-    if (!this.#touchInfo || evt.touches.length !== 2) {
-      return;
+    se (!this.#touchInfo || evt.touches.length !== 2) {
+      retornar;
     }
-    let [touch0, touch1] = evt.touches;
-    if (touch0.identifier > touch1.identifier) {
-      [touch0, touch1] = [touch1, touch0];
+    stopEvent(evt);
+    deixe [toque0, toque1] = evt.toques;
+    se (touch0.identifier > touch1.identifier) ​​{
+      [toque0, toque1] = [toque1, toque0];
     }
-    const {
-      screenX: screen0X,
-      screenY: screen0Y
-    } = touch0;
-    const {
-      screenX: screen1X,
-      screenY: screen1Y
-    } = touch1;
-    const touchInfo = this.#touchInfo;
-    const {
+    constante {
+      telaX: tela0X,
+      telaY: tela0Y
+    } = toque0;
+    constante {
+      telaX: tela1X,
+      telaY: tela1Y
+    } = toque1;
+    const touchInfo = isto.#touchInfo;
+    constante {
       touch0X: pTouch0X,
-      touch0Y: pTouch0Y,
-      touch1X: pTouch1X,
+      toque0Y: pToque0Y,
+      toque1X: pTouch1X,
       touch1Y: pTouch1Y
     } = touchInfo;
     const prevGapX = pTouch1X - pTouch0X;
     const prevGapY = pTouch1Y - pTouch0Y;
-    const currGapX = screen1X - screen0X;
-    const currGapY = screen1Y - screen0Y;
-    const distance = Math.hypot(currGapX, currGapY) || 1;
+    const currGapX = tela1X - tela0X;
+    const currGapY = tela1Y - tela0Y;
+    const distância = Math.hypot(currGapX, currGapY) || 1;
     const pDistance = Math.hypot(prevGapX, prevGapY) || 1;
-    if (!this.#isPinching && Math.abs(pDistance - distance) <= TouchManager.MIN_TOUCH_DISTANCE_TO_PINCH) {
-      return;
+    se (!this.#isPinching && Math.abs(pDistance - distância) <= TouchManager.MIN_TOUCH_DISTANCE_TO_PINCH) {
+      retornar;
     }
-    touchInfo.touch0X = screen0X;
-    touchInfo.touch0Y = screen0Y;
-    touchInfo.touch1X = screen1X;
-    touchInfo.touch1Y = screen1Y;
-    evt.preventDefault();
-    if (!this.#isPinching) {
-      this.#isPinching = true;
-      return;
+    touchInfo.touch0X = tela0X;
+    touchInfo.touch0Y = tela0Y;
+    touchInfo.touch1X = tela1X;
+    touchInfo.touch1Y = tela1Y;
+    se (!isso.#estábeliscando) {
+      isto.#isPinching = verdadeiro;
+      retornar;
     }
-    const origin = [(screen0X + screen1X) / 2, (screen0Y + screen1Y) / 2];
-    this.#onPinching?.(origin, pDistance, distance);
+    const origem = [(tela0X + tela1X) / 2, (tela0Y + tela1Y) / 2];
+    isto.#onPinching?.(origem, pDistância, distância);
   }
   #onTouchEnd(evt) {
-    this.#touchMoveAC.abort();
-    this.#touchMoveAC = null;
-    this.#onPinchEnd?.();
-    if (!this.#touchInfo) {
-      return;
+    se (evt.touches.length >= 2) {
+      retornar;
     }
-    evt.preventDefault();
-    this.#touchInfo = null;
-    this.#isPinching = false;
+    se (isto.#touchMoveAC) {
+      isto.#touchMoveAC.abort();
+      isto.#touchMoveAC = nulo;
+      isto.#onPinchEnd?.();
+    }
+    se (!isto.#touchInfo) {
+      retornar;
+    }
+    stopEvent(evt);
+    isto.#touchInfo = nulo;
+    isto.#isPinching = falso;
   }
-  destroy() {
-    this.#touchManagerAC?.abort();
-    this.#touchManagerAC = null;
+  destruir() {
+    isto.#touchManagerAC?.abort();
+    isto.#touchManagerAC = nulo;
+    isto.#pointerDownAC?.abortar();
+    isto.#pointerDownAC = nulo;
   }
 }
 
@@ -8543,957 +3774,970 @@ class TouchManager {
 
 
 
-class AnnotationEditor {
-  #accessibilityData = null;
-  #allResizerDivs = null;
-  #altText = null;
-  #disabled = false;
-  #dragPointerId = null;
+classe AnnotationEditor {
+  #accessibilityData = nulo;
+  #allResizerDivs = nulo;
+  #altText = nulo;
+  #desativado = falso;
+  #dragPointerId = nulo;
   #dragPointerType = "";
-  #keepAspectRatio = false;
-  #resizersDiv = null;
-  #lastPointerCoords = null;
-  #savedDimensions = null;
-  #focusAC = null;
+  #keepAspectRatio = falso;
+  #resizersDiv = nulo;
+  #lastPointerCoords = nulo;
+  #savedDimensions = nulo;
+  #focusAC = nulo;
   #focusedResizerName = "";
-  #hasBeenClicked = false;
-  #initialRect = null;
-  #isEditing = false;
-  #isInEditMode = false;
-  #isResizerEnabledForKeyboard = false;
-  #moveInDOMTimeout = null;
+  #hasBeenClicked = falso;
+  #initialRect = nulo;
+  #isEditing = falso;
+  #isInEditMode = falso;
+  #isResizerEnabledForKeyboard = falso;
+  #moveInDOMTimeout = nulo;
   #prevDragX = 0;
   #prevDragY = 0;
-  #telemetryTimeouts = null;
-  #touchManager = null;
-  _editToolbar = null;
-  _initialOptions = Object.create(null);
-  _initialData = null;
-  _isVisible = true;
-  _uiManager = null;
-  _focusEventsAllowed = true;
-  static _l10n = null;
-  static _l10nResizer = null;
-  #isDraggable = false;
+  #telemetryTimeouts = nulo;
+  #touchManager = nulo;
+  _isCopy = falso;
+  _editToolbar = nulo;
+  _initialOptions = Objeto.create(nulo);
+  _initialData = nulo;
+  _isVisible = verdadeiro;
+  _uiManager = nulo;
+  _focusEventsAllowed = verdadeiro;
+  estático _l10n = nulo;
+  estático _l10nResizer = nulo;
+  #isDraggable = falso;
   #zIndex = AnnotationEditor._zIndex++;
-  static _borderLineWidth = -1;
-  static _colorManager = new ColorManager();
-  static _zIndex = 1;
-  static _telemetryTimeout = 1000;
-  static get _resizerKeyboardManager() {
-    const resize = AnnotationEditor.prototype._resizeWithKeyboard;
-    const small = AnnotationEditorUIManager.TRANSLATE_SMALL;
+  estático _borderLineWidth = -1;
+  estático _colorManager = novo ColorManager();
+  estático _zIndex = 1;
+  estático _telemetryTimeout = 1000;
+  estático obter _resizerKeyboardManager() {
+    const redimensionamento = AnnotationEditor.prototype._resizeWithKeyboard;
+    const pequeno = AnnotationEditorUIManager.TRANSLATE_SMALL;
     const big = AnnotationEditorUIManager.TRANSLATE_BIG;
-    return shadow(this, "_resizerKeyboardManager", new KeyboardManager([[["ArrowLeft", "mac+ArrowLeft"], resize, {
-      args: [-small, 0]
-    }], [["ctrl+ArrowLeft", "mac+shift+ArrowLeft"], resize, {
-      args: [-big, 0]
-    }], [["ArrowRight", "mac+ArrowRight"], resize, {
-      args: [small, 0]
-    }], [["ctrl+ArrowRight", "mac+shift+ArrowRight"], resize, {
-      args: [big, 0]
-    }], [["ArrowUp", "mac+ArrowUp"], resize, {
-      args: [0, -small]
-    }], [["ctrl+ArrowUp", "mac+shift+ArrowUp"], resize, {
-      args: [0, -big]
-    }], [["ArrowDown", "mac+ArrowDown"], resize, {
-      args: [0, small]
-    }], [["ctrl+ArrowDown", "mac+shift+ArrowDown"], resize, {
-      args: [0, big]
+    retornar sombra(isto, "_resizerKeyboardManager", novo KeyboardManager([[["ArrowLeft", "mac+ArrowLeft"], redimensionar, {
+      argumentos: [-pequeno, 0]
+    }], [["ctrl+SetaEsquerda", "mac+shift+SetaEsquerda"], redimensionar, {
+      argumentos: [-grande, 0]
+    }], [["ArrowRight", "mac+ArrowRight"], redimensionar, {
+      args: [pequeno, 0]
+    }], [["ctrl+SetaParaDireita", "mac+shift+SetaParaDireita"], redimensionar, {
+      args: [grande, 0]
+    }], [["ArrowUp", "mac+ArrowUp"], redimensionar, {
+      argumentos: [0, -pequeno]
+    }], [["ctrl+Seta para cima", "mac+shift+Seta para cima"], redimensionar, {
+      argumentos: [0, -grande]
+    }], [["Seta para baixo", "mac+Seta para baixo"], redimensionar, {
+      args: [0, pequeno]
+    }], [["ctrl+SetaParaBaixo", "mac+shift+SetaParaBaixo"], redimensionar, {
+      args: [0, grande]
     }], [["Escape", "mac+Escape"], AnnotationEditor.prototype._stopResizingWithKeyboard]]));
   }
-  constructor(parameters) {
-    this.parent = parameters.parent;
-    this.id = parameters.id;
-    this.width = this.height = null;
-    this.pageIndex = parameters.parent.pageIndex;
-    this.name = parameters.name;
-    this.div = null;
-    this._uiManager = parameters.uiManager;
-    this.annotationElementId = null;
-    this._willKeepAspectRatio = false;
-    this._initialOptions.isCentered = parameters.isCentered;
-    this._structTreeParentId = null;
-    const {
-      rotation,
+  construtor(parâmetros) {
+    this.parent = parâmetros.parent;
+    this.id = parâmetros.id;
+    esta.largura = esta.altura = nulo;
+    this.pageIndex = parâmetros.parent.pageIndex;
+    this.nome = parâmetros.nome;
+    this.div = nulo;
+    this._uiManager = parâmetros.uiManager;
+    this.annotationElementId = nulo;
+    this._willKeepAspectRatio = falso;
+    this._initialOptions.isCentered = parâmetros.isCentered;
+    this._structTreeParentId = nulo;
+    constante {
+      rotação,
       rawDims: {
-        pageWidth,
-        pageHeight,
-        pageX,
-        pageY
+        largura da página,
+        altura da página,
+        páginaX,
+        páginaY
       }
-    } = this.parent.viewport;
-    this.rotation = rotation;
-    this.pageRotation = (360 + rotation - this._uiManager.viewParameters.rotation) % 360;
-    this.pageDimensions = [pageWidth, pageHeight];
-    this.pageTranslation = [pageX, pageY];
-    const [width, height] = this.parentDimensions;
-    this.x = parameters.x / width;
-    this.y = parameters.y / height;
-    this.isAttachedToDOM = false;
-    this.deleted = false;
+    } = esta.pai.viewport;
+    this.rotation = rotação;
+    this.pageRotation = (360 + rotação - this._uiManager.viewParameters.rotation) % 360;
+    this.pageDimensions = [largura da página, altura da página];
+    this.pageTranslation = [páginaX, páginaY];
+    const [largura, altura] = this.parentDimensions;
+    this.x = parâmetros.x / largura;
+    this.y = parâmetros.y / altura;
+    this.isAttachedToDOM = falso;
+    isto.deletado = falso;
   }
-  get editorType() {
-    return Object.getPrototypeOf(this).constructor._type;
+  obter editorType() {
+    retornar Objeto.getPrototypeOf(this).constructor._type;
   }
-  static get isDrawer() {
-    return false;
+  estático obter isDrawer() {
+    retornar falso;
   }
-  static get _defaultLineColor() {
-    return shadow(this, "_defaultLineColor", this._colorManager.getHexCode("CanvasText"));
+  estático obter _defaultLineColor() {
+    retornar sombra(isto, "_defaultLineColor", isto._colorManager.getHexCode("CanvasText"));
   }
-  static deleteAnnotationElement(editor) {
-    const fakeEditor = new FakeEditor({
+  deleteAnnotationElement estático(editor) {
+    const fakeEditor = novo FakeEditor({
       id: editor.parent.getNextId(),
-      parent: editor.parent,
-      uiManager: editor._uiManager
+      pai: editor.parent,
+      Gerenciador de interface do usuário: editor._uiManager
     });
     fakeEditor.annotationElementId = editor.annotationElementId;
-    fakeEditor.deleted = true;
+    fakeEditor.deleted = verdadeiro;
     fakeEditor._uiManager.addToAnnotationStorage(fakeEditor);
   }
-  static initialize(l10n, _uiManager) {
+  inicialização estática(l10n, _uiManager) {
     AnnotationEditor._l10n ??= l10n;
-    AnnotationEditor._l10nResizer ||= Object.freeze({
-      topLeft: "pdfjs-editor-resizer-top-left",
-      topMiddle: "pdfjs-editor-resizer-top-middle",
-      topRight: "pdfjs-editor-resizer-top-right",
-      middleRight: "pdfjs-editor-resizer-middle-right",
-      bottomRight: "pdfjs-editor-resizer-bottom-right",
-      bottomMiddle: "pdfjs-editor-resizer-bottom-middle",
-      bottomLeft: "pdfjs-editor-resizer-bottom-left",
-      middleLeft: "pdfjs-editor-resizer-middle-left"
+    AnnotationEditor._l10nResizer ||= Objeto.congelar({
+      superior esquerdo: "pdfjs-editor-resizer-superior-esquerdo",
+      topMiddle: "editor-redimensionador-pdfjs-top-middle",
+      superior Direito: "pdfjs-editor-resizer-superior-direito",
+      middleRight: "editor-resizer-pdfjs-middle-right",
+      inferior Direito: "pdfjs-editor-resizer-inferior-direito",
+      bottomMiddle: "editor-redimensionador-pdfjs-bottom-middle",
+      inferiorEsquerda: "pdfjs-editor-resizer-inferior-esquerdo",
+      meio-esquerda: "pdfjs-editor-resizer-meio-esquerda"
     });
-    if (AnnotationEditor._borderLineWidth !== -1) {
-      return;
+    se (AnnotationEditor._borderLineWidth !== -1) {
+      retornar;
     }
-    const style = getComputedStyle(document.documentElement);
+    estilo const = getComputedStyle(document.documentElement);
     AnnotationEditor._borderLineWidth = parseFloat(style.getPropertyValue("--outline-width")) || 0;
   }
-  static updateDefaultParams(_type, _value) {}
-  static get defaultPropertiesToUpdate() {
-    return [];
+  updateDefaultParams estático(_tipo, _valor) {}
+  estático obter defaultPropertiesToUpdate() {
+    retornar [];
   }
-  static isHandlingMimeForPasting(mime) {
-    return false;
+  estático isHandlingMimeForPasting(mime) {
+    retornar falso;
   }
-  static paste(item, parent) {
-    unreachable("Not implemented");
+  colar estático(item, pai) {
+    inalcançável("Não implementado");
   }
-  get propertiesToUpdate() {
-    return [];
+  obter propertiesToUpdate() {
+    retornar [];
   }
-  get _isDraggable() {
-    return this.#isDraggable;
+  obter _isDraggable() {
+    retorne isto.#isDraggable;
   }
-  set _isDraggable(value) {
-    this.#isDraggable = value;
-    this.div?.classList.toggle("draggable", value);
+  definir _isDraggable(valor) {
+    isto.#éArrastável = valor;
+    this.div?.classList.toggle("arrastável", valor);
   }
-  get isEnterHandled() {
-    return true;
+  obter isEnterHandled() {
+    retornar verdadeiro;
   }
-  center() {
-    const [pageWidth, pageHeight] = this.pageDimensions;
-    switch (this.parentRotation) {
-      case 90:
-        this.x -= this.height * pageHeight / (pageWidth * 2);
-        this.y += this.width * pageWidth / (pageHeight * 2);
-        break;
-      case 180:
-        this.x += this.width / 2;
-        this.y += this.height / 2;
-        break;
-      case 270:
-        this.x += this.height * pageHeight / (pageWidth * 2);
-        this.y -= this.width * pageWidth / (pageHeight * 2);
-        break;
-      default:
-        this.x -= this.width / 2;
-        this.y -= this.height / 2;
-        break;
+  centro() {
+    const [largura da página, altura da página] = this.dimensõesdapágina;
+    alternar (this.parentRotation) {
+      caso 90:
+        isto.x -= isto.altura * alturadapagina / (larguradadapagina * 2);
+        isto.y += isto.largura * larguradapagina / (alturadapagina * 2);
+        quebrar;
+      caso 180:
+        isto.x += isto.largura / 2;
+        isto.y += isto.altura / 2;
+        quebrar;
+      caso 270:
+        isto.x += isto.altura * alturadapagina / (larguradadapagina * 2);
+        isto.y -= isto.largura * larguradapagina / (alturadapagina * 2);
+        quebrar;
+      padrão:
+        isto.x -= isto.largura / 2;
+        isto.y -= isto.altura / 2;
+        quebrar;
     }
-    this.fixAndSetPosition();
+    isto.fixAndSetPosition();
   }
-  addCommands(params) {
-    this._uiManager.addCommands(params);
+  addCommands(parâmetros) {
+    this._uiManager.addCommands(parâmetros);
   }
-  get currentLayer() {
-    return this._uiManager.currentLayer;
+  obter currentLayer() {
+    retornar this._uiManager.currentLayer;
   }
-  setInBackground() {
-    this.div.style.zIndex = 0;
+  definirEmFundo() {
+    este.div.estilo.zIndex = 0;
   }
-  setInForeground() {
-    this.div.style.zIndex = this.#zIndex;
+  definirEmPrimeiroPlano() {
+    este.div.estilo.zIndex = este.#zIndex;
   }
-  setParent(parent) {
-    if (parent !== null) {
-      this.pageIndex = parent.pageIndex;
-      this.pageDimensions = parent.pageDimensions;
-    } else {
-      this.#stopResizing();
+  setParent(pai) {
+    se (pai !== nulo) {
+      this.pageIndex = pai.pageIndex;
+      this.pageDimensions = pai.pageDimensions;
+    } outro {
+      isto.#stopResizing();
     }
-    this.parent = parent;
+    this.parent = pai;
   }
-  focusin(event) {
-    if (!this._focusEventsAllowed) {
-      return;
+  focando(evento) {
+    se (!this._focusEventsAllowed) {
+      retornar;
     }
-    if (!this.#hasBeenClicked) {
-      this.parent.setSelected(this);
-    } else {
-      this.#hasBeenClicked = false;
+    se (!isto.#foiclicado) {
+      este.parent.setSelected(isto);
+    } outro {
+      isto.#foiclicado = falso;
     }
   }
-  focusout(event) {
-    if (!this._focusEventsAllowed) {
-      return;
+  focusout(evento) {
+    se (!this._focusEventsAllowed) {
+      retornar;
     }
-    if (!this.isAttachedToDOM) {
-      return;
+    se (!isto.estáAnexadoAODOM) {
+      retornar;
     }
-    const target = event.relatedTarget;
-    if (target?.closest(`#${this.id}`)) {
-      return;
+    const alvo = evento.relatedTarget;
+    se (alvo?.mais próximo(`#${this.id}`)) {
+      retornar;
     }
-    event.preventDefault();
-    if (!this.parent?.isMultipleSelection) {
-      this.commitOrRemove();
+    evento.preventDefault();
+    se (!este.pai?.éSeleçãoMúltipla) {
+      isto.commitOrRemove();
     }
   }
   commitOrRemove() {
-    if (this.isEmpty()) {
-      this.remove();
-    } else {
-      this.commit();
+    se (isto.estáVazio()) {
+      isto.remover();
+    } outro {
+      isto.commit();
     }
   }
-  commit() {
-    this.addToAnnotationStorage();
+  comprometer-se() {
+    isto.addToAnnotationStorage();
   }
-  addToAnnotationStorage() {
-    this._uiManager.addToAnnotationStorage(this);
+  adicionarArmazenamentoDeAnotação() {
+    este._uiManager.addToAnnotationStorage(este);
   }
-  setAt(x, y, tx, ty) {
-    const [width, height] = this.parentDimensions;
+  definir em(x, y, tx, ty) {
+    const [largura, altura] = this.parentDimensions;
     [tx, ty] = this.screenToPageTranslation(tx, ty);
-    this.x = (x + tx) / width;
-    this.y = (y + ty) / height;
-    this.fixAndSetPosition();
+    this.x = (x + tx) / largura;
+    this.y = (y + ty) / altura;
+    isto.fixAndSetPosition();
   }
-  #translate([width, height], x, y) {
+  _moveAfterPaste(baseX, baseY) {
+    const [parentWidth, parentHeight] = this.parentDimensions;
+    this.setAt(baseX * parentWidth, baseY * parentHeight, this.width * parentWidth, this.height * parentHeight);
+    isto._onTranslated();
+  }
+  #translate([largura, altura], x, y) {
     [x, y] = this.screenToPageTranslation(x, y);
-    this.x += x / width;
-    this.y += y / height;
-    this._onTranslating(this.x, this.y);
-    this.fixAndSetPosition();
+    this.x += x / largura;
+    this.y += y / altura;
+    isto._onTranslating(isto.x, isto.y);
+    isto.fixAndSetPosition();
   }
-  translate(x, y) {
-    this.#translate(this.parentDimensions, x, y);
+  traduzir(x, y) {
+    isto.#traduzir(isto.parentDimensions, x, y);
   }
-  translateInPage(x, y) {
-    this.#initialRect ||= [this.x, this.y, this.width, this.height];
-    this.#translate(this.pageDimensions, x, y);
-    this.div.scrollIntoView({
-      block: "nearest"
+  traduzirNaPágina(x, y) {
+    isto.#initialRect ||= [isto.x, isto.y, isto.largura, isto.altura];
+    isto.#translate(isto.pageDimensions, x, y);
+    este.div.scrollIntoView({
+      bloco: "mais próximo"
     });
   }
-  drag(tx, ty) {
-    this.#initialRect ||= [this.x, this.y, this.width, this.height];
-    const {
-      div,
+  traduçãoConcluída() {
+    isto._onTranslated(isto.x, isto.y);
+  }
+  arraste(tx, ty) {
+    isto.#initialRect ||= [isto.x, isto.y, isto.largura, isto.altura];
+    constante {
+      divisão,
       parentDimensions: [parentWidth, parentHeight]
-    } = this;
+    } = isto;
     this.x += tx / parentWidth;
-    this.y += ty / parentHeight;
-    if (this.parent && (this.x < 0 || this.x > 1 || this.y < 0 || this.y > 1)) {
-      const {
+    this.y += ty / altura_pai;
+    se (este.pai && (este.x < 0 || este.x > 1 || este.y < 0 || este.y > 1)) {
+      constante {
         x,
-        y
+        e
       } = this.div.getBoundingClientRect();
-      if (this.parent.findNewParent(this, x, y)) {
-        this.x -= Math.floor(this.x);
-        this.y -= Math.floor(this.y);
+      se (este.parent.findNewParent(este, x, y)) {
+        isto.x -= Math.floor(isto.x);
+        isto.y -= Math.floor(isto.y);
       }
     }
-    let {
+    deixar {
       x,
-      y
-    } = this;
-    const [bx, by] = this.getBaseTranslation();
+      e
+    } = isto;
+    const [bx, por] = this.getBaseTranslation();
     x += bx;
-    y += by;
-    const {
-      style
+    y += por;
+    constante {
+      estilo
     } = div;
-    style.left = `${(100 * x).toFixed(2)}%`;
-    style.top = `${(100 * y).toFixed(2)}%`;
-    this._onTranslating(x, y);
+    estilo.esquerda = `${(100 * x).toFixed(2)}%`;
+    estilo.top = `${(100 * y).toFixed(2)}%`;
+    isto._onTranslating(x, y);
     div.scrollIntoView({
-      block: "nearest"
+      bloco: "mais próximo"
     });
   }
   _onTranslating(x, y) {}
   _onTranslated(x, y) {}
-  get _hasBeenMoved() {
-    return !!this.#initialRect && (this.#initialRect[0] !== this.x || this.#initialRect[1] !== this.y);
+  obter _hasBeenMoved() {
+    retornar !!isto.#retornoinicial && (isto.#retornoinicial[0] !== isto.x || isto.#retornoinicial[1] !== isto.y);
   }
-  get _hasBeenResized() {
-    return !!this.#initialRect && (this.#initialRect[2] !== this.width || this.#initialRect[3] !== this.height);
+  obter _hasBeenResized() {
+    retornar !!isto.#Ret.inicial && (isto.#Ret.inicial[2] !== isto.largura || isto.#Ret.inicial[3] !== isto.altura);
   }
-  getBaseTranslation() {
+  obterTranslaçãoBase() {
     const [parentWidth, parentHeight] = this.parentDimensions;
-    const {
-      _borderLineWidth
-    } = AnnotationEditor;
+    constante {
+      _largura da linha de borda
+    } = Editor de Anotações;
     const x = _borderLineWidth / parentWidth;
     const y = _borderLineWidth / parentHeight;
     switch (this.rotation) {
-      case 90:
-        return [-x, y];
-      case 180:
-        return [x, y];
-      case 270:
-        return [x, -y];
-      default:
-        return [-x, -y];
+      caso 90:
+        retornar [-x, y];
+      caso 180:
+        retornar [x, y];
+      caso 270:
+        retornar [x, -y];
+      padrão:
+        retornar [-x, -y];
     }
   }
-  get _mustFixPosition() {
-    return true;
+  obter _mustFixPosition() {
+    retornar verdadeiro;
   }
-  fixAndSetPosition(rotation = this.rotation) {
-    const {
+  fixAndSetPosition(rotação = this.rotação) {
+    constante {
       div: {
-        style
+        estilo
       },
-      pageDimensions: [pageWidth, pageHeight]
-    } = this;
-    let {
+      Dimensões da página: [largura da página, altura da página]
+    } = isto;
+    deixar {
       x,
-      y,
-      width,
-      height
-    } = this;
-    width *= pageWidth;
-    height *= pageHeight;
-    x *= pageWidth;
-    y *= pageHeight;
-    if (this._mustFixPosition) {
-      switch (rotation) {
-        case 0:
-          x = Math.max(0, Math.min(pageWidth - width, x));
-          y = Math.max(0, Math.min(pageHeight - height, y));
-          break;
-        case 90:
-          x = Math.max(0, Math.min(pageWidth - height, x));
-          y = Math.min(pageHeight, Math.max(width, y));
-          break;
-        case 180:
-          x = Math.min(pageWidth, Math.max(width, x));
-          y = Math.min(pageHeight, Math.max(height, y));
-          break;
-        case 270:
-          x = Math.min(pageWidth, Math.max(height, x));
-          y = Math.max(0, Math.min(pageHeight - width, y));
-          break;
+      e,
+      largura,
+      altura
+    } = isto;
+    largura *= pageWidth;
+    altura *= pageHeight;
+    x *= larguradapagina;
+    y *= alturadapagina;
+    se (this._mustFixPosition) {
+      interruptor (rotação) {
+        caso 0:
+          x = MathClamp(x, 0, pageWidth - largura);
+          y = MathClamp(y, 0, pageHeight - altura);
+          quebrar;
+        caso 90:
+          x = MathClamp(x, 0, pageWidth - altura);
+          y = MathClamp(y, largura, pageHeight);
+          quebrar;
+        caso 180:
+          x = MathClamp(x, largura, pageWidth);
+          y = MathClamp(y, altura, pageHeight);
+          quebrar;
+        caso 270:
+          x = MathClamp(x, altura, pageWidth);
+          y = MathClamp(y, 0, pageHeight - largura);
+          quebrar;
       }
     }
     this.x = x /= pageWidth;
-    this.y = y /= pageHeight;
-    const [bx, by] = this.getBaseTranslation();
+    this.y = y /= alturaDaPágina;
+    const [bx, por] = this.getBaseTranslation();
     x += bx;
-    y += by;
-    style.left = `${(100 * x).toFixed(2)}%`;
-    style.top = `${(100 * y).toFixed(2)}%`;
-    this.moveInDOM();
+    y += por;
+    estilo.esquerda = `${(100 * x).toFixed(2)}%`;
+    estilo.top = `${(100 * y).toFixed(2)}%`;
+    isto.moveInDOM();
   }
-  static #rotatePoint(x, y, angle) {
-    switch (angle) {
-      case 90:
-        return [y, -x];
-      case 180:
-        return [-x, -y];
-      case 270:
-        return [-y, x];
-      default:
-        return [x, y];
+  estático #rotatePoint(x, y, ângulo) {
+    interruptor (ângulo) {
+      caso 90:
+        retornar [y, -x];
+      caso 180:
+        retornar [-x, -y];
+      caso 270:
+        retornar [-y, x];
+      padrão:
+        retornar [x, y];
     }
   }
   screenToPageTranslation(x, y) {
-    return AnnotationEditor.#rotatePoint(x, y, this.parentRotation);
+    retornar AnnotationEditor.#rotatePoint(x, y, this.parentRotation);
   }
   pageTranslationToScreen(x, y) {
-    return AnnotationEditor.#rotatePoint(x, y, 360 - this.parentRotation);
+    retornar AnnotationEditor.#rotatePoint(x, y, 360 - this.parentRotation);
   }
-  #getRotationMatrix(rotation) {
-    switch (rotation) {
-      case 90:
+  #getRotationMatrix(rotação) {
+    interruptor (rotação) {
+      caso 90:
         {
-          const [pageWidth, pageHeight] = this.pageDimensions;
-          return [0, -pageWidth / pageHeight, pageHeight / pageWidth, 0];
+          const [largura da página, altura da página] = this.dimensõesdapágina;
+          retornar [0, -pageWidth / pageHeight, pageHeight / pageWidth, 0];
         }
-      case 180:
-        return [-1, 0, 0, -1];
-      case 270:
+      caso 180:
+        retornar [-1, 0, 0, -1];
+      caso 270:
         {
-          const [pageWidth, pageHeight] = this.pageDimensions;
-          return [0, pageWidth / pageHeight, -pageHeight / pageWidth, 0];
+          const [largura da página, altura da página] = this.dimensõesdapágina;
+          retornar [0, pageWidth / pageHeight, -pageHeight / pageWidth, 0];
         }
-      default:
-        return [1, 0, 0, 1];
+      padrão:
+        retornar [1, 0, 0, 1];
     }
   }
-  get parentScale() {
-    return this._uiManager.viewParameters.realScale;
+  obter parentScale() {
+    retorne this._uiManager.viewParameters.realScale;
   }
-  get parentRotation() {
-    return (this._uiManager.viewParameters.rotation + this.pageRotation) % 360;
+  obter parentRotation() {
+    retornar (this._uiManager.viewParameters.rotação + this.pageRotation) % 360;
   }
-  get parentDimensions() {
-    const {
-      parentScale,
-      pageDimensions: [pageWidth, pageHeight]
-    } = this;
-    return [pageWidth * parentScale, pageHeight * parentScale];
+  obter parentDimensions() {
+    constante {
+      escalaparental,
+      Dimensões da página: [largura da página, altura da página]
+    } = isto;
+    retornar [pageWidth * parentScale, pageHeight * parentScale];
   }
-  setDims(width, height) {
+  setDims(largura, altura) {
     const [parentWidth, parentHeight] = this.parentDimensions;
-    const {
-      style
-    } = this.div;
-    style.width = `${(100 * width / parentWidth).toFixed(2)}%`;
-    if (!this.#keepAspectRatio) {
-      style.height = `${(100 * height / parentHeight).toFixed(2)}%`;
+    constante {
+      estilo
+    } = isto.div;
+    estilo.largura = `${(100 * largura / parentWidth).toFixed(2)}%`;
+    se (!isso.#mantenhaRazãoDeAspecto) {
+      estilo.altura = `${(100 * altura / alturapai).toFixed(2)}%`;
     }
   }
   fixDims() {
-    const {
-      style
-    } = this.div;
-    const {
-      height,
-      width
-    } = style;
-    const widthPercent = width.endsWith("%");
+    constante {
+      estilo
+    } = isto.div;
+    constante {
+      altura,
+      largura
+    } = estilo;
+    const widthPercent = largura.endsWith("%");
     const heightPercent = !this.#keepAspectRatio && height.endsWith("%");
-    if (widthPercent && heightPercent) {
-      return;
+    se (larguraPorcentagem && alturaPorcentagem) {
+      retornar;
     }
     const [parentWidth, parentHeight] = this.parentDimensions;
-    if (!widthPercent) {
-      style.width = `${(100 * parseFloat(width) / parentWidth).toFixed(2)}%`;
+    se (!larguraPorcentagem) {
+      estilo.largura = `${(100 * parseFloat(largura) / parentWidth).toFixed(2)}%`;
     }
-    if (!this.#keepAspectRatio && !heightPercent) {
-      style.height = `${(100 * parseFloat(height) / parentHeight).toFixed(2)}%`;
+    se (!this.#keepAspectRatio && !heightPercent) {
+      estilo.altura = `${(100 * parseFloat(altura) / parentHeight).toFixed(2)}%`;
     }
   }
-  getInitialTranslation() {
-    return [0, 0];
+  obterTraduçãoInicial() {
+    retornar [0, 0];
   }
   #createResizers() {
-    if (this.#resizersDiv) {
-      return;
+    se (isto.#resizersDiv) {
+      retornar;
     }
-    this.#resizersDiv = document.createElement("div");
-    this.#resizersDiv.classList.add("resizers");
-    const classes = this._willKeepAspectRatio ? ["topLeft", "topRight", "bottomRight", "bottomLeft"] : ["topLeft", "topMiddle", "topRight", "middleRight", "bottomRight", "bottomMiddle", "bottomLeft", "middleLeft"];
-    const signal = this._uiManager._signal;
-    for (const name of classes) {
+    isto.#resizersDiv = document.createElement("div");
+    isto.#resizersDiv.classList.add("resizers");
+    const classes = this._willKeepAspectRatio ? ["superiorEsquerda", "superiorDireita", "inferiorDireita", "inferiorEsquerda"] : ["superiorEsquerda", "superiorMeio", "superiorDireita", "meioDireita", "inferiorDireita", "inferiorMeio", "inferiorEsquerda", "meioEsquerda"];
+    sinal constante = this._uiManager._signal;
+    para (const nome das classes) {
       const div = document.createElement("div");
-      this.#resizersDiv.append(div);
-      div.classList.add("resizer", name);
-      div.setAttribute("data-resizer-name", name);
-      div.addEventListener("pointerdown", this.#resizerPointerdown.bind(this, name), {
-        signal
+      isto.#resizersDiv.append(div);
+      div.classList.add("resizer", nome);
+      div.setAttribute("nome-do-resizer-de-dados", nome);
+      div.addEventListener("pointerdown", this.#resizerPointerdown.bind(this, nome), {
+        sinal
       });
-      div.addEventListener("contextmenu", noContextMenu, {
-        signal
+      div.addEventListener("menu de contexto", noContextMenu, {
+        sinal
       });
       div.tabIndex = -1;
     }
-    this.div.prepend(this.#resizersDiv);
+    esta.div.prepend(esta.#resizersDiv);
   }
-  #resizerPointerdown(name, event) {
-    event.preventDefault();
-    const {
-      isMac
-    } = util_FeatureTest.platform;
-    if (event.button !== 0 || event.ctrlKey && isMac) {
-      return;
+  #resizerPointerdown(nome, evento) {
+    evento.preventDefault();
+    constante {
+      éMac
+    } = util_FeatureTest.plataforma;
+    se (evento. botão !== 0 || evento. ctrlKey && isMac) {
+      retornar;
     }
-    this.#altText?.toggle(false);
-    const savedDraggable = this._isDraggable;
-    this._isDraggable = false;
-    this.#lastPointerCoords = [event.screenX, event.screenY];
-    const ac = new AbortController();
-    const signal = this._uiManager.combinedSignal(ac);
-    this.parent.togglePointerEvents(false);
-    window.addEventListener("pointermove", this.#resizerPointermove.bind(this, name), {
-      passive: true,
-      capture: true,
-      signal
+    isto.#altText?.toggle(falso);
+    const savedDraggable = isto._éArrastável;
+    this._isDraggable = falso;
+    isto.#lastPointerCoords = [evento.telaX, evento.telaY];
+    const ac = novo AbortController();
+    sinal constante = this._uiManager.combinedSignal(ac);
+    este.parent.togglePointerEvents(falso);
+    window.addEventListener("pointermove", this.#resizerPointermove.bind(this, nome), {
+      passivo: verdadeiro,
+      captura: verdadeiro,
+      sinal
     });
-    window.addEventListener("touchmove", stopEvent, {
-      passive: false,
-      signal
+    janela.addEventListener("toqueemova", stopEvent, {
+      passivo: falso,
+      sinal
     });
-    window.addEventListener("contextmenu", noContextMenu, {
-      signal
+    window.addEventListener("menu de contexto", noContextMenu, {
+      sinal
     });
-    this.#savedDimensions = {
-      savedX: this.x,
-      savedY: this.y,
-      savedWidth: this.width,
-      savedHeight: this.height
+    isto.#savedDimensions = {
+      savedX: este.x,
+      savedY: isto.y,
+      savedWidth: esta largura,
+      savedHeight: esta.altura
     };
-    const savedParentCursor = this.parent.div.style.cursor;
+    const savedParentCursor = este.parent.div.style.cursor;
     const savedCursor = this.div.style.cursor;
-    this.div.style.cursor = this.parent.div.style.cursor = window.getComputedStyle(event.target).cursor;
+    este.div.estilo.cursor = este.parent.div.estilo.cursor = janela.getComputedStyle(evento.alvo).cursor;
     const pointerUpCallback = () => {
-      ac.abort();
-      this.parent.togglePointerEvents(true);
-      this.#altText?.toggle(true);
-      this._isDraggable = savedDraggable;
-      this.parent.div.style.cursor = savedParentCursor;
-      this.div.style.cursor = savedCursor;
-      this.#addResizeToUndoStack();
+      ac.abortar();
+      this.parent.togglePointerEvents(verdadeiro);
+      isto.#altText?.toggle(verdadeiro);
+      this._isDraggable = salvoArrastável;
+      este.parent.div.style.cursor = savedParentCursor;
+      this.div.style.cursor = CursorSalvado;
+      isto.#addResizeToUndoStack();
     };
-    window.addEventListener("pointerup", pointerUpCallback, {
-      signal
+    janela.addEventListener("pointerup", pointerUpCallback, {
+      sinal
     });
-    window.addEventListener("blur", pointerUpCallback, {
-      signal
+    window.addEventListener("desfoque", pointerUpCallback, {
+      sinal
     });
   }
-  #resize(x, y, width, height) {
-    this.width = width;
-    this.height = height;
-    this.x = x;
-    this.y = y;
+  #resize(x, y, largura, altura) {
+    this.largura = largura;
+    this.height = altura;
+    isto.x = x;
+    isto.y = y;
     const [parentWidth, parentHeight] = this.parentDimensions;
-    this.setDims(parentWidth * width, parentHeight * height);
-    this.fixAndSetPosition();
-    this._onResized();
+    this.setDims(parentWidth * largura, parentHeight * altura);
+    isto.fixAndSetPosition();
+    isto._onResized();
   }
   _onResized() {}
   #addResizeToUndoStack() {
-    if (!this.#savedDimensions) {
-      return;
+    se (!this.#savedDimensions) {
+      retornar;
     }
-    const {
-      savedX,
-      savedY,
-      savedWidth,
-      savedHeight
+    constante {
+      salvoX,
+      salvoY,
+      largura salva,
+      altura salva
     } = this.#savedDimensions;
-    this.#savedDimensions = null;
+    isto.#savedDimensions = nulo;
     const newX = this.x;
     const newY = this.y;
-    const newWidth = this.width;
-    const newHeight = this.height;
-    if (newX === savedX && newY === savedY && newWidth === savedWidth && newHeight === savedHeight) {
-      return;
+    const newWidth = esta.largura;
+    const novaAltura = esta.altura;
+    if (newX === salvoX && newY === salvoY && newWidth === salvoLargura && newHeight === salvoAltura) {
+      retornar;
     }
-    this.addCommands({
+    isto.addCommands({
       cmd: this.#resize.bind(this, newX, newY, newWidth, newHeight),
-      undo: this.#resize.bind(this, savedX, savedY, savedWidth, savedHeight),
-      mustExec: true
+      desfazer: isto.#resize.bind(isto, savedX, savedY, savedWidth, savedHeight),
+      mustExec: verdadeiro
     });
   }
-  static _round(x) {
-    return Math.round(x * 10000) / 10000;
+  estático _round(x) {
+    retornar Math.round(x * 10000) / 10000;
   }
-  #resizerPointermove(name, event) {
+  #resizerPointermove(nome, evento) {
     const [parentWidth, parentHeight] = this.parentDimensions;
-    const savedX = this.x;
-    const savedY = this.y;
-    const savedWidth = this.width;
-    const savedHeight = this.height;
+    const savedX = isto.x;
+    const savedY = isto.y;
+    const savedWidth = esta.largura;
+    const savedHeight = esta.altura;
     const minWidth = AnnotationEditor.MIN_SIZE / parentWidth;
     const minHeight = AnnotationEditor.MIN_SIZE / parentHeight;
     const rotationMatrix = this.#getRotationMatrix(this.rotation);
-    const transf = (x, y) => [rotationMatrix[0] * x + rotationMatrix[2] * y, rotationMatrix[1] * x + rotationMatrix[3] * y];
-    const invRotationMatrix = this.#getRotationMatrix(360 - this.rotation);
+    const transf = (x, y) => [rotaçãoMatriz[0] * x + rotaçãoMatriz[2] * y, rotaçãoMatriz[1] * x + rotaçãoMatriz[3] * y];
+    const invRotationMatrix = this.#getRotationMatrix(360 - this.rotação);
     const invTransf = (x, y) => [invRotationMatrix[0] * x + invRotationMatrix[2] * y, invRotationMatrix[1] * x + invRotationMatrix[3] * y];
-    let getPoint;
-    let getOpposite;
-    let isDiagonal = false;
-    let isHorizontal = false;
-    switch (name) {
-      case "topLeft":
-        isDiagonal = true;
-        getPoint = (w, h) => [0, 0];
-        getOpposite = (w, h) => [w, h];
-        break;
-      case "topMiddle":
+    deixe getPoint;
+    deixe getOpposite;
+    deixe isDiagonal = falso;
+    deixe isHorizontal = false;
+    switch (nome) {
+      caso "topLeft":
+        isDiagonal = verdadeiro;
+        obterPonto = (w, h) => [0, 0];
+        obterOposto = (w, h) => [w, h];
+        quebrar;
+      caso "topMiddle":
         getPoint = (w, h) => [w / 2, 0];
-        getOpposite = (w, h) => [w / 2, h];
-        break;
-      case "topRight":
-        isDiagonal = true;
-        getPoint = (w, h) => [w, 0];
-        getOpposite = (w, h) => [0, h];
-        break;
-      case "middleRight":
-        isHorizontal = true;
-        getPoint = (w, h) => [w, h / 2];
-        getOpposite = (w, h) => [0, h / 2];
-        break;
-      case "bottomRight":
-        isDiagonal = true;
-        getPoint = (w, h) => [w, h];
-        getOpposite = (w, h) => [0, 0];
-        break;
-      case "bottomMiddle":
+        obterOposto = (w, h) => [w / 2, h];
+        quebrar;
+      caso "topRight":
+        isDiagonal = verdadeiro;
+        obterPonto = (w, h) => [w, 0];
+        obterOposto = (w, h) => [0, h];
+        quebrar;
+      caso "middleRight":
+        isHorizontal = verdadeiro;
+        getPoint = (l, a) => [l, a / 2];
+        obterOposto = (w, h) => [0, h / 2];
+        quebrar;
+      caso "bottomRight":
+        isDiagonal = verdadeiro;
+        getPoint = (l, a) => [l, a];
+        obterOposto = (w, h) => [0, 0];
+        quebrar;
+      caso "bottomMiddle":
         getPoint = (w, h) => [w / 2, h];
-        getOpposite = (w, h) => [w / 2, 0];
-        break;
-      case "bottomLeft":
-        isDiagonal = true;
-        getPoint = (w, h) => [0, h];
-        getOpposite = (w, h) => [w, 0];
-        break;
-      case "middleLeft":
-        isHorizontal = true;
-        getPoint = (w, h) => [0, h / 2];
-        getOpposite = (w, h) => [w, h / 2];
-        break;
+        obterOposto = (w, h) => [w / 2, 0];
+        quebrar;
+      caso "bottomLeft":
+        isDiagonal = verdadeiro;
+        obterPonto = (w, h) => [0, h];
+        obterOposto = (w, h) => [w, 0];
+        quebrar;
+      caso "middleLeft":
+        isHorizontal = verdadeiro;
+        obterPonto = (w, h) => [0, h / 2];
+        obterOposto = (w, h) => [w, h / 2];
+        quebrar;
     }
-    const point = getPoint(savedWidth, savedHeight);
-    const oppositePoint = getOpposite(savedWidth, savedHeight);
-    let transfOppositePoint = transf(...oppositePoint);
+    const ponto = getPoint(largura salva, altura salva);
+    const oppositePoint = getOpposite(largura salva, altura salva);
+    deixe transfOppositePoint = transf(...oppositePoint);
     const oppositeX = AnnotationEditor._round(savedX + transfOppositePoint[0]);
     const oppositeY = AnnotationEditor._round(savedY + transfOppositePoint[1]);
-    let ratioX = 1;
-    let ratioY = 1;
-    let deltaX, deltaY;
-    if (!event.fromKeyboard) {
-      const {
-        screenX,
-        screenY
-      } = event;
-      const [lastScreenX, lastScreenY] = this.#lastPointerCoords;
-      [deltaX, deltaY] = this.screenToPageTranslation(screenX - lastScreenX, screenY - lastScreenY);
-      this.#lastPointerCoords[0] = screenX;
-      this.#lastPointerCoords[1] = screenY;
-    } else {
+    deixe ratioX = 1;
+    deixe ratioY = 1;
+    deixe deltaX, deltaY;
+    se (!evento.fromKeyboard) {
+      constante {
+        telaX,
+        telaY
+      } = evento;
+      const [últimaTelaX, últimaTelaY] = this.#lastPointerCoords;
+      [deltaX, deltaY] = this.screenToPageTranslation(telaX - últimaTelaX, telaY - últimaTelaY);
+      isto.#lastPointerCoords[0] = telaX;
+      isto.#lastPointerCoords[1] = telaY;
+    } outro {
       ({
         deltaX,
         deltaY
-      } = event);
+      } = evento);
     }
     [deltaX, deltaY] = invTransf(deltaX / parentWidth, deltaY / parentHeight);
-    if (isDiagonal) {
-      const oldDiag = Math.hypot(savedWidth, savedHeight);
+    se (éDiagonal) {
+      const oldDiag = Math.hypot(largura salva, altura salva);
       ratioX = ratioY = Math.max(Math.min(Math.hypot(oppositePoint[0] - point[0] - deltaX, oppositePoint[1] - point[1] - deltaY) / oldDiag, 1 / savedWidth, 1 / savedHeight), minWidth / savedWidth, minHeight / savedHeight);
-    } else if (isHorizontal) {
-      ratioX = Math.max(minWidth, Math.min(1, Math.abs(oppositePoint[0] - point[0] - deltaX))) / savedWidth;
-    } else {
-      ratioY = Math.max(minHeight, Math.min(1, Math.abs(oppositePoint[1] - point[1] - deltaY))) / savedHeight;
+    } senão se (éHorizontal) {
+      ratioX = MathClamp(Math.abs(oppositePoint[0] - point[0] - deltaX), minWidth, 1) / savedWidth;
+    } outro {
+      ratioY = MathClamp(Math.abs(oppositePoint[1] - point[1] - deltaY), minHeight, 1) / savedHeight;
     }
     const newWidth = AnnotationEditor._round(savedWidth * ratioX);
-    const newHeight = AnnotationEditor._round(savedHeight * ratioY);
-    transfOppositePoint = transf(...getOpposite(newWidth, newHeight));
+    const newHeight = AnnotationEditor._round(altura salva * razão Y);
+    transfOppositePoint = transf(...getOpposite(novaLargura, novaAltura));
     const newX = oppositeX - transfOppositePoint[0];
-    const newY = oppositeY - transfOppositePoint[1];
-    this.#initialRect ||= [this.x, this.y, this.width, this.height];
-    this.width = newWidth;
-    this.height = newHeight;
-    this.x = newX;
-    this.y = newY;
+    const novoY = opostoY - transfOppositePoint[1];
+    isto.#initialRect ||= [isto.x, isto.y, isto.largura, isto.altura];
+    this.largura = novaLargura;
+    this.altura = novaAltura;
+    isto.x = novoX;
+    isto.y = novoY;
     this.setDims(parentWidth * newWidth, parentHeight * newHeight);
-    this.fixAndSetPosition();
-    this._onResizing();
+    isto.fixAndSetPosition();
+    isto._onResizing();
   }
   _onResizing() {}
   altTextFinish() {
-    this.#altText?.finish();
+    isto.#altText?.terminar();
   }
   async addEditToolbar() {
-    if (this._editToolbar || this.#isInEditMode) {
-      return this._editToolbar;
+    se (isto._editToolbar || isto.#isInEditMode) {
+      retornar isto._editToolbar;
     }
-    this._editToolbar = new EditorToolbar(this);
-    this.div.append(this._editToolbar.render());
-    if (this.#altText) {
-      await this._editToolbar.addAltText(this.#altText);
+    this._editToolbar = novo EditorToolbar(isto);
+    isto.div.append(isto._editToolbar.render());
+    se (isto.#altText) {
+      aguarde isto._editToolbar.addAltText(this.#altText);
     }
-    return this._editToolbar;
+    retornar isto._editToolbar;
   }
   removeEditToolbar() {
-    if (!this._editToolbar) {
-      return;
+    se (!this._editToolbar) {
+      retornar;
     }
-    this._editToolbar.remove();
-    this._editToolbar = null;
-    this.#altText?.destroy();
+    isto._editToolbar.remove();
+    this._editToolbar = nulo;
+    isto.#altText?.destroy();
   }
-  addContainer(container) {
+  addContainer(recipiente) {
     const editToolbarDiv = this._editToolbar?.div;
-    if (editToolbarDiv) {
-      editToolbarDiv.before(container);
-    } else {
-      this.div.append(container);
+    se (editToolbarDiv) {
+      editToolbarDiv.before(contêiner);
+    } outro {
+      this.div.append(recipiente);
     }
   }
-  getClientDimensions() {
-    return this.div.getBoundingClientRect();
+  obterDimensõesCliente() {
+    retornar this.div.getBoundingClientRect();
   }
   async addAltTextButton() {
-    if (this.#altText) {
-      return;
+    se (isto.#altText) {
+      retornar;
     }
     AltText.initialize(AnnotationEditor._l10n);
-    this.#altText = new AltText(this);
-    if (this.#accessibilityData) {
-      this.#altText.data = this.#accessibilityData;
-      this.#accessibilityData = null;
+    isto.#altText = novo AltText(isto);
+    se (isto.#dadosdeacessibilidade) {
+      isto.#altText.data = isto.#accessibilityData;
+      isto.#accessibilityData = nulo;
     }
-    await this.addEditToolbar();
+    aguarde this.addEditToolbar();
   }
-  get altTextData() {
-    return this.#altText?.data;
+  obter altTextData() {
+    retornar isto.#altText?.data;
   }
-  set altTextData(data) {
-    if (!this.#altText) {
-      return;
+  definir altTextData(dados) {
+    se (!this.#altText) {
+      retornar;
     }
-    this.#altText.data = data;
+    isto.#altText.data = dados;
   }
-  get guessedAltText() {
-    return this.#altText?.guessedText;
+  obter adivinhadoAltText() {
+    retornar isto.#altText?.guessedText;
   }
-  async setGuessedAltText(text) {
-    await this.#altText?.setGuessedText(text);
+  async setGuessedAltText(texto) {
+    aguarde isso.#altText?.setGuessedText(texto);
   }
   serializeAltText(isForCopying) {
-    return this.#altText?.serialize(isForCopying);
+    retornar isto.#altText?.serialize(isForCopying);
   }
-  hasAltText() {
-    return !!this.#altText && !this.#altText.isEmpty();
+  temAltText() {
+    retornar !!isto.#altTexto && !isto.#altTexto.isEmpty();
   }
-  hasAltTextData() {
-    return this.#altText?.hasData() ?? false;
+  temAltTextData() {
+    retornar isto.#altText?.hasData() ?? falso;
   }
-  render() {
-    this.div = document.createElement("div");
-    this.div.setAttribute("data-editor-rotation", (360 - this.rotation) % 360);
-    this.div.className = this.name;
-    this.div.setAttribute("id", this.id);
-    this.div.tabIndex = this.#disabled ? -1 : 0;
-    if (!this._isVisible) {
-      this.div.classList.add("hidden");
+  renderizar() {
+    const div = this.div = document.createElement("div");
+    div.setAttribute("editor-de-dados-rotação", (360 - this.rotação) % 360);
+    div.className = this.nome;
+    div.setAttribute("id", este.id);
+    div.tabIndex = this.#desabilitado ? -1 : 0;
+    div.setAttribute("função", "aplicativo");
+    se (this.defaultL10nId) {
+      div.setAttribute("data-l10n-id", this.defaultL10nId);
     }
-    this.setInForeground();
-    this.#addFocusListeners();
+    se (!this._isVisible) {
+      div.classList.add("oculto");
+    }
+    isto.setInForeground();
+    isto.#addFocusListeners();
     const [parentWidth, parentHeight] = this.parentDimensions;
-    if (this.parentRotation % 180 !== 0) {
-      this.div.style.maxWidth = `${(100 * parentHeight / parentWidth).toFixed(2)}%`;
-      this.div.style.maxHeight = `${(100 * parentWidth / parentHeight).toFixed(2)}%`;
+    se (this.parentRotation % 180 !== 0) {
+      div.style.maxWidth = `${(100 * parentHeight / parentWidth).toFixed(2)}%`;
+      div.style.maxHeight = `${(100 * parentWidth / parentHeight).toFixed(2)}%`;
     }
     const [tx, ty] = this.getInitialTranslation();
-    this.translate(tx, ty);
-    bindEvents(this, this.div, ["pointerdown"]);
-    if (this.isResizable && this._uiManager._supportsPinchToZoom) {
-      this.#touchManager ||= new TouchManager({
-        container: this.div,
+    isto.translate(tx, ty);
+    bindEvents(this, div, ["tecla para baixo", "ponteiro para baixo"]);
+    se (isto é redimensionável && isto._uiManager._supportsPinchToZoom) {
+      isto.#touchManager ||= novo TouchManager({
+        contêiner: div,
         isPinchingDisabled: () => !this.isSelected,
-        onPinchStart: this.#touchPinchStartCallback.bind(this),
-        onPinching: this.#touchPinchCallback.bind(this),
-        onPinchEnd: this.#touchPinchEndCallback.bind(this),
-        signal: this._uiManager._signal
+        onPinchStart: isto.#touchPinchStartCallback.bind(isto),
+        onPinching: isto.#touchPinchCallback.bind(isto),
+        onPinchEnd: isto.#touchPinchEndCallback.bind(isto),
+        sinal: this._uiManager._signal
       });
     }
-    this._uiManager._editorUndoBar?.hide();
-    return this.div;
+    este._uiManager._editorUndoBar?.hide();
+    retornar div;
   }
   #touchPinchStartCallback() {
-    this.#savedDimensions = {
-      savedX: this.x,
-      savedY: this.y,
-      savedWidth: this.width,
-      savedHeight: this.height
+    isto.#savedDimensions = {
+      savedX: este.x,
+      savedY: isto.y,
+      savedWidth: esta largura,
+      savedHeight: esta.altura
     };
-    this.#altText?.toggle(false);
-    this.parent.togglePointerEvents(false);
+    isto.#altText?.toggle(falso);
+    este.parent.togglePointerEvents(falso);
   }
-  #touchPinchCallback(_origin, prevDistance, distance) {
-    const slowDownFactor = 0.7;
-    let factor = slowDownFactor * (distance / prevDistance) + 1 - slowDownFactor;
-    if (factor === 1) {
-      return;
+  #touchPinchCallback(_origin, prevDistance, distância) {
+    const slowDownFactor = 0,7;
+    deixe fator = slowDownFactor * (distância / prevDistance) + 1 - slowDownFactor;
+    se (fator === 1) {
+      retornar;
     }
     const rotationMatrix = this.#getRotationMatrix(this.rotation);
-    const transf = (x, y) => [rotationMatrix[0] * x + rotationMatrix[2] * y, rotationMatrix[1] * x + rotationMatrix[3] * y];
+    const transf = (x, y) => [rotaçãoMatriz[0] * x + rotaçãoMatriz[2] * y, rotaçãoMatriz[1] * x + rotaçãoMatriz[3] * y];
     const [parentWidth, parentHeight] = this.parentDimensions;
-    const savedX = this.x;
-    const savedY = this.y;
-    const savedWidth = this.width;
-    const savedHeight = this.height;
+    const savedX = isto.x;
+    const savedY = isto.y;
+    const savedWidth = esta.largura;
+    const savedHeight = esta.altura;
     const minWidth = AnnotationEditor.MIN_SIZE / parentWidth;
     const minHeight = AnnotationEditor.MIN_SIZE / parentHeight;
-    factor = Math.max(Math.min(factor, 1 / savedWidth, 1 / savedHeight), minWidth / savedWidth, minHeight / savedHeight);
-    const newWidth = AnnotationEditor._round(savedWidth * factor);
-    const newHeight = AnnotationEditor._round(savedHeight * factor);
-    if (newWidth === savedWidth && newHeight === savedHeight) {
-      return;
+    fator = Math.max(Math.min(fator, 1 / largurasalva, 1 / alturasalva), larguramín. / largurasalva, alturamín. / alturasalva);
+    const newWidth = AnnotationEditor._round(savedWidth * fator);
+    const newHeight = AnnotationEditor._round(savedHeight * fator);
+    se (novaLargura === largura salva && novaAltura === altura salva) {
+      retornar;
     }
-    this.#initialRect ||= [savedX, savedY, savedWidth, savedHeight];
-    const transfCenterPoint = transf(savedWidth / 2, savedHeight / 2);
+    isto.#initialRect ||= [salvoX, salvoY, salvoLargura, salvoAltura];
+    const transfCenterPoint = transf(largura salva / 2, altura salva / 2);
     const centerX = AnnotationEditor._round(savedX + transfCenterPoint[0]);
     const centerY = AnnotationEditor._round(savedY + transfCenterPoint[1]);
-    const newTransfCenterPoint = transf(newWidth / 2, newHeight / 2);
+    const novoTransfCenterPoint = transf(novaLargura/2, novaAltura/2);
     this.x = centerX - newTransfCenterPoint[0];
-    this.y = centerY - newTransfCenterPoint[1];
-    this.width = newWidth;
-    this.height = newHeight;
+    this.y = centroY - novoPontoCentralTransf[1];
+    this.largura = novaLargura;
+    this.altura = novaAltura;
     this.setDims(parentWidth * newWidth, parentHeight * newHeight);
-    this.fixAndSetPosition();
-    this._onResizing();
+    isto.fixAndSetPosition();
+    isto._onResizing();
   }
   #touchPinchEndCallback() {
-    this.#altText?.toggle(true);
-    this.parent.togglePointerEvents(true);
-    this.#addResizeToUndoStack();
+    isto.#altText?.toggle(verdadeiro);
+    this.parent.togglePointerEvents(verdadeiro);
+    isto.#addResizeToUndoStack();
   }
-  pointerdown(event) {
-    const {
-      isMac
-    } = util_FeatureTest.platform;
-    if (event.button !== 0 || event.ctrlKey && isMac) {
-      event.preventDefault();
-      return;
+  pointerdown(evento) {
+    constante {
+      éMac
+    } = util_FeatureTest.plataforma;
+    se (evento. botão !== 0 || evento. ctrlKey && isMac) {
+      evento.preventDefault();
+      retornar;
     }
-    this.#hasBeenClicked = true;
-    if (this._isDraggable) {
-      this.#setUpDragSession(event);
-      return;
+    isto.#foiclicado = verdadeiro;
+    se (isto._éArrastável) {
+      isto.#setUpDragSession(evento);
+      retornar;
     }
-    this.#selectOnPointerEvent(event);
+    isto.#selectOnPointerEvent(evento);
   }
-  get isSelected() {
-    return this._uiManager.isSelected(this);
+  obter isSelected() {
+    retornar this._uiManager.isSelected(isto);
   }
-  #selectOnPointerEvent(event) {
-    const {
-      isMac
-    } = util_FeatureTest.platform;
-    if (event.ctrlKey && !isMac || event.shiftKey || event.metaKey && isMac) {
-      this.parent.toggleSelected(this);
-    } else {
-      this.parent.setSelected(this);
+  #selectOnPointerEvent(evento) {
+    constante {
+      éMac
+    } = util_FeatureTest.plataforma;
+    se (evento.ctrlKey && !isMac || evento.shiftKey || evento.metaKey && isMac) {
+      este.parent.toggleSelected(este);
+    } outro {
+      este.parent.setSelected(isto);
     }
   }
-  #setUpDragSession(event) {
-    const {
-      isSelected
-    } = this;
-    this._uiManager.setUpDragSession();
-    let hasDraggingStarted = false;
-    const ac = new AbortController();
-    const signal = this._uiManager.combinedSignal(ac);
-    const opts = {
-      capture: true,
-      passive: false,
-      signal
+  #setUpDragSession(evento) {
+    constante {
+      está selecionado
+    } = isto;
+    este._uiManager.setUpDragSession();
+    deixe hasDraggingStarted = falso;
+    const ac = novo AbortController();
+    sinal constante = this._uiManager.combinedSignal(ac);
+    const opta = {
+      captura: verdadeiro,
+      passivo: falso,
+      sinal
     };
     const cancelDrag = e => {
-      ac.abort();
-      this.#dragPointerId = null;
-      this.#hasBeenClicked = false;
-      if (!this._uiManager.endDragSession()) {
-        this.#selectOnPointerEvent(e);
+      ac.abortar();
+      isto.#dragPointerId = nulo;
+      isto.#foiclicado = falso;
+      se (!this._uiManager.endDragSession()) {
+        isto.#selectOnPointerEvent(e);
       }
-      if (hasDraggingStarted) {
-        this._onStopDragging();
+      se (hasDraggingStarted) {
+        isto._onStopDragging();
       }
     };
-    if (isSelected) {
-      this.#prevDragX = event.clientX;
-      this.#prevDragY = event.clientY;
-      this.#dragPointerId = event.pointerId;
-      this.#dragPointerType = event.pointerType;
+    se (éSelecionado) {
+      isto.#prevDragX = evento.clientX;
+      isto.#prevDragY = evento.clientY;
+      isto.#dragPointerId = evento.pointerId;
+      isto.#dragPointerType = evento.pointerType;
       window.addEventListener("pointermove", e => {
-        if (!hasDraggingStarted) {
-          hasDraggingStarted = true;
-          this._onStartDragging();
+        se (!hasDraggingStarted) {
+          hasDraggingStarted = verdadeiro;
+          isto._onStartDragging();
         }
-        const {
-          clientX: x,
-          clientY: y,
-          pointerId
+        constante {
+          clienteX: x,
+          clienteY: y,
+          ponteiroId
         } = e;
-        if (pointerId !== this.#dragPointerId) {
+        se (pointerId !== this.#dragPointerId) {
           stopEvent(e);
-          return;
+          retornar;
         }
-        const [tx, ty] = this.screenToPageTranslation(x - this.#prevDragX, y - this.#prevDragY);
-        this.#prevDragX = x;
-        this.#prevDragY = y;
+        const [tx, ty] = this.screenToPageTranslation(x - isto.#prevDragX, y - isto.#prevDragY);
+        isto.#prevDragX = x;
+        isto.#prevDragY = y;
         this._uiManager.dragSelectedEditors(tx, ty);
-      }, opts);
+      }, opta);
       window.addEventListener("touchmove", stopEvent, opts);
-      window.addEventListener("pointerdown", e => {
-        if (e.pointerType === this.#dragPointerType) {
-          if (this.#touchManager || e.isPrimary) {
-            cancelDrag(e);
+      window.addEventListener("ponteiroparabaixo", e => {
+        se (e.pointerType === this.#dragPointerType) {
+          se (este.#touchManager || e.isPrimary) {
+            cancelarArrastar(e);
           }
         }
         stopEvent(e);
-      }, opts);
+      }, opta);
     }
     const pointerUpCallback = e => {
-      if (!this.#dragPointerId || this.#dragPointerId === e.pointerId) {
-        cancelDrag(e);
-        return;
+      se (!isto.#arrastarId doPonteiro || isto.#arrastarId doPonteiro === e.IddoPonteiro) {
+        cancelarArrastar(e);
+        retornar;
       }
       stopEvent(e);
     };
-    window.addEventListener("pointerup", pointerUpCallback, {
-      signal
+    janela.addEventListener("pointerup", pointerUpCallback, {
+      sinal
     });
-    window.addEventListener("blur", pointerUpCallback, {
-      signal
+    window.addEventListener("desfoque", pointerUpCallback, {
+      sinal
     });
   }
   _onStartDragging() {}
   _onStopDragging() {}
   moveInDOM() {
-    if (this.#moveInDOMTimeout) {
+    se (isto.#moveInDOMTimeout) {
       clearTimeout(this.#moveInDOMTimeout);
     }
-    this.#moveInDOMTimeout = setTimeout(() => {
-      this.#moveInDOMTimeout = null;
-      this.parent?.moveEditorInDOM(this);
+    isto.#moveInDOMTimeout = setTimeout(() => {
+      isto.#moveInDOMTimeout = nulo;
+      isto.pai?.moveEditorInDOM(isto);
     }, 0);
   }
-  _setParentAndPosition(parent, x, y) {
-    parent.changeParent(this);
-    this.x = x;
-    this.y = y;
-    this.fixAndSetPosition();
-    this._onTranslated();
+  _setParentAndPosition(pai, x, y) {
+    pai.changeParent(isso);
+    isto.x = x;
+    isto.y = y;
+    isto.fixAndSetPosition();
+    isto._onTranslated();
   }
-  getRect(tx, ty, rotation = this.rotation) {
-    const scale = this.parentScale;
-    const [pageWidth, pageHeight] = this.pageDimensions;
-    const [pageX, pageY] = this.pageTranslation;
-    const shiftX = tx / scale;
-    const shiftY = ty / scale;
+  getRect(tx, ty, rotação = this.rotação) {
+    const escala = this.parentScale;
+    const [largura da página, altura da página] = this.dimensõesdapágina;
+    const [páginaX, páginaY] = this.pageTranslation;
+    const shiftX = tx / escala;
+    const shiftY = ty / escala;
     const x = this.x * pageWidth;
-    const y = this.y * pageHeight;
-    const width = this.width * pageWidth;
-    const height = this.height * pageHeight;
-    switch (rotation) {
-      case 0:
-        return [x + shiftX + pageX, pageHeight - y - shiftY - height + pageY, x + shiftX + width + pageX, pageHeight - y - shiftY + pageY];
-      case 90:
-        return [x + shiftY + pageX, pageHeight - y + shiftX + pageY, x + shiftY + height + pageX, pageHeight - y + shiftX + width + pageY];
-      case 180:
-        return [x - shiftX - width + pageX, pageHeight - y + shiftY + pageY, x - shiftX + pageX, pageHeight - y + shiftY + height + pageY];
-      case 270:
+    const y = this.y * alturadapagina;
+    const largura = this.largura * pageWidth;
+    const altura = this.height * pageHeight;
+    interruptor (rotação) {
+      caso 0:
+        retornar [x + shiftX + pageX, pageHeight - y - shiftY - altura + pageY, x + shiftX + largura + pageX, pageHeight - y - shiftY + pageY];
+      caso 90:
+        retornar [x + shiftY + pageX, pageHeight - y + shiftX + pageY, x + shiftY + altura + pageX, pageHeight - y + shiftX + largura + pageY];
+      caso 180:
+        retornar [x - shiftX - largura + pageX, pageHeight - y + shiftY + pageY, x - shiftX + pageX, pageHeight - y + shiftY + altura + pageY];
+      caso 270:
         return [x - shiftY - height + pageX, pageHeight - y - shiftX - width + pageY, x - shiftY + pageX, pageHeight - y - shiftX + pageY];
       default:
         throw new Error("Invalid rotation");
@@ -9585,6 +4829,7 @@ class AnnotationEditor {
     });
     editor.rotation = data.rotation;
     editor.#accessibilityData = data.accessibilityData;
+    editor._isCopy = data.isCopy || false;
     const [pageWidth, pageHeight] = editor.pageDimensions;
     const [x, y, width, height] = editor.getRectInCurrentCoords(data.rect, pageHeight);
     editor.x = x / pageWidth;
@@ -9630,7 +4875,6 @@ class AnnotationEditor {
     if (this.isResizable) {
       this.#createResizers();
       this.#resizersDiv.classList.remove("hidden");
-      bindEvents(this, this.div, ["keydown"]);
     }
   }
   get toolbarPosition() {
@@ -9722,146 +4966,146 @@ class AnnotationEditor {
     }
   }
   _resizeWithKeyboard(x, y) {
-    if (!this.#isResizerEnabledForKeyboard) {
-      return;
+    se (!isto.#isResizerEnabledForKeyboard) {
+      retornar;
     }
-    this.#resizerPointermove(this.#focusedResizerName, {
+    isto.#resizerPointermove(isto.#focusedResizerName, {
       deltaX: x,
       deltaY: y,
-      fromKeyboard: true
+      fromKeyboard: verdadeiro
     });
   }
   #stopResizing() {
-    this.#isResizerEnabledForKeyboard = false;
-    this.#setResizerTabIndex(-1);
-    this.#addResizeToUndoStack();
+    isto.#isResizerEnabledForKeyboard = falso;
+    isto.#setResizerTabIndex(-1);
+    isto.#addResizeToUndoStack();
   }
   _stopResizingWithKeyboard() {
-    this.#stopResizing();
-    this.div.focus();
+    isto.#stopResizing();
+    isto.div.foco();
   }
-  select() {
-    this.makeResizable();
-    this.div?.classList.add("selectedEditor");
-    if (!this._editToolbar) {
-      this.addEditToolbar().then(() => {
-        if (this.div?.classList.contains("selectedEditor")) {
-          this._editToolbar?.show();
+  selecionar() {
+    isto.makeResizable();
+    this.div?.classList.add("Editor selecionado");
+    se (!this._editToolbar) {
+      isto.addEditToolbar().então(() => {
+        se (this.div?.classList.contains("selectedEditor")) {
+          esta._editToolbar?.mostrar();
         }
       });
-      return;
+      retornar;
     }
-    this._editToolbar?.show();
-    this.#altText?.toggleAltTextBadge(false);
+    esta._editToolbar?.mostrar();
+    isto.#altText?.toggleAltTextBadge(false);
   }
-  unselect() {
-    this.#resizersDiv?.classList.add("hidden");
-    this.div?.classList.remove("selectedEditor");
-    if (this.div?.contains(document.activeElement)) {
-      this._uiManager.currentLayer.div.focus({
-        preventScroll: true
+  desmarcar() {
+    isto.#resizersDiv?.classList.add("oculto");
+    this.div?.classList.remove("Editor selecionado");
+    se (this.div?.contains(document.activeElement)) {
+      este._uiManager.currentLayer.div.focus({
+        preventScroll: verdadeiro
       });
     }
-    this._editToolbar?.hide();
-    this.#altText?.toggleAltTextBadge(true);
+    esta._editToolbar?.ocultar();
+    isto.#altText?.toggleAltTextBadge(true);
   }
-  updateParams(type, value) {}
-  disableEditing() {}
-  enableEditing() {}
-  enterInEditMode() {}
-  getImageForAltText() {
-    return null;
+  updateParams(tipo, valor) {}
+  desabilitarEdição() {}
+  habilitarEdição() {}
+  entrarNoModoDeEdição() {}
+  obterElementoParaTextoAlt() {
+    retornar this.div;
   }
-  get contentDiv() {
-    return this.div;
+  obter contentDiv() {
+    retornar this.div;
   }
-  get isEditing() {
-    return this.#isEditing;
+  obter isEditing() {
+    retorne isto.#isEditing;
   }
-  set isEditing(value) {
-    this.#isEditing = value;
-    if (!this.parent) {
-      return;
+  definir isEditing(valor) {
+    isto.#isEditing = valor;
+    se (!este.pai) {
+      retornar;
     }
-    if (value) {
-      this.parent.setSelected(this);
-      this.parent.setActiveEditor(this);
-    } else {
-      this.parent.setActiveEditor(null);
+    se (valor) {
+      este.parent.setSelected(isto);
+      este.parent.setActiveEditor(este);
+    } outro {
+      this.parent.setActiveEditor(nulo);
     }
   }
-  setAspectRatio(width, height) {
-    this.#keepAspectRatio = true;
-    const aspectRatio = width / height;
-    const {
-      style
-    } = this.div;
-    style.aspectRatio = aspectRatio;
-    style.height = "auto";
+  setAspectRatio(largura, altura) {
+    isto.#keepAspectRatio = verdadeiro;
+    const aspectRatio = largura / altura;
+    constante {
+      estilo
+    } = isto.div;
+    estilo.aspectRatio = aspectRatio;
+    estilo.altura = "automático";
   }
-  static get MIN_SIZE() {
-    return 16;
+  estático obter MIN_SIZE() {
+    retornar 16;
   }
-  static canCreateNewEmptyEditor() {
-    return true;
+  estático canCreateNewEmptyEditor() {
+    retornar verdadeiro;
   }
-  get telemetryInitialData() {
-    return {
-      action: "added"
+  obter telemetryInitialData() {
+    retornar {
+      ação: "adicionado"
     };
   }
-  get telemetryFinalData() {
-    return null;
+  obter telemetriaFinalData() {
+    retornar nulo;
   }
-  _reportTelemetry(data, mustWait = false) {
-    if (mustWait) {
-      this.#telemetryTimeouts ||= new Map();
-      const {
-        action
-      } = data;
-      let timeout = this.#telemetryTimeouts.get(action);
-      if (timeout) {
-        clearTimeout(timeout);
+  _reportTelemetry(dados, mustWait = falso) {
+    se (deveEsperar) {
+      isto.#telemetryTimeouts ||= novo Mapa();
+      constante {
+        Ação
+      } = dados;
+      deixe timeout = this.#telemetryTimeouts.get(action);
+      se (tempo limite) {
+        clearTimeout(tempo limite);
       }
-      timeout = setTimeout(() => {
-        this._reportTelemetry(data);
-        this.#telemetryTimeouts.delete(action);
-        if (this.#telemetryTimeouts.size === 0) {
-          this.#telemetryTimeouts = null;
+      tempo limite = setTimeout(() => {
+        this._reportTelemetry(dados);
+        isto.#telemetryTimeouts.delete(ação);
+        se (this.#telemetryTimeouts.size === 0) {
+          isto.#telemetryTimeouts = nulo;
         }
       }, AnnotationEditor._telemetryTimeout);
-      this.#telemetryTimeouts.set(action, timeout);
-      return;
+      isto.#telemetryTimeouts.set(ação, tempo limite);
+      retornar;
     }
-    data.type ||= this.editorType;
-    this._uiManager._eventBus.dispatch("reporttelemetry", {
-      source: this,
-      details: {
-        type: "editing",
-        data
+    tipo de dados ||= this.editorType;
+    this._uiManager._eventBus.dispatch("relatório de telemetria", {
+      fonte: esta,
+      detalhes: {
+        tipo: "edição",
+        dados
       }
     });
   }
-  show(visible = this._isVisible) {
-    this.div.classList.toggle("hidden", !visible);
-    this._isVisible = visible;
+  mostrar(visível = this._isVisible) {
+    this.div.classList.toggle("oculto", !visível);
+    this._isVisible = visível;
   }
-  enable() {
-    if (this.div) {
-      this.div.tabIndex = 0;
+  habilitar() {
+    se (this.div) {
+      este.div.tabIndex = 0;
     }
-    this.#disabled = false;
+    isto.#desativado = falso;
   }
-  disable() {
-    if (this.div) {
-      this.div.tabIndex = -1;
+  desabilitar() {
+    se (this.div) {
+      este.div.tabIndex = -1;
     }
-    this.#disabled = true;
+    isto.#desativado = verdadeiro;
   }
-  renderAnnotationElement(annotation) {
-    let content = annotation.container.querySelector(".annotationContent");
-    if (!content) {
-      content = document.createElement("div");
+  renderAnnotationElement(anotação) {
+    deixe conteúdo = annotation.container.querySelector(".annotationContent");
+    se (!conteúdo) {
+      conteúdo = document.createElement("div");
       content.classList.add("annotationContent", this.editorType);
       annotation.container.prepend(content);
     } else if (content.nodeName === "CANVAS") {
@@ -9893,12 +5137,6 @@ class FakeEditor extends AnnotationEditor {
 }
 
 ;// ./src/shared/murmurhash3.js
-
-
-
-
-
-
 const SEED = 0xc3d2e1f0;
 const MASK_HIGH = 0xffff0000;
 const MASK_LOW = 0xffff;
@@ -9995,16 +5233,6 @@ class MurmurHash3_64 {
 
 
 
-
-
-
-
-
-
-
-
-
-
 const SerializableEmpty = Object.freeze({
   map: null,
   hash: "",
@@ -10066,14 +5294,6 @@ class AnnotationStorage {
   }
   has(key) {
     return this.#storage.has(key);
-  }
-  getAll() {
-    return this.#storage.size > 0 ? objectFromMap(this.#storage) : null;
-  }
-  setAll(obj) {
-    for (const [key, val] of Object.entries(obj)) {
-      this.setValue(key, val);
-    }
   }
   get size() {
     return this.#storage.size;
@@ -10183,6 +5403,9 @@ class AnnotationStorage {
       hash: ids.join(",")
     };
   }
+  [Symbol.iterator]() {
+    return this.#storage.entries();
+  }
 }
 class PrintAnnotationStorage extends AnnotationStorage {
   #serializable;
@@ -10217,15 +5440,6 @@ class PrintAnnotationStorage extends AnnotationStorage {
 }
 
 ;// ./src/display/font_loader.js
-
-
-
-
-
-
-
-
-
 
 class FontLoader {
   #systemFonts = new Set();
@@ -10268,12 +5482,13 @@ class FontLoader {
   }
   async loadSystemFont({
     systemFontInfo: info,
+    disableFontFace,
     _inspectFont
   }) {
     if (!info || this.#systemFonts.has(info.loadedName)) {
       return;
     }
-    assert(!this.disableFontFace, "loadSystemFont shouldn't be called when `disableFontFace` is set.");
+    assert(!disableFontFace, "loadSystemFont shouldn't be called when `disableFontFace` is set.");
     if (this.isFontLoadingAPISupported) {
       const {
         loadedName,
@@ -10334,13 +5549,7 @@ class FontLoader {
     return shadow(this, "isFontLoadingAPISupported", hasFonts);
   }
   get isSyncFontLoadingSupported() {
-    let supported = false;
-    if (isNodeJS) {
-      supported = true;
-    } else if (typeof navigator !== "undefined" && typeof navigator?.userAgent === "string" && /Mozilla\/5.0.*?rv:\d+.*? Gecko/.test(navigator.userAgent)) {
-      supported = true;
-    }
-    return shadow(this, "isSyncFontLoadingSupported", supported);
+    return shadow(this, "isSyncFontLoadingSupported", isNodeJS || util_FeatureTest.platform.isFirefox);
   }
   _queueLoadingCallback(callback) {
     function completeRequest() {
@@ -10432,17 +5641,11 @@ class FontLoader {
   }
 }
 class FontFaceObject {
-  constructor(translatedData, {
-    disableFontFace = false,
-    fontExtraProperties = false,
-    inspectFont = null
-  }) {
+  constructor(translatedData, inspectFont = null) {
     this.compiledGlyphs = Object.create(null);
     for (const i in translatedData) {
       this[i] = translatedData[i];
     }
-    this.disableFontFace = disableFontFace === true;
-    this.fontExtraProperties = fontExtraProperties === true;
     this._inspectFont = inspectFont;
   }
   createNativeFontFace() {
@@ -10503,8 +5706,6 @@ class FontFaceObject {
 
 ;// ./src/shared/message_handler.js
 
-
-
 const CallbackKind = {
   DATA: 1,
   ERROR: 2
@@ -10521,7 +5722,7 @@ const StreamKind = {
 };
 function onFn() {}
 function wrapReason(ex) {
-  if (ex instanceof AbortException || ex instanceof InvalidPDFException || ex instanceof MissingPDFException || ex instanceof PasswordException || ex instanceof UnexpectedResponseException || ex instanceof UnknownErrorException) {
+  if (ex instanceof AbortException || ex instanceof InvalidPDFException || ex instanceof PasswordException || ex instanceof ResponseException || ex instanceof UnknownErrorException) {
     return ex;
   }
   if (!(ex instanceof Error || typeof ex === "object" && ex !== null)) {
@@ -10532,12 +5733,10 @@ function wrapReason(ex) {
       return new AbortException(ex.message);
     case "InvalidPDFException":
       return new InvalidPDFException(ex.message);
-    case "MissingPDFException":
-      return new MissingPDFException(ex.message);
     case "PasswordException":
       return new PasswordException(ex.message, ex.code);
-    case "UnexpectedResponseException":
-      return new UnexpectedResponseException(ex.message, ex.status);
+    case "ResponseException":
+      return new ResponseException(ex.message, ex.status, ex.missing);
     case "UnknownErrorException":
       return new UnknownErrorException(ex.message, ex.details);
   }
@@ -10973,12 +6172,6 @@ class DOMCanvasFactory extends BaseCanvasFactory {
 ;// ./src/display/cmap_reader_factory.js
 
 
-
-
-
-
-
-
 class BaseCMapReaderFactory {
   constructor({
     baseUrl = null,
@@ -11015,12 +6208,7 @@ class DOMCMapReaderFactory extends BaseCMapReaderFactory {
   }
 }
 
-// EXTERNAL MODULE: ./node_modules/core-js/modules/esnext.iterator.filter.js
-var esnext_iterator_filter = __webpack_require__(4520);
 ;// ./src/display/filter_factory.js
-
-
-
 
 
 class BaseFilterFactory {
@@ -11114,7 +6302,7 @@ class DOMFilterFactory extends BaseFilterFactory {
         if (isDataScheme(url)) {
           warn('#createUrl: ignore "data:"-URL for performance reasons.');
         } else {
-          this.#baseUrl = url.split("#", 1)[0];
+          this.#baseUrl = updateUrlHash(url, "");
         }
       }
     }
@@ -11359,12 +6547,6 @@ class DOMFilterFactory extends BaseFilterFactory {
 ;// ./src/display/standard_fontdata_factory.js
 
 
-
-
-
-
-
-
 class BaseStandardFontDataFactory {
   constructor({
     baseUrl = null
@@ -11396,6 +6578,40 @@ class DOMStandardFontDataFactory extends BaseStandardFontDataFactory {
   }
 }
 
+;// ./src/display/wasm_factory.js
+
+
+class BaseWasmFactory {
+  constructor({
+    baseUrl = null
+  }) {
+    this.baseUrl = baseUrl;
+  }
+  async fetch({
+    filename
+  }) {
+    if (!this.baseUrl) {
+      throw new Error("Ensure that the `wasmUrl` API parameter is provided.");
+    }
+    if (!filename) {
+      throw new Error("Wasm filename must be specified.");
+    }
+    const url = `${this.baseUrl}${filename}`;
+    return this._fetch(url).catch(reason => {
+      throw new Error(`Unable to load wasm data at: ${url}`);
+    });
+  }
+  async _fetch(url) {
+    unreachable("Abstract method `_fetch` called.");
+  }
+}
+class DOMWasmFactory extends BaseWasmFactory {
+  async _fetch(url) {
+    const data = await fetchData(url, "arraybuffer");
+    return new Uint8Array(data);
+  }
+}
+
 ;// ./src/display/node_utils.js
 
 
@@ -11403,44 +6619,8 @@ class DOMStandardFontDataFactory extends BaseStandardFontDataFactory {
 
 
 
-
-
-
-
-
 if (isNodeJS) {
-  let canvas;
-  try {
-    const require = process.getBuiltinModule("module").createRequire(import.meta.url);
-    try {
-      canvas = require("@napi-rs/canvas");
-    } catch (ex) {
-      warn(`Cannot load "@napi-rs/canvas" package: "${ex}".`);
-    }
-  } catch (ex) {
-    warn(`Cannot access the \`require\` function: "${ex}".`);
-  }
-  if (!globalThis.DOMMatrix) {
-    if (canvas?.DOMMatrix) {
-      globalThis.DOMMatrix = canvas.DOMMatrix;
-    } else {
-      warn("Cannot polyfill `DOMMatrix`, rendering may be broken.");
-    }
-  }
-  if (!globalThis.ImageData) {
-    if (canvas?.ImageData) {
-      globalThis.ImageData = canvas.ImageData;
-    } else {
-      warn("Cannot polyfill `ImageData`, rendering may be broken.");
-    }
-  }
-  if (!globalThis.Path2D) {
-    if (canvas?.Path2D) {
-      globalThis.Path2D = canvas.Path2D;
-    } else {
-      warn("Cannot polyfill `Path2D`, rendering may be broken.");
-    }
-  }
+  warn("Please use the `legacy` build in Node.js environments.");
 }
 async function node_utils_fetchData(url) {
   const fs = process.getBuiltinModule("fs");
@@ -11465,6 +6645,11 @@ class NodeStandardFontDataFactory extends BaseStandardFontDataFactory {
     return node_utils_fetchData(url);
   }
 }
+class NodeWasmFactory extends BaseWasmFactory {
+  async _fetch(url) {
+    return node_utils_fetchData(url);
+  }
+}
 
 ;// ./src/display/pattern_helper.js
 
@@ -11485,6 +6670,9 @@ function applyBoundingBox(ctx, bbox) {
   ctx.clip(region);
 }
 class BaseShadingPattern {
+  isModifyingCurrentTransform() {
+    return false;
+  }
   getPattern() {
     unreachable("Abstract method `getPattern` called.");
   }
@@ -11678,8 +6866,8 @@ class MeshShadingPattern extends BaseShadingPattern {
     this._colors = IR[3];
     this._figures = IR[4];
     this._bounds = IR[5];
-    this._bbox = IR[7];
-    this._background = IR[8];
+    this._bbox = IR[6];
+    this._background = IR[7];
     this.matrix = null;
   }
   _createMeshCanvas(combinedScale, backgroundColor, cachedCanvases) {
@@ -11729,17 +6917,22 @@ class MeshShadingPattern extends BaseShadingPattern {
       scaleY
     };
   }
+  isModifyingCurrentTransform() {
+    return true;
+  }
   getPattern(ctx, owner, inverse, pathType) {
     applyBoundingBox(ctx, this._bbox);
-    let scale;
+    const scale = new Float32Array(2);
     if (pathType === PathType.SHADING) {
-      scale = Util.singularValueDecompose2dScale(getCurrentTransform(ctx));
+      Util.singularValueDecompose2dScale(getCurrentTransform(ctx), scale);
+    } else if (this.matrix) {
+      Util.singularValueDecompose2dScale(this.matrix, scale);
+      const [matrixScaleX, matrixScaleY] = scale;
+      Util.singularValueDecompose2dScale(owner.baseTransform, scale);
+      scale[0] *= matrixScaleX;
+      scale[1] *= matrixScaleY;
     } else {
-      scale = Util.singularValueDecompose2dScale(owner.baseTransform);
-      if (this.matrix) {
-        const matrixScale = Util.singularValueDecompose2dScale(this.matrix);
-        scale = [scale[0] * matrixScale[0], scale[1] * matrixScale[1]];
-      }
+      Util.singularValueDecompose2dScale(owner.baseTransform, scale);
     }
     const temporaryPatternCanvas = this._createMeshCanvas(scale, pathType === PathType.SHADING ? null : this._background, owner.cachedCanvases);
     if (pathType !== PathType.SHADING) {
@@ -11775,7 +6968,8 @@ const PaintType = {
 };
 class TilingPattern {
   static MAX_PATTERN_SIZE = 3000;
-  constructor(IR, color, ctx, canvasGraphicsFactory, baseTransform) {
+  constructor(IR, ctx, canvasGraphicsFactory, baseTransform) {
+    this.color = IR[1];
     this.operatorList = IR[2];
     this.matrix = IR[3];
     this.bbox = IR[4];
@@ -11783,7 +6977,6 @@ class TilingPattern {
     this.ystep = IR[6];
     this.paintType = IR[7];
     this.tilingType = IR[8];
-    this.color = color;
     this.ctx = ctx;
     this.canvasGraphicsFactory = canvasGraphicsFactory;
     this.baseTransform = baseTransform;
@@ -11810,10 +7003,12 @@ class TilingPattern {
       y1 = bbox[3];
     const width = x1 - x0;
     const height = y1 - y0;
-    const matrixScale = Util.singularValueDecompose2dScale(this.matrix);
-    const curMatrixScale = Util.singularValueDecompose2dScale(this.baseTransform);
-    const combinedScaleX = matrixScale[0] * curMatrixScale[0];
-    const combinedScaleY = matrixScale[1] * curMatrixScale[1];
+    const scale = new Float32Array(2);
+    Util.singularValueDecompose2dScale(this.matrix, scale);
+    const [matrixScaleX, matrixScaleY] = scale;
+    Util.singularValueDecompose2dScale(this.baseTransform, scale);
+    const combinedScaleX = matrixScaleX * scale[0];
+    const combinedScaleY = matrixScaleY * scale[1];
     let canvasWidth = width,
       canvasHeight = height,
       redrawHorizontally = false,
@@ -11901,7 +7096,7 @@ class TilingPattern {
     const bboxWidth = x1 - x0;
     const bboxHeight = y1 - y0;
     graphics.ctx.rect(x0, y0, bboxWidth, bboxHeight);
-    graphics.current.updateRectMinMax(getCurrentTransform(graphics.ctx), [x0, y0, x1, y1]);
+    Util.axialAlignedBoundingBox([x0, y0, x1, y1], getCurrentTransform(graphics.ctx), graphics.current.minMax);
     graphics.clip();
     graphics.endPath();
   }
@@ -11927,6 +7122,9 @@ class TilingPattern {
         throw new FormatError(`Unsupported paint type: ${paintType}`);
     }
   }
+  isModifyingCurrentTransform() {
+    return false;
+  }
   getPattern(ctx, owner, inverse, pathType) {
     let matrix = inverse;
     if (pathType !== PathType.SHADING) {
@@ -11946,12 +7144,6 @@ class TilingPattern {
 }
 
 ;// ./src/shared/image_utils.js
-
-
-
-
-
-
 
 function convertToRGBA(params) {
   switch (params.kind) {
@@ -12064,22 +7256,14 @@ function grayToRGBA(src, dest) {
 
 
 
-
-
-
-
-
-
-
-
-
-
 const MIN_FONT_SIZE = 16;
 const MAX_FONT_SIZE = 100;
 const EXECUTION_TIME = 15;
 const EXECUTION_STEPS = 10;
-const MAX_SIZE_TO_COMPILE = 1000;
 const FULL_CHUNK_HEIGHT = 16;
+const SCALE_MATRIX = new DOMMatrix();
+const XY = new Float32Array(2);
+const MIN_MAX_INIT = new Float32Array([Infinity, Infinity, -Infinity, -Infinity]);
 function mirrorContextOperations(ctx, destCtx) {
   if (ctx._removeMirroring) {
     throw new Error("Context is already forwarding operations.");
@@ -12117,39 +7301,39 @@ function mirrorContextOperations(ctx, destCtx) {
     ctx.beginPath = ctx.__originalBeginPath;
     delete ctx._removeMirroring;
   };
-  ctx.save = function ctxSave() {
+  ctx.save = function () {
     destCtx.save();
     this.__originalSave();
   };
-  ctx.restore = function ctxRestore() {
+  ctx.restore = function () {
     destCtx.restore();
     this.__originalRestore();
   };
-  ctx.translate = function ctxTranslate(x, y) {
+  ctx.translate = function (x, y) {
     destCtx.translate(x, y);
     this.__originalTranslate(x, y);
   };
-  ctx.scale = function ctxScale(x, y) {
+  ctx.scale = function (x, y) {
     destCtx.scale(x, y);
     this.__originalScale(x, y);
   };
-  ctx.transform = function ctxTransform(a, b, c, d, e, f) {
+  ctx.transform = function (a, b, c, d, e, f) {
     destCtx.transform(a, b, c, d, e, f);
     this.__originalTransform(a, b, c, d, e, f);
   };
-  ctx.setTransform = function ctxSetTransform(a, b, c, d, e, f) {
+  ctx.setTransform = function (a, b, c, d, e, f) {
     destCtx.setTransform(a, b, c, d, e, f);
     this.__originalSetTransform(a, b, c, d, e, f);
   };
-  ctx.resetTransform = function ctxResetTransform() {
+  ctx.resetTransform = function () {
     destCtx.resetTransform();
     this.__originalResetTransform();
   };
-  ctx.rotate = function ctxRotate(angle) {
+  ctx.rotate = function (angle) {
     destCtx.rotate(angle);
     this.__originalRotate(angle);
   };
-  ctx.clip = function ctxRotate(rule) {
+  ctx.clip = function (rule) {
     destCtx.clip(rule);
     this.__originalClip(rule);
   };
@@ -12240,214 +7424,51 @@ function drawImageAtIntegerCoords(ctx, srcImg, srcX, srcY, srcW, srcH, destX, de
   const scaleY = Math.hypot(c, d);
   return [scaleX * destW, scaleY * destH];
 }
-function compileType3Glyph(imgData) {
-  const {
-    width,
-    height
-  } = imgData;
-  if (width > MAX_SIZE_TO_COMPILE || height > MAX_SIZE_TO_COMPILE) {
-    return null;
-  }
-  const POINT_TO_PROCESS_LIMIT = 1000;
-  const POINT_TYPES = new Uint8Array([0, 2, 4, 0, 1, 0, 5, 4, 8, 10, 0, 8, 0, 2, 1, 0]);
-  const width1 = width + 1;
-  let points = new Uint8Array(width1 * (height + 1));
-  let i, j, j0;
-  const lineSize = width + 7 & ~7;
-  let data = new Uint8Array(lineSize * height),
-    pos = 0;
-  for (const elem of imgData.data) {
-    let mask = 128;
-    while (mask > 0) {
-      data[pos++] = elem & mask ? 0 : 255;
-      mask >>= 1;
-    }
-  }
-  let count = 0;
-  pos = 0;
-  if (data[pos] !== 0) {
-    points[0] = 1;
-    ++count;
-  }
-  for (j = 1; j < width; j++) {
-    if (data[pos] !== data[pos + 1]) {
-      points[j] = data[pos] ? 2 : 1;
-      ++count;
-    }
-    pos++;
-  }
-  if (data[pos] !== 0) {
-    points[j] = 2;
-    ++count;
-  }
-  for (i = 1; i < height; i++) {
-    pos = i * lineSize;
-    j0 = i * width1;
-    if (data[pos - lineSize] !== data[pos]) {
-      points[j0] = data[pos] ? 1 : 8;
-      ++count;
-    }
-    let sum = (data[pos] ? 4 : 0) + (data[pos - lineSize] ? 8 : 0);
-    for (j = 1; j < width; j++) {
-      sum = (sum >> 2) + (data[pos + 1] ? 4 : 0) + (data[pos - lineSize + 1] ? 8 : 0);
-      if (POINT_TYPES[sum]) {
-        points[j0 + j] = POINT_TYPES[sum];
-        ++count;
-      }
-      pos++;
-    }
-    if (data[pos - lineSize] !== data[pos]) {
-      points[j0 + j] = data[pos] ? 2 : 4;
-      ++count;
-    }
-    if (count > POINT_TO_PROCESS_LIMIT) {
-      return null;
-    }
-  }
-  pos = lineSize * (height - 1);
-  j0 = i * width1;
-  if (data[pos] !== 0) {
-    points[j0] = 8;
-    ++count;
-  }
-  for (j = 1; j < width; j++) {
-    if (data[pos] !== data[pos + 1]) {
-      points[j0 + j] = data[pos] ? 4 : 8;
-      ++count;
-    }
-    pos++;
-  }
-  if (data[pos] !== 0) {
-    points[j0 + j] = 4;
-    ++count;
-  }
-  if (count > POINT_TO_PROCESS_LIMIT) {
-    return null;
-  }
-  const steps = new Int32Array([0, width1, -1, 0, -width1, 0, 0, 0, 1]);
-  const path = new Path2D();
-  for (i = 0; count && i <= height; i++) {
-    let p = i * width1;
-    const end = p + width;
-    while (p < end && !points[p]) {
-      p++;
-    }
-    if (p === end) {
-      continue;
-    }
-    path.moveTo(p % width1, i);
-    const p0 = p;
-    let type = points[p];
-    do {
-      const step = steps[type];
-      do {
-        p += step;
-      } while (!points[p]);
-      const pp = points[p];
-      if (pp !== 5 && pp !== 10) {
-        type = pp;
-        points[p] = 0;
-      } else {
-        type = pp & 0x33 * type >> 4;
-        points[p] &= type >> 2 | type << 2;
-      }
-      path.lineTo(p % width1, p / width1 | 0);
-      if (!points[p]) {
-        --count;
-      }
-    } while (p0 !== p);
-    --i;
-  }
-  data = null;
-  points = null;
-  const drawOutline = function (c) {
-    c.save();
-    c.scale(1 / width, -1 / height);
-    c.translate(0, -height);
-    c.fill(path);
-    c.beginPath();
-    c.restore();
-  };
-  return drawOutline;
-}
 class CanvasExtraState {
+  alphaIsShape = false;
+  fontSize = 0;
+  fontSizeScale = 1;
+  textMatrix = null;
+  textMatrixScale = 1;
+  fontMatrix = FONT_IDENTITY_MATRIX;
+  leading = 0;
+  x = 0;
+  y = 0;
+  lineX = 0;
+  lineY = 0;
+  charSpacing = 0;
+  wordSpacing = 0;
+  textHScale = 1;
+  textRenderingMode = TextRenderingMode.FILL;
+  textRise = 0;
+  fillColor = "#000000";
+  strokeColor = "#000000";
+  patternFill = false;
+  patternStroke = false;
+  fillAlpha = 1;
+  strokeAlpha = 1;
+  lineWidth = 1;
+  activeSMask = null;
+  transferMaps = "none";
   constructor(width, height) {
-    this.alphaIsShape = false;
-    this.fontSize = 0;
-    this.fontSizeScale = 1;
-    this.textMatrix = IDENTITY_MATRIX;
-    this.textMatrixScale = 1;
-    this.fontMatrix = FONT_IDENTITY_MATRIX;
-    this.leading = 0;
-    this.x = 0;
-    this.y = 0;
-    this.lineX = 0;
-    this.lineY = 0;
-    this.charSpacing = 0;
-    this.wordSpacing = 0;
-    this.textHScale = 1;
-    this.textRenderingMode = TextRenderingMode.FILL;
-    this.textRise = 0;
-    this.fillColor = "#000000";
-    this.strokeColor = "#000000";
-    this.patternFill = false;
-    this.patternStroke = false;
-    this.fillAlpha = 1;
-    this.strokeAlpha = 1;
-    this.lineWidth = 1;
-    this.activeSMask = null;
-    this.transferMaps = "none";
-    this.startNewPathAndClipBox([0, 0, width, height]);
+    this.clipBox = new Float32Array([0, 0, width, height]);
+    this.minMax = MIN_MAX_INIT.slice();
   }
   clone() {
     const clone = Object.create(this);
     clone.clipBox = this.clipBox.slice();
+    clone.minMax = this.minMax.slice();
     return clone;
   }
-  setCurrentPoint(x, y) {
-    this.x = x;
-    this.y = y;
-  }
-  updatePathMinMax(transform, x, y) {
-    [x, y] = Util.applyTransform([x, y], transform);
-    this.minX = Math.min(this.minX, x);
-    this.minY = Math.min(this.minY, y);
-    this.maxX = Math.max(this.maxX, x);
-    this.maxY = Math.max(this.maxY, y);
-  }
-  updateRectMinMax(transform, rect) {
-    const p1 = Util.applyTransform(rect, transform);
-    const p2 = Util.applyTransform(rect.slice(2), transform);
-    const p3 = Util.applyTransform([rect[0], rect[3]], transform);
-    const p4 = Util.applyTransform([rect[2], rect[1]], transform);
-    this.minX = Math.min(this.minX, p1[0], p2[0], p3[0], p4[0]);
-    this.minY = Math.min(this.minY, p1[1], p2[1], p3[1], p4[1]);
-    this.maxX = Math.max(this.maxX, p1[0], p2[0], p3[0], p4[0]);
-    this.maxY = Math.max(this.maxY, p1[1], p2[1], p3[1], p4[1]);
-  }
-  updateScalingPathMinMax(transform, minMax) {
-    Util.scaleMinMax(transform, minMax);
-    this.minX = Math.min(this.minX, minMax[0]);
-    this.minY = Math.min(this.minY, minMax[1]);
-    this.maxX = Math.max(this.maxX, minMax[2]);
-    this.maxY = Math.max(this.maxY, minMax[3]);
-  }
-  updateCurvePathMinMax(transform, x0, y0, x1, y1, x2, y2, x3, y3, minMax) {
-    const box = Util.bezierBoundingBox(x0, y0, x1, y1, x2, y2, x3, y3, minMax);
-    if (minMax) {
-      return;
-    }
-    this.updateRectMinMax(transform, box);
-  }
   getPathBoundingBox(pathType = PathType.FILL, transform = null) {
-    const box = [this.minX, this.minY, this.maxX, this.maxY];
+    const box = this.minMax.slice();
     if (pathType === PathType.STROKE) {
       if (!transform) {
         unreachable("Stroke bounding box must include transform.");
       }
-      const scale = Util.singularValueDecompose2dScale(transform);
-      const xStrokePad = scale[0] * this.lineWidth / 2;
-      const yStrokePad = scale[1] * this.lineWidth / 2;
+      Util.singularValueDecompose2dScale(transform, XY);
+      const xStrokePad = XY[0] * this.lineWidth / 2;
+      const yStrokePad = XY[1] * this.lineWidth / 2;
       box[0] -= xStrokePad;
       box[1] -= yStrokePad;
       box[2] += xStrokePad;
@@ -12460,14 +7481,11 @@ class CanvasExtraState {
     this.startNewPathAndClipBox(intersect || [0, 0, 0, 0]);
   }
   isEmptyClip() {
-    return this.minX === Infinity;
+    return this.minMax[0] === Infinity;
   }
   startNewPathAndClipBox(box) {
-    this.clipBox = box;
-    this.minX = Infinity;
-    this.minY = Infinity;
-    this.maxX = 0;
-    this.maxY = 0;
+    this.clipBox.set(box, 0);
+    this.minMax.set(MIN_MAX_INIT, 0);
   }
   getClippedPathBoundingBox(pathType = PathType.FILL, transform = null) {
     return Util.intersect(this.clipBox, this.getPathBoundingBox(pathType, transform));
@@ -12621,24 +7639,20 @@ function resetCtxToDefault(ctx) {
     ctx.setLineDash([]);
     ctx.lineDashOffset = 0;
   }
-  if (!isNodeJS) {
-    const {
-      filter
-    } = ctx;
-    if (filter !== "none" && filter !== "") {
-      ctx.filter = "none";
-    }
+  const {
+    filter
+  } = ctx;
+  if (filter !== "none" && filter !== "") {
+    ctx.filter = "none";
   }
 }
 function getImageSmoothingEnabled(transform, interpolate) {
   if (interpolate) {
     return true;
   }
-  const scale = Util.singularValueDecompose2dScale(transform);
-  scale[0] = Math.fround(scale[0]);
-  scale[1] = Math.fround(scale[1]);
-  const actualScale = Math.fround((globalThis.devicePixelRatio || 1) * PixelsPerInch.PDF_TO_CSS_UNITS);
-  return scale[0] <= actualScale && scale[1] <= actualScale;
+  Util.singularValueDecompose2dScale(transform, XY);
+  const actualScale = Math.fround(OutputScale.pixelRatio * PixelsPerInch.PDF_TO_CSS_UNITS);
+  return XY[0] <= actualScale && XY[1] <= actualScale;
 }
 const LINE_CAP_STYLES = ["butt", "round", "square"];
 const LINE_JOIN_STYLES = ["miter", "round", "bevel"];
@@ -12661,7 +7675,6 @@ class CanvasGraphics {
     this.canvasFactory = canvasFactory;
     this.filterFactory = filterFactory;
     this.groupStack = [];
-    this.processingType3 = null;
     this.baseTransform = null;
     this.baseTransformStack = [];
     this.groupLevel = 0;
@@ -12876,7 +7889,9 @@ class CanvasGraphics {
     }
     let maskToCanvas = Util.transform(currentTransform, [1 / width, 0, 0, -1 / height, 0, 0]);
     maskToCanvas = Util.transform(maskToCanvas, [1, 0, 0, 1, 0, -height]);
-    const [minX, minY, maxX, maxY] = Util.getAxialAlignedBoundingBox([0, 0, width, height], maskToCanvas);
+    const minMax = MIN_MAX_INIT.slice();
+    Util.axialAlignedBoundingBox([0, 0, width, height], maskToCanvas, minMax);
+    const [minX, minY, maxX, maxY] = minMax;
     const drawnWidth = Math.round(maxX - minX) || 1;
     const drawnHeight = Math.round(maxY - minY) || 1;
     const fillCanvas = this.cachedCanvases.getCanvas("fillCanvas", drawnWidth, drawnHeight);
@@ -12964,8 +7979,7 @@ class CanvasGraphics {
           this.current.strokeAlpha = value;
           break;
         case "ca":
-          this.current.fillAlpha = value;
-          this.ctx.globalAlpha = value;
+          this.ctx.globalAlpha = this.current.fillAlpha = value;
           break;
         case "BM":
           this.ctx.globalCompositeOperation = value;
@@ -13001,12 +8015,11 @@ class CanvasGraphics {
     const cacheId = "smaskGroupAt" + this.groupLevel;
     const scratchCanvas = this.cachedCanvases.getCanvas(cacheId, drawnWidth, drawnHeight);
     this.suspendedCtx = this.ctx;
-    this.ctx = scratchCanvas.context;
-    const ctx = this.ctx;
-    ctx.setTransform(...getCurrentTransform(this.suspendedCtx));
+    const ctx = this.ctx = scratchCanvas.context;
+    ctx.setTransform(this.suspendedCtx.getTransform());
     copyCtxState(this.suspendedCtx, ctx);
     mirrorContextOperations(ctx, this.suspendedCtx);
-    this.setGState([["BM", "source-over"], ["ca", 1], ["CA", 1]]);
+    this.setGState([["BM", "source-over"]]);
   }
   endSMaskMode() {
     if (!this.inSMaskMode) {
@@ -13100,197 +8113,155 @@ class CanvasGraphics {
   save() {
     if (this.inSMaskMode) {
       copyCtxState(this.ctx, this.suspendedCtx);
-      this.suspendedCtx.save();
-    } else {
-      this.ctx.save();
     }
+    this.ctx.save();
     const old = this.current;
     this.stateStack.push(old);
     this.current = old.clone();
   }
   restore() {
-    if (this.stateStack.length === 0 && this.inSMaskMode) {
-      this.endSMaskMode();
-    }
-    if (this.stateStack.length !== 0) {
-      this.current = this.stateStack.pop();
+    if (this.stateStack.length === 0) {
       if (this.inSMaskMode) {
-        this.suspendedCtx.restore();
-        copyCtxState(this.suspendedCtx, this.ctx);
-      } else {
-        this.ctx.restore();
+        this.endSMaskMode();
       }
-      this.checkSMaskState();
-      this.pendingClip = null;
-      this._cachedScaleForStroking[0] = -1;
-      this._cachedGetSinglePixelWidth = null;
+      return;
     }
+    this.current = this.stateStack.pop();
+    this.ctx.restore();
+    if (this.inSMaskMode) {
+      copyCtxState(this.suspendedCtx, this.ctx);
+    }
+    this.checkSMaskState();
+    this.pendingClip = null;
+    this._cachedScaleForStroking[0] = -1;
+    this._cachedGetSinglePixelWidth = null;
   }
   transform(a, b, c, d, e, f) {
     this.ctx.transform(a, b, c, d, e, f);
     this._cachedScaleForStroking[0] = -1;
     this._cachedGetSinglePixelWidth = null;
   }
-  constructPath(ops, args, minMax) {
-    const ctx = this.ctx;
-    const current = this.current;
-    let x = current.x,
-      y = current.y;
-    let startX, startY;
-    const currentTransform = getCurrentTransform(ctx);
-    const isScalingMatrix = currentTransform[0] === 0 && currentTransform[3] === 0 || currentTransform[1] === 0 && currentTransform[2] === 0;
-    const minMaxForBezier = isScalingMatrix ? minMax.slice(0) : null;
-    for (let i = 0, j = 0, ii = ops.length; i < ii; i++) {
-      switch (ops[i] | 0) {
-        case OPS.rectangle:
-          x = args[j++];
-          y = args[j++];
-          const width = args[j++];
-          const height = args[j++];
-          const xw = x + width;
-          const yh = y + height;
-          ctx.moveTo(x, y);
-          if (width === 0 || height === 0) {
-            ctx.lineTo(xw, yh);
-          } else {
-            ctx.lineTo(xw, y);
-            ctx.lineTo(xw, yh);
-            ctx.lineTo(x, yh);
-          }
-          if (!isScalingMatrix) {
-            current.updateRectMinMax(currentTransform, [x, y, xw, yh]);
-          }
-          ctx.closePath();
-          break;
-        case OPS.moveTo:
-          x = args[j++];
-          y = args[j++];
-          ctx.moveTo(x, y);
-          if (!isScalingMatrix) {
-            current.updatePathMinMax(currentTransform, x, y);
-          }
-          break;
-        case OPS.lineTo:
-          x = args[j++];
-          y = args[j++];
-          ctx.lineTo(x, y);
-          if (!isScalingMatrix) {
-            current.updatePathMinMax(currentTransform, x, y);
-          }
-          break;
-        case OPS.curveTo:
-          startX = x;
-          startY = y;
-          x = args[j + 4];
-          y = args[j + 5];
-          ctx.bezierCurveTo(args[j], args[j + 1], args[j + 2], args[j + 3], x, y);
-          current.updateCurvePathMinMax(currentTransform, startX, startY, args[j], args[j + 1], args[j + 2], args[j + 3], x, y, minMaxForBezier);
-          j += 6;
-          break;
-        case OPS.curveTo2:
-          startX = x;
-          startY = y;
-          ctx.bezierCurveTo(x, y, args[j], args[j + 1], args[j + 2], args[j + 3]);
-          current.updateCurvePathMinMax(currentTransform, startX, startY, x, y, args[j], args[j + 1], args[j + 2], args[j + 3], minMaxForBezier);
-          x = args[j + 2];
-          y = args[j + 3];
-          j += 4;
-          break;
-        case OPS.curveTo3:
-          startX = x;
-          startY = y;
-          x = args[j + 2];
-          y = args[j + 3];
-          ctx.bezierCurveTo(args[j], args[j + 1], x, y, x, y);
-          current.updateCurvePathMinMax(currentTransform, startX, startY, args[j], args[j + 1], x, y, x, y, minMaxForBezier);
-          j += 4;
-          break;
-        case OPS.closePath:
-          ctx.closePath();
-          break;
+  constructPath(op, data, minMax) {
+    let [path] = data;
+    if (!minMax) {
+      path ||= data[0] = new Path2D();
+      this[op](path);
+      return;
+    }
+    if (!(path instanceof Path2D)) {
+      const path2d = data[0] = new Path2D();
+      for (let i = 0, ii = path.length; i < ii;) {
+        switch (path[i++]) {
+          case DrawOPS.moveTo:
+            path2d.moveTo(path[i++], path[i++]);
+            break;
+          case DrawOPS.lineTo:
+            path2d.lineTo(path[i++], path[i++]);
+            break;
+          case DrawOPS.curveTo:
+            path2d.bezierCurveTo(path[i++], path[i++], path[i++], path[i++], path[i++], path[i++]);
+            break;
+          case DrawOPS.closePath:
+            path2d.closePath();
+            break;
+          default:
+            warn(`Unrecognized drawing path operator: ${path[i - 1]}`);
+            break;
+        }
       }
+      path = path2d;
     }
-    if (isScalingMatrix) {
-      current.updateScalingPathMinMax(currentTransform, minMaxForBezier);
-    }
-    current.setCurrentPoint(x, y);
+    Util.axialAlignedBoundingBox(minMax, getCurrentTransform(this.ctx), this.current.minMax);
+    this[op](path);
   }
   closePath() {
     this.ctx.closePath();
   }
-  stroke(consumePath = true) {
+  stroke(path, consumePath = true) {
     const ctx = this.ctx;
     const strokeColor = this.current.strokeColor;
     ctx.globalAlpha = this.current.strokeAlpha;
     if (this.contentVisible) {
       if (typeof strokeColor === "object" && strokeColor?.getPattern) {
+        const baseTransform = strokeColor.isModifyingCurrentTransform() ? ctx.getTransform() : null;
         ctx.save();
         ctx.strokeStyle = strokeColor.getPattern(ctx, this, getCurrentTransformInverse(ctx), PathType.STROKE);
-        this.rescaleAndStroke(false);
+        if (baseTransform) {
+          const newPath = new Path2D();
+          newPath.addPath(path, ctx.getTransform().invertSelf().multiplySelf(baseTransform));
+          path = newPath;
+        }
+        this.rescaleAndStroke(path, false);
         ctx.restore();
       } else {
-        this.rescaleAndStroke(true);
+        this.rescaleAndStroke(path, true);
       }
     }
     if (consumePath) {
-      this.consumePath(this.current.getClippedPathBoundingBox());
+      this.consumePath(path, this.current.getClippedPathBoundingBox(PathType.STROKE, getCurrentTransform(this.ctx)));
     }
     ctx.globalAlpha = this.current.fillAlpha;
   }
-  closeStroke() {
-    this.closePath();
-    this.stroke();
+  closeStroke(path) {
+    this.stroke(path);
   }
-  fill(consumePath = true) {
+  fill(path, consumePath = true) {
     const ctx = this.ctx;
     const fillColor = this.current.fillColor;
     const isPatternFill = this.current.patternFill;
     let needRestore = false;
     if (isPatternFill) {
+      const baseTransform = fillColor.isModifyingCurrentTransform() ? ctx.getTransform() : null;
       ctx.save();
       ctx.fillStyle = fillColor.getPattern(ctx, this, getCurrentTransformInverse(ctx), PathType.FILL);
+      if (baseTransform) {
+        const newPath = new Path2D();
+        newPath.addPath(path, ctx.getTransform().invertSelf().multiplySelf(baseTransform));
+        path = newPath;
+      }
       needRestore = true;
     }
     const intersect = this.current.getClippedPathBoundingBox();
     if (this.contentVisible && intersect !== null) {
       if (this.pendingEOFill) {
-        ctx.fill("evenodd");
+        ctx.fill(path, "evenodd");
         this.pendingEOFill = false;
       } else {
-        ctx.fill();
+        ctx.fill(path);
       }
     }
     if (needRestore) {
       ctx.restore();
     }
     if (consumePath) {
-      this.consumePath(intersect);
+      this.consumePath(path, intersect);
     }
   }
-  eoFill() {
+  eoFill(path) {
     this.pendingEOFill = true;
-    this.fill();
+    this.fill(path);
   }
-  fillStroke() {
-    this.fill(false);
-    this.stroke(false);
-    this.consumePath();
+  fillStroke(path) {
+    this.fill(path, false);
+    this.stroke(path, false);
+    this.consumePath(path);
   }
-  eoFillStroke() {
+  eoFillStroke(path) {
     this.pendingEOFill = true;
-    this.fillStroke();
+    this.fillStroke(path);
   }
-  closeFillStroke() {
-    this.closePath();
-    this.fillStroke();
+  closeFillStroke(path) {
+    this.fillStroke(path);
   }
-  closeEOFillStroke() {
+  closeEOFillStroke(path) {
     this.pendingEOFill = true;
-    this.closePath();
-    this.fillStroke();
+    this.fillStroke(path);
   }
-  endPath() {
-    this.consumePath();
+  endPath(path) {
+    this.consumePath(path);
+  }
+  rawFillPath(path) {
+    this.ctx.fill(path);
   }
   clip() {
     this.pendingClip = NORMAL_CLIP;
@@ -13299,7 +8270,7 @@ class CanvasGraphics {
     this.pendingClip = EO_CLIP;
   }
   beginText() {
-    this.current.textMatrix = IDENTITY_MATRIX;
+    this.current.textMatrix = null;
     this.current.textMatrixScale = 1;
     this.current.x = this.current.lineX = 0;
     this.current.y = this.current.lineY = 0;
@@ -13308,7 +8279,6 @@ class CanvasGraphics {
     const paths = this.pendingTextPaths;
     const ctx = this.ctx;
     if (paths === undefined) {
-      ctx.beginPath();
       return;
     }
     const newPath = new Path2D();
@@ -13323,7 +8293,6 @@ class CanvasGraphics {
       newPath.addPath(path, new DOMMatrix(transform).preMultiplySelf(invTransf).translate(x, y).scale(fontSize, -fontSize));
     }
     ctx.clip(newPath);
-    ctx.beginPath();
     delete this.pendingTextPaths;
   }
   setCharSpacing(spacing) {
@@ -13391,11 +8360,14 @@ class CanvasGraphics {
     this.setLeading(-y);
     this.moveText(x, y);
   }
-  setTextMatrix(a, b, c, d, e, f) {
-    this.current.textMatrix = [a, b, c, d, e, f];
-    this.current.textMatrixScale = Math.hypot(a, b);
-    this.current.x = this.current.lineX = 0;
-    this.current.y = this.current.lineY = 0;
+  setTextMatrix(matrix) {
+    const {
+      current
+    } = this;
+    current.textMatrix = matrix;
+    current.textMatrixScale = Math.hypot(matrix[0], matrix[1]);
+    current.x = current.lineX = 0;
+    current.y = current.lineY = 0;
   }
   nextLine() {
     this.moveText(0, this.current.leading);
@@ -13423,9 +8395,10 @@ class CanvasGraphics {
       ctx.save();
       ctx.translate(x, y);
       ctx.scale(fontSize, -fontSize);
+      let currentTransform;
       if (fillStrokeMode === TextRenderingMode.FILL || fillStrokeMode === TextRenderingMode.FILL_STROKE) {
         if (patternFillTransform) {
-          const currentTransform = ctx.getTransform();
+          currentTransform = ctx.getTransform();
           ctx.setTransform(...patternFillTransform);
           ctx.fill(this.#getScaledPath(path, currentTransform, patternFillTransform));
         } else {
@@ -13434,8 +8407,18 @@ class CanvasGraphics {
       }
       if (fillStrokeMode === TextRenderingMode.STROKE || fillStrokeMode === TextRenderingMode.FILL_STROKE) {
         if (patternStrokeTransform) {
-          const currentTransform = ctx.getTransform();
+          currentTransform ||= ctx.getTransform();
           ctx.setTransform(...patternStrokeTransform);
+          const {
+            a,
+            b,
+            c,
+            d
+          } = currentTransform;
+          const invPatternTransform = Util.inverseTransform(patternStrokeTransform);
+          const transf = Util.transform([a, b, c, d, 0, 0], invPatternTransform);
+          Util.singularValueDecompose2dScale(transf, XY);
+          ctx.lineWidth *= Math.max(XY[0], XY[1]) / fontSize;
           ctx.stroke(this.#getScaledPath(path, currentTransform, patternStrokeTransform));
         } else {
           ctx.lineWidth /= fontSize;
@@ -13501,7 +8484,9 @@ class CanvasGraphics {
     const widthAdvanceScale = fontSize * current.fontMatrix[0];
     const simpleFillText = current.textRenderingMode === TextRenderingMode.FILL && !font.disableFontFace && !current.patternFill;
     ctx.save();
-    ctx.transform(...current.textMatrix);
+    if (current.textMatrix) {
+      ctx.transform(...current.textMatrix);
+    }
     ctx.translate(current.x, current.y + current.textRise);
     if (fontDirection > 0) {
       ctx.scale(textHScale, -1);
@@ -13635,8 +8620,10 @@ class CanvasGraphics {
     this._cachedScaleForStroking[0] = -1;
     this._cachedGetSinglePixelWidth = null;
     ctx.save();
-    ctx.transform(...current.textMatrix);
-    ctx.translate(current.x, current.y);
+    if (current.textMatrix) {
+      ctx.transform(...current.textMatrix);
+    }
+    ctx.translate(current.x, current.y + current.textRise);
     ctx.scale(textHScale, fontDirection);
     for (i = 0; i < glyphsLength; ++i) {
       glyph = glyphs[i];
@@ -13650,34 +8637,31 @@ class CanvasGraphics {
       const operatorList = font.charProcOperatorList[glyph.operatorListId];
       if (!operatorList) {
         warn(`Type3 character "${glyph.operatorListId}" is not available.`);
-        continue;
-      }
-      if (this.contentVisible) {
-        this.processingType3 = glyph;
+      } else if (this.contentVisible) {
         this.save();
         ctx.scale(fontSize, fontSize);
         ctx.transform(...fontMatrix);
         this.executeOperatorList(operatorList);
         this.restore();
       }
-      const transformed = Util.applyTransform([glyph.width, 0], fontMatrix);
-      width = transformed[0] * fontSize + spacing;
+      const p = [glyph.width, 0];
+      Util.applyTransform(p, fontMatrix);
+      width = p[0] * fontSize + spacing;
       ctx.translate(width, 0);
       current.x += width * textHScale;
     }
     ctx.restore();
-    this.processingType3 = null;
   }
   setCharWidth(xWidth, yWidth) {}
   setCharWidthAndBounds(xWidth, yWidth, llx, lly, urx, ury) {
-    this.ctx.rect(llx, lly, urx - llx, ury - lly);
-    this.ctx.clip();
+    const clip = new Path2D();
+    clip.rect(llx, lly, urx - llx, ury - lly);
+    this.ctx.clip(clip);
     this.endPath();
   }
   getColorN_Pattern(IR) {
     let pattern;
     if (IR[0] === "TilingPattern") {
-      const color = IR[1];
       const baseTransform = this.baseTransform || getCurrentTransform(this.ctx);
       const canvasGraphicsFactory = {
         createCanvasGraphics: ctx => new CanvasGraphics(ctx, this.commonObjs, this.objs, this.canvasFactory, this.filterFactory, {
@@ -13685,7 +8669,7 @@ class CanvasGraphics {
           markedContentStack: this.markedContentStack
         })
       };
-      pattern = new TilingPattern(IR, color, this.ctx, canvasGraphicsFactory, baseTransform);
+      pattern = new TilingPattern(IR, this.ctx, canvasGraphicsFactory, baseTransform);
     } else {
       pattern = this._getPattern(IR[1], IR[2]);
     }
@@ -13742,7 +8726,9 @@ class CanvasGraphics {
         width,
         height
       } = ctx.canvas;
-      const [x0, y0, x1, y1] = Util.getAxialAlignedBoundingBox([0, 0, width, height], inv);
+      const minMax = MIN_MAX_INIT.slice();
+      Util.axialAlignedBoundingBox([0, 0, width, height], inv, minMax);
+      const [x0, y0, x1, y1] = minMax;
       this.ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
     } else {
       this.ctx.fillRect(-1e10, -1e10, 2e10, 2e10);
@@ -13767,11 +8753,11 @@ class CanvasGraphics {
     }
     this.baseTransform = getCurrentTransform(this.ctx);
     if (bbox) {
-      const width = bbox[2] - bbox[0];
-      const height = bbox[3] - bbox[1];
-      this.ctx.rect(bbox[0], bbox[1], width, height);
-      this.current.updateRectMinMax(getCurrentTransform(this.ctx), bbox);
-      this.clip();
+      Util.axialAlignedBoundingBox(bbox, this.baseTransform, this.current.minMax);
+      const [x0, y0, x1, y1] = bbox;
+      const clip = new Path2D();
+      clip.rect(x0, y0, x1 - x0, y1 - y0);
+      this.ctx.clip(clip);
       this.endPath();
     }
   }
@@ -13805,7 +8791,8 @@ class CanvasGraphics {
     if (!group.bbox) {
       throw new Error("Bounding box is required.");
     }
-    let bounds = Util.getAxialAlignedBoundingBox(group.bbox, getCurrentTransform(currentCtx));
+    let bounds = MIN_MAX_INIT.slice();
+    Util.axialAlignedBoundingBox(group.bbox, getCurrentTransform(currentCtx), bounds);
     const canvasBounds = [0, 0, currentCtx.canvas.width, currentCtx.canvas.height];
     bounds = Util.intersect(bounds, canvasBounds) || [0, 0, 0, 0];
     const offsetX = Math.floor(bounds[0]);
@@ -13821,6 +8808,15 @@ class CanvasGraphics {
     const groupCtx = scratchCanvas.context;
     groupCtx.translate(-offsetX, -offsetY);
     groupCtx.transform(...currentTransform);
+    let clip = new Path2D();
+    const [x0, y0, x1, y1] = group.bbox;
+    clip.rect(x0, y0, x1 - x0, y1 - y0);
+    if (group.matrix) {
+      const path = new Path2D();
+      path.addPath(clip, new DOMMatrix(group.matrix));
+      clip = path;
+    }
+    groupCtx.clip(clip);
     if (group.smask) {
       this.smaskStack.push({
         canvas: scratchCanvas.canvas,
@@ -13861,7 +8857,8 @@ class CanvasGraphics {
       this.restore();
       this.ctx.save();
       this.ctx.setTransform(...currentMtx);
-      const dirtyBox = Util.getAxialAlignedBoundingBox([0, 0, groupCtx.canvas.width, groupCtx.canvas.height], currentMtx);
+      const dirtyBox = MIN_MAX_INIT.slice();
+      Util.axialAlignedBoundingBox([0, 0, groupCtx.canvas.width, groupCtx.canvas.height], currentMtx, dirtyBox);
       this.ctx.drawImage(groupCtx.canvas, 0, 0);
       this.ctx.restore();
       this.compose(dirtyBox);
@@ -13886,7 +8883,7 @@ class CanvasGraphics {
         rect[0] = rect[1] = 0;
         rect[2] = width;
         rect[3] = height;
-        const [scaleX, scaleY] = Util.singularValueDecompose2dScale(getCurrentTransform(this.ctx));
+        Util.singularValueDecompose2dScale(getCurrentTransform(this.ctx), XY);
         const {
           viewportScale
         } = this;
@@ -13901,14 +8898,14 @@ class CanvasGraphics {
         this.annotationCanvas.savedCtx = this.ctx;
         this.ctx = context;
         this.ctx.save();
-        this.ctx.setTransform(scaleX, 0, 0, -scaleY, 0, height * scaleY);
+        this.ctx.setTransform(XY[0], 0, 0, -XY[1], 0, height * XY[1]);
         resetCtxToDefault(this.ctx);
       } else {
         resetCtxToDefault(this.ctx);
         this.endPath();
-        this.ctx.rect(rect[0], rect[1], width, height);
-        this.ctx.clip();
-        this.ctx.beginPath();
+        const clip = new Path2D();
+        clip.rect(rect[0], rect[1], width, height);
+        this.ctx.clip(clip);
       }
     }
     this.current = new CanvasExtraState(this.ctx.canvas.width, this.ctx.canvas.height);
@@ -13932,16 +8929,6 @@ class CanvasGraphics {
     img = this.getObject(img.data, img);
     img.count = count;
     const ctx = this.ctx;
-    const glyph = this.processingType3;
-    if (glyph) {
-      if (glyph.compiled === undefined) {
-        glyph.compiled = compileType3Glyph(img);
-      }
-      if (glyph.compiled) {
-        glyph.compiled(ctx);
-        return;
-      }
-    }
     const mask = this._createMaskCanvas(img);
     const maskCanvas = mask.canvas;
     ctx.save();
@@ -13963,8 +8950,7 @@ class CanvasGraphics {
     ctx.setTransform(1, 0, 0, 1, mask.offsetX - currentTransform[4], mask.offsetY - currentTransform[5]);
     for (let i = 0, ii = positions.length; i < ii; i += 2) {
       const trans = Util.transform(currentTransform, [scaleX, skewX, skewY, scaleY, positions[i], positions[i + 1]]);
-      const [x, y] = Util.applyTransform([0, 0], trans);
-      ctx.drawImage(mask.canvas, x, y);
+      ctx.drawImage(mask.canvas, trans[4], trans[5]);
     }
     ctx.restore();
     this.compose();
@@ -14066,13 +9052,11 @@ class CanvasGraphics {
     const height = imgData.height;
     const ctx = this.ctx;
     this.save();
-    if (!isNodeJS) {
-      const {
-        filter
-      } = ctx;
-      if (filter !== "none" && filter !== "") {
-        ctx.filter = "none";
-      }
+    const {
+      filter
+    } = ctx;
+    if (filter !== "none" && filter !== "") {
+      ctx.filter = "none";
     }
     ctx.scale(1 / width, -1 / height);
     let imgToPaint;
@@ -14149,7 +9133,7 @@ class CanvasGraphics {
   }
   beginCompat() {}
   endCompat() {}
-  consumePath(clipBox) {
+  consumePath(path, clipBox) {
     const isEmpty = this.current.isEmptyClip();
     if (this.pendingClip) {
       this.current.updateClipFromPath();
@@ -14161,15 +9145,14 @@ class CanvasGraphics {
     if (this.pendingClip) {
       if (!isEmpty) {
         if (this.pendingClip === EO_CLIP) {
-          ctx.clip("evenodd");
+          ctx.clip(path, "evenodd");
         } else {
-          ctx.clip();
+          ctx.clip(path);
         }
       }
       this.pendingClip = null;
     }
     this.current.startNewPathAndClipBox(this.current.clipBox);
-    ctx.beginPath();
   }
   getSinglePixelWidth() {
     if (!this._cachedGetSinglePixelWidth) {
@@ -14234,17 +9217,17 @@ class CanvasGraphics {
     }
     return this._cachedScaleForStroking;
   }
-  rescaleAndStroke(saveRestore) {
+  rescaleAndStroke(path, saveRestore) {
     const {
-      ctx
+      ctx,
+      current: {
+        lineWidth
+      }
     } = this;
-    const {
-      lineWidth
-    } = this.current;
     const [scaleX, scaleY] = this.getScaleForStroking();
-    ctx.lineWidth = lineWidth || 1;
-    if (scaleX === 1 && scaleY === 1) {
-      ctx.stroke();
+    if (scaleX === scaleY) {
+      ctx.lineWidth = (lineWidth || 1) * scaleX;
+      ctx.stroke(path);
       return;
     }
     const dashes = ctx.getLineDash();
@@ -14252,12 +9235,17 @@ class CanvasGraphics {
       ctx.save();
     }
     ctx.scale(scaleX, scaleY);
+    SCALE_MATRIX.a = 1 / scaleX;
+    SCALE_MATRIX.d = 1 / scaleY;
+    const newPath = new Path2D();
+    newPath.addPath(path, SCALE_MATRIX);
     if (dashes.length > 0) {
       const scale = Math.max(scaleX, scaleY);
       ctx.setLineDash(dashes.map(x => x / scale));
       ctx.lineDashOffset /= scale;
     }
-    ctx.stroke();
+    ctx.lineWidth = lineWidth || 1;
+    ctx.stroke(newPath);
     if (saveRestore) {
       ctx.restore();
     }
@@ -14302,28 +9290,24 @@ class GlobalWorkerOptions {
 }
 
 ;// ./src/display/metadata.js
-
 class Metadata {
-  #metadataMap;
+  #map;
   #data;
   constructor({
     parsedData,
     rawData
   }) {
-    this.#metadataMap = parsedData;
+    this.#map = parsedData;
     this.#data = rawData;
   }
   getRaw() {
     return this.#data;
   }
   get(name) {
-    return this.#metadataMap.get(name) ?? null;
+    return this.#map.get(name) ?? null;
   }
-  getAll() {
-    return objectFromMap(this.#metadataMap);
-  }
-  has(name) {
-    return this.#metadataMap.has(name);
+  [Symbol.iterator]() {
+    return this.#map.entries();
   }
 }
 
@@ -14572,9 +9556,6 @@ class OptionalContentConfig {
     }
     return [...this.#groups.keys()];
   }
-  getGroups() {
-    return this.#groups.size > 0 ? objectFromMap(this.#groups) : null;
-  }
   getGroup(id) {
     return this.#groups.get(id) || null;
   }
@@ -14588,19 +9569,12 @@ class OptionalContentConfig {
     }
     return this.#cachedGetHash = hash.hexdigest();
   }
+  [Symbol.iterator]() {
+    return this.#groups.entries();
+  }
 }
 
 ;// ./src/display/transport_stream.js
-
-
-
-
-
-
-
-
-
-
 
 
 class PDFDataTransportStream {
@@ -14870,8 +9844,6 @@ class PDFDataTransportStreamRangeReader {
 
 ;// ./src/display/content_disposition.js
 
-
-
 function getFilenameFromContentDispositionHeader(contentDisposition) {
   let needsEncodingFixup = true;
   let tmp = toParamRegExp("filename\\*", "i").exec(contentDisposition);
@@ -15005,9 +9977,6 @@ function getFilenameFromContentDispositionHeader(contentDisposition) {
 
 
 
-
-
-
 function createHeaders(isHttp, httpHeaders) {
   const headers = new Headers();
   if (!isHttp || !httpHeaders || typeof httpHeaders !== "object") {
@@ -15022,10 +9991,7 @@ function createHeaders(isHttp, httpHeaders) {
   return headers;
 }
 function getResponseOrigin(url) {
-  try {
-    return new URL(url).origin;
-  } catch {}
-  return null;
+  return URL.parse(url)?.origin ?? null;
 }
 function validateRangeRequestCapabilities({
   responseHeaders,
@@ -15073,25 +10039,14 @@ function extractFilenameFromHeader(responseHeaders) {
   }
   return null;
 }
-function createResponseStatusError(status, url) {
-  if (status === 404 || status === 0 && url.startsWith("file:")) {
-    return new MissingPDFException('Missing PDF "' + url + '".');
-  }
-  return new UnexpectedResponseException(`Unexpected server response (${status}) while retrieving PDF "${url}".`, status);
+function createResponseError(status, url) {
+  return new ResponseException(`Unexpected server response (${status}) while retrieving PDF "${url}".`, status, status === 404 || status === 0 && url.startsWith("file:"));
 }
 function validateResponseStatus(status) {
   return status === 200 || status === 206;
 }
 
 ;// ./src/display/fetch_stream.js
-
-
-
-
-
-
-
-
 
 
 function createFetchOptions(headers, withCredentials, abortController) {
@@ -15169,7 +10124,7 @@ class PDFFetchStreamReader {
     fetch(url, createFetchOptions(headers, this._withCredentials, this._abortController)).then(response => {
       stream._responseOrigin = getResponseOrigin(response.url);
       if (!validateResponseStatus(response.status)) {
-        throw createResponseStatusError(response.status, url);
+        throw createResponseError(response.status, url);
       }
       this._reader = response.body.getReader();
       this._headersCapability.resolve();
@@ -15253,7 +10208,7 @@ class PDFFetchStreamRangeReader {
         throw new Error(`Expected range response-origin "${responseOrigin}" to match "${stream._responseOrigin}".`);
       }
       if (!validateResponseStatus(response.status)) {
-        throw createResponseStatusError(response.status, url);
+        throw createResponseError(response.status, url);
       }
       this._readCapability.resolve();
       this._reader = response.body.getReader();
@@ -15291,9 +10246,6 @@ class PDFFetchStreamRangeReader {
 }
 
 ;// ./src/display/network.js
-
-
-
 
 
 const OK_RESPONSE = 200;
@@ -15529,7 +10481,7 @@ class PDFNetworkStreamFullRequestReader {
     this._requests.length = 0;
   }
   _onError(status) {
-    this._storedError = createResponseStatusError(status, this._url);
+    this._storedError = createResponseError(status, this._url);
     this._headersCapability.reject(this._storedError);
     for (const requestCapability of this._requests) {
       requestCapability.reject(this._storedError);
@@ -15647,7 +10599,7 @@ class PDFNetworkStreamRangeRequestReader {
     this._close();
   }
   _onError(status) {
-    this._storedError ??= createResponseStatusError(status, this._url);
+    this._storedError ??= createResponseError(status, this._url);
     for (const requestCapability of this._requests) {
       requestCapability.reject(this._storedError);
     }
@@ -15703,16 +10655,6 @@ class PDFNetworkStreamRangeRequestReader {
 }
 
 ;// ./src/display/node_stream.js
-
-
-
-
-
-
-
-
-
-
 
 
 const urlRegex = /^[a-z][a-z0-9\-+.]+:/i;
@@ -15781,7 +10723,7 @@ class PDFNodeStreamFsFullReader {
       this._headersCapability.resolve();
     }, error => {
       if (error.code === "ENOENT") {
-        error = new MissingPDFException(`Missing PDF "${this._url}".`);
+        error = createResponseError(0, this._url.href);
       }
       this._storedError = error;
       this._headersCapability.reject(error);
@@ -15940,18 +10882,8 @@ class PDFNodeStreamFsRangeReader {
 ;// ./src/display/text_layer.js
 
 
-
-
-
-
-
-
-
-
-
 const MAX_TEXT_DIVS_TO_RENDER = 100000;
 const DEFAULT_FONT_SIZE = 30;
-const DEFAULT_FONT_ASCENT = 0.8;
 class TextLayer {
   #capability = Promise.withResolvers();
   #container = null;
@@ -15994,7 +10926,7 @@ class TextLayer {
       throw new Error('No "textContentSource" parameter specified.');
     }
     this.#container = this.#rootContainer = container;
-    this.#scale = viewport.scale * (globalThis.devicePixelRatio || 1);
+    this.#scale = viewport.scale * OutputScale.pixelRatio;
     this.#rotation = viewport.rotation;
     this.#layoutTextParams = {
       div: null,
@@ -16050,7 +10982,7 @@ class TextLayer {
     viewport,
     onBefore = null
   }) {
-    const scale = viewport.scale * (globalThis.devicePixelRatio || 1);
+    const scale = viewport.scale * OutputScale.pixelRatio;
     const rotation = viewport.rotation;
     if (rotation !== this.#rotation) {
       onBefore?.();
@@ -16136,7 +11068,7 @@ class TextLayer {
     let fontFamily = this.#fontInspectorEnabled && style.fontSubstitution || style.fontFamily;
     fontFamily = TextLayer.fontFamilyMap.get(fontFamily) || fontFamily;
     const fontHeight = Math.hypot(tx[2], tx[3]);
-    const fontAscent = fontHeight * TextLayer.#getAscent(fontFamily, this.#lang);
+    const fontAscent = fontHeight * TextLayer.#getAscent(fontFamily, style, this.#lang);
     let left, top;
     if (angle === 0) {
       left = tx[4];
@@ -16145,7 +11077,7 @@ class TextLayer {
       left = tx[4] + fontAscent * Math.sin(angle);
       top = tx[5] - fontAscent * Math.cos(angle);
     }
-    const scaleFactorStr = "calc(var(--scale-factor)*";
+    const scaleFactorStr = "calc(var(--total-scale-factor) *";
     const divStyle = textDiv.style;
     if (this.#container === this.#rootContainer) {
       divStyle.left = `${(100 * left / this.#pageWidth).toFixed(2)}%`;
@@ -16282,7 +11214,7 @@ class TextLayer {
     this.#minFontSize = div.getBoundingClientRect().height;
     div.remove();
   }
-  static #getAscent(fontFamily, lang) {
+  static #getAscent(fontFamily, style, lang) {
     const cachedAscent = this.#ascentCache.get(fontFamily);
     if (cachedAscent) {
       return cachedAscent;
@@ -16291,44 +11223,28 @@ class TextLayer {
     ctx.canvas.width = ctx.canvas.height = DEFAULT_FONT_SIZE;
     this.#ensureCtxFont(ctx, DEFAULT_FONT_SIZE, fontFamily);
     const metrics = ctx.measureText("");
-    let ascent = metrics.fontBoundingBoxAscent;
-    let descent = Math.abs(metrics.fontBoundingBoxDescent);
-    if (ascent) {
-      const ratio = ascent / (ascent + descent);
-      this.#ascentCache.set(fontFamily, ratio);
-      ctx.canvas.width = ctx.canvas.height = 0;
-      return ratio;
-    }
-    ctx.strokeStyle = "red";
-    ctx.clearRect(0, 0, DEFAULT_FONT_SIZE, DEFAULT_FONT_SIZE);
-    ctx.strokeText("g", 0, 0);
-    let pixels = ctx.getImageData(0, 0, DEFAULT_FONT_SIZE, DEFAULT_FONT_SIZE).data;
-    descent = 0;
-    for (let i = pixels.length - 1 - 3; i >= 0; i -= 4) {
-      if (pixels[i] > 0) {
-        descent = Math.ceil(i / 4 / DEFAULT_FONT_SIZE);
-        break;
-      }
-    }
-    ctx.clearRect(0, 0, DEFAULT_FONT_SIZE, DEFAULT_FONT_SIZE);
-    ctx.strokeText("A", 0, DEFAULT_FONT_SIZE);
-    pixels = ctx.getImageData(0, 0, DEFAULT_FONT_SIZE, DEFAULT_FONT_SIZE).data;
-    ascent = 0;
-    for (let i = 0, ii = pixels.length; i < ii; i += 4) {
-      if (pixels[i] > 0) {
-        ascent = DEFAULT_FONT_SIZE - Math.floor(i / 4 / DEFAULT_FONT_SIZE);
-        break;
-      }
-    }
+    const ascent = metrics.fontBoundingBoxAscent;
+    const descent = Math.abs(metrics.fontBoundingBoxDescent);
     ctx.canvas.width = ctx.canvas.height = 0;
-    const ratio = ascent ? ascent / (ascent + descent) : DEFAULT_FONT_ASCENT;
+    let ratio = 0.8;
+    if (ascent) {
+      ratio = ascent / (ascent + descent);
+    } else {
+      if (util_FeatureTest.platform.isFirefox) {
+        warn("Enable the `dom.textMetrics.fontBoundingBox.enabled` preference " + "in `about:config` to improve TextLayer rendering.");
+      }
+      if (style.ascent) {
+        ratio = style.ascent;
+      } else if (style.descent) {
+        ratio = 1 + style.descent;
+      }
+    }
     this.#ascentCache.set(fontFamily, ratio);
     return ratio;
   }
 }
 
 ;// ./src/display/xfa_text.js
-
 class XfaText {
   static textContent(xfa) {
     const items = [];
@@ -16393,32 +11309,8 @@ class XfaText {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const DEFAULT_RANGE_CHUNK_SIZE = 65536;
 const RENDERING_CANCELLED_TIMEOUT = 100;
-const DELAYED_CLEANUP_TIMEOUT = 5000;
-const DefaultCanvasFactory = isNodeJS ? NodeCanvasFactory : DOMCanvasFactory;
-const DefaultCMapReaderFactory = isNodeJS ? NodeCMapReaderFactory : DOMCMapReaderFactory;
-const DefaultFilterFactory = isNodeJS ? NodeFilterFactory : DOMFilterFactory;
-const DefaultStandardFontDataFactory = isNodeJS ? NodeStandardFontDataFactory : DOMStandardFontDataFactory;
 function getDocument(src = {}) {
   if (typeof src === "string" || src instanceof URL) {
     src = {
@@ -16443,11 +11335,14 @@ function getDocument(src = {}) {
   let worker = src.worker instanceof PDFWorker ? src.worker : null;
   const verbosity = src.verbosity;
   const docBaseUrl = typeof src.docBaseUrl === "string" && !isDataScheme(src.docBaseUrl) ? src.docBaseUrl : null;
-  const cMapUrl = typeof src.cMapUrl === "string" ? src.cMapUrl : null;
+  const cMapUrl = getFactoryUrlProp(src.cMapUrl);
   const cMapPacked = src.cMapPacked !== false;
-  const CMapReaderFactory = src.CMapReaderFactory || DefaultCMapReaderFactory;
-  const standardFontDataUrl = typeof src.standardFontDataUrl === "string" ? src.standardFontDataUrl : null;
-  const StandardFontDataFactory = src.StandardFontDataFactory || DefaultStandardFontDataFactory;
+  const CMapReaderFactory = src.CMapReaderFactory || (isNodeJS ? NodeCMapReaderFactory : DOMCMapReaderFactory);
+  const iccUrl = getFactoryUrlProp(src.iccUrl);
+  const standardFontDataUrl = getFactoryUrlProp(src.standardFontDataUrl);
+  const StandardFontDataFactory = src.StandardFontDataFactory || (isNodeJS ? NodeStandardFontDataFactory : DOMStandardFontDataFactory);
+  const wasmUrl = getFactoryUrlProp(src.wasmUrl);
+  const WasmFactory = src.WasmFactory || (isNodeJS ? NodeWasmFactory : DOMWasmFactory);
   const ignoreErrors = src.stopAtErrors !== true;
   const maxImageSize = Number.isInteger(src.maxImageSize) && src.maxImageSize > -1 ? src.maxImageSize : -1;
   const isEvalSupported = src.isEvalSupported !== false;
@@ -16462,12 +11357,13 @@ function getDocument(src = {}) {
   const disableStream = src.disableStream === true;
   const disableAutoFetch = src.disableAutoFetch === true;
   const pdfBug = src.pdfBug === true;
-  const CanvasFactory = src.CanvasFactory || DefaultCanvasFactory;
-  const FilterFactory = src.FilterFactory || DefaultFilterFactory;
+  const CanvasFactory = src.CanvasFactory || (isNodeJS ? NodeCanvasFactory : DOMCanvasFactory);
+  const FilterFactory = src.FilterFactory || (isNodeJS ? NodeFilterFactory : DOMFilterFactory);
   const enableHWA = src.enableHWA === true;
+  const useWasm = src.useWasm !== false;
   const length = rangeTransport ? rangeTransport.length : src.length ?? NaN;
   const useSystemFonts = typeof src.useSystemFonts === "boolean" ? src.useSystemFonts : !isNodeJS && !disableFontFace;
-  const useWorkerFetch = typeof src.useWorkerFetch === "boolean" ? src.useWorkerFetch : CMapReaderFactory === DOMCMapReaderFactory && StandardFontDataFactory === DOMStandardFontDataFactory && cMapUrl && standardFontDataUrl && isValidFetchUrl(cMapUrl, document.baseURI) && isValidFetchUrl(standardFontDataUrl, document.baseURI);
+  const useWorkerFetch = typeof src.useWorkerFetch === "boolean" ? src.useWorkerFetch : !!(CMapReaderFactory === DOMCMapReaderFactory && StandardFontDataFactory === DOMStandardFontDataFactory && WasmFactory === DOMWasmFactory && cMapUrl && standardFontDataUrl && wasmUrl && isValidFetchUrl(cMapUrl, document.baseURI) && isValidFetchUrl(standardFontDataUrl, document.baseURI) && isValidFetchUrl(wasmUrl, document.baseURI));
   const styleElement = null;
   setVerbosityLevel(verbosity);
   const transportFactory = {
@@ -16485,6 +11381,9 @@ function getDocument(src = {}) {
     }),
     standardFontDataFactory: useWorkerFetch ? null : new StandardFontDataFactory({
       baseUrl: standardFontDataUrl
+    }),
+    wasmFactory: useWorkerFetch ? null : new WasmFactory({
+      baseUrl: wasmUrl
     })
   };
   if (!worker) {
@@ -16497,7 +11396,7 @@ function getDocument(src = {}) {
   }
   const docParams = {
     docId,
-    apiVersion: "4.10.38",
+    apiVersion: "5.2.165",
     data,
     password,
     disableAutoFetch,
@@ -16515,13 +11414,15 @@ function getDocument(src = {}) {
       canvasMaxAreaInBytes,
       fontExtraProperties,
       useSystemFonts,
-      cMapUrl: useWorkerFetch ? cMapUrl : null,
-      standardFontDataUrl: useWorkerFetch ? standardFontDataUrl : null
+      useWasm,
+      useWorkerFetch,
+      cMapUrl,
+      iccUrl,
+      standardFontDataUrl,
+      wasmUrl
     }
   };
   const transportParams = {
-    disableFontFace,
-    fontExtraProperties,
     ownerDocument,
     pdfBug,
     styleElement,
@@ -16590,11 +11491,13 @@ function getUrlProp(val) {
   if (val instanceof URL) {
     return val.href;
   }
-  try {
-    return new URL(val, window.location).href;
-  } catch {
-    if (isNodeJS && typeof val === "string") {
+  if (typeof val === "string") {
+    if (isNodeJS) {
       return val;
+    }
+    const url = URL.parse(val, window.location);
+    if (url) {
+      return url.href;
     }
   }
   throw new Error("Invalid PDF url data: " + "either string or URL-object is expected in the url property.");
@@ -16614,20 +11517,27 @@ function getDataProp(val) {
   }
   throw new Error("Invalid PDF binary data: either TypedArray, " + "string, or array-like object is expected in the data property.");
 }
-function isRefProxy(ref) {
-  return typeof ref === "object" && Number.isInteger(ref?.num) && ref.num >= 0 && Number.isInteger(ref?.gen) && ref.gen >= 0;
+function getFactoryUrlProp(val) {
+  if (typeof val !== "string") {
+    return null;
+  }
+  if (val.endsWith("/")) {
+    return val;
+  }
+  throw new Error(`Invalid factory url: "${val}" must include trailing slash.`);
 }
+const isRefProxy = v => typeof v === "object" && Number.isInteger(v?.num) && v.num >= 0 && Number.isInteger(v?.gen) && v.gen >= 0;
+const isNameProxy = v => typeof v === "object" && typeof v?.name === "string";
+const isValidExplicitDest = _isValidExplicitDest.bind(null, isRefProxy, isNameProxy);
 class PDFDocumentLoadingTask {
   static #docId = 0;
-  constructor() {
-    this._capability = Promise.withResolvers();
-    this._transport = null;
-    this._worker = null;
-    this.docId = `d${PDFDocumentLoadingTask.#docId++}`;
-    this.destroyed = false;
-    this.onPassword = null;
-    this.onProgress = null;
-  }
+  _capability = Promise.withResolvers();
+  _transport = null;
+  _worker = null;
+  docId = `d${PDFDocumentLoadingTask.#docId++}`;
+  destroyed = false;
+  onPassword = null;
+  onProgress = null;
   get promise() {
     return this._capability.promise;
   }
@@ -16647,6 +11557,9 @@ class PDFDocumentLoadingTask {
     this._transport = null;
     this._worker?.destroy();
     this._worker = null;
+  }
+  async getData() {
+    return this._transport.getData();
   }
 }
 class PDFDataRangeTransport {
@@ -16821,7 +11734,6 @@ class PDFDocumentProxy {
   }
 }
 class PDFPageProxy {
-  #delayedCleanupTimeout = null;
   #pendingCleanup = false;
   constructor(pageIndex, pageInfo, transport, pdfBug = false) {
     this._pageIndex = pageIndex;
@@ -16831,7 +11743,6 @@ class PDFPageProxy {
     this._pdfBug = pdfBug;
     this.commonObjs = transport.commonObjs;
     this.objs = new PDFObjects();
-    this._maybeCleanupAfterRender = false;
     this._intentStates = new Map();
     this.destroyed = false;
   }
@@ -16907,7 +11818,6 @@ class PDFPageProxy {
       cacheKey
     } = intentArgs;
     this.#pendingCleanup = false;
-    this.#abortDelayedCleanup();
     optionalContentConfigPromise ||= this._transport.getOptionalContentConfig(renderingIntent);
     let intentState = this._intentStates.get(cacheKey);
     if (!intentState) {
@@ -16932,10 +11842,10 @@ class PDFPageProxy {
     }
     const complete = error => {
       intentState.renderTasks.delete(internalRenderTask);
-      if (this._maybeCleanupAfterRender || intentPrint) {
+      if (intentPrint) {
         this.#pendingCleanup = true;
       }
-      this.#tryCleanup(!intentPrint);
+      this.#tryCleanup();
       if (error) {
         internalRenderTask.capability.reject(error);
         this._abortOperatorList({
@@ -17094,27 +12004,18 @@ class PDFPageProxy {
     }
     this.objs.clear();
     this.#pendingCleanup = false;
-    this.#abortDelayedCleanup();
     return Promise.all(waitOn);
   }
   cleanup(resetStats = false) {
     this.#pendingCleanup = true;
-    const success = this.#tryCleanup(false);
+    const success = this.#tryCleanup();
     if (resetStats && success) {
       this._stats &&= new StatTimer();
     }
     return success;
   }
-  #tryCleanup(delayed = false) {
-    this.#abortDelayedCleanup();
+  #tryCleanup() {
     if (!this.#pendingCleanup || this.destroyed) {
-      return false;
-    }
-    if (delayed) {
-      this.#delayedCleanupTimeout = setTimeout(() => {
-        this.#delayedCleanupTimeout = null;
-        this.#tryCleanup(false);
-      }, DELAYED_CLEANUP_TIMEOUT);
       return false;
     }
     for (const {
@@ -17129,12 +12030,6 @@ class PDFPageProxy {
     this.objs.clear();
     this.#pendingCleanup = false;
     return true;
-  }
-  #abortDelayedCleanup() {
-    if (this.#delayedCleanupTimeout) {
-      clearTimeout(this.#delayedCleanupTimeout);
-      this.#delayedCleanupTimeout = null;
-    }
   }
   _startRenderPage(transparency, cacheKey) {
     const intentState = this._intentStates.get(cacheKey);
@@ -17155,7 +12050,7 @@ class PDFPageProxy {
       internalRenderTask.operatorListChanged();
     }
     if (operatorListChunk.lastChunk) {
-      this.#tryCleanup(true);
+      this.#tryCleanup();
     }
   }
   _pumpOperatorList({
@@ -17202,7 +12097,7 @@ class PDFPageProxy {
           for (const internalRenderTask of intentState.renderTasks) {
             internalRenderTask.operatorListChanged();
           }
-          this.#tryCleanup(true);
+          this.#tryCleanup();
         }
         if (intentState.displayReadyCapability) {
           intentState.displayReadyCapability.reject(reason);
@@ -17317,13 +12212,8 @@ class PDFWorker {
       GlobalWorkerOptions.workerSrc ||= "./pdf.worker.mjs";
     }
     this._isSameOrigin = (baseUrl, otherUrl) => {
-      let base;
-      try {
-        base = new URL(baseUrl);
-        if (!base.origin || base.origin === "null") {
-          return false;
-        }
-      } catch {
+      const base = URL.parse(baseUrl);
+      if (!base?.origin || base.origin === "null") {
         return false;
       }
       const other = new URL(otherUrl, base);
@@ -17388,7 +12278,7 @@ class PDFWorker {
       workerSrc
     } = PDFWorker;
     try {
-      if (!PDFWorker._isSameOrigin(window.location.href, workerSrc)) {
+      if (!PDFWorker._isSameOrigin(window.location, workerSrc)) {
         workerSrc = PDFWorker._createCDNWrapper(new URL(workerSrc, window.location).href);
       }
       const worker = new Worker(workerSrc, {
@@ -17508,7 +12398,10 @@ class PDFWorker {
       if (this.#mainThreadWorkerMessageHandler) {
         return this.#mainThreadWorkerMessageHandler;
       }
-      const worker = await import(/*webpackIgnore: true*/this.workerSrc);
+      const worker = await import(
+      /*webpackIgnore: true*/
+      /*@vite-ignore*/
+      this.workerSrc);
       return worker.WorkerMessageHandler;
     };
     return shadow(this, "_setupFakeWorkerGlobal", loader());
@@ -17534,6 +12427,7 @@ class WorkerTransport {
     this.filterFactory = factory.filterFactory;
     this.cMapReaderFactory = factory.cMapReaderFactory;
     this.standardFontDataFactory = factory.standardFontDataFactory;
+    this.wasmFactory = factory.wasmFactory;
     this.destroyed = false;
     this.destroyCapability = null;
     this._networkStream = networkStream;
@@ -17786,27 +12680,18 @@ class WorkerTransport {
       }
       switch (type) {
         case "Font":
-          const {
-            disableFontFace,
-            fontExtraProperties,
-            pdfBug
-          } = this._params;
           if ("error" in exportedData) {
             const exportedError = exportedData.error;
             warn(`Error during font loading: ${exportedError}`);
             this.commonObjs.resolve(id, exportedError);
             break;
           }
-          const inspectFont = pdfBug && globalThis.FontInspector?.enabled ? (font, url) => globalThis.FontInspector.fontAdded(font, url) : null;
-          const font = new FontFaceObject(exportedData, {
-            disableFontFace,
-            fontExtraProperties,
-            inspectFont
-          });
+          const inspectFont = this._params.pdfBug && globalThis.FontInspector?.enabled ? (font, url) => globalThis.FontInspector.fontAdded(font, url) : null;
+          const font = new FontFaceObject(exportedData, inspectFont);
           this.fontLoader.bind(font).catch(() => messageHandler.sendWithPromise("FontFallback", {
             id
           })).finally(() => {
-            if (!fontExtraProperties && font.data) {
+            if (!font.fontExtraProperties && font.data) {
               font.data = null;
             }
             this.commonObjs.resolve(id, font);
@@ -17854,11 +12739,6 @@ class WorkerTransport {
       }
       switch (type) {
         case "Image":
-          pageProxy.objs.resolve(id, imageData);
-          if (imageData?.dataLen > MAX_IMAGE_SIZE_TO_CACHE) {
-            pageProxy._maybeCleanupAfterRender = true;
-          }
-          break;
         case "Pattern":
           pageProxy.objs.resolve(id, imageData);
           break;
@@ -17875,23 +12755,15 @@ class WorkerTransport {
         total: data.total
       });
     });
-    messageHandler.on("FetchBuiltInCMap", async data => {
+    messageHandler.on("FetchBinaryData", async data => {
       if (this.destroyed) {
         throw new Error("Worker was destroyed.");
       }
-      if (!this.cMapReaderFactory) {
-        throw new Error("CMapReaderFactory not initialized, see the `useWorkerFetch` parameter.");
+      const factory = this[data.type];
+      if (!factory) {
+        throw new Error(`${data.type} not initialized, see the \`useWorkerFetch\` parameter.`);
       }
-      return this.cMapReaderFactory.fetch(data);
-    });
-    messageHandler.on("FetchStandardFontData", async data => {
-      if (this.destroyed) {
-        throw new Error("Worker was destroyed.");
-      }
-      if (!this.standardFontDataFactory) {
-        throw new Error("StandardFontDataFactory not initialized, see the `useWorkerFetch` parameter.");
-      }
-      return this.standardFontDataFactory.fetch(data);
+      return factory.fetch(data);
     });
   }
   getData() {
@@ -18120,9 +12992,10 @@ class PDFObjects {
 }
 class RenderTask {
   #internalRenderTask = null;
+  onContinue = null;
+  onError = null;
   constructor(internalRenderTask) {
     this.#internalRenderTask = internalRenderTask;
-    this.onContinue = null;
   }
   get promise() {
     return this.#internalRenderTask.capability.promise;
@@ -18234,7 +13107,9 @@ class InternalRenderTask {
       this.#rAF = null;
     }
     InternalRenderTask.#canvasInUse.delete(this._canvas);
-    this.callback(error || new RenderingCancelledException(`Rendering cancelled, page ${this._pageIndex + 1}`, extraDelay));
+    error ||= new RenderingCancelledException(`Rendering cancelled, page ${this._pageIndex + 1}`, extraDelay);
+    this.callback(error);
+    this.task.onError?.(error);
   }
   operatorListChanged() {
     if (!this.graphicsReady) {
@@ -18283,13 +13158,10 @@ class InternalRenderTask {
     }
   }
 }
-const version = "4.10.38";
-const build = "f9bea397f";
+const version = "5.2.165";
+const build = "6f052312d";
 
-// EXTERNAL MODULE: ./node_modules/core-js/modules/esnext.iterator.flat-map.js
-var esnext_iterator_flat_map = __webpack_require__(670);
 ;// ./src/shared/scripting_utils.js
-
 function makeColorComp(n) {
   return Math.floor(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, "0");
 }
@@ -18383,7 +13255,6 @@ class DOMSVGFactory extends BaseSVGFactory {
 }
 
 ;// ./src/display/xfa_layer.js
-
 
 class XfaLayer {
   static setupStorage(html, id, element, storage, intent) {
@@ -18601,26 +13472,9 @@ class XfaLayer {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 const DEFAULT_TAB_INDEX = 1000;
 const annotation_layer_DEFAULT_FONT_SIZE = 9;
 const GetElementsByNameSet = new WeakSet();
-function getRectDims(rect) {
-  return {
-    width: rect[2] - rect[0],
-    height: rect[3] - rect[1]
-  };
-}
 class AnnotationElementFactory {
   static create(parameters) {
     const subtype = parameters.data.annotationType;
@@ -18768,15 +13622,11 @@ class AnnotationElement {
       }
     } = this;
     currentRect?.splice(0, 4, ...rect);
-    const {
-      width,
-      height
-    } = getRectDims(rect);
     style.left = `${100 * (rect[0] - pageX) / pageWidth}%`;
     style.top = `${100 * (pageHeight - rect[3] + pageY) / pageHeight}%`;
     if (rotation === 0) {
-      style.width = `${100 * width / pageWidth}%`;
-      style.height = `${100 * height / pageHeight}%`;
+      style.width = `${100 * (rect[2] - rect[0]) / pageWidth}%`;
+      style.height = `${100 * (rect[3] - rect[1]) / pageHeight}%`;
     } else {
       this.setRotation(rotation);
     }
@@ -18816,16 +13666,16 @@ class AnnotationElement {
     const {
       width,
       height
-    } = getRectDims(data.rect);
+    } = this;
     if (!ignoreBorder && data.borderStyle.width > 0) {
       style.borderWidth = `${data.borderStyle.width}px`;
       const horizontalRadius = data.borderStyle.horizontalCornerRadius;
       const verticalRadius = data.borderStyle.verticalCornerRadius;
       if (horizontalRadius > 0 || verticalRadius > 0) {
-        const radius = `calc(${horizontalRadius}px * var(--scale-factor)) / calc(${verticalRadius}px * var(--scale-factor))`;
+        const radius = `calc(${horizontalRadius}px * var(--total-scale-factor)) / calc(${verticalRadius}px * var(--total-scale-factor))`;
         style.borderRadius = radius;
       } else if (this instanceof RadioButtonWidgetAnnotationElement) {
-        const radius = `calc(${width}px * var(--scale-factor)) / calc(${height}px * var(--scale-factor))`;
+        const radius = `calc(${width}px * var(--total-scale-factor)) / calc(${height}px * var(--total-scale-factor))`;
         style.borderRadius = radius;
       }
       switch (data.borderStyle.style) {
@@ -18883,20 +13733,15 @@ class AnnotationElement {
       pageWidth,
       pageHeight
     } = this.parent.viewport.rawDims;
-    const {
+    let {
       width,
       height
-    } = getRectDims(this.data.rect);
-    let elementWidth, elementHeight;
-    if (angle % 180 === 0) {
-      elementWidth = 100 * width / pageWidth;
-      elementHeight = 100 * height / pageHeight;
-    } else {
-      elementWidth = 100 * height / pageWidth;
-      elementHeight = 100 * width / pageHeight;
+    } = this;
+    if (angle % 180 !== 0) {
+      [width, height] = [height, width];
     }
-    container.style.width = `${elementWidth}%`;
-    container.style.height = `${elementHeight}%`;
+    container.style.width = `${100 * width / pageWidth}%`;
+    container.style.height = `${100 * height / pageHeight}%`;
     container.setAttribute("data-main-rotation", (360 - angle) % 360);
   }
   get _commonActions() {
@@ -19193,6 +14038,12 @@ class AnnotationElement {
         editId
       });
     });
+  }
+  get width() {
+    return this.data.rect[2] - this.data.rect[0];
+  }
+  get height() {
+    return this.data.rect[3] - this.data.rect[1];
   }
 }
 class LinkAnnotationElement extends AnnotationElement {
@@ -19532,7 +14383,7 @@ class WidgetAnnotationElement extends AnnotationElement {
       const height = Math.abs(this.data.rect[3] - this.data.rect[1] - BORDER_SIZE);
       computedFontSize = Math.min(fontSize, roundToOneDecimal(height / LINE_FACTOR));
     }
-    style.fontSize = `calc(${computedFontSize}px * var(--scale-factor))`;
+    style.fontSize = `calc(${computedFontSize}px * var(--total-scale-factor))`;
     style.color = Util.makeHexColor(fontColor[0], fontColor[1], fontColor[2]);
     if (this.data.textAlignment !== null) {
       style.textAlign = TEXT_ALIGNMENT[this.data.textAlignment];
@@ -19600,7 +14451,7 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
         }
       } else {
         element = document.createElement("input");
-        element.type = "text";
+        element.type = this.data.password ? "password" : "text";
         element.setAttribute("value", fieldFormattedValues ?? textContent);
         if (this.data.doNotScroll) {
           element.style.overflowX = "hidden";
@@ -19847,7 +14698,7 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
         const fieldWidth = this.data.rect[2] - this.data.rect[0];
         const combWidth = fieldWidth / maxLen;
         element.classList.add("comb");
-        element.style.letterSpacing = `calc(${combWidth}px * var(--scale-factor) - 1ch)`;
+        element.style.letterSpacing = `calc(${combWidth}px * var(--total-scale-factor) - 1ch)`;
       }
     } else {
       element = document.createElement("div");
@@ -20374,12 +15225,7 @@ class PopupElement {
     popup.className = "popup";
     if (this.#color) {
       const baseColor = popup.style.outlineColor = Util.makeHexColor(...this.#color);
-      if (CSS.supports("background-color", "color-mix(in srgb, red 30%, white)")) {
-        popup.style.backgroundColor = `color-mix(in srgb, ${baseColor} 30%, white)`;
-      } else {
-        const BACKGROUND_ENLIGHT = 0.7;
-        popup.style.backgroundColor = Util.makeHexColor(...this.#color.map(c => Math.floor(BACKGROUND_ENLIGHT * (255 - c) + c)));
-      }
+      popup.style.backgroundColor = `color-mix(in srgb, ${baseColor} 30%, white)`;
     }
     const header = document.createElement("span");
     header.className = "header";
@@ -20445,7 +15291,7 @@ class PopupElement {
     const lineAttributes = {
       style: {
         color: this.#fontColor,
-        fontSize: this.#fontSize ? `calc(${this.#fontSize}px * var(--scale-factor))` : ""
+        fontSize: this.#fontSize ? `calc(${this.#fontSize}px * var(--total-scale-factor))` : ""
       }
     };
     for (const line of text.split("\n")) {
@@ -20644,11 +15490,11 @@ class LineAnnotationElement extends AnnotationElement {
   }
   render() {
     this.container.classList.add("lineAnnotation");
-    const data = this.data;
     const {
+      data,
       width,
       height
-    } = getRectDims(data.rect);
+    } = this;
     const svg = this.svgFactory.create(width, height, true);
     const line = this.#line = this.svgFactory.createElement("svg:line");
     line.setAttribute("x1", data.rect[2] - data.lineCoordinates[0]);
@@ -20682,11 +15528,11 @@ class SquareAnnotationElement extends AnnotationElement {
   }
   render() {
     this.container.classList.add("squareAnnotation");
-    const data = this.data;
     const {
+      data,
       width,
       height
-    } = getRectDims(data.rect);
+    } = this;
     const svg = this.svgFactory.create(width, height, true);
     const borderWidth = data.borderStyle.width;
     const square = this.#square = this.svgFactory.createElement("svg:rect");
@@ -20721,11 +15567,11 @@ class CircleAnnotationElement extends AnnotationElement {
   }
   render() {
     this.container.classList.add("circleAnnotation");
-    const data = this.data;
     const {
+      data,
       width,
       height
-    } = getRectDims(data.rect);
+    } = this;
     const svg = this.svgFactory.create(width, height, true);
     const borderWidth = data.borderStyle.width;
     const circle = this.#circle = this.svgFactory.createElement("svg:ellipse");
@@ -20768,15 +15614,13 @@ class PolylineAnnotationElement extends AnnotationElement {
         vertices,
         borderStyle,
         popupRef
-      }
+      },
+      width,
+      height
     } = this;
     if (!vertices) {
       return this.container;
     }
-    const {
-      width,
-      height
-    } = getRectDims(rect);
     const svg = this.svgFactory.create(width, height, true);
     let points = [];
     for (let i = 0, ii = vertices.length; i < ii; i += 2) {
@@ -21149,11 +15993,7 @@ class AnnotationLayer {
       }
       const isPopupAnnotation = data.annotationType === AnnotationType.POPUP;
       if (!isPopupAnnotation) {
-        const {
-          width,
-          height
-        } = getRectDims(data.rect);
-        if (width <= 0 || height <= 0) {
+        if (data.rect[2] === data.rect[0] || data.rect[3] === data.rect[1]) {
           continue;
         }
       } else {
@@ -21187,6 +16027,25 @@ class AnnotationLayer {
       }
     }
     this.#setAnnotationCanvasMap();
+  }
+  async addLinkAnnotations(annotations, linkService) {
+    const elementParams = {
+      data: null,
+      layer: this.div,
+      linkService,
+      svgFactory: new DOMSVGFactory(),
+      parent: this
+    };
+    for (const data of annotations) {
+      data.borderStyle ||= AnnotationLayer._defaultBorderStyle;
+      elementParams.data = data;
+      const element = AnnotationElementFactory.create(elementParams);
+      if (!element.isRenderable) {
+        continue;
+      }
+      const rendered = element.render();
+      await this.#appendElement(rendered, data.id);
+    }
   }
   update({
     viewport
@@ -21222,6 +16081,16 @@ class AnnotationLayer {
       } else {
         firstChild.after(canvas);
       }
+      const editableAnnotation = this.#editableAnnotations.get(id);
+      if (!editableAnnotation) {
+        continue;
+      }
+      if (editableAnnotation._hasNoCanvas) {
+        this._annotationEditorUIManager?.setMissingCanvas(id, element.id, canvas);
+        editableAnnotation._hasNoCanvas = false;
+      } else {
+        editableAnnotation.canvas = canvas;
+      }
     }
     this.#annotationCanvasMap.clear();
   }
@@ -21231,12 +16100,19 @@ class AnnotationLayer {
   getEditableAnnotation(id) {
     return this.#editableAnnotations.get(id);
   }
+  static get _defaultBorderStyle() {
+    return shadow(this, "_defaultBorderStyle", Object.freeze({
+      width: 1,
+      rawWidth: 1,
+      style: AnnotationBorderStyleType.SOLID,
+      dashArray: [3],
+      horizontalCornerRadius: 0,
+      verticalCornerRadius: 0
+    }));
+  }
 }
 
 ;// ./src/display/editor/freetext.js
-
-
-
 
 
 
@@ -21328,7 +16204,7 @@ class FreeTextEditor extends AnnotationEditor {
   }
   #updateFontSize(fontSize) {
     const setFontsize = size => {
-      this.editorDiv.style.fontSize = `calc(${size}px * var(--scale-factor))`;
+      this.editorDiv.style.fontSize = `calc(${size}px * var(--total-scale-factor))`;
       this.translate(0, -(size - this.#fontSize) * this.parentScale);
       this.#fontSize = size;
       this.#setEditorDimensions();
@@ -21573,7 +16449,7 @@ class FreeTextEditor extends AnnotationEditor {
       return this.div;
     }
     let baseX, baseY;
-    if (this.width) {
+    if (this._isCopy || this.annotationElementId) {
       baseX = this.x;
       baseY = this.y;
     }
@@ -21588,14 +16464,14 @@ class FreeTextEditor extends AnnotationEditor {
     const {
       style
     } = this.editorDiv;
-    style.fontSize = `calc(${this.#fontSize}px * var(--scale-factor))`;
+    style.fontSize = `calc(${this.#fontSize}px * var(--total-scale-factor))`;
     style.color = this.#color;
     this.div.append(this.editorDiv);
     this.overlayDiv = document.createElement("div");
     this.overlayDiv.classList.add("overlay", "enabled");
     this.div.append(this.overlayDiv);
     bindEvents(this, this.div, ["dblclick", "keydown"]);
-    if (this.width) {
+    if (this._isCopy || this.annotationElementId) {
       const [parentWidth, parentHeight] = this.parentDimensions;
       if (this.annotationElementId) {
         const {
@@ -21629,7 +16505,7 @@ class FreeTextEditor extends AnnotationEditor {
         }
         this.setAt(posX * parentWidth, posY * parentHeight, tx, ty);
       } else {
-        this.setAt(baseX * parentWidth, baseY * parentHeight, this.width * parentWidth, this.height * parentHeight);
+        this._moveAfterPaste(baseX, baseY);
       }
       this.#setContent();
       this._isDraggable = true;
@@ -21702,7 +16578,7 @@ class FreeTextEditor extends AnnotationEditor {
     this.#content = `${bufferBefore.join("\n")}${paste}${bufferAfter.join("\n")}`;
     this.#setContent();
     const newRange = new Range();
-    let beforeLength = bufferBefore.reduce((acc, line) => acc + line.length, 0);
+    let beforeLength = Math.sumPrecise(bufferBefore.map(line => line.length));
     for (const {
       firstChild
     } of this.editorDiv.childNodes) {
@@ -21807,6 +16683,7 @@ class FreeTextEditor extends AnnotationEditor {
       structTreeParentId: this._structTreeParentId
     };
     if (isForCopying) {
+      serialized.isCopy = true;
       return serialized;
     }
     if (this.annotationElementId && !this.#hasElementChanged(serialized)) {
@@ -21832,7 +16709,7 @@ class FreeTextEditor extends AnnotationEditor {
     const {
       style
     } = content;
-    style.fontSize = `calc(${this.#fontSize}px * var(--scale-factor))`;
+    style.fontSize = `calc(${this.#fontSize}px * var(--total-scale-factor))`;
     style.color = this.#color;
     content.replaceChildren();
     for (const line of this.#content.split("\n")) {
@@ -21854,12 +16731,6 @@ class FreeTextEditor extends AnnotationEditor {
 }
 
 ;// ./src/display/editor/drawers/outline.js
-
-
-
-
-
-
 
 class Outline {
   static PRECISION = 1e-4;
@@ -21929,13 +16800,6 @@ class Outline {
 }
 
 ;// ./src/display/editor/drawers/freedraw.js
-
-
-
-
-
-
-
 
 
 class FreeDrawOutliner {
@@ -22219,31 +17083,25 @@ class FreeDrawOutline extends Outline {
     const outline = this.#outline;
     let lastX = outline[4];
     let lastY = outline[5];
-    let minX = lastX;
-    let minY = lastY;
-    let maxX = lastX;
-    let maxY = lastY;
+    const minMax = [lastX, lastY, lastX, lastY];
     let lastPointX = lastX;
     let lastPointY = lastY;
     const ltrCallback = isLTR ? Math.max : Math.min;
     for (let i = 6, ii = outline.length; i < ii; i += 6) {
+      const x = outline[i + 4],
+        y = outline[i + 5];
       if (isNaN(outline[i])) {
-        minX = Math.min(minX, outline[i + 4]);
-        minY = Math.min(minY, outline[i + 5]);
-        maxX = Math.max(maxX, outline[i + 4]);
-        maxY = Math.max(maxY, outline[i + 5]);
-        if (lastPointY < outline[i + 5]) {
-          lastPointX = outline[i + 4];
-          lastPointY = outline[i + 5];
-        } else if (lastPointY === outline[i + 5]) {
-          lastPointX = ltrCallback(lastPointX, outline[i + 4]);
+        Util.pointBoundingBox(x, y, minMax);
+        if (lastPointY < y) {
+          lastPointX = x;
+          lastPointY = y;
+        } else if (lastPointY === y) {
+          lastPointX = ltrCallback(lastPointX, x);
         }
       } else {
-        const bbox = Util.bezierBoundingBox(lastX, lastY, ...outline.slice(i, i + 6));
-        minX = Math.min(minX, bbox[0]);
-        minY = Math.min(minY, bbox[1]);
-        maxX = Math.max(maxX, bbox[2]);
-        maxY = Math.max(maxY, bbox[3]);
+        const bbox = [Infinity, Infinity, -Infinity, -Infinity];
+        Util.bezierBoundingBox(lastX, lastY, ...outline.slice(i, i + 6), bbox);
+        Util.rectBoundingBox(...bbox, minMax);
         if (lastPointY < bbox[3]) {
           lastPointX = bbox[2];
           lastPointY = bbox[3];
@@ -22251,14 +17109,14 @@ class FreeDrawOutline extends Outline {
           lastPointX = ltrCallback(lastPointX, bbox[2]);
         }
       }
-      lastX = outline[i + 4];
-      lastY = outline[i + 5];
+      lastX = x;
+      lastY = y;
     }
     const bbox = this.#bbox;
-    bbox[0] = minX - this.#innerMargin;
-    bbox[1] = minY - this.#innerMargin;
-    bbox[2] = maxX - minX + 2 * this.#innerMargin;
-    bbox[3] = maxY - minY + 2 * this.#innerMargin;
+    bbox[0] = minMax[0] - this.#innerMargin;
+    bbox[1] = minMax[1] - this.#innerMargin;
+    bbox[2] = minMax[2] - minMax[0] + 2 * this.#innerMargin;
+    bbox[3] = minMax[3] - minMax[1] + 2 * this.#innerMargin;
     this.lastPoint = [lastPointX, lastPointY];
   }
   get box() {
@@ -22292,29 +17150,13 @@ class FreeDrawOutline extends Outline {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 class HighlightOutliner {
   #box;
   #lastPoint;
   #verticalEdges = [];
   #intervals = [];
   constructor(boxes, borderWidth = 0, innerMargin = 0, isLTR = true) {
-    let minX = Infinity;
-    let maxX = -Infinity;
-    let minY = Infinity;
-    let maxY = -Infinity;
+    const minMax = [Infinity, Infinity, -Infinity, -Infinity];
     const NUMBER_OF_DIGITS = 4;
     const EPSILON = 10 ** -NUMBER_OF_DIGITS;
     for (const {
@@ -22330,15 +17172,12 @@ class HighlightOutliner {
       const left = [x1, y1, y2, true];
       const right = [x2, y1, y2, false];
       this.#verticalEdges.push(left, right);
-      minX = Math.min(minX, x1);
-      maxX = Math.max(maxX, x2);
-      minY = Math.min(minY, y1);
-      maxY = Math.max(maxY, y2);
+      Util.rectBoundingBox(x1, y1, x2, y2, minMax);
     }
-    const bboxWidth = maxX - minX + 2 * innerMargin;
-    const bboxHeight = maxY - minY + 2 * innerMargin;
-    const shiftedMinX = minX - innerMargin;
-    const shiftedMinY = minY - innerMargin;
+    const bboxWidth = minMax[2] - minMax[0] + 2 * innerMargin;
+    const bboxHeight = minMax[3] - minMax[1] + 2 * innerMargin;
+    const shiftedMinX = minMax[0] - innerMargin;
+    const shiftedMinY = minMax[1] - innerMargin;
     const lastEdge = this.#verticalEdges.at(isLTR ? -1 : -2);
     const lastPoint = [lastEdge[0], lastEdge[2]];
     for (const edge of this.#verticalEdges) {
@@ -22787,15 +17626,6 @@ class ColorPicker {
 
 
 
-
-
-
-
-
-
-
-
-
 class HighlightEditor extends AnnotationEditor {
   #anchorNode = null;
   #anchorOffset = 0;
@@ -22847,6 +17677,7 @@ class HighlightEditor extends AnnotationEditor {
     this.#methodOfCreation = params.methodOfCreation || "";
     this.#text = params.text || "";
     this._isDraggable = false;
+    this.defaultL10nId = "pdfjs-editor-highlight-editor";
     if (params.highlightId > -1) {
       this.#isFreeHighlight = true;
       this.#createFreeOutlines(params);
@@ -23576,6 +18407,7 @@ class HighlightEditor extends AnnotationEditor {
         clipPathId
       });
       editor.#addToDrawLayer();
+      editor.rotate(editor.parentRotation);
     }
     return editor;
   }
@@ -23627,14 +18459,6 @@ class HighlightEditor extends AnnotationEditor {
 
 
 
-
-
-
-
-
-
-
-
 class DrawingOptions {
   #svgProperties = Object.create(null);
   updateProperty(name, value) {
@@ -23646,7 +18470,9 @@ class DrawingOptions {
       return;
     }
     for (const [name, value] of Object.entries(properties)) {
-      this.updateProperty(name, value);
+      if (!name.startsWith("_")) {
+        this.updateProperty(name, value);
+      }
     }
   }
   updateSVGProperty(name, value) {
@@ -23686,6 +18512,9 @@ class DrawingEditor extends AnnotationEditor {
   constructor(params) {
     super(params);
     this.#mustBeCommitted = params.mustBeCommitted || false;
+    this._addOutlines(params);
+  }
+  _addOutlines(params) {
     if (params.drawOutlines) {
       this.#createDrawOutlines(params);
       this.#addToDrawLayer();
@@ -23800,9 +18629,9 @@ class DrawingEditor extends AnnotationEditor {
       bbox: this.#rotateBox()
     }));
   }
-  _onTranslating(x, y) {
+  _onTranslating(_x, _y) {
     this.parent?.drawLayer.updateProperties(this._drawId, {
-      bbox: this.#rotateBox(x, y)
+      bbox: this.#rotateBox()
     });
   }
   _onTranslated() {
@@ -24018,6 +18847,11 @@ class DrawingEditor extends AnnotationEditor {
     if (this.div) {
       return this.div;
     }
+    let baseX, baseY;
+    if (this._isCopy) {
+      baseX = this.x;
+      baseY = this.y;
+    }
     const div = super.render();
     div.classList.add("draw");
     const drawDiv = document.createElement("div");
@@ -24028,6 +18862,9 @@ class DrawingEditor extends AnnotationEditor {
     this.setDims(this.width * parentWidth, this.height * parentHeight);
     this._uiManager.addShouldRescale(this);
     this.disableEditing();
+    if (this._isCopy) {
+      this._moveAfterPaste(baseX, baseY);
+    }
     return div;
   }
   static createDrawerInstance(_x, _y, _parentWidth, _parentHeight, _rotation) {
@@ -24164,7 +19001,7 @@ class DrawingEditor extends AnnotationEditor {
     }
     parent.toggleDrawing(true);
     this._cleanup(false);
-    if (event) {
+    if (event?.target === parent.div) {
       parent.drawLayer.updateProperties(this._currentDrawId, DrawingEditor.#currentDraw.end(event.offsetX, event.offsetY));
     }
     if (this.supportMultipleDrawings) {
@@ -24254,14 +19091,6 @@ class DrawingEditor extends AnnotationEditor {
 }
 
 ;// ./src/display/editor/drawers/inkdraw.js
-
-
-
-
-
-
-
-
 
 
 class InkDrawOutliner {
@@ -24483,6 +19312,9 @@ class InkDrawOutline extends Outline {
     this.#lines = lines;
     this.#computeBbox();
   }
+  get thickness() {
+    return this.#thickness;
+  }
   setLastElement(element) {
     this.#lines.push(element);
     return {
@@ -24509,7 +19341,7 @@ class InkDrawOutline extends Outline {
         buffer.push("Z");
         continue;
       }
-      if (line.length === 12) {
+      if (line.length === 12 && isNaN(line[6])) {
         buffer.push(`L${Outline.svgRound(line[10])} ${Outline.svgRound(line[11])}`);
         continue;
       }
@@ -24654,7 +19486,7 @@ class InkDrawOutline extends Outline {
         points: rescaleFn(points[i].map(x => x ?? NaN), tx, ty, sx, sy)
       });
     }
-    const outlines = new InkDrawOutline();
+    const outlines = new this.prototype.constructor();
     outlines.build(newLines, pageWidth, pageHeight, 1, rotation, thickness, innerMargin);
     return outlines;
   }
@@ -24674,11 +19506,7 @@ class InkDrawOutline extends Outline {
     } of this.#lines) {
       if (line.length <= 12) {
         for (let i = 4, ii = line.length; i < ii; i += 6) {
-          const [x, y] = line.subarray(i, i + 2);
-          bbox[0] = Math.min(bbox[0], x);
-          bbox[1] = Math.min(bbox[1], y);
-          bbox[2] = Math.max(bbox[2], x);
-          bbox[3] = Math.max(bbox[3], y);
+          Util.pointBoundingBox(line[i], line[i + 1], bbox);
         }
         continue;
       }
@@ -24692,10 +19520,10 @@ class InkDrawOutline extends Outline {
       }
     }
     const [marginX, marginY] = this.#getMarginComponents();
-    bbox[0] = Math.min(1, Math.max(0, bbox[0] - marginX));
-    bbox[1] = Math.min(1, Math.max(0, bbox[1] - marginY));
-    bbox[2] = Math.min(1, Math.max(0, bbox[2] + marginX));
-    bbox[3] = Math.min(1, Math.max(0, bbox[3] + marginY));
+    bbox[0] = MathClamp(bbox[0] - marginX, 0, 1);
+    bbox[1] = MathClamp(bbox[1] - marginY, 0, 1);
+    bbox[2] = MathClamp(bbox[2] + marginX, 0, 1);
+    bbox[3] = MathClamp(bbox[3] + marginY, 0, 1);
     bbox[2] -= bbox[0];
     bbox[3] -= bbox[1];
   }
@@ -24929,13 +19757,10 @@ class InkDrawOutline extends Outline {
 
 
 
-
-
 class InkDrawingOptions extends DrawingOptions {
-  #viewParameters;
   constructor(viewerParameters) {
     super();
-    this.#viewParameters = viewerParameters;
+    this._viewParameters = viewerParameters;
     super.updateProperties({
       fill: "none",
       stroke: AnnotationEditor._defaultLineColor,
@@ -24949,12 +19774,12 @@ class InkDrawingOptions extends DrawingOptions {
   updateSVGProperty(name, value) {
     if (name === "stroke-width") {
       value ??= this["stroke-width"];
-      value *= this.#viewParameters.realScale;
+      value *= this._viewParameters.realScale;
     }
     super.updateSVGProperty(name, value);
   }
   clone() {
-    const clone = new InkDrawingOptions(this.#viewParameters);
+    const clone = new InkDrawingOptions(this._viewParameters);
     clone.updateAll(this);
     return clone;
   }
@@ -24969,6 +19794,7 @@ class InkEditor extends DrawingEditor {
       name: "inkEditor"
     });
     this._willKeepAspectRatio = true;
+    this.defaultL10nId = "pdfjs-editor-ink-editor";
   }
   static initialize(l10n, uiManager) {
     AnnotationEditor.initialize(l10n, uiManager);
@@ -25102,6 +19928,7 @@ class InkEditor extends DrawingEditor {
       structTreeParentId: this._structTreeParentId
     };
     if (isForCopying) {
+      serialized.isCopy = true;
       return serialized;
     }
     if (this.annotationElementId && !this.#hasElementChanged(serialized)) {
@@ -25133,10 +19960,1021 @@ class InkEditor extends DrawingEditor {
   }
 }
 
+;// ./src/display/editor/drawers/contour.js
+
+class ContourDrawOutline extends InkDrawOutline {
+  toSVGPath() {
+    let path = super.toSVGPath();
+    if (!path.endsWith("Z")) {
+      path += "Z";
+    }
+    return path;
+  }
+}
+
+;// ./src/display/editor/drawers/signaturedraw.js
+
+
+
+
+const BASE_HEADER_LENGTH = 8;
+const POINTS_PROPERTIES_NUMBER = 3;
+class SignatureExtractor {
+  static #PARAMETERS = {
+    maxDim: 512,
+    sigmaSFactor: 0.02,
+    sigmaR: 25,
+    kernelSize: 16
+  };
+  static #neighborIndexToId(i0, j0, i, j) {
+    i -= i0;
+    j -= j0;
+    if (i === 0) {
+      return j > 0 ? 0 : 4;
+    }
+    if (i === 1) {
+      return j + 6;
+    }
+    return 2 - j;
+  }
+  static #neighborIdToIndex = new Int32Array([0, 1, -1, 1, -1, 0, -1, -1, 0, -1, 1, -1, 1, 0, 1, 1]);
+  static #clockwiseNonZero(buf, width, i0, j0, i, j, offset) {
+    const id = this.#neighborIndexToId(i0, j0, i, j);
+    for (let k = 0; k < 8; k++) {
+      const kk = (-k + id - offset + 16) % 8;
+      const shiftI = this.#neighborIdToIndex[2 * kk];
+      const shiftJ = this.#neighborIdToIndex[2 * kk + 1];
+      if (buf[(i0 + shiftI) * width + (j0 + shiftJ)] !== 0) {
+        return kk;
+      }
+    }
+    return -1;
+  }
+  static #counterClockwiseNonZero(buf, width, i0, j0, i, j, offset) {
+    const id = this.#neighborIndexToId(i0, j0, i, j);
+    for (let k = 0; k < 8; k++) {
+      const kk = (k + id + offset + 16) % 8;
+      const shiftI = this.#neighborIdToIndex[2 * kk];
+      const shiftJ = this.#neighborIdToIndex[2 * kk + 1];
+      if (buf[(i0 + shiftI) * width + (j0 + shiftJ)] !== 0) {
+        return kk;
+      }
+    }
+    return -1;
+  }
+  static #findContours(buf, width, height, threshold) {
+    const N = buf.length;
+    const types = new Int32Array(N);
+    for (let i = 0; i < N; i++) {
+      types[i] = buf[i] <= threshold ? 1 : 0;
+    }
+    for (let i = 1; i < height - 1; i++) {
+      types[i * width] = types[i * width + width - 1] = 0;
+    }
+    for (let i = 0; i < width; i++) {
+      types[i] = types[width * height - 1 - i] = 0;
+    }
+    let nbd = 1;
+    let lnbd;
+    const contours = [];
+    for (let i = 1; i < height - 1; i++) {
+      lnbd = 1;
+      for (let j = 1; j < width - 1; j++) {
+        const ij = i * width + j;
+        const pix = types[ij];
+        if (pix === 0) {
+          continue;
+        }
+        let i2 = i;
+        let j2 = j;
+        if (pix === 1 && types[ij - 1] === 0) {
+          nbd += 1;
+          j2 -= 1;
+        } else if (pix >= 1 && types[ij + 1] === 0) {
+          nbd += 1;
+          j2 += 1;
+          if (pix > 1) {
+            lnbd = pix;
+          }
+        } else {
+          if (pix !== 1) {
+            lnbd = Math.abs(pix);
+          }
+          continue;
+        }
+        const points = [j, i];
+        const isHole = j2 === j + 1;
+        const contour = {
+          isHole,
+          points,
+          id: nbd,
+          parent: 0
+        };
+        contours.push(contour);
+        let contour0;
+        for (const c of contours) {
+          if (c.id === lnbd) {
+            contour0 = c;
+            break;
+          }
+        }
+        if (!contour0) {
+          contour.parent = isHole ? lnbd : 0;
+        } else if (contour0.isHole) {
+          contour.parent = isHole ? contour0.parent : lnbd;
+        } else {
+          contour.parent = isHole ? lnbd : contour0.parent;
+        }
+        const k = this.#clockwiseNonZero(types, width, i, j, i2, j2, 0);
+        if (k === -1) {
+          types[ij] = -nbd;
+          if (types[ij] !== 1) {
+            lnbd = Math.abs(types[ij]);
+          }
+          continue;
+        }
+        let shiftI = this.#neighborIdToIndex[2 * k];
+        let shiftJ = this.#neighborIdToIndex[2 * k + 1];
+        const i1 = i + shiftI;
+        const j1 = j + shiftJ;
+        i2 = i1;
+        j2 = j1;
+        let i3 = i;
+        let j3 = j;
+        while (true) {
+          const kk = this.#counterClockwiseNonZero(types, width, i3, j3, i2, j2, 1);
+          shiftI = this.#neighborIdToIndex[2 * kk];
+          shiftJ = this.#neighborIdToIndex[2 * kk + 1];
+          const i4 = i3 + shiftI;
+          const j4 = j3 + shiftJ;
+          points.push(j4, i4);
+          const ij3 = i3 * width + j3;
+          if (types[ij3 + 1] === 0) {
+            types[ij3] = -nbd;
+          } else if (types[ij3] === 1) {
+            types[ij3] = nbd;
+          }
+          if (i4 === i && j4 === j && i3 === i1 && j3 === j1) {
+            if (types[ij] !== 1) {
+              lnbd = Math.abs(types[ij]);
+            }
+            break;
+          } else {
+            i2 = i3;
+            j2 = j3;
+            i3 = i4;
+            j3 = j4;
+          }
+        }
+      }
+    }
+    return contours;
+  }
+  static #douglasPeuckerHelper(points, start, end, output) {
+    if (end - start <= 4) {
+      for (let i = start; i < end - 2; i += 2) {
+        output.push(points[i], points[i + 1]);
+      }
+      return;
+    }
+    const ax = points[start];
+    const ay = points[start + 1];
+    const abx = points[end - 4] - ax;
+    const aby = points[end - 3] - ay;
+    const dist = Math.hypot(abx, aby);
+    const nabx = abx / dist;
+    const naby = aby / dist;
+    const aa = nabx * ay - naby * ax;
+    const m = aby / abx;
+    const invS = 1 / dist;
+    const phi = Math.atan(m);
+    const cosPhi = Math.cos(phi);
+    const sinPhi = Math.sin(phi);
+    const tmax = invS * (Math.abs(cosPhi) + Math.abs(sinPhi));
+    const poly = invS * (1 - tmax + tmax ** 2);
+    const partialPhi = Math.max(Math.atan(Math.abs(sinPhi + cosPhi) * poly), Math.atan(Math.abs(sinPhi - cosPhi) * poly));
+    let dmax = 0;
+    let index = start;
+    for (let i = start + 2; i < end - 2; i += 2) {
+      const d = Math.abs(aa - nabx * points[i + 1] + naby * points[i]);
+      if (d > dmax) {
+        index = i;
+        dmax = d;
+      }
+    }
+    if (dmax > (dist * partialPhi) ** 2) {
+      this.#douglasPeuckerHelper(points, start, index + 2, output);
+      this.#douglasPeuckerHelper(points, index, end, output);
+    } else {
+      output.push(ax, ay);
+    }
+  }
+  static #douglasPeucker(points) {
+    const output = [];
+    const len = points.length;
+    this.#douglasPeuckerHelper(points, 0, len, output);
+    output.push(points[len - 2], points[len - 1]);
+    return output.length <= 4 ? null : output;
+  }
+  static #bilateralFilter(buf, width, height, sigmaS, sigmaR, kernelSize) {
+    const kernel = new Float32Array(kernelSize ** 2);
+    const sigmaS2 = -2 * sigmaS ** 2;
+    const halfSize = kernelSize >> 1;
+    for (let i = 0; i < kernelSize; i++) {
+      const x = (i - halfSize) ** 2;
+      for (let j = 0; j < kernelSize; j++) {
+        kernel[i * kernelSize + j] = Math.exp((x + (j - halfSize) ** 2) / sigmaS2);
+      }
+    }
+    const rangeValues = new Float32Array(256);
+    const sigmaR2 = -2 * sigmaR ** 2;
+    for (let i = 0; i < 256; i++) {
+      rangeValues[i] = Math.exp(i ** 2 / sigmaR2);
+    }
+    const N = buf.length;
+    const out = new Uint8Array(N);
+    const histogram = new Uint32Array(256);
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        const ij = i * width + j;
+        const center = buf[ij];
+        let sum = 0;
+        let norm = 0;
+        for (let k = 0; k < kernelSize; k++) {
+          const y = i + k - halfSize;
+          if (y < 0 || y >= height) {
+            continue;
+          }
+          for (let l = 0; l < kernelSize; l++) {
+            const x = j + l - halfSize;
+            if (x < 0 || x >= width) {
+              continue;
+            }
+            const neighbour = buf[y * width + x];
+            const w = kernel[k * kernelSize + l] * rangeValues[Math.abs(neighbour - center)];
+            sum += neighbour * w;
+            norm += w;
+          }
+        }
+        const pix = out[ij] = Math.round(sum / norm);
+        histogram[pix]++;
+      }
+    }
+    return [out, histogram];
+  }
+  static #getHistogram(buf) {
+    const histogram = new Uint32Array(256);
+    for (const g of buf) {
+      histogram[g]++;
+    }
+    return histogram;
+  }
+  static #toUint8(buf) {
+    const N = buf.length;
+    const out = new Uint8ClampedArray(N >> 2);
+    let max = -Infinity;
+    let min = Infinity;
+    for (let i = 0, ii = out.length; i < ii; i++) {
+      const A = buf[(i << 2) + 3];
+      if (A === 0) {
+        max = out[i] = 0xff;
+        continue;
+      }
+      const pix = out[i] = buf[i << 2];
+      if (pix > max) {
+        max = pix;
+      }
+      if (pix < min) {
+        min = pix;
+      }
+    }
+    const ratio = 255 / (max - min);
+    for (let i = 0; i < N; i++) {
+      out[i] = (out[i] - min) * ratio;
+    }
+    return out;
+  }
+  static #guessThreshold(histogram) {
+    let i;
+    let M = -Infinity;
+    let L = -Infinity;
+    const min = histogram.findIndex(v => v !== 0);
+    let pos = min;
+    let spos = min;
+    for (i = min; i < 256; i++) {
+      const v = histogram[i];
+      if (v > M) {
+        if (i - pos > L) {
+          L = i - pos;
+          spos = i - 1;
+        }
+        M = v;
+        pos = i;
+      }
+    }
+    for (i = spos - 1; i >= 0; i--) {
+      if (histogram[i] > histogram[i + 1]) {
+        break;
+      }
+    }
+    return i;
+  }
+  static #getGrayPixels(bitmap) {
+    const originalBitmap = bitmap;
+    const {
+      width,
+      height
+    } = bitmap;
+    const {
+      maxDim
+    } = this.#PARAMETERS;
+    let newWidth = width;
+    let newHeight = height;
+    if (width > maxDim || height > maxDim) {
+      let prevWidth = width;
+      let prevHeight = height;
+      let steps = Math.log2(Math.max(width, height) / maxDim);
+      const isteps = Math.floor(steps);
+      steps = steps === isteps ? isteps - 1 : isteps;
+      for (let i = 0; i < steps; i++) {
+        newWidth = prevWidth;
+        newHeight = prevHeight;
+        if (newWidth > maxDim) {
+          newWidth = Math.ceil(newWidth / 2);
+        }
+        if (newHeight > maxDim) {
+          newHeight = Math.ceil(newHeight / 2);
+        }
+        const offscreen = new OffscreenCanvas(newWidth, newHeight);
+        const ctx = offscreen.getContext("2d");
+        ctx.drawImage(bitmap, 0, 0, prevWidth, prevHeight, 0, 0, newWidth, newHeight);
+        prevWidth = newWidth;
+        prevHeight = newHeight;
+        if (bitmap !== originalBitmap) {
+          bitmap.close();
+        }
+        bitmap = offscreen.transferToImageBitmap();
+      }
+      const ratio = Math.min(maxDim / newWidth, maxDim / newHeight);
+      newWidth = Math.round(newWidth * ratio);
+      newHeight = Math.round(newHeight * ratio);
+    }
+    const offscreen = new OffscreenCanvas(newWidth, newHeight);
+    const ctx = offscreen.getContext("2d", {
+      willReadFrequently: true
+    });
+    ctx.filter = "grayscale(1)";
+    ctx.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height, 0, 0, newWidth, newHeight);
+    const grayImage = ctx.getImageData(0, 0, newWidth, newHeight).data;
+    const uint8Buf = this.#toUint8(grayImage);
+    return [uint8Buf, newWidth, newHeight];
+  }
+  static extractContoursFromText(text, {
+    fontFamily,
+    fontStyle,
+    fontWeight
+  }, pageWidth, pageHeight, rotation, innerMargin) {
+    let canvas = new OffscreenCanvas(1, 1);
+    let ctx = canvas.getContext("2d", {
+      alpha: false
+    });
+    const fontSize = 200;
+    const font = ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
+    const {
+      actualBoundingBoxLeft,
+      actualBoundingBoxRight,
+      actualBoundingBoxAscent,
+      actualBoundingBoxDescent,
+      fontBoundingBoxAscent,
+      fontBoundingBoxDescent,
+      width
+    } = ctx.measureText(text);
+    const SCALE = 1.5;
+    const canvasWidth = Math.ceil(Math.max(Math.abs(actualBoundingBoxLeft) + Math.abs(actualBoundingBoxRight) || 0, width) * SCALE);
+    const canvasHeight = Math.ceil(Math.max(Math.abs(actualBoundingBoxAscent) + Math.abs(actualBoundingBoxDescent) || fontSize, Math.abs(fontBoundingBoxAscent) + Math.abs(fontBoundingBoxDescent) || fontSize) * SCALE);
+    canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
+    ctx = canvas.getContext("2d", {
+      alpha: true,
+      willReadFrequently: true
+    });
+    ctx.font = font;
+    ctx.filter = "grayscale(1)";
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    ctx.fillStyle = "black";
+    ctx.fillText(text, canvasWidth * (SCALE - 1) / 2, canvasHeight * (3 - SCALE) / 2);
+    const uint8Buf = this.#toUint8(ctx.getImageData(0, 0, canvasWidth, canvasHeight).data);
+    const histogram = this.#getHistogram(uint8Buf);
+    const threshold = this.#guessThreshold(histogram);
+    const contourList = this.#findContours(uint8Buf, canvasWidth, canvasHeight, threshold);
+    return this.processDrawnLines({
+      lines: {
+        curves: contourList,
+        width: canvasWidth,
+        height: canvasHeight
+      },
+      pageWidth,
+      pageHeight,
+      rotation,
+      innerMargin,
+      mustSmooth: true,
+      areContours: true
+    });
+  }
+  static process(bitmap, pageWidth, pageHeight, rotation, innerMargin) {
+    const [uint8Buf, width, height] = this.#getGrayPixels(bitmap);
+    const [buffer, histogram] = this.#bilateralFilter(uint8Buf, width, height, Math.hypot(width, height) * this.#PARAMETERS.sigmaSFactor, this.#PARAMETERS.sigmaR, this.#PARAMETERS.kernelSize);
+    const threshold = this.#guessThreshold(histogram);
+    const contourList = this.#findContours(buffer, width, height, threshold);
+    return this.processDrawnLines({
+      lines: {
+        curves: contourList,
+        width,
+        height
+      },
+      pageWidth,
+      pageHeight,
+      rotation,
+      innerMargin,
+      mustSmooth: true,
+      areContours: true
+    });
+  }
+  static processDrawnLines({
+    lines,
+    pageWidth,
+    pageHeight,
+    rotation,
+    innerMargin,
+    mustSmooth,
+    areContours
+  }) {
+    if (rotation % 180 !== 0) {
+      [pageWidth, pageHeight] = [pageHeight, pageWidth];
+    }
+    const {
+      curves,
+      width,
+      height
+    } = lines;
+    const thickness = lines.thickness ?? 0;
+    const linesAndPoints = [];
+    const ratio = Math.min(pageWidth / width, pageHeight / height);
+    const xScale = ratio / pageWidth;
+    const yScale = ratio / pageHeight;
+    const newCurves = [];
+    for (const {
+      points
+    } of curves) {
+      const reducedPoints = mustSmooth ? this.#douglasPeucker(points) : points;
+      if (!reducedPoints) {
+        continue;
+      }
+      newCurves.push(reducedPoints);
+      const len = reducedPoints.length;
+      const newPoints = new Float32Array(len);
+      const line = new Float32Array(3 * (len === 2 ? 2 : len - 2));
+      linesAndPoints.push({
+        line,
+        points: newPoints
+      });
+      if (len === 2) {
+        newPoints[0] = reducedPoints[0] * xScale;
+        newPoints[1] = reducedPoints[1] * yScale;
+        line.set([NaN, NaN, NaN, NaN, newPoints[0], newPoints[1]], 0);
+        continue;
+      }
+      let [x1, y1, x2, y2] = reducedPoints;
+      x1 *= xScale;
+      y1 *= yScale;
+      x2 *= xScale;
+      y2 *= yScale;
+      newPoints.set([x1, y1, x2, y2], 0);
+      line.set([NaN, NaN, NaN, NaN, x1, y1], 0);
+      for (let i = 4; i < len; i += 2) {
+        const x = newPoints[i] = reducedPoints[i] * xScale;
+        const y = newPoints[i + 1] = reducedPoints[i + 1] * yScale;
+        line.set(Outline.createBezierPoints(x1, y1, x2, y2, x, y), (i - 2) * 3);
+        [x1, y1, x2, y2] = [x2, y2, x, y];
+      }
+    }
+    if (linesAndPoints.length === 0) {
+      return null;
+    }
+    const outline = areContours ? new ContourDrawOutline() : new InkDrawOutline();
+    outline.build(linesAndPoints, pageWidth, pageHeight, 1, rotation, areContours ? 0 : thickness, innerMargin);
+    return {
+      outline,
+      newCurves,
+      areContours,
+      thickness,
+      width,
+      height
+    };
+  }
+  static async compressSignature({
+    outlines,
+    areContours,
+    thickness,
+    width,
+    height
+  }) {
+    let minDiff = Infinity;
+    let maxDiff = -Infinity;
+    let outlinesLength = 0;
+    for (const points of outlines) {
+      outlinesLength += points.length;
+      for (let i = 2, ii = points.length; i < ii; i++) {
+        const dx = points[i] - points[i - 2];
+        minDiff = Math.min(minDiff, dx);
+        maxDiff = Math.max(maxDiff, dx);
+      }
+    }
+    let bufferType;
+    if (minDiff >= -128 && maxDiff <= 127) {
+      bufferType = Int8Array;
+    } else if (minDiff >= -32768 && maxDiff <= 32767) {
+      bufferType = Int16Array;
+    } else {
+      bufferType = Int32Array;
+    }
+    const len = outlines.length;
+    const headerLength = BASE_HEADER_LENGTH + POINTS_PROPERTIES_NUMBER * len;
+    const header = new Uint32Array(headerLength);
+    let offset = 0;
+    header[offset++] = headerLength * Uint32Array.BYTES_PER_ELEMENT + (outlinesLength - 2 * len) * bufferType.BYTES_PER_ELEMENT;
+    header[offset++] = 0;
+    header[offset++] = width;
+    header[offset++] = height;
+    header[offset++] = areContours ? 0 : 1;
+    header[offset++] = Math.max(0, Math.floor(thickness ?? 0));
+    header[offset++] = len;
+    header[offset++] = bufferType.BYTES_PER_ELEMENT;
+    for (const points of outlines) {
+      header[offset++] = points.length - 2;
+      header[offset++] = points[0];
+      header[offset++] = points[1];
+    }
+    const cs = new CompressionStream("deflate-raw");
+    const writer = cs.writable.getWriter();
+    await writer.ready;
+    writer.write(header);
+    const BufferCtor = bufferType.prototype.constructor;
+    for (const points of outlines) {
+      const diffs = new BufferCtor(points.length - 2);
+      for (let i = 2, ii = points.length; i < ii; i++) {
+        diffs[i - 2] = points[i] - points[i - 2];
+      }
+      writer.write(diffs);
+    }
+    writer.close();
+    const buf = await new Response(cs.readable).arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    return toBase64Util(bytes);
+  }
+  static async decompressSignature(signatureData) {
+    try {
+      const bytes = fromBase64Util(signatureData);
+      const {
+        readable,
+        writable
+      } = new DecompressionStream("deflate-raw");
+      const writer = writable.getWriter();
+      await writer.ready;
+      writer.write(bytes).then(async () => {
+        await writer.ready;
+        await writer.close();
+      }).catch(() => {});
+      let data = null;
+      let offset = 0;
+      for await (const chunk of readable) {
+        data ||= new Uint8Array(new Uint32Array(chunk.buffer, 0, 4)[0]);
+        data.set(chunk, offset);
+        offset += chunk.length;
+      }
+      const header = new Uint32Array(data.buffer, 0, data.length >> 2);
+      const version = header[1];
+      if (version !== 0) {
+        throw new Error(`Invalid version: ${version}`);
+      }
+      const width = header[2];
+      const height = header[3];
+      const areContours = header[4] === 0;
+      const thickness = header[5];
+      const numberOfDrawings = header[6];
+      const bufferType = header[7];
+      const outlines = [];
+      const diffsOffset = (BASE_HEADER_LENGTH + POINTS_PROPERTIES_NUMBER * numberOfDrawings) * Uint32Array.BYTES_PER_ELEMENT;
+      let diffs;
+      switch (bufferType) {
+        case Int8Array.BYTES_PER_ELEMENT:
+          diffs = new Int8Array(data.buffer, diffsOffset);
+          break;
+        case Int16Array.BYTES_PER_ELEMENT:
+          diffs = new Int16Array(data.buffer, diffsOffset);
+          break;
+        case Int32Array.BYTES_PER_ELEMENT:
+          diffs = new Int32Array(data.buffer, diffsOffset);
+          break;
+      }
+      offset = 0;
+      for (let i = 0; i < numberOfDrawings; i++) {
+        const len = header[POINTS_PROPERTIES_NUMBER * i + BASE_HEADER_LENGTH];
+        const points = new Float32Array(len + 2);
+        outlines.push(points);
+        for (let j = 0; j < POINTS_PROPERTIES_NUMBER - 1; j++) {
+          points[j] = header[POINTS_PROPERTIES_NUMBER * i + BASE_HEADER_LENGTH + j + 1];
+        }
+        for (let j = 0; j < len; j++) {
+          points[j + 2] = points[j] + diffs[offset++];
+        }
+      }
+      return {
+        areContours,
+        thickness,
+        outlines,
+        width,
+        height
+      };
+    } catch (e) {
+      warn(`decompressSignature: ${e}`);
+      return null;
+    }
+  }
+}
+
+;// ./src/display/editor/signature.js
+
+
+
+
+
+
+
+class SignatureOptions extends DrawingOptions {
+  constructor() {
+    super();
+    super.updateProperties({
+      fill: AnnotationEditor._defaultLineColor,
+      "stroke-width": 0
+    });
+  }
+  clone() {
+    const clone = new SignatureOptions();
+    clone.updateAll(this);
+    return clone;
+  }
+}
+class DrawnSignatureOptions extends InkDrawingOptions {
+  constructor(viewerParameters) {
+    super(viewerParameters);
+    super.updateProperties({
+      stroke: AnnotationEditor._defaultLineColor,
+      "stroke-width": 1
+    });
+  }
+  clone() {
+    const clone = new DrawnSignatureOptions(this._viewParameters);
+    clone.updateAll(this);
+    return clone;
+  }
+}
+class SignatureEditor extends DrawingEditor {
+  #isExtracted = false;
+  #description = null;
+  #signatureData = null;
+  #signatureUUID = null;
+  static _type = "signature";
+  static _editorType = AnnotationEditorType.SIGNATURE;
+  static _defaultDrawingOptions = null;
+  constructor(params) {
+    super({
+      ...params,
+      mustBeCommitted: true,
+      name: "signatureEditor"
+    });
+    this._willKeepAspectRatio = true;
+    this.#signatureData = params.signatureData || null;
+    this.#description = null;
+    this.defaultL10nId = "pdfjs-editor-signature-editor1";
+  }
+  static initialize(l10n, uiManager) {
+    AnnotationEditor.initialize(l10n, uiManager);
+    this._defaultDrawingOptions = new SignatureOptions();
+    this._defaultDrawnSignatureOptions = new DrawnSignatureOptions(uiManager.viewParameters);
+  }
+  static getDefaultDrawingOptions(options) {
+    const clone = this._defaultDrawingOptions.clone();
+    clone.updateProperties(options);
+    return clone;
+  }
+  static get supportMultipleDrawings() {
+    return false;
+  }
+  static get typesMap() {
+    return shadow(this, "typesMap", new Map());
+  }
+  static get isDrawer() {
+    return false;
+  }
+  get telemetryFinalData() {
+    return {
+      type: "signature",
+      hasDescription: !!this.#description
+    };
+  }
+  static computeTelemetryFinalData(data) {
+    const hasDescriptionStats = data.get("hasDescription");
+    return {
+      hasAltText: hasDescriptionStats.get(true) ?? 0,
+      hasNoAltText: hasDescriptionStats.get(false) ?? 0
+    };
+  }
+  get isResizable() {
+    return true;
+  }
+  onScaleChanging() {
+    if (this._drawId === null) {
+      return;
+    }
+    super.onScaleChanging();
+  }
+  render() {
+    if (this.div) {
+      return this.div;
+    }
+    let baseX, baseY;
+    const {
+      _isCopy
+    } = this;
+    if (_isCopy) {
+      this._isCopy = false;
+      baseX = this.x;
+      baseY = this.y;
+    }
+    super.render();
+    if (this._drawId === null) {
+      if (this.#signatureData) {
+        const {
+          lines,
+          mustSmooth,
+          areContours,
+          description,
+          uuid,
+          heightInPage
+        } = this.#signatureData;
+        const {
+          rawDims: {
+            pageWidth,
+            pageHeight
+          },
+          rotation
+        } = this.parent.viewport;
+        const outline = SignatureExtractor.processDrawnLines({
+          lines,
+          pageWidth,
+          pageHeight,
+          rotation,
+          innerMargin: SignatureEditor._INNER_MARGIN,
+          mustSmooth,
+          areContours
+        });
+        this.addSignature(outline, heightInPage, description, uuid);
+      } else {
+        this.div.setAttribute("data-l10n-args", JSON.stringify({
+          description: ""
+        }));
+        this.div.hidden = true;
+        this._uiManager.getSignature(this);
+      }
+    }
+    if (_isCopy) {
+      this._isCopy = true;
+      this._moveAfterPaste(baseX, baseY);
+    }
+    return this.div;
+  }
+  setUuid(uuid) {
+    this.#signatureUUID = uuid;
+    this.addEditToolbar();
+  }
+  getUuid() {
+    return this.#signatureUUID;
+  }
+  get description() {
+    return this.#description;
+  }
+  set description(description) {
+    this.#description = description;
+    super.addEditToolbar().then(toolbar => {
+      toolbar?.updateEditSignatureButton(description);
+    });
+  }
+  getSignaturePreview() {
+    const {
+      newCurves,
+      areContours,
+      thickness,
+      width,
+      height
+    } = this.#signatureData;
+    const maxDim = Math.max(width, height);
+    const outlineData = SignatureExtractor.processDrawnLines({
+      lines: {
+        curves: newCurves.map(points => ({
+          points
+        })),
+        thickness,
+        width,
+        height
+      },
+      pageWidth: maxDim,
+      pageHeight: maxDim,
+      rotation: 0,
+      innerMargin: 0,
+      mustSmooth: false,
+      areContours
+    });
+    return {
+      areContours,
+      outline: outlineData.outline
+    };
+  }
+  async addEditToolbar() {
+    const toolbar = await super.addEditToolbar();
+    if (!toolbar) {
+      return null;
+    }
+    if (this._uiManager.signatureManager && this.#description !== null) {
+      await toolbar.addEditSignatureButton(this._uiManager.signatureManager, this.#signatureUUID, this.#description);
+      toolbar.show();
+    }
+    return toolbar;
+  }
+  addSignature(data, heightInPage, description, uuid) {
+    const {
+      x: savedX,
+      y: savedY
+    } = this;
+    const {
+      outline
+    } = this.#signatureData = data;
+    this.#isExtracted = outline instanceof ContourDrawOutline;
+    this.#description = description;
+    this.div.setAttribute("data-l10n-args", JSON.stringify({
+      description
+    }));
+    let drawingOptions;
+    if (this.#isExtracted) {
+      drawingOptions = SignatureEditor.getDefaultDrawingOptions();
+    } else {
+      drawingOptions = SignatureEditor._defaultDrawnSignatureOptions.clone();
+      drawingOptions.updateProperties({
+        "stroke-width": outline.thickness
+      });
+    }
+    this._addOutlines({
+      drawOutlines: outline,
+      drawingOptions
+    });
+    const [parentWidth, parentHeight] = this.parentDimensions;
+    const [, pageHeight] = this.pageDimensions;
+    let newHeight = heightInPage / pageHeight;
+    newHeight = newHeight >= 1 ? 0.5 : newHeight;
+    this.width *= newHeight / this.height;
+    if (this.width >= 1) {
+      newHeight *= 0.9 / this.width;
+      this.width = 0.9;
+    }
+    this.height = newHeight;
+    this.setDims(parentWidth * this.width, parentHeight * this.height);
+    this.x = savedX;
+    this.y = savedY;
+    this.center();
+    this._onResized();
+    this.onScaleChanging();
+    this.rotate();
+    this._uiManager.addToAnnotationStorage(this);
+    this.setUuid(uuid);
+    this._reportTelemetry({
+      action: "pdfjs.signature.inserted",
+      data: {
+        hasBeenSaved: !!uuid,
+        hasDescription: !!description
+      }
+    });
+    this.div.hidden = false;
+  }
+  getFromImage(bitmap) {
+    const {
+      rawDims: {
+        pageWidth,
+        pageHeight
+      },
+      rotation
+    } = this.parent.viewport;
+    return SignatureExtractor.process(bitmap, pageWidth, pageHeight, rotation, SignatureEditor._INNER_MARGIN);
+  }
+  getFromText(text, fontInfo) {
+    const {
+      rawDims: {
+        pageWidth,
+        pageHeight
+      },
+      rotation
+    } = this.parent.viewport;
+    return SignatureExtractor.extractContoursFromText(text, fontInfo, pageWidth, pageHeight, rotation, SignatureEditor._INNER_MARGIN);
+  }
+  getDrawnSignature(curves) {
+    const {
+      rawDims: {
+        pageWidth,
+        pageHeight
+      },
+      rotation
+    } = this.parent.viewport;
+    return SignatureExtractor.processDrawnLines({
+      lines: curves,
+      pageWidth,
+      pageHeight,
+      rotation,
+      innerMargin: SignatureEditor._INNER_MARGIN,
+      mustSmooth: false,
+      areContours: false
+    });
+  }
+  createDrawingOptions({
+    areContours,
+    thickness
+  }) {
+    if (areContours) {
+      this._drawingOptions = SignatureEditor.getDefaultDrawingOptions();
+    } else {
+      this._drawingOptions = SignatureEditor._defaultDrawnSignatureOptions.clone();
+      this._drawingOptions.updateProperties({
+        "stroke-width": thickness
+      });
+    }
+  }
+  serialize(isForCopying = false) {
+    if (this.isEmpty()) {
+      return null;
+    }
+    const {
+      lines,
+      points,
+      rect
+    } = this.serializeDraw(isForCopying);
+    const {
+      _drawingOptions: {
+        "stroke-width": thickness
+      }
+    } = this;
+    const serialized = {
+      annotationType: AnnotationEditorType.SIGNATURE,
+      isSignature: true,
+      areContours: this.#isExtracted,
+      color: [0, 0, 0],
+      thickness: this.#isExtracted ? 0 : thickness,
+      pageIndex: this.pageIndex,
+      rect,
+      rotation: this.rotation,
+      structTreeParentId: this._structTreeParentId
+    };
+    if (isForCopying) {
+      serialized.paths = {
+        lines,
+        points
+      };
+      serialized.uuid = this.#signatureUUID;
+      serialized.isCopy = true;
+    } else {
+      serialized.lines = lines;
+    }
+    if (this.#description) {
+      serialized.accessibilityData = {
+        type: "Figure",
+        alt: this.#description
+      };
+    }
+    return serialized;
+  }
+  static deserializeDraw(pageX, pageY, pageWidth, pageHeight, innerMargin, data) {
+    if (data.areContours) {
+      return ContourDrawOutline.deserialize(pageX, pageY, pageWidth, pageHeight, innerMargin, data);
+    }
+    return InkDrawOutline.deserialize(pageX, pageY, pageWidth, pageHeight, innerMargin, data);
+  }
+  static async deserialize(data, parent, uiManager) {
+    const editor = await super.deserialize(data, parent, uiManager);
+    editor.#isExtracted = data.areContours;
+    editor.#description = data.accessibilityData?.alt || "";
+    editor.#signatureUUID = data.uuid;
+    return editor;
+  }
+}
+
 ;// ./src/display/editor/stamp.js
-
-
-
 
 
 
@@ -25149,6 +20987,7 @@ class StampEditor extends AnnotationEditor {
   #bitmapFile = null;
   #bitmapFileName = "";
   #canvas = null;
+  #missingCanvas = false;
   #resizeTimeoutId = null;
   #isSvg = false;
   #hasBeenAddedInUndoStack = false;
@@ -25161,19 +21000,13 @@ class StampEditor extends AnnotationEditor {
     });
     this.#bitmapUrl = params.bitmapUrl;
     this.#bitmapFile = params.bitmapFile;
+    this.defaultL10nId = "pdfjs-editor-stamp-editor";
   }
   static initialize(l10n, uiManager) {
     AnnotationEditor.initialize(l10n, uiManager);
   }
-  static get supportedTypes() {
-    const types = ["apng", "avif", "bmp", "gif", "jpeg", "png", "svg+xml", "webp", "x-icon"];
-    return shadow(this, "supportedTypes", types.map(type => `image/${type}`));
-  }
-  static get supportedTypesStr() {
-    return shadow(this, "supportedTypesStr", this.supportedTypes.join(","));
-  }
   static isHandlingMimeForPasting(mime) {
-    return this.supportedTypes.includes(mime);
+    return SupportedImageMimeTypes.includes(mime);
   }
   static paste(item, parent) {
     parent.pasteEditor(AnnotationEditorType.STAMP, {
@@ -25310,7 +21143,7 @@ class StampEditor extends AnnotationEditor {
     }
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = StampEditor.supportedTypesStr;
+    input.accept = SupportedImageMimeTypes.join(",");
     const signal = this._uiManager._signal;
     this.#bitmapPromise = new Promise(resolve => {
       input.addEventListener("change", async () => {
@@ -25378,7 +21211,7 @@ class StampEditor extends AnnotationEditor {
     }
   }
   isEmpty() {
-    return !(this.#bitmapPromise || this.#bitmap || this.#bitmapUrl || this.#bitmapFile || this.#bitmapId);
+    return !(this.#bitmapPromise || this.#bitmap || this.#bitmapUrl || this.#bitmapFile || this.#bitmapId || this.#missingCanvas);
   }
   get isResizable() {
     return true;
@@ -25388,25 +21221,40 @@ class StampEditor extends AnnotationEditor {
       return this.div;
     }
     let baseX, baseY;
-    if (this.width) {
+    if (this._isCopy) {
       baseX = this.x;
       baseY = this.y;
     }
     super.render();
     this.div.hidden = true;
-    this.div.setAttribute("role", "figure");
     this.addAltTextButton();
-    if (this.#bitmap) {
-      this.#createCanvas();
-    } else {
-      this.#getBitmap();
+    if (!this.#missingCanvas) {
+      if (this.#bitmap) {
+        this.#createCanvas();
+      } else {
+        this.#getBitmap();
+      }
     }
-    if (this.width && !this.annotationElementId) {
-      const [parentWidth, parentHeight] = this.parentDimensions;
-      this.setAt(baseX * parentWidth, baseY * parentHeight, this.width * parentWidth, this.height * parentHeight);
+    if (this._isCopy) {
+      this._moveAfterPaste(baseX, baseY);
     }
     this._uiManager.addShouldRescale(this);
     return this.div;
+  }
+  setCanvas(annotationElementId, canvas) {
+    const {
+      id: bitmapId,
+      bitmap
+    } = this._uiManager.imageManager.getFromCanvas(annotationElementId, canvas);
+    canvas.remove();
+    if (bitmapId && this._uiManager.imageManager.isValidId(bitmapId)) {
+      this.#bitmapId = bitmapId;
+      if (bitmap) {
+        this.#bitmap = bitmap;
+      }
+      this.#missingCanvas = false;
+      this.#createCanvas();
+    }
   }
   _onResized() {
     this.onScaleChanging();
@@ -25468,7 +21316,7 @@ class StampEditor extends AnnotationEditor {
       action: "inserted_image"
     });
     if (this.#bitmapFileName) {
-      canvas.setAttribute("aria-label", this.#bitmapFileName);
+      this.div.setAttribute("aria-description", this.#bitmapFileName);
     }
   }
   copyCanvas(maxDataDimension, maxPreviewDimension, createImageData = false) {
@@ -25599,9 +21447,6 @@ class StampEditor extends AnnotationEditor {
     ctx.filter = this._uiManager.hcmFilter;
     ctx.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height, 0, 0, scaledWidth, scaledHeight);
   }
-  getImageForAltText() {
-    return this.#canvas;
-  }
   #serializeBitmap(toUrl) {
     if (toUrl) {
       if (this.#isSvg) {
@@ -25632,6 +21477,7 @@ class StampEditor extends AnnotationEditor {
   }
   static async deserialize(data, parent, uiManager) {
     let initialData = null;
+    let missingCanvas = false;
     if (data instanceof StampAnnotationElement) {
       const {
         data: {
@@ -25646,16 +21492,26 @@ class StampEditor extends AnnotationEditor {
           page: {
             pageNumber
           }
-        }
+        },
+        canvas
       } = data;
-      const canvas = container.querySelector("canvas");
-      const imageData = uiManager.imageManager.getFromCanvas(container.id, canvas);
-      canvas.remove();
+      let bitmapId, bitmap;
+      if (canvas) {
+        delete data.canvas;
+        ({
+          id: bitmapId,
+          bitmap
+        } = uiManager.imageManager.getFromCanvas(container.id, canvas));
+        canvas.remove();
+      } else {
+        missingCanvas = true;
+        data._hasNoCanvas = true;
+      }
       const altText = (await parent._structTree.getAriaAttributes(`${AnnotationPrefix}${id}`))?.get("aria-label") || "";
       initialData = data = {
         annotationType: AnnotationEditorType.STAMP,
-        bitmapId: imageData.id,
-        bitmap: imageData.bitmap,
+        bitmapId,
+        bitmap,
         pageIndex: pageNumber - 1,
         rect: rect.slice(0),
         rotation,
@@ -25679,7 +21535,10 @@ class StampEditor extends AnnotationEditor {
       isSvg,
       accessibilityData
     } = data;
-    if (bitmapId && uiManager.imageManager.isValidId(bitmapId)) {
+    if (missingCanvas) {
+      uiManager.addMissingCanvas(data.id, editor);
+      editor.#missingCanvas = true;
+    } else if (bitmapId && uiManager.imageManager.isValidId(bitmapId)) {
       editor.#bitmapId = bitmapId;
       if (bitmap) {
         editor.#bitmap = bitmap;
@@ -25718,6 +21577,7 @@ class StampEditor extends AnnotationEditor {
     if (isForCopying) {
       serialized.bitmapUrl = this.#serializeBitmap(true);
       serialized.accessibilityData = this.serializeAltText(true);
+      serialized.isCopy = true;
       return serialized;
     }
     const {
@@ -25794,13 +21654,6 @@ class StampEditor extends AnnotationEditor {
 
 
 
-
-
-
-
-
-
-
 class AnnotationEditorLayer {
   #accessibilityManager;
   #allowClick = false;
@@ -25817,7 +21670,7 @@ class AnnotationEditorLayer {
   #textSelectionAC = null;
   #uiManager;
   static _initialized = false;
-  static #editorTypes = new Map([FreeTextEditor, InkEditor, StampEditor, HighlightEditor].map(type => [type._editorType, type]));
+  static #editorTypes = new Map([FreeTextEditor, InkEditor, StampEditor, HighlightEditor, SignatureEditor].map(type => [type._editorType, type]));
   constructor({
     uiManager,
     pageIndex,
@@ -26205,9 +22058,9 @@ class AnnotationEditorLayer {
   canCreateNewEmptyEditor() {
     return this.#currentEditorType?.canCreateNewEmptyEditor();
   }
-  pasteEditor(mode, params) {
+  async pasteEditor(mode, params) {
     this.#uiManager.updateToolbar(mode);
-    this.#uiManager.updateMode(mode);
+    await this.#uiManager.updateMode(mode);
     const {
       offsetX,
       offsetY
@@ -26264,8 +22117,8 @@ class AnnotationEditorLayer {
       offsetY
     };
   }
-  addNewEditor() {
-    this.createAndAddNewEditor(this.#getCenterPoint(), true);
+  addNewEditor(data = {}) {
+    this.createAndAddNewEditor(this.#getCenterPoint(), true, data);
   }
   setSelected(editor) {
     this.#uiManager.setSelected(editor);
@@ -26297,7 +22150,8 @@ class AnnotationEditorLayer {
       this.#allowClick = true;
       return;
     }
-    if (this.#uiManager.getMode() === AnnotationEditorType.STAMP) {
+    const currentMode = this.#uiManager.getMode();
+    if (currentMode === AnnotationEditorType.STAMP || currentMode === AnnotationEditorType.SIGNATURE) {
       this.#uiManager.unselectAll();
       return;
     }
@@ -26329,7 +22183,9 @@ class AnnotationEditorLayer {
     this.#allowClick = !editor || editor.isEmpty();
   }
   startDrawingSession(event) {
-    this.div.focus();
+    this.div.focus({
+      preventScroll: true
+    });
     if (this.#drawingAC) {
       this.#currentEditorType.startDrawing(this, this.#uiManager, false, event);
       return;
@@ -26469,9 +22325,9 @@ class AnnotationEditorLayer {
 
 class DrawLayer {
   #parent = null;
-  #id = 0;
   #mapping = new Map();
   #toUpdate = new Map();
+  static #id = 0;
   constructor({
     pageIndex
   }) {
@@ -26532,7 +22388,7 @@ class DrawLayer {
     }
   }
   draw(properties, isPathUpdatable = false, hasClip = false) {
-    const id = this.#id++;
+    const id = DrawLayer.#id++;
     const root = this.#createSVG();
     const defs = DrawLayer._svgFactory.createElement("defs");
     root.append(defs);
@@ -26556,7 +22412,7 @@ class DrawLayer {
     };
   }
   drawOutline(properties, mustRemoveSelfIntersections) {
-    const id = this.#id++;
+    const id = DrawLayer.#id++;
     const root = this.#createSVG();
     const defs = DrawLayer._svgFactory.createElement("defs");
     root.append(defs);
@@ -26682,59 +22538,68 @@ class DrawLayer {
 
 
 
-const pdfjsVersion = "4.10.38";
-const pdfjsBuild = "f9bea397f";
+
+const pdfjsVersion = "5.2.165";
+const pdfjsBuild = "6f052312d";
 {
   globalThis.pdfjsTestingUtils = {
     HighlightOutliner: HighlightOutliner
   };
 }
+globalThis.pdfjsLib = {
+  AbortException: AbortException,
+  AnnotationEditorLayer: AnnotationEditorLayer,
+  AnnotationEditorParamsType: AnnotationEditorParamsType,
+  AnnotationEditorType: AnnotationEditorType,
+  AnnotationEditorUIManager: AnnotationEditorUIManager,
+  AnnotationLayer: AnnotationLayer,
+  AnnotationMode: AnnotationMode,
+  AnnotationType: AnnotationType,
+  build: build,
+  ColorPicker: ColorPicker,
+  createValidAbsoluteUrl: createValidAbsoluteUrl,
+  DOMSVGFactory: DOMSVGFactory,
+  DrawLayer: DrawLayer,
+  FeatureTest: util_FeatureTest,
+  fetchData: fetchData,
+  getDocument: getDocument,
+  getFilenameFromUrl: getFilenameFromUrl,
+  getPdfFilenameFromUrl: getPdfFilenameFromUrl,
+  getUuid: getUuid,
+  getXfaPageViewport: getXfaPageViewport,
+  GlobalWorkerOptions: GlobalWorkerOptions,
+  ImageKind: util_ImageKind,
+  InvalidPDFException: InvalidPDFException,
+  isDataScheme: isDataScheme,
+  isPdfFile: isPdfFile,
+  isValidExplicitDest: isValidExplicitDest,
+  MathClamp: MathClamp,
+  noContextMenu: noContextMenu,
+  normalizeUnicode: normalizeUnicode,
+  OPS: OPS,
+  OutputScale: OutputScale,
+  PasswordResponses: PasswordResponses,
+  PDFDataRangeTransport: PDFDataRangeTransport,
+  PDFDateString: PDFDateString,
+  PDFWorker: PDFWorker,
+  PermissionFlag: PermissionFlag,
+  PixelsPerInch: PixelsPerInch,
+  RenderingCancelledException: RenderingCancelledException,
+  ResponseException: ResponseException,
+  setLayerDimensions: setLayerDimensions,
+  shadow: shadow,
+  SignatureExtractor: SignatureExtractor,
+  stopEvent: stopEvent,
+  SupportedImageMimeTypes: SupportedImageMimeTypes,
+  TextLayer: TextLayer,
+  TouchManager: TouchManager,
+  updateUrlHash: updateUrlHash,
+  Util: Util,
+  VerbosityLevel: VerbosityLevel,
+  version: version,
+  XfaLayer: XfaLayer
+};
 
-var __webpack_exports__AbortException = __webpack_exports__.AbortException;
-var __webpack_exports__AnnotationEditorLayer = __webpack_exports__.AnnotationEditorLayer;
-var __webpack_exports__AnnotationEditorParamsType = __webpack_exports__.AnnotationEditorParamsType;
-var __webpack_exports__AnnotationEditorType = __webpack_exports__.AnnotationEditorType;
-var __webpack_exports__AnnotationEditorUIManager = __webpack_exports__.AnnotationEditorUIManager;
-var __webpack_exports__AnnotationLayer = __webpack_exports__.AnnotationLayer;
-var __webpack_exports__AnnotationMode = __webpack_exports__.AnnotationMode;
-var __webpack_exports__ColorPicker = __webpack_exports__.ColorPicker;
-var __webpack_exports__DOMSVGFactory = __webpack_exports__.DOMSVGFactory;
-var __webpack_exports__DrawLayer = __webpack_exports__.DrawLayer;
-var __webpack_exports__FeatureTest = __webpack_exports__.FeatureTest;
-var __webpack_exports__GlobalWorkerOptions = __webpack_exports__.GlobalWorkerOptions;
-var __webpack_exports__ImageKind = __webpack_exports__.ImageKind;
-var __webpack_exports__InvalidPDFException = __webpack_exports__.InvalidPDFException;
-var __webpack_exports__MissingPDFException = __webpack_exports__.MissingPDFException;
-var __webpack_exports__OPS = __webpack_exports__.OPS;
-var __webpack_exports__OutputScale = __webpack_exports__.OutputScale;
-var __webpack_exports__PDFDataRangeTransport = __webpack_exports__.PDFDataRangeTransport;
-var __webpack_exports__PDFDateString = __webpack_exports__.PDFDateString;
-var __webpack_exports__PDFWorker = __webpack_exports__.PDFWorker;
-var __webpack_exports__PasswordResponses = __webpack_exports__.PasswordResponses;
-var __webpack_exports__PermissionFlag = __webpack_exports__.PermissionFlag;
-var __webpack_exports__PixelsPerInch = __webpack_exports__.PixelsPerInch;
-var __webpack_exports__RenderingCancelledException = __webpack_exports__.RenderingCancelledException;
-var __webpack_exports__TextLayer = __webpack_exports__.TextLayer;
-var __webpack_exports__TouchManager = __webpack_exports__.TouchManager;
-var __webpack_exports__UnexpectedResponseException = __webpack_exports__.UnexpectedResponseException;
-var __webpack_exports__Util = __webpack_exports__.Util;
-var __webpack_exports__VerbosityLevel = __webpack_exports__.VerbosityLevel;
-var __webpack_exports__XfaLayer = __webpack_exports__.XfaLayer;
-var __webpack_exports__build = __webpack_exports__.build;
-var __webpack_exports__createValidAbsoluteUrl = __webpack_exports__.createValidAbsoluteUrl;
-var __webpack_exports__fetchData = __webpack_exports__.fetchData;
-var __webpack_exports__getDocument = __webpack_exports__.getDocument;
-var __webpack_exports__getFilenameFromUrl = __webpack_exports__.getFilenameFromUrl;
-var __webpack_exports__getPdfFilenameFromUrl = __webpack_exports__.getPdfFilenameFromUrl;
-var __webpack_exports__getXfaPageViewport = __webpack_exports__.getXfaPageViewport;
-var __webpack_exports__isDataScheme = __webpack_exports__.isDataScheme;
-var __webpack_exports__isPdfFile = __webpack_exports__.isPdfFile;
-var __webpack_exports__noContextMenu = __webpack_exports__.noContextMenu;
-var __webpack_exports__normalizeUnicode = __webpack_exports__.normalizeUnicode;
-var __webpack_exports__setLayerDimensions = __webpack_exports__.setLayerDimensions;
-var __webpack_exports__shadow = __webpack_exports__.shadow;
-var __webpack_exports__stopEvent = __webpack_exports__.stopEvent;
-var __webpack_exports__version = __webpack_exports__.version;
-export { __webpack_exports__AbortException as AbortException, __webpack_exports__AnnotationEditorLayer as AnnotationEditorLayer, __webpack_exports__AnnotationEditorParamsType as AnnotationEditorParamsType, __webpack_exports__AnnotationEditorType as AnnotationEditorType, __webpack_exports__AnnotationEditorUIManager as AnnotationEditorUIManager, __webpack_exports__AnnotationLayer as AnnotationLayer, __webpack_exports__AnnotationMode as AnnotationMode, __webpack_exports__ColorPicker as ColorPicker, __webpack_exports__DOMSVGFactory as DOMSVGFactory, __webpack_exports__DrawLayer as DrawLayer, __webpack_exports__FeatureTest as FeatureTest, __webpack_exports__GlobalWorkerOptions as GlobalWorkerOptions, __webpack_exports__ImageKind as ImageKind, __webpack_exports__InvalidPDFException as InvalidPDFException, __webpack_exports__MissingPDFException as MissingPDFException, __webpack_exports__OPS as OPS, __webpack_exports__OutputScale as OutputScale, __webpack_exports__PDFDataRangeTransport as PDFDataRangeTransport, __webpack_exports__PDFDateString as PDFDateString, __webpack_exports__PDFWorker as PDFWorker, __webpack_exports__PasswordResponses as PasswordResponses, __webpack_exports__PermissionFlag as PermissionFlag, __webpack_exports__PixelsPerInch as PixelsPerInch, __webpack_exports__RenderingCancelledException as RenderingCancelledException, __webpack_exports__TextLayer as TextLayer, __webpack_exports__TouchManager as TouchManager, __webpack_exports__UnexpectedResponseException as UnexpectedResponseException, __webpack_exports__Util as Util, __webpack_exports__VerbosityLevel as VerbosityLevel, __webpack_exports__XfaLayer as XfaLayer, __webpack_exports__build as build, __webpack_exports__createValidAbsoluteUrl as createValidAbsoluteUrl, __webpack_exports__fetchData as fetchData, __webpack_exports__getDocument as getDocument, __webpack_exports__getFilenameFromUrl as getFilenameFromUrl, __webpack_exports__getPdfFilenameFromUrl as getPdfFilenameFromUrl, __webpack_exports__getXfaPageViewport as getXfaPageViewport, __webpack_exports__isDataScheme as isDataScheme, __webpack_exports__isPdfFile as isPdfFile, __webpack_exports__noContextMenu as noContextMenu, __webpack_exports__normalizeUnicode as normalizeUnicode, __webpack_exports__setLayerDimensions as setLayerDimensions, __webpack_exports__shadow as shadow, __webpack_exports__stopEvent as stopEvent, __webpack_exports__version as version };
+export { AbortException, AnnotationEditorLayer, AnnotationEditorParamsType, AnnotationEditorType, AnnotationEditorUIManager, AnnotationLayer, AnnotationMode, AnnotationType, ColorPicker, DOMSVGFactory, DrawLayer, util_FeatureTest as FeatureTest, GlobalWorkerOptions, util_ImageKind as ImageKind, InvalidPDFException, MathClamp, OPS, OutputScale, PDFDataRangeTransport, PDFDateString, PDFWorker, PasswordResponses, PermissionFlag, PixelsPerInch, RenderingCancelledException, ResponseException, SignatureExtractor, SupportedImageMimeTypes, TextLayer, TouchManager, Util, VerbosityLevel, XfaLayer, build, createValidAbsoluteUrl, fetchData, getDocument, getFilenameFromUrl, getPdfFilenameFromUrl, getUuid, getXfaPageViewport, isDataScheme, isPdfFile, isValidExplicitDest, noContextMenu, normalizeUnicode, setLayerDimensions, shadow, stopEvent, updateUrlHash, version };
 
 //# sourceMappingURL=pdf.mjs.map
