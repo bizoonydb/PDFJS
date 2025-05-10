@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="google" content="notranslate">
-    <title>PDF_db</title>
+    <title>PDF_ssssb</title>
 <link rel="resource" type="application/l10n" href="https://bizoonydb.github.io/PDFJS/locale/locale.properties">
 <script src="https://bizoonydb.github.io/PDFJS/build/pdf.js"></script>
 
@@ -189,7 +189,19 @@
               <span data-l10n-id="page_rotate_ccw_label">Rotate Counterclockwise</span>
             </button>
             <div class="horizontalToolbarSeparator"></div>
-            
+            <script>
+                
+// Rotações
+document.getElementById("pageRotateCw").addEventListener("click", () => {
+    rotation = (rotation + 90) % 360;
+    renderPage(currentPage);
+});
+
+document.getElementById("pageRotateCcw").addEventListener("click", () => {
+    rotation = (rotation - 90 + 360) % 360;
+    renderPage(currentPage);
+});
+            </script>
 
             <div class="horizontalToolbarSeparator"></div>
 
@@ -206,6 +218,7 @@
               <button id="scrollWrapped" class="secondaryToolbarButton" title="Use Wrapped Scrolling" tabindex="0" data-l10n-id="scroll_wrapped" role="radio" aria-checked="false">
                 <span data-l10n-id="scroll_wrapped_label">Wrapped Scrolling</span>
               </button>
+              
             </div>
 
             <div class="horizontalToolbarSeparator"></div>
