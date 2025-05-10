@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="google" content="notranslate">
-    <title>PDF.view.db</title>
+    <title>PDF_db</title>
 <link rel="resource" type="application/l10n" href="locale/locale.properties">
 <script src="../build/pdf.js"></script>
 
@@ -13,7 +13,38 @@
 
   <script src="viewer.js"></script>
   </head>
+<style>
+    #toolbarViewerRight {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    display: flex;
+    gap: 5px;
+}
 
+.secondaryToolbarButton {
+    width: 40px;
+    height: 40px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.secondaryToolbarButton.toggled {
+    background-color: #717171;
+}
+
+.secondaryToolbarButton:hover {
+    background-color: #9a9a9a;
+}
+
+</style>
   <body tabindex="1">
     <div id="outerContainer">
 
