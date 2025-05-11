@@ -5095,113 +5095,99 @@ Object.defineProperty(exports, "__esModule", ({
     #updateMatchesCountOnProgress = true;
     #visitedPagesCount = 0;
     constructor({
-        linkService,
-        eventBus,
-        updateMatchesCountOnProgress = true
+      linkService,
+      eventBus,
+      updateMatchesCountOnProgress = true
     }) {
-        this._linkService = linkService;
-        this._eventBus = eventBus;
-        this.#updateMatchesCountOnProgress = updateMatchesCountOnProgress;
-        this.onIsPageVisible = null;
-        this.#reset();
-        eventBus._on("find", this.#onFind.bind(this));
-        eventBus._on("findbarclose", this.#onFindBarClose.bind(this));
+      this._linkService = linkService;
+      this._eventBus = eventBus;
+      this.#updateMatchesCountOnProgress = updateMatchesCountOnProgress;
+      this.onIsPageVisible = null;
+      this.#reset();
+      eventBus._on("find", this.#onFind.bind(this));
+      eventBus._on("findbarclose", this.#onFindBarClose.bind(this));
     }
     get highlightMatches() {
-        return this._highlightMatches;
+      return this._highlightMatches;
     }
     get pageMatches() {
-        return this._pageMatches;
+      return this._pageMatches;
     }
     get pageMatchesLength() {
-        return this._pageMatchesLength;
+      return this._pageMatchesLength;
     }
     get selected() {
-        return this._selected;
+      return this._selected;
     }
     get state() {
-        return this.#state;
+      return this.#state;
     }
     setDocument(pdfDocument) {
-        if (this._pdfDocument) {
-            this.#reset();
-        }
-        if (!pdfDocument) {
-            return;
-        }
-        this._pdfDocument = pdfDocument;
-        this._firstPageCapability.resolve();
+      if (this._pdfDocument) {
+        this.#reset();
+      }
+      if (!pdfDocument) {
+        return;
+      }
+      this._pdfDocument = pdfDocument;
+      this._firstPageCapability.resolve();
     }
     #onFind(state) {
-        if (!state) {
-            return;
+      if (!state) {
+        return;
+      }
+      if (state.phraseSearch === false) {
+        console.error("The `phraseSearch`-parameter was removed, please provide " + "an Array of strings in the `query`-parameter instead.");
+        if (typeof state.query === "string") {
+          state.query = state.query.match(/\S+/g);
         }
-        if (state.phraseSearch === false) {
-            console.error("The `phraseSearch`-parameter was removed, please provide " + "an Array of strings in the `query`-parameter instead.");
-            if (typeof state.query === "string") {
-                state.query = state.query.match(/\S+/g);
-            }
+      }
+      const pdfDocument = this._pdfDocument;
+      const {
+        type
+      } = state;
+      if (this.#state === null || this.#shouldDirtyMatch(state)) {
+        this._dirtyMatch = true;
+      }
+      this.#state = state;
+      if (type !== "highlightallchange") {
+        this.#updateUIState(FindState.PENDING);
+      }
+      this._firstPageCapability.promise.then(() => {
+        if (!this._pdfDocument || pdfDocument && this._pdfDocument !== pdfDocument) {
+          return;
         }
-        const pdfDocument = this._pdfDocument;
-        const { type } = state;
-        if (this.#state === null || this.#shouldDirtyMatch(state)) {
-            this._dirtyMatch = true;
+        this.#extractText();
+        const findbarClosed = !this._highlightMatches;
+        const pendingTimeout = !!this._findTimeout;
+        if (this._findTimeout) {
+          clearTimeout(this._findTimeout);
+          this._findTimeout = null;
         }
-        this.#state = state;
-        if (type !== "highlightallchange") {
-            this.#updateUIState(FindState.PENDING);
+        if (!type) {
+          this._findTimeout = setTimeout(() => {
+            this.#nextMatch();
+            this._findTimeout = null;
+          }, FIND_TIMEOUT);
+        } else if (this._dirtyMatch) {
+          this.#nextMatch();
+        } else if (type === "again") {
+          this.#nextMatch();
+          if (findbarClosed && this.#state.highlightAll) {
+            this.#updateAllPages();
+          }
+        } else if (type === "highlightallchange") {
+          if (pendingTimeout) {
+            this.#nextMatch();
+          } else {
+            this._highlightMatches = true;
+          }
+          this.#updateAllPages();
+        } else {
+          this.#nextMatch();
         }
-        this._firstPageCapability.promise.then(() => {
-            if (!this._pdfDocument || pdfDocument && this._pdfDocument !== pdfDocument) {
-                return;
-            }
-            this.#extractText();
-            const findbarClosed = !this._highlightMatches;
-            const pendingTimeout = !!this._findTimeout;
-            if (this._findTimeout) {
-                clearTimeout(this._findTimeout);
-                this._findTimeout = null;
-            }
-            if (!type) {
-                this._findTimeout = setTimeout(() => {
-                    this.#nextMatch();
-                    this._findTimeout = null;
-                }, FIND_TIMEOUT);
-            } else if (this._dirtyMatch) {
-                this.#nextMatch();
-            } else if (type === "again") {
-                this.#nextMatch();
-                if (findbarClosed && this.#state.highlightAll) {
-                    this.#updateAllPages();
-                }
-            } else if (type === "highlightallchange") {
-                if (pendingTimeout) {
-                    this.#nextMatch();
-                } else {
-                    this._highlightMatches = true;
-                }
-                this.#updateAllPages();
-            } else {
-                this.#nextMatch();
-            }
-        });
+      });
     }
-    #scrollToMatch(element) {
-        if (element) {
-            const rect = element.getBoundingClientRect();
-            const viewportHeight = window.innerHeight;
-            const offsetY = rect.top + window.scrollY - (viewportHeight / 2) + (rect.height / 2);
-            window.scrollTo({ top: offsetY, behavior: 'smooth' });
-        }
-    }
-    #nextMatch() {
-        const selectedElement = document.querySelector('.highlight');
-        if (selectedElement) {
-            this.#scrollToMatch(selectedElement);
-        }
-    }
-
-
     scrollMatchIntoView({
       element = null,
       selectedLeft = 0,   //0
