@@ -100,7 +100,25 @@
     border-color: #666666;
 }
 
-
+.custom-context-menu {
+        position: absolute;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        padding: 8px 0;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        min-width: 150px;
+    }
+    .custom-context-menu div {
+        padding: 8px 16px;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+    }
+    .custom-context-menu div:hover {
+        background-color: #007bff;
+        color: #fff;
+    }
 
 
 
@@ -576,59 +594,62 @@
 
     <input type="file" id="fileInput" class="hidden">
   </body>
-  <script>
-    function showContextMenu(event) {
-        event.preventDefault();
-        
-        // Fechar menus anteriores
-        hideContextMenu();
+ 
+<script>
+  // Forçar seleção de texto e liberar o contexto
+  document.addEventListener("DOMContentLoaded", () => {
+      document.body.style.userSelect = "text";
+      document.oncontextmenu = null;
+      document.body.addEventListener("contextmenu", showContextMenu);
+  });
 
-        const selectedText = window.getSelection().toString().trim();
-        const menu = document.createElement("div");
-        menu.classList.add("custom-context-menu");
-        menu.style.position = "absolute";
-        menu.style.top = `${event.clientY}px`;
-        menu.style.left = `${event.clientX}px`;
-        menu.style.backgroundColor = "#f0f0f0";
-        menu.style.border = "1px solid #ccc";
-        menu.style.padding = "10px";
-        menu.style.zIndex = 9999;
-        menu.innerHTML = `
-            <div style="cursor: pointer; padding: 5px;">Copiar</div>
-            <div style="cursor: pointer; padding: 5px;">Colar</div>
-        `;
+  function showContextMenu(event) {
+      event.preventDefault();
+      
+      hideContextMenu();
 
-        menu.children[0].addEventListener("click", () => {
-            if (selectedText) {
-                navigator.clipboard.writeText(selectedText).then(() => {
-                    hideContextMenu();
-                });
-            }
-        });
+      const selectedText = window.getSelection().toString().trim();
+      const menu = document.createElement("div");
+      menu.classList.add("custom-context-menu");
+      menu.style.top = `${event.clientY}px`;
+      menu.style.left = `${event.clientX}px`;
 
-        menu.children[1].addEventListener("click", () => {
-            navigator.clipboard.readText().then((text) => {
-                const selection = window.getSelection();
-                const range = selection.getRangeAt(0);
-                range.deleteContents();
-                range.insertNode(document.createTextNode(text));
-                hideContextMenu();
-            });
-        });
+      menu.innerHTML = `
+          <div>Copiar</div>
+          <div>Colar</div>
+      `;
 
-        document.body.appendChild(menu);
+      menu.children[0].addEventListener("click", () => {
+          if (selectedText) {
+              navigator.clipboard.writeText(selectedText).then(() => {
+                  hideContextMenu();
+              });
+          }
+      });
 
-        // Fechar ao clicar fora
-        document.addEventListener("click", hideContextMenu, { once: true });
-    }
+      menu.children[1].addEventListener("click", () => {
+          navigator.clipboard.readText().then((text) => {
+              const selection = window.getSelection();
+              if (selection.rangeCount > 0) {
+                  const range = selection.getRangeAt(0);
+                  range.deleteContents();
+                  range.insertNode(document.createTextNode(text));
+              }
+              hideContextMenu();
+          });
+      });
 
-    function hideContextMenu() {
-        const menu = document.querySelector(".custom-context-menu");
-        if (menu) menu.remove();
-    }
+      document.body.appendChild(menu);
 
-    // Ativar o menu de contexto personalizado
-    document.addEventListener("contextmenu", showContextMenu);
+      // Fechar ao clicar fora
+      setTimeout(() => {
+          document.addEventListener("click", hideContextMenu, { once: true });
+      }, 10);
+  }
+
+  function hideContextMenu() {
+      const menu = document.querySelector(".custom-context-menu");
+      if (menu) menu.remove();
+  }
 </script>
-
 </html>
