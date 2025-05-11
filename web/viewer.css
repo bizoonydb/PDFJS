@@ -436,7 +436,7 @@
   }
   
   .annotationLayer .popupContent {
-    border-top: 1px solid rgba(51, 51, 51, 1);
+    border-top: 2px solid rgba(51, 51, 51, 1);
     margin-top: calc(2px * var(--scale-factor));
     padding-top: calc(2px * var(--scale-factor));
   }
@@ -1384,14 +1384,14 @@
     --main-color: rgba(12, 12, 13, 1);
     --body-bg-color: rgb(255, 255, 255);
     --progressBar-color: rgb(255, 242, 0);
-    --progressBar-bg-color: rgba(221, 221, 222, 1);
+    --progressBar-bg-color: rgb(255, 255, 0);
     --progressBar-blend-color: rgba(116, 177, 239, 1);
     --scrollbar-color: auto;
     --scrollbar-bg-color: auto;
     --toolbar-icon-bg-color: rgba(0, 0, 0, 1);
     --toolbar-icon-hover-bg-color: rgba(0, 0, 0, 1);
   
-    --sidebar-narrow-bg-color: rgba(212, 212, 215, 0.9);
+    --sidebar-narrow-bg-color: rgba(125, 125, 125, 0.9);
     --sidebar-toolbar-bg-color: rgba(245, 246, 247, 1);
     --toolbar-bg-color: rgba(249, 249, 250, 1);
     --toolbar-border-color: rgba(184, 184, 184, 1);
