@@ -1382,7 +1382,7 @@
     --doorhanger-icon-opacity: 0.9;
   
     --main-color: rgba(12, 12, 13, 1);
-    --body-bg-color: rgb(255, 255, 255);
+    --body-bg-color: rgb(128, 128, 128);
     --progressBar-color: rgb(255, 242, 0);
     --progressBar-bg-color: rgb(255, 255, 0);
     --progressBar-blend-color: rgba(116, 177, 239, 1);
@@ -1406,12 +1406,12 @@
     --toggled-btn-bg-color: rgba(0, 0, 0, 0.3);
     --toggled-hover-active-btn-color: rgba(0, 0, 0, 0.4);
     --toggled-hover-btn-outline: none;
-    --dropdown-btn-bg-color: rgba(215, 215, 219, 1);
+    --dropdown-btn-bg-color: rgb(18, 18, 191);
     --dropdown-btn-border: none;
     --separator-color: rgba(0, 0, 0, 0.3);
     --field-color: rgba(6, 6, 6, 1);
-    --field-bg-color: rgba(255, 255, 255, 1);
-    --field-border-color: rgba(187, 187, 188, 1);
+    --field-bg-color: rgb(210, 0, 0);
+    --field-border-color: rgb(147, 0, 115);
     --treeitem-color: rgba(0, 0, 0, 0.8);
     --treeitem-bg-color: rgba(0, 0, 0, 0.15);
     --treeitem-hover-color: rgba(0, 0, 0, 0.9);
@@ -1419,7 +1419,7 @@
     --treeitem-selected-bg-color: rgba(0, 0, 0, 0.25);
     --thumbnail-hover-color: rgba(0, 0, 0, 0.1);
     --thumbnail-selected-color: rgba(0, 0, 0, 0.2);
-    --doorhanger-bg-color: rgba(255, 255, 255, 1);
+    --doorhanger-bg-color: rgb(0, 160, 29);
     --doorhanger-border-color: rgba(12, 12, 13, 0.2);
     --doorhanger-hover-color: rgba(12, 12, 13, 1);
     --doorhanger-hover-bg-color: rgba(237, 237, 237, 1);
@@ -1569,6 +1569,7 @@
   body {
     height: 100%;
     width: 100%;
+    border: 2px #000000 solid;
   }
   
   body {
