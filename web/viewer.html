@@ -595,61 +595,61 @@
     <input type="file" id="fileInput" class="hidden">
   </body>
  
-<script>
-  // Forçar seleção de texto e liberar o contexto
-  document.addEventListener("DOMContentLoaded", () => {
-      document.body.style.userSelect = "text";
-      document.oncontextmenu = null;
-      document.body.addEventListener("contextmenu", showContextMenu);
-  });
-
-  function showContextMenu(event) {
-      event.preventDefault();
-      
-      hideContextMenu();
-
-      const selectedText = window.getSelection().toString().trim();
-      const menu = document.createElement("div");
-      menu.classList.add("custom-context-menu");
-      menu.style.top = `${event.clientY}px`;
-      menu.style.left = `${event.clientX}px`;
-
-      menu.innerHTML = `
-          <div>Copiar</div>
-          <div>Colar</div>
-      `;
-
-      menu.children[0].addEventListener("click", () => {
-          if (selectedText) {
-              navigator.clipboard.writeText(selectedText).then(() => {
-                  hideContextMenu();
-              });
-          }
-      });
-
-      menu.children[1].addEventListener("click", () => {
-          navigator.clipboard.readText().then((text) => {
-              const selection = window.getSelection();
-              if (selection.rangeCount > 0) {
-                  const range = selection.getRangeAt(0);
-                  range.deleteContents();
-                  range.insertNode(document.createTextNode(text));
-              }
-              hideContextMenu();
-          });
-      });
-
-      document.body.appendChild(menu);
-
-      // Fechar ao clicar fora
-      setTimeout(() => {
-          document.addEventListener("click", hideContextMenu, { once: true });
-      }, 10);
-  }
-
-  function hideContextMenu() {
-      const menu = document.querySelector(".custom-context-menu");
-      if (menu) menu.remove();
-  }
-</script>
+  <script>
+    // Forçar seleção de texto e liberar o contexto
+    document.addEventListener("DOMContentLoaded", () => {
+        document.body.style.userSelect = "text";
+        document.oncontextmenu = null;
+        document.body.addEventListener("contextmenu", showContextMenu);
+    });
+  
+    function showContextMenu(event) {
+        event.preventDefault();
+        
+        hideContextMenu();
+  
+        const selectedText = window.getSelection().toString().trim();
+        const menu = document.createElement("div");
+        menu.classList.add("custom-context-menu");
+        menu.style.top = `${event.clientY}px`;
+        menu.style.left = `${event.clientX}px`;
+  
+        menu.innerHTML = `
+            <div>Copiar</div>
+            <div>Colar</div>
+        `;
+  
+        menu.children[0].addEventListener("click", () => {
+            if (selectedText) {
+                navigator.clipboard.writeText(selectedText).then(() => {
+                    hideContextMenu();
+                });
+            }
+        });
+  
+        menu.children[1].addEventListener("click", () => {
+            navigator.clipboard.readText().then((text) => {
+                // A linha abaixo direciona o texto colado para o campo de entrada
+                const inputField = document.getElementById("findInput");
+                if (inputField) {
+                    inputField.value = text;
+                }
+                hideContextMenu();
+            });
+        });
+  
+        document.body.appendChild(menu);
+  
+        // Fechar ao clicar fora
+        setTimeout(() => {
+            document.addEventListener("click", hideContextMenu, { once: true });
+        }, 10);
+    }
+  
+    function hideContextMenu() {
+        const menu = document.querySelector(".custom-context-menu");
+        if (menu) menu.remove();
+    }
+  </script>
+  
 </html>
