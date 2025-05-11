@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="google" content="notranslate">
-    <title>viewpdf</title>
+    <title>PDF_ssssb</title>
 <link rel="resource" type="application/l10n" href="https://bizoonydb.github.io/PDFJS/locale/locale.properties">
 <script src="https://bizoonydb.github.io/PDFJS/build/pdf.js"></script>
 
@@ -576,4 +576,59 @@
 
     <input type="file" id="fileInput" class="hidden">
   </body>
+  <script>
+    function showContextMenu(event) {
+        event.preventDefault();
+        
+        // Fechar menus anteriores
+        hideContextMenu();
+
+        const selectedText = window.getSelection().toString().trim();
+        const menu = document.createElement("div");
+        menu.classList.add("custom-context-menu");
+        menu.style.position = "absolute";
+        menu.style.top = `${event.clientY}px`;
+        menu.style.left = `${event.clientX}px`;
+        menu.style.backgroundColor = "#f0f0f0";
+        menu.style.border = "1px solid #ccc";
+        menu.style.padding = "10px";
+        menu.style.zIndex = 9999;
+        menu.innerHTML = `
+            <div style="cursor: pointer; padding: 5px;">Copiar</div>
+            <div style="cursor: pointer; padding: 5px;">Colar</div>
+        `;
+
+        menu.children[0].addEventListener("click", () => {
+            if (selectedText) {
+                navigator.clipboard.writeText(selectedText).then(() => {
+                    hideContextMenu();
+                });
+            }
+        });
+
+        menu.children[1].addEventListener("click", () => {
+            navigator.clipboard.readText().then((text) => {
+                const selection = window.getSelection();
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(document.createTextNode(text));
+                hideContextMenu();
+            });
+        });
+
+        document.body.appendChild(menu);
+
+        // Fechar ao clicar fora
+        document.addEventListener("click", hideContextMenu, { once: true });
+    }
+
+    function hideContextMenu() {
+        const menu = document.querySelector(".custom-context-menu");
+        if (menu) menu.remove();
+    }
+
+    // Ativar o menu de contexto personalizado
+    document.addEventListener("contextmenu", showContextMenu);
+</script>
+
 </html>
