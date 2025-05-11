@@ -14,8 +14,8 @@
  */
 /*color de resaltador*/
 :root {
-    --highlight-bg-color: rgba(180, 0, 170, 1);
-    --highlight-selected-bg-color: rgb(0, 0, 255);
+    --highlight-bg-color: rgb(180, 0, 0);
+    --highlight-selected-bg-color: rgb(255, 0, 51);
   }
   
   @media screen and (forced-colors: active) {
@@ -1260,7 +1260,7 @@
     overflow: visible;
     border: var(--page-border);
     background-clip: content-box;
-    background-color: rgb(71, 71, 71);
+    background-color: rgba(255, 255, 255, 1);
   }
   
   .pdfViewer .dummyPage {
@@ -1383,7 +1383,7 @@
   
     --main-color: rgba(12, 12, 13, 1);
     --body-bg-color: rgb(255, 255, 255);
-    --progressBar-color: rgb(0, 0, 255);
+    --progressBar-color: rgb(255, 242, 0);
     --progressBar-bg-color: rgba(221, 221, 222, 1);
     --progressBar-blend-color: rgba(116, 177, 239, 1);
     --scrollbar-color: auto;
@@ -1481,7 +1481,7 @@
     :root {
       --main-color: rgba(249, 249, 250, 1);
       --body-bg-color: rgba(42, 42, 46, 0);
-      --progressBar-color: rgb(0, 0, 255);
+      --progressBar-color: rgb(212, 255, 0);
       --progressBar-bg-color: rgba(40, 40, 43, 1);
       --progressBar-blend-color: rgba(20, 68, 133, 1);
       --scrollbar-color: rgba(121, 121, 123, 1);
