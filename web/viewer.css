@@ -1392,7 +1392,7 @@
     --toolbar-icon-hover-bg-color: rgba(0, 0, 0, 1);
   
     --sidebar-narrow-bg-color: rgba(125, 125, 125, 0.9);
-    --sidebar-toolbar-bg-color: rgba(245, 246, 247, 1);
+    --sidebar-toolbar-bg-color: rgb(84, 84, 84);
     --toolbar-bg-color: rgba(249, 249, 250, 1);
     --toolbar-border-color: rgba(184, 184, 184, 1);
     --toolbar-box-shadow: 0 1px 0 var(--toolbar-border-color);
