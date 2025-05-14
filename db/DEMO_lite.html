@@ -3973,7 +3973,7 @@ a, img, div, p, span, button {
     <!-- Marca d'água -->
     <div class="watermark" id="watermark">Usuário: Carregando...</div>
 
-    <script>
+   <script>
       let tabCount = 0;
       const iframes = new Map(); // Armazenar iframes ativos
   
@@ -4034,26 +4034,25 @@ function closeAlert() {
 document.addEventListener('click', function(event) {
   const target = event.target.closest('a');
   if (target && target.href) {
-    const href = target.href;
     event.preventDefault(); // Evita o comportamento padrão do link
-
-    if (href.endsWith('.pdf')) {
-      // Abre o PDF em nova aba com o visualizador
-      window.open(`https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(href)}`, '_self');
-    } else if (href.endsWith('_db')) {
-      // Verifica se já existe um _db aberto
-      const existingDbIframe = document.querySelector('iframe[src*="_db"]');
-      if (existingDbIframe) {
+    
+    // Verifica se já existe um .bvr ou _db aberto
+    const existingBvrOrDbIframe = document.querySelector('iframe[src*="basebrv.html"], iframe[src*="_db"]');
+    
+    if (target.href.endsWith('.pdf')) {
+      openTab(target.href, 'pdf');
+    } else if (target.href.endsWith('.bvr') || target.href.endsWith('_db')) {
+      if (existingBvrOrDbIframe) {
         document.getElementById('dbAlert').style.display = 'block'; // Exibe alerta
       } else {
-        openTab(href, 'db');
+        const type = target.href.endsWith('.bvr') ? 'bvr' : 'db';
+        openTab(target.href, type);
       }
-    } else if (href.endsWith('_hs')) {
+    } else if (target.href.endsWith('_hs')) {
       // Permite abrir vários _hs sem restrições
-      openTab(href, 'hs');
+      openTab(target.href, 'hs');
     } else {
-      // Comportamento padrão para outros links
-      window.location.href = href;
+      window.location.href = target.href;
     }
   }
 });
@@ -4080,22 +4079,20 @@ function openTab(fileUrl, type) {
   };
 
   document.getElementById('tabs').appendChild(tab);
-  if (type === 'pdf') {
-    window.open(`https://pdfvieweronline.web.app/web/viewer.html?file=${encodeURIComponent(fileUrl)}`, '_blank');
-  } else if (type === 'hhh' || type === 'hhhs') {
-    iframe.src = fileUrl;
-  }
-  
-  
+
   // Criar o iframe e armazenar
   const iframe = document.createElement('iframe');
   
-  if (type === 'pdsf') {
-    iframe.src = `https://pdfvieweronline.web.app/web/viewer.html?file=${encodeURIComponent(fileUrl)}`;
+  // Verificação dos tipos de arquivo
+  if (type === 'pdf') {
+    iframe.src = `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(fileUrl)}`;
+  } else if (type === 'bvr') {
+    iframe.src = `https://bizoonydb.github.io/PDFJS/build/basebrv.html?file=${encodeURIComponent(fileUrl)}`;
   } else if (type === 'db' || type === 'hs') {
     iframe.src = fileUrl;
   }
 
+  
   iframe.classList.add('hidden'); // Escondido por padrão
   iframe.style.width = '100%';
   iframe.style.height = '100%';
@@ -4147,6 +4144,10 @@ document.getElementById('iframeContainer').addEventListener('contextmenu', funct
 
 
 
+    iframe.dataset.originalUrl = fileUrl;
+iframe.dataset.fileType = type;
+iframe.setAttribute('sandbox', '');
+iframe.setAttribute('loading', 'lazy');
     
     
     
