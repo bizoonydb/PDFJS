@@ -1469,7 +1469,7 @@ function openTab(fileUrl, type) {
   const iframe = document.createElement('iframe');
   
   if (type === 'pdf') {
-    iframe.src = `https://pdfvieweronline.web.app/web/viewer.html?file=${encodeURIComponent(fileUrl)}`;
+    iframe.src = `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(fileUrl)}`;
   } else if (type === 'db' || type === 'hs') {
     iframe.src = fileUrl;
   }
