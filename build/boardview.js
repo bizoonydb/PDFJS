@@ -5,11 +5,11 @@ let outlinePoints = [];
 let flipHorizontal = true; // Estado del reflejo
 // Variables para transformación global
 let scaleFactor = 1;
-let rotationAngle = Math.PI; // Inicialmente 180° (en radianes)
+let rotationAngle = Math.PI; // Inicia com 180° (Math.PI rad)
 let offsetX = 0;
 let offsetY = 0;
 let pinScaleFactor = 1; // Ajusta según lo necesites //1
-
+let rotate180 = true; // Inicia com rotação de 180 graus
 // Buffer para renderizar el contorno (elemento estático)
 let buffer;
 
@@ -99,6 +99,7 @@ let bottomOffset = 0;
 
     if (displayMode === "all") {
         bottomOffset = computeBottomOffset();
+        
     }
 
     push(); // T2: Aplicar reflejo horizontal si está activado
@@ -182,21 +183,83 @@ drawComponentBoundingBoxes();
    let simplifiedOutlinePoints = simplifyContour(cleanedOutlinePoints, 0.5);
    
    // Preenche a área dentro do contorno com verde
-   fill(0, 255, 0, 0,); // Verde para representar a placa
-   stroke(255, 255, 0); // Borda branca
+   fill(0, 255, 0, 30,); // Verde para representar a placa
+   stroke(255, 255, 255); // Borda branca
    strokeWeight(1 / scaleFactor);
-   beginShape();
- if (simplifiedOutlinePoints && simplifiedOutlinePoints.length > 0) {
+   beginShape();if (outlinePoints.length > 0) {
+    // Desenha a borda definida
     beginShape();
-    for (let p of simplifiedOutlinePoints) {
+    for (let p of outlinePoints) {
         if (p && p.x !== undefined && p.y !== undefined) {
             vertex(p.x, p.y);
         }
     }
     endShape(CLOSE);
 } else {
-    console.warn("simplifiedOutlinePoints não está definido ou está vazio.");
+    // Cria uma borda retangular se não houver borda definida
+    console.warn("outlinePoints não está definido ou está vazio.");
+
+    // Inicializa os limites com valores extremos
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    
+    // Verifica os limites de todos os componentes
+    for (let part of parts) {
+        // Inclui a origem do componente
+        if (part.origin) {
+            minX = Math.min(minX, part.origin.x);
+            minY = Math.min(minY, part.origin.y);
+            maxX = Math.max(maxX, part.origin.x);
+            maxY = Math.max(maxY, part.origin.y);
+        }
+
+        // Inclui os pinos do componente
+        if (part.pins && Array.isArray(part.pins)) {
+            for (let pin of part.pins) {
+                if (pin && pin.x !== undefined && pin.y !== undefined) {
+                    minX = Math.min(minX, pin.x);
+                    minY = Math.min(minY, pin.y);
+                    maxX = Math.max(maxX, pin.x);
+                    maxY = Math.max(maxY, pin.y);
+                }
+            }
+        }
+
+        // Inclui o contorno do componente (PART_OUTLINE_RELATIVE)
+        if (part.outline && part.outline.length > 0) {
+            for (let k = 0; k < part.outline.length; k += 2) {
+                let x = part.origin.x + part.outline[k];
+                let y = part.origin.y + part.outline[k + 1];
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+                maxX = Math.max(maxX, x);
+                maxY = Math.max(maxY, y);
+            }
+        }
+    }
+
+    // Verifica se encontrou algum componente ou pino
+    if (minX !== Infinity && minY !== Infinity && maxX !== -Infinity && maxY !== -Infinity) {
+        // Adiciona o espaço de 30px ao redor dos componentes
+        const padding = 50;
+        minX -= padding;
+        minY -= padding;
+        maxX += padding;
+        maxY += padding;
+
+        // Desenha a borda retangular
+        beginShape();
+        vertex(minX, minY);
+        vertex(maxX, minY);
+        vertex(maxX, maxY);
+        vertex(minX, maxY);
+        endShape(CLOSE);
+
+        console.log(`Borda criada: (${minX}, ${minY}) -> (${maxX}, ${maxY})`);
+    } else {
+        console.warn("Nenhum componente ou pino encontrado para calcular a borda.");
+    }
 }
+
 
    
 
@@ -217,7 +280,7 @@ blinkState = (frameCount % blinkInterval < blinkInterval / 2) ? 255 : 0;  // Alt
 
 // Desenha os pinos com efeito de piscar
 /// Desenha os pinos com efeito de piscar
-if (scaleFactor >= 0.2) {
+if (scaleFactor >= 0.0,5) {
     for (let part of parts) {
         if (displayMode === "top" && part.side !== "T") continue;
         if (displayMode === "bottom" && part.side !== "B") continue;
@@ -305,7 +368,7 @@ if (scaleFactor >= 0.2) {
                 }
                 endShape(CLOSE);
             } else {
-                if (part.name && ['u', 'a', 'nfc', '1', 'n', 'tp'].some(prefix => part.name.toLowerCase().startsWith(prefix))) {
+                if (part.name && ['u', 'a', 'nfc', '1', 'n', 'tp', 'ddr', 'lan', 'con', 'pci', 'hea', 'vga', 'hdm', 'ps2','sata'].some(prefix => part.name.toLowerCase().startsWith(prefix))) {
                     ellipse(pin.x + groupOffset, pin.y, enlargedRadius, enlargedRadius);
                 } else {
                     rect(pin.x + groupOffset - enlargedRadius / 2, pin.y - enlargedRadius / 2, enlargedRadius, enlargedRadius);
@@ -557,12 +620,16 @@ function mouseWheel(event) {
  }
  
  // Detecta el click convirtiendo las coordenadas de pantalla a mundo
-function mousePressed() {
-    // Convertir la posición del mouse a coordenadas del "mundo"
+ // Detecta el click convirtiendo las coordenadas de pantalla a mundo
+ function mousePressed() {
+    isDragging = true; // Oculta os nomes durante o arraste
+    cursor('grabbing'); // Altera o cursor para dar feedback visual
+
     let worldPos = screenToWorld(mouseX, mouseY);
     let mx = worldPos.x;
     let my = worldPos.y;
     let found = false;
+
 
     // Recorrer cada parte y sus pines para ver si se hizo click sobre alguno
     for (let part of parts) {
@@ -577,14 +644,20 @@ function mousePressed() {
             
             if (d <= pin.radius) {
                 tooltip = {
-                    text: `COMP: ${part.name}\nMALHA: ${pin.net}`,
+                    text: `COMP: ${part.name}\nMALHA: ${pin.net}\nPINO: ${pin.number}`,
                     x: pin.x,
                     y: pin.y,
                     side: part.side
                 };
                 selectedPin = pin;
                 found = true;
+            
+                // ATUALIZA O DISPLAY
+                const display = document.getElementById("pinDisplay");
+                if (display) display.textContent = tooltip.text;
+            
                 break;
+            
             }
         }
         if (found) break;
@@ -598,7 +671,6 @@ function mousePressed() {
 
     return false;
 }
-
  // Arrastre (drag) basado en la diferencia en coordenadas "mundo"
  // Se calcula la diferencia entre la posición actual y la anterior (convertidas a mundo)
  function mouseDragged() {
@@ -749,7 +821,7 @@ function drawSelectedNetConnections() {
             let maxX = -Infinity, maxY = -Infinity;
 
             for (let pin of part.pins) {
-                let r = pin.radius * 0.75;
+                let r = pin.radius * 0.99;
                 minX = Math.min(minX, pin.x - r);
                 maxX = Math.max(maxX, pin.x + r);
                 minY = Math.min(minY, pin.y - r);
