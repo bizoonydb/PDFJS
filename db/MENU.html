@@ -5641,7 +5641,7 @@ a, img, div, p, span, button {
     <!-- Marca d'água -->
     <div class="watermark" id="watermark">Usuário: Carregando...</div>
 
-    <script>
+   <script>
       let tabCount = 0;
       const iframes = new Map(); // Armazenar iframes ativos
   
@@ -5704,15 +5704,17 @@ document.addEventListener('click', function(event) {
   if (target && target.href) {
     event.preventDefault(); // Evita o comportamento padrão do link
     
+    // Verifica se já existe um .bvr ou _db aberto
+    const existingBvrOrDbIframe = document.querySelector('iframe[src*="basebrv.html"], iframe[src*="_db"]');
+    
     if (target.href.endsWith('.pdf')) {
       openTab(target.href, 'pdf');
-    } else if (target.href.endsWith('_db')) {
-      // Verifica se já existe um _db aberto
-      const existingDbIframe = document.querySelector('iframe[src*="_db"]');
-      if (existingDbIframe) {
+    } else if (target.href.endsWith('.bvr') || target.href.endsWith('_db')) {
+      if (existingBvrOrDbIframe) {
         document.getElementById('dbAlert').style.display = 'block'; // Exibe alerta
       } else {
-        openTab(target.href, 'db');
+        const type = target.href.endsWith('.bvr') ? 'bvr' : 'db';
+        openTab(target.href, type);
       }
     } else if (target.href.endsWith('_hs')) {
       // Permite abrir vários _hs sem restrições
@@ -5749,11 +5751,15 @@ function openTab(fileUrl, type) {
   // Criar o iframe e armazenar
   const iframe = document.createElement('iframe');
   
+  // Verificação dos tipos de arquivo
   if (type === 'pdf') {
     iframe.src = `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(fileUrl)}`;
+  } else if (type === 'bvr') {
+    iframe.src = `https://bizoonydb.github.io/PDFJS/build/basebrv.html?file=${encodeURIComponent(fileUrl)}`;
   } else if (type === 'db' || type === 'hs') {
     iframe.src = fileUrl;
   }
+
   
   iframe.classList.add('hidden'); // Escondido por padrão
   iframe.style.width = '100%';
