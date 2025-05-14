@@ -1661,7 +1661,7 @@ document.addEventListener('click', function(event) {
 
     if (href.endsWith('.pdf')) {
       // Abre o PDF em nova aba com o visualizador
-      window.open(`https://pdfvieweronline.web.app/web/viewer.html?file=${encodeURIComponent(href)}`, '_self');
+      window.open(`https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(href)}`, '_self');
     } else if (href.endsWith('_db')) {
       // Verifica se já existe um _db aberto
       const existingDbIframe = document.querySelector('iframe[src*="_db"]');
