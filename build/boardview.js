@@ -368,7 +368,7 @@ if (scaleFactor >= 0.0,5) {
                 }
                 endShape(CLOSE);
             } else {
-                if (part.name && ['u', 'a', 'nfc', '1', 'n', 'tp', 'ddr', 'lan', 'con', 'pci', 'hea', 'vga', 'hdm', 'ps2','sata'].some(prefix => part.name.toLowerCase().startsWith(prefix))) {
+                if (part.name && ['u', 'p', 'm','a', 'nfc', '1', 'n', 'tp', 'ddr', 'lan', 'con', 'pci', 'hea', 'vga', 'hdm', 'ps2','sata'].some(prefix => part.name.toLowerCase().startsWith(prefix))) {
                     ellipse(pin.x + groupOffset, pin.y, enlargedRadius, enlargedRadius);
                 } else {
                     rect(pin.x + groupOffset - enlargedRadius / 2, pin.y - enlargedRadius / 2, enlargedRadius, enlargedRadius);
