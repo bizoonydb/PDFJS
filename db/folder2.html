@@ -415,9 +415,8 @@ function adicionarArquivo() {
         return;
     }
 
-    // Identificando arquivos com extensões válidas
-    const extensoesValidas = ['pdf', 'jpg', 'bvr', 'tvw', 'png', 'zip', 'txt'];
-    const regexArquivos = new RegExp(`[^\\s]+(?:\\.[a-zA-Z0-9?()\\-]+)?\\.(${extensoesValidas.join('|')})`, 'gi');
+    // Ajuste para capturar arquivos com espaços antes da extensão
+    const regexArquivos = /.*?\.(pdf|bvr)(?=\s|$)/gi;
     const arquivos = nomeArquivos.match(regexArquivos);
 
     if (!arquivos) {
@@ -450,15 +449,10 @@ function adicionarArquivo() {
     let currentCode = document.getElementById('codigoGerado').textContent.trim();
 
     arquivos.forEach(nomeArquivo => {
-        const link = `${urlBase}${nomeArquivo}`;
-        const nomeSemExtensao = nomeArquivo.replace(/\.[^/.]+$/, '');
-
-        // Criação do link para o arquivo
-        const arquivoHtml = `<a href="${link}" class="file"><i class="far fa-file-code"></i> ${nomeSemExtensao}</a>`;
+        const link = `${urlBase}${nomeArquivo.trim()}`;
+        const arquivoHtml = `<a href="${link}" class="file"><i class="far fa-file-code"></i> ${nomeArquivo.trim()}</a>`;
         linhaElement.innerHTML += arquivoHtml;
-        
-        // Atualizando o código gerado
-        currentCode += `\n<a href="${link}" class="file"><i class="far fa-file-code"></i> ${nomeArquivo}</a>`;
+        currentCode += `\n<a href="${link}" class="file"><i class="far fa-file-code"></i> ${nomeArquivo.trim()}</a>`;
     });
 
     document.getElementById('codigoGerado').textContent = currentCode;
@@ -473,6 +467,42 @@ function adicionarArquivo() {
     atualizarCodigo();
 }
 
+function atualizarCodigo() {
+    let codigo = document.getElementById('output').innerHTML.trim();
+    codigo = codigo.replace(/<summary/g, '\n<summary')
+        .replace(/<details/g, '\n<details')
+        .replace(/<\/details>/g, '\n</details>')
+        .replace(/<\/summary>/g, '\n</summary>')
+        .replace(/<a/g, '\n<a')
+        .replace(/<\/a>/g, '</a>\n');
+
+    codigo = codigo
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    codigo = codigo.replace(/"([^"]*)"/g, '"<span style="color: #ff5555;">$1</span>"');
+
+    document.getElementById('codigoGerado').innerHTML = codigo;
+}
+function atualizarCodigo() {
+    let codigo = document.getElementById('output').innerHTML.trim();
+    codigo = codigo.replace(/<summary/g, '\n<summary')
+        .replace(/<details/g, '\n<details')
+        .replace(/<\/details>/g, '\n</details>')
+        .replace(/<\/summary>/g, '\n</summary>')
+        .replace(/<a/g, '\n<a')
+        .replace(/<\/a>/g, '</a>\n');
+
+    codigo = codigo
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    codigo = codigo.replace(/"([^"]*)"/g, '"<span style="color: #ff5555;">$1</span>"');
+
+    document.getElementById('codigoGerado').innerHTML = codigo;
+}
 
         function atualizarCodigo() {
     let codigo = document.getElementById('output').innerHTML.trim();
@@ -2183,7 +2213,3 @@ iframe.setAttribute('loading', 'lazy');
 
 </body>
 </html>
-
-
-
-
