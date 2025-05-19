@@ -408,14 +408,22 @@ function adicionarArquivo() {
     const urlBase = document.getElementById('urlBase').value.trim();
     const marca = document.getElementById('marca').value.trim();
     const linha = document.getElementById('linha').value.trim();
-    const nomeArquivo = document.getElementById('nomeArquivo').value.trim();
+    const nomeArquivos = document.getElementById('nomeArquivo').value.trim();
 
-    if (!urlBase || !marca || !linha || !nomeArquivo) {
+    if (!urlBase || !marca || !linha || !nomeArquivos) {
         alert('Preencha todos os campos.');
         return;
     }
 
-    const link = `${urlBase}${nomeArquivo}`;
+    // Ajuste para capturar arquivos com espaços antes da extensão
+    const regexArquivos = /.*?\.(pdf|bvr)(?=\s|$)/gi;
+    const arquivos = nomeArquivos.match(regexArquivos);
+
+    if (!arquivos) {
+        alert('Nenhum arquivo válido foi encontrado.');
+        return;
+    }
+
     const output = document.getElementById('output');
     const folderSelector = `.folder[marca='${marca}']`;
     let folderElement = output.querySelector(folderSelector);
@@ -438,15 +446,15 @@ function adicionarArquivo() {
         folderElement.appendChild(linhaElement);
     }
 
-    // Removendo a extensão do segundo nome
-    const nomeSemExtensao = nomeArquivo.replace(/\.[^/.]+$/, '');
-
-    const arquivoHtml = `<a href="${link}" class="file"><i class="far fa-file-code"></i> ${nomeSemExtensao}</a>`;
-    linhaElement.innerHTML += arquivoHtml;
-
-    // Atualizando o painel de código para exibir cada arquivo em nova linha
     let currentCode = document.getElementById('codigoGerado').textContent.trim();
-    currentCode += `\n<a href="${link}" class="file"><i class="far fa-file-code"></i> ${nomeArquivo}</a>`;
+
+    arquivos.forEach(nomeArquivo => {
+        const link = `${urlBase}${nomeArquivo.trim()}`;
+        const arquivoHtml = `<a href="${link}" class="file"><i class="far fa-file-code"></i> ${nomeArquivo.trim()}</a>`;
+        linhaElement.innerHTML += arquivoHtml;
+        currentCode += `\n<a href="${link}" class="file"><i class="far fa-file-code"></i> ${nomeArquivo.trim()}</a>`;
+    });
+
     document.getElementById('codigoGerado').textContent = currentCode;
 
     localStorage.setItem('urlBase', urlBase);
@@ -459,6 +467,42 @@ function adicionarArquivo() {
     atualizarCodigo();
 }
 
+function atualizarCodigo() {
+    let codigo = document.getElementById('output').innerHTML.trim();
+    codigo = codigo.replace(/<summary/g, '\n<summary')
+        .replace(/<details/g, '\n<details')
+        .replace(/<\/details>/g, '\n</details>')
+        .replace(/<\/summary>/g, '\n</summary>')
+        .replace(/<a/g, '\n<a')
+        .replace(/<\/a>/g, '</a>\n');
+
+    codigo = codigo
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    codigo = codigo.replace(/"([^"]*)"/g, '"<span style="color: #ff5555;">$1</span>"');
+
+    document.getElementById('codigoGerado').innerHTML = codigo;
+}
+function atualizarCodigo() {
+    let codigo = document.getElementById('output').innerHTML.trim();
+    codigo = codigo.replace(/<summary/g, '\n<summary')
+        .replace(/<details/g, '\n<details')
+        .replace(/<\/details>/g, '\n</details>')
+        .replace(/<\/summary>/g, '\n</summary>')
+        .replace(/<a/g, '\n<a')
+        .replace(/<\/a>/g, '</a>\n');
+
+    codigo = codigo
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    codigo = codigo.replace(/"([^"]*)"/g, '"<span style="color: #ff5555;">$1</span>"');
+
+    document.getElementById('codigoGerado').innerHTML = codigo;
+}
 
         function atualizarCodigo() {
     let codigo = document.getElementById('output').innerHTML.trim();
@@ -1876,25 +1920,26 @@ function closeAlert() {
   document.getElementById('dbAlert').style.display = 'none';
 }
 
-// Capturar cliques em links de PDF, BVR (_db) e HS (_hs)
 document.addEventListener('click', function(event) {
   const target = event.target.closest('a');
   if (target && target.href) {
     event.preventDefault(); // Evita o comportamento padrão do link
     
+    const hrefLower = target.href.toLowerCase(); // converte para minúsculas
+
     // Verifica se já existe um .bvr ou _db aberto
     const existingBvrOrDbIframe = document.querySelector('iframe[src*="basebrv.html"], iframe[src*="_db"]');
     
-    if (target.href.endsWith('.pdf')) {
+    if (hrefLower.endsWith('.pdf')) {
       openTab(target.href, 'pdf');
-    } else if (target.href.endsWith('.bvr') || target.href.endsWith('_db')) {
+    } else if (hrefLower.endsWith('.bvr') || hrefLower.endsWith('_db')) {
       if (existingBvrOrDbIframe) {
         document.getElementById('dbAlert').style.display = 'block'; // Exibe alerta
       } else {
-        const type = target.href.endsWith('.bvr') ? 'bvr' : 'db';
+        const type = hrefLower.endsWith('.bvr') ? 'bvr' : 'db';
         openTab(target.href, type);
       }
-    } else if (target.href.endsWith('_hs')) {
+    } else if (hrefLower.endsWith('_hs')) {
       // Permite abrir vários _hs sem restrições
       openTab(target.href, 'hs');
     } else {
@@ -1902,6 +1947,7 @@ document.addEventListener('click', function(event) {
     }
   }
 });
+
 
 // Função genérica para abrir abas de arquivos PDF, BVR (_db) e HS (_hs)
 function openTab(fileUrl, type) {
@@ -2169,7 +2215,3 @@ iframe.setAttribute('loading', 'lazy');
 
 </body>
 </html>
-
-
-
-
