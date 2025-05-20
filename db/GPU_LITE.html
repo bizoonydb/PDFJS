@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GAMES</title>
+    <title>GPU</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
@@ -5597,40 +5597,50 @@ loadUserWatermark();
 function closeAlert() {
   document.getElementById('dbAlert').style.display = 'none';
 }
+new Map();
+
+// Capturar cliques em links de PDF, BVR (.bvr), DB (_db) e HS (_hs)
 document.addEventListener('click', function(event) {
   const target = event.target.closest('a');
   if (target && target.href) {
-    event.preventDefault(); // Evita o comportamento padrão do link
-    
     const href = target.href;
-    const hrefLower = href.toLowerCase();
-
-    const existingBvrOrDbIframe = document.querySelector('iframe[src*="basebrv.html"], iframe[src*="_db"]');
+    const hrefLower = href.toLowerCase(); // Corrigido: estava faltando
+    event.preventDefault(); // Evita o comportamento padrão do link
 
     if (hrefLower.endsWith('.pdf')) {
-      // Abre o PDF no visualizador PDF.js em uma nova aba
-      window.open(`https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(href)}`, '_blank');
+      // Abre o PDF em nova aba com o visualizador PDF.js
+      window.open(`https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(href)}`, '_self');
+
     } else if (hrefLower.endsWith('.bvr') || hrefLower.endsWith('_db')) {
-      if (existingBvrOrDbIframe) {
-        document.getElementById('dbAlert').style.display = 'block'; // Exibe alerta
+      const existingIframe = [...iframes.values()].some(iframe =>
+        iframe.src.includes('.bvr') || iframe.src.includes('_db')
+      );
+
+      if (existingIframe) {
+        const alertDiv = document.getElementById('dbAlert');
+        if (alertDiv) alertDiv.style.display = 'block';
       } else {
         const type = hrefLower.endsWith('.bvr') ? 'bvr' : 'db';
         openTab(href, type);
       }
+
     } else if (hrefLower.endsWith('_hs')) {
+      // Permite abrir vários _hs sem restrição
       openTab(href, 'hs');
+
     } else {
+      // Comportamento padrão para outros links
       window.location.href = href;
     }
   }
 });
 
-// Função genérica para abrir abas de arquivos PDF, BVR (_db) e HS (_hs)
+// Função para abrir abas com iframe de visualização
 function openTab(fileUrl, type) {
   const tabId = `tab${tabCount}`;
   const fileName = decodeURIComponent(fileUrl.substring(fileUrl.lastIndexOf('/') + 1));
 
-  // Criar nova aba com o nome do arquivo e botão de fechar
+  // Criar aba
   const tab = document.createElement('div');
   tab.className = 'tab';
   tab.id = tabId;
@@ -5640,18 +5650,16 @@ function openTab(fileUrl, type) {
   `;
   tab.onclick = () => switchTab(tabId);
 
-  // Evento para fechar a aba
   tab.querySelector('.close-btn').onclick = (e) => {
-    e.stopPropagation(); // Evita ativar a aba ao clicar no X
+    e.stopPropagation();
     closeTab(tabId);
   };
 
   document.getElementById('tabs').appendChild(tab);
 
-  // Criar o iframe e armazenar
+  // Criar iframe
   const iframe = document.createElement('iframe');
-  
-  // Verificação dos tipos de arquivo
+
   if (type === 'pdf') {
     iframe.src = `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(fileUrl)}`;
   } else if (type === 'bvr') {
@@ -5660,16 +5668,15 @@ function openTab(fileUrl, type) {
     iframe.src = fileUrl;
   }
 
-  
-  iframe.classList.add('hidden'); // Escondido por padrão
+  iframe.classList.add('hidden');
   iframe.style.width = '100%';
   iframe.style.height = '100%';
   iframe.style.border = 'none';
   iframe.id = `iframe-${tabId}`;
+
   document.getElementById('iframeContainer').appendChild(iframe);
   iframes.set(tabId, iframe);
 
-  // Exibir o container de abas
   document.getElementById('tabContainer').style.display = 'flex';
   switchTab(tabId);
   tabCount++;
