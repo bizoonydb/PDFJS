@@ -300,8 +300,7 @@ if (scaleFactor >= 0.2) {
                 fill(230, 200, 100);
             } else if (pin.net === "GND") {
                 fill(120, 120, 120);
-            } else if (pin.net === "NC") {
-                fill(100, 130, 180);
+               
             } else if (pin.side === "B") {
                 fill(255, 200, 0);
             } else if (pin.side === "TP") {
@@ -317,6 +316,15 @@ if (scaleFactor >= 0.2) {
             } else {
                 noStroke();
             }
+
+            //as
+if (pin.net === "NC") {
+    fill(0);            // Cor preta
+    stroke(255);        // Borda branca
+    strokeWeight(1);  // Espessura da borda
+} else {
+    noStroke();         // Sem borda para outros pinos, se desejar
+}
 
             // Desenhar o pino
             if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
