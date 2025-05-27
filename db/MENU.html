@@ -6201,7 +6201,7 @@ document.addEventListener('click', function(event) {
     event.preventDefault(); // Evita o comportamento padrão do link
     
     // Verifica se já existe um .bvr ou _db aberto
-    const existingBvrOrDbIframe = document.querySelector('iframe[src*="bvr.html"], iframe[src*="_db"]');
+    const existingBvrOrDbIframe = document.querySelector('iframe[src*="index.html"], iframe[src*="_db"]');
     
     if (target.href.endsWith('.pdf')) {
       openTab(target.href, 'pdf');
