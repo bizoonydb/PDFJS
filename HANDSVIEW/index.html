@@ -1,0 +1,270 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ferramentas de esquema manual BVR</title>
+  <!-- Cargar p5.js desde el CDN -->
+  <script src="https://bvrhandschematic.web.app/P5js/p5.js"></script>
+  <!-- Cargar tu sketch -->
+  <script src="sketch.js"></script>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #ffffff00;
+    }
+
+    canvas {
+      z-index: 1;
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: auto;
+    }
+    /* Controles flotantes */
+    #controls {
+      position: fixed;
+      z-index: 1000;
+      top: 7px;
+      /* Cambiado de top a bottom */
+      right: 15px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 1px;
+      border-radius: 4px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+
+    #controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      /* espacio entre los elementos */
+      flex-wrap: wrap;
+      /* por si se reduce la pantalla */
+    }
+
+
+
+    #controls input {
+      margin: 0 1px;
+
+    }
+
+    #controls button,
+    #controls input:hover {
+      cursor: pointer;
+    }
+
+    /* Leyenda en la parte inferior izquierda */
+    #legend {
+      position: fixed;
+      bottom: 5px;
+      left: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      padding: 5px;
+      border-radius: 4px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .color-box {
+      width: 15px;
+      height: 15px;
+      margin-right: 8px;
+      border-radius: 3px;
+    }
+
+    .red {
+      background: red;
+    }
+
+    .gray {
+      background: rgb(100, 100, 100);
+    }
+
+    .NC {
+      background: rgb(192, 192, 192);
+    }
+
+    .blue {
+      background: blue;
+    }
+
+    .green {
+      background: green;
+    }
+
+    #btnToggleTraces {
+
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #searchComponent {
+      width: 90px;
+      min-width: 90px;
+      font-size: 16;
+
+    }
+
+    #NetSearch {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #ccc;
+      padding: 10px 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      font-family: sans-serif;
+    }
+
+    #NetSearch label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    #NetSearch input {
+      width: 150px;
+      padding: 5px;
+      font-size: 14px;
+    }
+
+    button {
+      border: none;
+      background: none;
+      padding: 4px;
+      cursor: pointer;
+    }
+
+    button img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      border: none;
+      outline: none;
+      display: block;
+    }
+  </style>
+<link type="text/css" rel="stylesheet" charset="UTF-8" href="https://www.gstatic.com/_/translate_http/_/ss/k=translate_http.tr.NJgGN_yGIWM.L.W.O/am=AAY/d=0/rs=AN8SPfrTSMIvWAFISYN4u74dPJrX0HgUsw/m=el_main_css"></head>
+<body>
+
+
+  <div id="controls">
+    <datalist id="componentList"></datalist><input id="searchComponent" type="text" placeholder="Buscador" list="componentList">
+    
+
+    <button id="btnZoomIn" title="Ampliar">
+      <img src="https://bvrhandschematic.web.app/Icons/zoom.png" alt="Ampliar">
+    </button>
+
+    <button id="btnZoomOut" title="Remover">
+      <img src="https://bvrhandschematic.web.app/Icons/zoom+.png" alt="Remover">
+    </button>
+
+    <button id="btnTop" title="PRINCIPAL">
+      <img src="https://bvrhandschematic.web.app/Icons/top.png" alt="PRINCIPAL">
+    </button>
+
+    <button id="btnBottom" title="FUNDO">
+      <img src="https://bvrhandschematic.web.app/Icons/botton.png" alt="FUNDO">
+    </button>
+
+    <button id="btnAll" title="A+B">
+      <img src="https://bvrhandschematic.web.app/Icons/top mas bottom.png" alt="A+B">
+    </button>
+
+    <button id="btnNextNet" title="PRÓXIMO PIN">
+      <img src="https://bvrhandschematic.web.app/Icons/next pin.png" alt="Próximo PIN">
+    </button>
+
+    <button id="btnRotate" title="Girar">
+      <img src="https://bvrhandschematic.web.app/Icons/girar.png" alt="Girar">
+    </button>
+
+    <button id="flipButton" title="Espelho">
+      <img src="https://bvrhandschematic.web.app/Icons/espejo.png" alt="Espelho">
+    </button>
+
+    <button id="btnToggleTraces" title="Esconder pistas">
+      <img src="https://bvrhandschematic.web.app/Icons/lineas visible.png" alt="Esconder pistas">
+    </button>
+
+    <button id="btnResize" title="Ajustar tela">
+      <img src="https://bvrhandschematic.web.app/Icons/ajustar canvas.png" alt="Ajustar tela">
+    </button>
+
+    <input id="netInput" type="text" placeholder="Por exemplo VCC ou GND" autocomplete="off" style="display: none;">
+    <datalist id="netList"></datalist>
+
+  </div>
+<div id="pinDisplay" style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 90px;
+  background: url('https://bizoonydb.github.io/PDFJS/db/painel.jpg') no-repeat center center;
+  background-size: cover;
+  padding: 10px;
+  font-family: sans-serif;
+  font-size: 18px;
+  color: #48ff00;
+  border-radius: 0px;
+  margin: 0px;
+  z-index: 100;
+  white-space: pre-line;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: left;
+">
+  
+</div>
+
+  <!-- Leyenda de colores -->
+  <div id="legend" style="display: none;">
+    <div class="legend-item"><span class="color-box red"></span><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Apontar</font></font></div>
+    <div class="legend-item"><span class="color-box gray"></span><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Terra</font></font></div>
+    <div class="legend-item"><span class="color-box NC"></span><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">NC</font></font></div>
+    <div class="legend-item"><span class="color-box blue"></span><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Selecione</font></font></div>
+    <div class="legend-item"><span class="color-box green"></span><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Próximo Pin</font></font></div>
+  </div>
+
+
+
+
+
+
+  <!-- El canvas se crea automáticamente en el body mediante p5.js -->
+
+
+<div id="goog-gt-tt" class="VIpgJd-yAWNEb-L7lbkb skiptranslate" style="border-radius: 12px; margin: 0 0 0 -23px; padding: 0; font-family: 'Google Sans', Arial, sans-serif;" data-id=""><div id="goog-gt-vt" class="VIpgJd-yAWNEb-hvhgNd"><div class=" VIpgJd-yAWNEb-hvhgNd-l4eHX-i3jM8c"><img src="https://fonts.gstatic.com/s/i/productlogos/translate/v14/24px.svg" width="24" height="24" alt=""></div><div class=" VIpgJd-yAWNEb-hvhgNd-k77Iif-i3jM8c"><div class="VIpgJd-yAWNEb-hvhgNd-IuizWc" dir="ltr">Texto original</div><div id="goog-gt-original-text" class="VIpgJd-yAWNEb-nVMfcd-fmcmS VIpgJd-yAWNEb-hvhgNd-axAV1"></div></div><div class="VIpgJd-yAWNEb-hvhgNd-N7Eqid ltr"><div class="VIpgJd-yAWNEb-hvhgNd-N7Eqid-B7I4Od ltr" dir="ltr"><div class="VIpgJd-yAWNEb-hvhgNd-UTujCb">Avalie a tradução</div><div class="VIpgJd-yAWNEb-hvhgNd-eO9mKe">O feedback vai ser usado para ajudar a melhorar o Google Tradutor</div></div><div class="VIpgJd-yAWNEb-hvhgNd-xgov5 ltr"><button id="goog-gt-thumbUpButton" type="button" class="VIpgJd-yAWNEb-hvhgNd-bgm6sf" title="Tradução boa" aria-label="Tradução boa" aria-pressed="false"><span id="goog-gt-thumbUpIcon"><svg width="24" height="24" viewBox="0 0 24 24" focusable="false" class="VIpgJd-yAWNEb-hvhgNd-THI6Vb NMm5M"><path d="M21 7h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 0S7.08 6.85 7 7H2v13h16c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73V9c0-1.1-.9-2-2-2zM7 18H4V9h3v9zm14-7l-3 7H9V8l4.34-4.34L12 9h9v2z"></path></svg></span><span id="goog-gt-thumbUpIconFilled"><svg width="24" height="24" viewBox="0 0 24 24" focusable="false" class="VIpgJd-yAWNEb-hvhgNd-THI6Vb NMm5M"><path d="M21 7h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 0S7.08 6.85 7 7v13h11c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73V9c0-1.1-.9-2-2-2zM5 7H1v13h4V7z"></path></svg></span></button><button id="goog-gt-thumbDownButton" type="button" class="VIpgJd-yAWNEb-hvhgNd-bgm6sf" title="Tradução ruim" aria-label="Tradução ruim" aria-pressed="false"><span id="goog-gt-thumbDownIcon"><svg width="24" height="24" viewBox="0 0 24 24" focusable="false" class="VIpgJd-yAWNEb-hvhgNd-THI6Vb NMm5M"><path d="M3 17h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 24s7.09-6.85 7.17-7h5V4H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2zM17 6h3v9h-3V6zM3 13l3-7h9v10l-4.34 4.34L12 15H3v-2z"></path></svg></span><span id="goog-gt-thumbDownIconFilled"><svg width="24" height="24" viewBox="0 0 24 24" focusable="false" class="VIpgJd-yAWNEb-hvhgNd-THI6Vb NMm5M"><path d="M3 17h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 24s7.09-6.85 7.17-7V4H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2zm16 0h4V4h-4v13z"></path></svg></span></button></div></div><div id="goog-gt-votingHiddenPane" class="VIpgJd-yAWNEb-hvhgNd-aXYTce"><form id="goog-gt-votingForm" action="//translate.googleapis.com/translate_voting?client=te_lib" method="post" target="votingFrame" class="VIpgJd-yAWNEb-hvhgNd-aXYTce"><input type="text" name="sl" id="goog-gt-votingInputSrcLang"><input type="text" name="tl" id="goog-gt-votingInputTrgLang"><input type="text" name="query" id="goog-gt-votingInputSrcText"><input type="text" name="gtrans" id="goog-gt-votingInputTrgText"><input type="text" name="vote" id="goog-gt-votingInputVote"></form><iframe name="votingFrame" frameborder="0"></iframe></div></div></div><div id="p5_loading" style="position: absolute;"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Carregando...</font></font></div></body>
+<script>
+    function preload() {
+      
+    let params = getURLParams();
+    let fileURL = params.fileLink
+        ? decodeURIComponent(params.fileLink)
+        // : 'https://firebasestorage.googleapis.com/v0/b/handschematic.appspot.com/o/MySQLdb%2FAPPLE%2FBitmaps%2FiPhone11APBB.bvr?alt=media&token=4c8b214a-7096-4b62-ab88-00884c04b4a5';
+        : 'https://firebasestorage.googleapis.com/v0/b/handschematic.appspot.com/o/fondos%20BVR%2F820-3437-b.bvr?alt=media&token=8de74580-2d1f-4e62-a181-a38f70791949';
+    fileContent = loadStrings(fileURL);
+
+    
+}
+</script>
+</html>
