@@ -815,7 +815,7 @@ function pointInPolygon(x, y, vs) {
 }
 
 function mousePressed() {
-    // Convertir la posición del mouse a coordenadas mundo
+    // Converter posição do mouse para coordenadas do mundo
     let worldPos = screenToWorld(mouseX, mouseY);
     let mx = worldPos.x;
     let my = worldPos.y;
@@ -827,55 +827,94 @@ function mousePressed() {
         let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
 
         for (let pin of part.pins) {
-            // Calculamos el centro de la almohadilla
+            // Calcula o centro da pad
             let worldX = pin.x + groupOffset;
             let worldY = pin.y;
 
-            // Determinamos si el click cae dentro de la forma
+            // Verifica se o clique está dentro da pad
             let hit = false;
             if (pin.outline && pin.outline.length) {
-                // Construir polígono en coords mundo
                 const poly = pin.outline.map(v => ({
                     x: v.x + worldX,
                     y: v.y + worldY
                 }));
                 hit = pointInPolygon(mx, my, poly);
             } else {
-                // Fallback: dentro del radio
                 hit = dist(mx, my, worldX, worldY) <= pin.radius;
             }
 
             if (hit) {
-                // Preparamos tooltip en el centro de la almohadilla
                 const tipPos = { x: worldX, y: worldY, side: part.side };
+                let tooltipText;
+
                 if (pin.net === "GND" || pin.net === "NC") {
-                    tooltip = {
-                        text: `Parte: ${part.name}\nNet: ${pin.net}`,
-                        ...tipPos
-                    };
+                    tooltipText = `Parte: ${part.name}<br>Net: ${pin.net}`;
                     selectedPin = null;
                 } else {
-                    tooltip = {
-                        text: `COMP: ${part.name}\nMALHA: ${pin.net}\nPINO: ${pin.name}`,
-                        ...tipPos
-                    };
+                    tooltipText = `COMP: ${part.name}<br>MALHA: ${pin.net}<br>PINO: ${pin.name}`;
                     selectedPin = pin;
                     actualizarRedSeleccionada();
                 }
+
+                tooltip = {
+                    text: tooltipText,
+                    ...tipPos
+                };
+
+                // Atualiza display do pino
+                const pinDisplay = document.getElementById("pinDisplay");
+                if (pinDisplay) {
+                    pinDisplay.innerHTML = tooltipText;
+                }
+
+                // Atualiza display de voltagem separado
+                const voltageDisplay = document.getElementById("voltageDisplay");
+                if (voltageDisplay) {
+                    const voltage = netNameToVoltage(pin.net);
+                    voltageDisplay.textContent = voltage ? voltage : '...';
+                }
+
                 found = true;
-                 // ATUALIZA O DISPLAY
-                const display = document.getElementById("pinDisplay");
-                if (display) display.textContent = tooltip.text;
-            
                 break;
             }
-            
         }
         if (found) break;
     }
 
-    return false; // evita default
+    return false; // Evita comportamento padrão
 }
+
+
+// Função que converte nome da malha (net.name) em voltagem exibível
+function netNameToVoltage(netName) {
+    if (!netName) return '';
+
+    const name = netName.toUpperCase();
+
+    const voltageMap = {
+        'VBAT': '4,2V',
+        'VBUS': '5,0V',
+        'VPH_PWR': '4,2V',
+        'GND': 'GND',
+       
+        'NC': 'NC'
+    };
+
+    for (const key in voltageMap) {
+        if (name.includes(key)) {
+            return voltageMap[key];
+        }
+    }
+
+    // Detecta padrão tipo "1V8" ou "3P3"
+    const match = name.match(/(\d)(V|P)(\d)/);
+    if (match) {
+        return `${match[1]},${match[3]}V`;
+    }
+
+    return ''; // Se não reconhece, retorna vazio
+}
+
 
 function mouseDragged() {
 
