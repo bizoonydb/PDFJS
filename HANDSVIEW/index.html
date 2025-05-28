@@ -1,15 +1,14 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DIGITAL-BOARD-BVR</title>
-  <!-- Cargar p5.js desde el CDN -->
+  <title>Ferramentas de esquema manual BVR</title>
+  
   <script src="https://bvrhandschematic.web.app/P5js/p5.js"></script>
-  <!-- Cargar tu sketch -->
-
 
   <style>
-    html,
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -23,103 +22,49 @@
       display: block;
       margin: auto;
     }
-    /* Controles flotantes */
-     #controls {
-  position: fixed;
-  top: 0px;
-  right: 0px;
-  z-index: 1000;
-  background: #808080;
-  padding: 5px;
-  border: 3px solid #808080;
-  box-shadow: 0 0 20px rgba(246, 255, 0, 0);
-  display: flex;
-  flex-direction:row;
-  align-items: center;
-  
-}
-#controls button, #controls input {
-  margin: 0px 2px;
-  padding: 0px;
-  width: 20px;
-  margin-left: 3px;
-  height: 20px;
-  font-size: 8px;
-  cursor: pointer;
-  text-align: center;
-  border: 2px solid #000000;
-  background-color: #ffffff;
-  color: rgb(0, 0, 0);
-  border-radius: 0%;
-  transition: background-color 0.3s, transform 0.2s;
-}
-#controls button:hover {
-  background-color: rgb(56, 56, 56);
-  color: rgb(255, 0, 0);
-  transform: scale(1.1);
-}
-#controls input {
-  min-width: 250px;
-  font-size: 18px;
-  border-radius: 3px;
-  
-  background-color: #b9b9b9;
-  border: #ffe600 2px solid;
-  color: rgb(0, 0, 0);
-  text-align: center;
-}
 
-
-
-    /* Leyenda en la parte inferior izquierda */
-    #legend {
+    #controls {
       position: fixed;
-      bottom: 5px;
-      left: 5px;
-      background: rgba(255, 255, 255, 0.5);
+      top: 0;
+      right: 0;
+      z-index: 1000;
+      background: #808080;
       padding: 5px;
-      border-radius: 4px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-      font-family: Arial, sans-serif;
-      font-size: 11px;
-    }
-
-    .legend-item {
+      border: 3px solid #808080;
       display: flex;
+      flex-direction: row;
       align-items: center;
-      margin-bottom: 5px;
     }
 
-    .color-box {
-      width: 15px;
-      height: 15px;
-      margin-right: 8px;
-      border-radius: 3px;
-    }
-
-    #btnToggleTraces {
-
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    #searchComponent {
-      
-      min-width: 250px;
-      font-size: 18;
-      border: #fa00a7 2px solid;
-
-
-    }
-
- 
-    button {
-      border: none;
-      background: none;
-      padding: 4px;
+    #controls button, #controls input {
+      margin: 0px 2px;
+      padding: 0px;
+      width: 20px;
+      height: 20px;
+      font-size: 8px;
       cursor: pointer;
+      text-align: center;
+      border: 2px solid #000000;
+      background-color: #ffffff;
+      color: rgb(0, 0, 0);
+      border-radius: 0%;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    #controls button:hover {
+      background-color: rgb(56, 56, 56);
+      color: rgb(255, 0, 0);
+      transform: scale(1.1);
+    }
+
+    #controls input {
+      min-width: 250px;
+      font-size: 18px;
+      border-radius: 3px;
+      background-color: #b9b9b9;
+      border: #ffe600 2px solid;
+      color: rgb(0, 0, 0);
+      text-align: center;
     }
 
     button img {
@@ -130,15 +75,63 @@
       outline: none;
       display: block;
     }
-  </style>
-<link type="text/css" rel="stylesheet" charset="UTF-8" href="https://www.gstatic.com/_/translate_http/_/ss/k=translate_http.tr.NJgGN_yGIWM.L.W.O/am=AAY/d=0/rs=AN8SPfrTSMIvWAFISYN4u74dPJrX0HgUsw/m=el_main_css"></head>
-<body>
 
+    #voltageDisplay {
+     position: fixed;
+      top: 0;
+      left: 0;
+      width: 200px;
+      height: 140px;
+      background: url('https://bizoonydb.github.io/PDFJS/db/MULT2.jpg') no-repeat center center;
+      background-size: cover;
+      padding: 10px;
+      font-family: sans-serif;
+      font-size: 40px;
+      color: #424242;
+      z-index: 100;
+      display: flex;
+      border-right: #ffe600 2px solid;
+      align-items: center;
+      justify-content: center;
+      text-align: left;
+    }
+
+    #pinDisplay {
+      position: fixed;
+      top: 160px;
+      left: 0;
+      width: 200px;
+      border-right: #ffe600 2px solid;
+      border-bottom: #ffe600 2px solid;
+      height: 70px;
+      background: url('https://bizoonydb.github.io/PDFJS/db/painel2.jpg') no-repeat center center;
+      background-size: cover;
+      padding: 10px;
+      font-family: sans-serif;
+      font-size: 18px;
+      color: #48ff00;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: left;
+    }
+  #netInput {
+  display: none;
+}
+
+  </style>
+</head>
+
+<body>
+  <div id="voltageDisplay"></div>
 
   <div id="controls">
-    <datalist id="componentList"></datalist><input id="searchComponent" type="text" placeholder="Buscador" list="componentList">
+    <datalist id="componentList"></datalist>
+    <input id="searchComponent" type="text" placeholder="Buscador" list="componentList">
+
     <button id="btnToggle">2D</button>
-    
+
     <button id="btnToggleTraces" title="Esconder pistas">
       <img src="https://bvrhandschematic.web.app/Icons/lineas visible.png" alt="Esconder pistas">
     </button>
@@ -175,55 +168,25 @@
       <img src="https://bvrhandschematic.web.app/Icons/espejo.png" alt="Espelho">
     </button>
 
-
     <button id="btnResize" title="Ajustar tela">
       <img src="https://bvrhandschematic.web.app/Icons/ajustar canvas.png" alt="Ajustar tela">
     </button>
 
-    <input  id="netInput" type="text" placeholder="Por exemplo VCC ou GND" autocomplete="off" style="display: none;">
-    <datalist id="netList"></datalist>
-
+    
   </div>
-<div id="pinDisplay" style="
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 240px;
-  height: 90px;
-  background: url('https://bizoonydb.github.io/PDFJS/db/painel.jpg') no-repeat center center;
-  background-size: cover;
-  padding: 10px;
-  font-family: sans-serif;
-  font-size: 18px;
-  color: #48ff00;
-  border-radius: 0px;
-  margin: 0px;
-  z-index: 100;
-  white-space: pre-line;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: left;
-">
-  
-</div>
-</body>
+<input id="netInput" type="text" placeholder="malha" autocomplete="off">
+    <datalist id="netList"></datalist>
+  <div id="pinDisplay"></div>
+
 <script>
-    function preload() {
-      
+  function preload() {
     let params = getURLParams();
     let fileURL = params.fileLink
-        ? decodeURIComponent(params.fileLink)
-        // : 'https://firebasestorage.googleapis.com/v0/b/handschematic.appspot.com/o/MySQLdb%2FAPPLE%2FBitmaps%2FiPhone11APBB.bvr?alt=media&token=4c8b214a-7096-4b62-ab88-00884c04b4a5';
-        : 'https://firebasestorage.googleapis.com/v0/b/handschematic.appspot.com/o/fondos%20BVR%2F820-3437-b.bvr?alt=media&token=8de74580-2d1f-4e62-a181-a38f70791949';
+      ? decodeURIComponent(params.fileLink)
+      : 'https://firebasestorage.googleapis.com/v0/b/handschematic.appspot.com/o/fondos%20BVR%2F820-3437-b.bvr?alt=media&token=8de74580-2d1f-4e62-a181-a38f70791949';
     fileContent = loadStrings(fileURL);
-
-    
-}
-
+  }
 </script>
-
 
 <script>
   function getParam(name) {
@@ -242,13 +205,11 @@
 
   const isSketch = param === 'sketch';
 
-  // ✅ Carrega o script principal ignorando cache
   const script = document.createElement('script');
   const timestamp = Date.now();
   script.src = (isSketch ? 'sketch.js' : 'A.js') + `?t=${timestamp}`;
   document.body.appendChild(script);
 
-  // 🔥 Função para pré-carregar o próximo script
   function preloadNextScript() {
     const next = isSketch ? 'A.js' : 'sketch.js';
     const link = document.createElement('link');
@@ -258,18 +219,16 @@
     document.head.appendChild(link);
   }
 
-  // Começa a pré-carregar
   preloadNextScript();
 
   document.getElementById('btnToggle').addEventListener('click', () => {
     const newParam = isSketch ? 'A' : 'sketch';
     url.searchParams.set('script', newParam);
-
-    // Troca imediata da página, sem delay
     window.location.href = url.toString();
   });
 </script>
 
 
 
+</body>
 </html>
