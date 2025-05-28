@@ -1,7 +1,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ferramentas de esquema manual BVR</title>
+  <title>DIGITAL-BOARD-BVR</title>
   <!-- Cargar p5.js desde el CDN -->
   <script src="https://bvrhandschematic.web.app/P5js/p5.js"></script>
   <!-- Cargar tu sketch -->
@@ -24,39 +24,52 @@
       margin: auto;
     }
     /* Controles flotantes */
-    #controls {
-      position: fixed;
-      z-index: 1000;
-      top: 7px;
-      /* Cambiado de top a bottom */
-      right: 15px;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.7);
-      padding: 1px;
-      border-radius: 4px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-    }
+     #controls {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  z-index: 1000;
+  background: #808080;
+  padding: 5px;
+  border: 3px solid #808080;
+  box-shadow: 0 0 20px rgba(246, 255, 0, 0);
+  display: flex;
+  flex-direction:row;
+  align-items: center;
+  
+}
+#controls button, #controls input {
+  margin: 0px 2px;
+  padding: 0px;
+  width: 20px;
+  margin-left: 3px;
+  height: 20px;
+  font-size: 8px;
+  cursor: pointer;
+  text-align: center;
+  border: 2px solid #000000;
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  border-radius: 0%;
+  transition: background-color 0.3s, transform 0.2s;
+}
+#controls button:hover {
+  background-color: rgb(56, 56, 56);
+  color: rgb(255, 0, 0);
+  transform: scale(1.1);
+}
+#controls input {
+  min-width: 250px;
+  font-size: 18px;
+  border-radius: 3px;
+  
+  background-color: #b9b9b9;
+  border: #ffe600 2px solid;
+  color: rgb(0, 0, 0);
+  text-align: center;
+}
 
-    #controls {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      /* espacio entre los elementos */
-      flex-wrap: wrap;
-      /* por si se reduce la pantalla */
-    }
 
-
-
-    #controls input {
-      margin: 0 1px;
-
-    }
-
-    #controls button,
-    #controls input:hover {
-      cursor: pointer;
-    }
 
     /* Leyenda en la parte inferior izquierda */
     #legend {
@@ -84,26 +97,6 @@
       border-radius: 3px;
     }
 
-    .red {
-      background: red;
-    }
-
-    .gray {
-      background: rgb(100, 100, 100);
-    }
-
-    .NC {
-      background: rgb(192, 192, 192);
-    }
-
-    .blue {
-      background: blue;
-    }
-
-    .green {
-      background: green;
-    }
-
     #btnToggleTraces {
 
       text-align: center;
@@ -113,37 +106,15 @@
     }
 
     #searchComponent {
-      width: 90px;
-      min-width: 90px;
-      font-size: 16;
+      
+      min-width: 250px;
+      font-size: 18;
+      border: #fa00a7 2px solid;
+
 
     }
 
-    #NetSearch {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid #ccc;
-      padding: 10px 12px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-      z-index: 1000;
-      font-family: sans-serif;
-    }
-
-    #NetSearch label {
-      display: block;
-      margin-bottom: 5px;
-      font-size: 14px;
-    }
-
-    #NetSearch input {
-      width: 150px;
-      padding: 5px;
-      font-size: 14px;
-    }
-
+ 
     button {
       border: none;
       background: none;
@@ -167,6 +138,10 @@
   <div id="controls">
     <datalist id="componentList"></datalist><input id="searchComponent" type="text" placeholder="Buscador" list="componentList">
     <button id="btnToggle">2D</button>
+    
+    <button id="btnToggleTraces" title="Esconder pistas">
+      <img src="https://bvrhandschematic.web.app/Icons/lineas visible.png" alt="Esconder pistas">
+    </button>
 
     <button id="btnZoomIn" title="Ampliar">
       <img src="https://bvrhandschematic.web.app/Icons/zoom.png" alt="Ampliar">
@@ -200,15 +175,12 @@
       <img src="https://bvrhandschematic.web.app/Icons/espejo.png" alt="Espelho">
     </button>
 
-    <button id="btnToggleTraces" title="Esconder pistas">
-      <img src="https://bvrhandschematic.web.app/Icons/lineas visible.png" alt="Esconder pistas">
-    </button>
 
     <button id="btnResize" title="Ajustar tela">
       <img src="https://bvrhandschematic.web.app/Icons/ajustar canvas.png" alt="Ajustar tela">
     </button>
 
-    <input id="netInput" type="text" placeholder="Por exemplo VCC ou GND" autocomplete="off" style="display: none;">
+    <input  id="netInput" type="text" placeholder="Por exemplo VCC ou GND" autocomplete="off" style="display: none;">
     <datalist id="netList"></datalist>
 
   </div>
