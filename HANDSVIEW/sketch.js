@@ -292,10 +292,10 @@ function draw() {
 
     if (isLoading) { // Si está cargando, muestra mensaje de carga animado.
 
-        textSize(255, 255, 255);
-        fill(255);
+        textSize(50);
+        fill(255,255,0);
         textAlign(CENTER, CENTER);
-        text(".", width / 2, height / 2); // Texto "Cargando" centrado.
+        text("BAIXANDO", width / 2, height / 2); // Texto "Cargando" centrado.
 
         let loadingDots = ['.', '..', '...']; // Animación de puntos.
         let dotIndex = Math.floor(millis() / 500) % 3; // Cambia cada 500 ms.
@@ -507,6 +507,7 @@ if (pin.outline && pin.outline.length) {
     // Quadrado para resistores, indutores, , etc.
     push();
     rectMode(CENTER);
+    
     rect(worldX, worldY, pin.radius, pin.radius);
     pop();
 
@@ -539,9 +540,9 @@ if (pin.outline && pin.outline.length) {
 
         push();
         textAlign(CENTER, CENTER);
-        textSize(70); // Tamaño fijo, puedes ajustar según tu canvas
+        textSize(80); // Tamaño fijo, puedes ajustar según tu canvas
         textFont('sans-serif'); // Usa una fuente más clara y estable
-        fill(0, 0, 0, 30); // Un poco más opaco para que sea legible
+        fill(255, 255, 255, 40); // Un poco más opaco para que sea legible
         textStyle(BOLD);
         text("DIGITAL BOARD", width / 2, height / 2);
         pop();
@@ -1097,7 +1098,7 @@ if (part.name.startsWith("CN")) {
     stroke(150, 150, 150);  
 } else if (part.name.startsWith("L")) {
     // 🔹 CI (Circuito Integrado)
-    strokeWeight(2);
+    strokeWeight(2 / scaleFactor);
     fill(70, 70, 70, 100); 
     stroke(150, 150, 150); 
     
@@ -1110,9 +1111,9 @@ if (part.name.startsWith("CN")) {
 
 } else if (part.name.startsWith("C")) {
     // 🔸 Conectores
-    strokeWeight(2);
+       strokeWeight(2 / scaleFactor);
     fill(255, 255, 120, 90);  // Amarelo claro, semi-transparente
-    stroke(150, 150, 150);    // Borda cinza
+    stroke(160, 160, 160);    // Borda cinza
 
 } else {
     strokeWeight(2 / scaleFactor)
@@ -1204,7 +1205,7 @@ function drawPinNumbers() {
     resetMatrix();
     textAlign(CENTER, CENTER);
     noStroke();
-    fill(0);//COR DOS NÚMEROS E MALHAS DOS PINOS
+    fill(80);//COR DOS NÚMEROS E MALHAS DOS PINOS
 
     for (let part of parts) {
         if (displayMode === "top" && part.side !== "T") continue;
@@ -1232,8 +1233,8 @@ function drawPinNumbers() {
 
             // Calculamos tamaño de texto según diámetro de pad en pantalla
             const screenDiameter = pin.radius * scaleFactor;
-            const ts = screenDiameter * 0.3;
-            textSize(ts);
+            const ts = screenDiameter * 0.2;//tamanho do texto
+            textSize(ts);//tamanho do texto
 
             // Si name === number, solo mostramos name en el centro
             if (pin.name === pin.number) {
