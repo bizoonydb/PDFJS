@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MENU</title>
+    <title>UPLOAD</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
@@ -414,78 +414,75 @@ input::placeholder {
         }
 
         function adicionarArquivo() {
-            const urlBase = document.getElementById('urlBase').value.trim();
-            const marca = document.getElementById('marca').value.trim();
-            const linha = document.getElementById('linha').value.trim();
-            const arquivo1 = document.getElementById('arquivo1').value.trim();
-            const arquivo2 = document.getElementById('arquivo2').value.trim();
-            const arquivo3 = document.getElementById('arquivo3').value.trim();
+        const urlBase = document.getElementById('urlBase').value.trim();
+        const marca = document.getElementById('marca').value.trim();
+        const linha = document.getElementById('linha').value.trim();
+        const arquivo1 = document.getElementById('arquivo1').value.trim();
+        const arquivo2 = document.getElementById('arquivo2').value.trim();
+        const arquivo3 = document.getElementById('arquivo3').value.trim();
 
-            if (!urlBase || !marca || !linha) {
-                alert('Preencha URL, Marca e Linha.');
-                return;
-            }
-
-            if (!arquivo1 && !arquivo2 && !arquivo3) {
-                alert('Preencha pelo menos um dos arquivos.');
-                return;
-            }
-
-            const arquivos = [];
-
-            if (arquivo1) {
-                const ext = pegarExtensao(arquivo1);
-                arquivos.push({ nome: 'ESQUEMATICO' + ext, origem: arquivo1 });
-            }
-            if (arquivo2) {
-                const ext = pegarExtensao(arquivo2);
-                arquivos.push({ nome: 'LAYOUT' + ext, origem: arquivo2 });
-            }
-            if (arquivo3) {
-                const ext = pegarExtensao(arquivo3);
-                arquivos.push({ nome: 'BITMAP' + ext, origem: arquivo3 });
-            }
-
-            const output = document.getElementById('output');
-            const folderSelector = `.folder[marca='${marca}']`;
-            let folderElement = output.querySelector(folderSelector);
-
-            if (!folderElement) {
-                folderElement = document.createElement('details');
-                folderElement.classList.add('folder');
-                folderElement.setAttribute('marca', marca);
-                folderElement.innerHTML = `<summary><i class="fas fa-folder"></i> ${marca}</summary>`;
-                output.appendChild(folderElement);
-            }
-
-            const linhaSelector = `details[linha='${linha}']`;
-            let linhaElement = folderElement.querySelector(linhaSelector);
-
-            if (!linhaElement) {
-                linhaElement = document.createElement('details');
-                linhaElement.setAttribute('linha', linha);
-                linhaElement.innerHTML = `<summary><i class="fas fa-folder-plus"></i> ${linha}</summary>`;
-                folderElement.appendChild(linhaElement);
-            }
-
-            arquivos.forEach(arquivo => {
-                const link = `${urlBase}${arquivo.origem}`;
-                const arquivoHtml = `<a href="${link}" class="file"><i class="far fa-file-code"></i> ${arquivo.nome}</a>`;
-                linhaElement.innerHTML += arquivoHtml;
-            });
-
-            localStorage.setItem('urlBase', urlBase);
-            localStorage.setItem('marca', marca);
-            localStorage.setItem('linha', linha);
-            localStorage.setItem('output', output.innerHTML);
-            localStorage.setItem('lastState', output.innerHTML);
-
-            document.getElementById('arquivo1').value = '';
-            document.getElementById('arquivo2').value = '';
-            document.getElementById('arquivo3').value = '';
-
-            atualizarCodigo();
+        if (!urlBase || !marca || !linha) {
+            alert('Preencha URL, Marca e Linha.');
+            return;
         }
+
+        if (!arquivo1 && !arquivo2 && !arquivo3) {
+            alert('Preencha pelo menos um dos arquivos.');
+            return;
+        }
+
+        const arquivos = [];
+
+        if (arquivo1) {
+            arquivos.push({ nome: 'ESQUEMATICO', origem: `${arquivo1}.pdf` });
+        }
+        if (arquivo2) {
+            arquivos.push({ nome: 'LAYOUT', origem: `${arquivo2}.pdf` });
+        }
+        if (arquivo3) {
+            arquivos.push({ nome: 'BITMAP', origem: `${arquivo3}.bvr` });
+        }
+
+        const output = document.getElementById('output');
+        const folderSelector = `.folder[marca='${marca}']`;
+        let folderElement = output.querySelector(folderSelector);
+
+        if (!folderElement) {
+            folderElement = document.createElement('details');
+            folderElement.classList.add('folder');
+            folderElement.setAttribute('marca', marca);
+            folderElement.innerHTML = `<summary><i class="fas fa-folder"></i> ${marca}</summary>`;
+            output.appendChild(folderElement);
+        }
+
+        const linhaSelector = `details[linha='${linha}']`;
+        let linhaElement = folderElement.querySelector(linhaSelector);
+
+        if (!linhaElement) {
+            linhaElement = document.createElement('details');
+            linhaElement.setAttribute('linha', linha);
+            linhaElement.innerHTML = `<summary><i class="fas fa-folder-plus"></i> ${linha}</summary>`;
+            folderElement.appendChild(linhaElement);
+        }
+
+        arquivos.forEach(arquivo => {
+            const link = `${urlBase}${arquivo.origem}`;
+            const arquivoHtml = `<a href="${link}" class="file"><i class="far fa-file-code"></i> ${arquivo.nome}</a>`;
+            linhaElement.innerHTML += arquivoHtml;
+        });
+
+        localStorage.setItem('urlBase', urlBase);
+        localStorage.setItem('marca', marca);
+        localStorage.setItem('linha', linha);
+        localStorage.setItem('output', output.innerHTML);
+        localStorage.setItem('lastState', output.innerHTML);
+
+        document.getElementById('arquivo1').value = '';
+        document.getElementById('arquivo2').value = '';
+        document.getElementById('arquivo3').value = '';
+
+        atualizarCodigo();
+    }
 
         function pegarExtensao(nome) {
             const match = nome.match(/\.[a-zA-Z0-9]+$/);
