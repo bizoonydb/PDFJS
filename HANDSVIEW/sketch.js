@@ -437,21 +437,22 @@ function drawOutline(points, offsetX = 0, flipX = false, mirrorAxis = 0) {
             // 🔥 Definição das cores dos pinos
             noStroke();
 
-            if (selectedPin === pin) {
-    // Pisca entre Magenta (255, 0, 255) e Amarelo (255, 255, 0)
-    let t = (sin(frameCount * 0.9) + 1) / 2;
-    let r = lerp(255, 0, t);
-    let g = lerp(0, 255, t);
-    let b = 0;
-    fill(r, g, b);
+   let interval = 3; // Número de frames para alternar (~0.5s em 60fps)
+let toggle = floor(frameCount / interval) % 2;
+
+if (selectedPin === pin) {
+    // Alterna entre Magenta (255, 0, 255) e Amarelo (255, 255, 0)
+    fill(0, 255, 0); // Vermelho
+    
 
 } else if (selectedPin && pin.net === selectedPin.net) {
-    // Pisca entre Vermelho e Verde
-    let t = (sin(frameCount * 0.9) + 1) / 2;
-    let r = lerp(255, 0, t);
-    let g = lerp(0, 255, t);
-    let b = 0;
-    fill(r, g, b);
+    // Alterna entre Vermelho e Verde
+    if (toggle === 0) {
+        fill(250, 0, 0); // Vermelho
+    } else {
+        fill(0, 255, 0); // Verde
+    }
+
 
 
             } else if (typeof pin.net === "string" && pin.net.startsWith("VB")) {
@@ -895,25 +896,39 @@ function netNameToVoltage(netName) {
         'VBAT': '4,2V',
         'VBUS': '5,0V',
         'VPH_PWR': '4,2V',
+        'VSYS': '4,2V',
         'GND': 'GND',
-       
         'NC': 'NC'
     };
 
+    // Verifica os nomes pré-mapeados
     for (const key in voltageMap) {
         if (name.includes(key)) {
             return voltageMap[key];
         }
     }
 
-    // Detecta padrão tipo "1V8" ou "3P3"
-    const match = name.match(/(\d)(V|P)(\d)/);
-    if (match) {
-        return `${match[1]},${match[3]}V`;
+    // Detecta padrão com 2 dígitos, tipo "10V53" ou "10P53"
+    const match2 = name.match(/(\d{2})(V|P)(\d{2})/);
+    if (match2) {
+        return `${match2[1]},${match2[3]}V`;
+    }
+
+    // Padrão com 1 inteiro e 2 decimais, ex: 1P85 → 1,85V
+    const match1p2 = name.match(/(\d)(V|P)(\d{2})/);
+    if (match1p2) {
+        return `${match1p2[1]},${match1p2[3]}V`;
+    }
+
+    // Detecta padrão com 1 dígito, tipo "1V8" ou "3P3"
+    const match1 = name.match(/(\d)(V|P)(\d)/);
+    if (match1) {
+        return `${match1[1]},${match1[3]}V`;
     }
 
     return ''; // Se não reconhece, retorna vazio
 }
+
 
 
 function mouseDragged() {
@@ -996,14 +1011,8 @@ function drawSelectedNetConnections() {
     if (netLines.length === 0) return;
 
     push();
-//cor da linha em l
-    // Oscila entre rojo y verde rápidamente
-    let t = (sin(frameCount * 0.9) + 1);
-    let r = lerp(255, 0, t);
-    let g = lerp(0, 255, t);
-    let b = 0;
-
-    stroke(r, g, b);
+    // Cor verde fixo
+    stroke(0, 255, 0);
     strokeWeight(3 / scaleFactor); // Espessura proporcional ao zoom
     noFill();
 
@@ -1013,6 +1022,8 @@ function drawSelectedNetConnections() {
 
     pop();
 }
+
+
 
 
 function actualizarRedSeleccionada() {
