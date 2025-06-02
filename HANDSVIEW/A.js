@@ -339,7 +339,7 @@ function drawOutline(points, offsetX = 0, flipX = false, mirrorAxis = 0) {
     drawingContext.shadowOffsetY = 8;                     // deslocamento Y
 
     stroke('BLACK');      // cor da borda
-    strokeWeight(5);
+    strokeWeight(4 / scaleFactor); // peso da borda ajustado ao zoom
     fill(0, 120, 0, 130); // cor da placa
 
     for (let i = 0; i < points.length - 1; i++) {
@@ -1154,7 +1154,7 @@ if (part.name.startsWith("CN")) {
     } else if (part.name.startsWith("SOC")) {
     
     strokeWeight(1 / scaleFactor);
-    fill(70, 70, 70, 100); 
+    fill(60, 60, 70); 
     stroke(0, 0, 0);    
     } else if (part.name.startsWith("SIM")) {
     // 🔹 CI (Circuito Integrado)
