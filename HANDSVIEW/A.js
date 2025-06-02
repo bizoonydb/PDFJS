@@ -1627,9 +1627,3 @@ function keyPressed() {
     }
     return false; // Evita que p5.js bloquee la entrada
 }
-
-
-
-
-
-
