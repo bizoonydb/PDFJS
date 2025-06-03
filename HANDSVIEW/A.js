@@ -1618,7 +1618,7 @@ function centerAndFitView() {
 
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
-    //renderBuffer(); // Vuelve a dibujar el contenido después del ajuste
+    //renderBuffer(); // MUDADO
 }
 
 function keyPressed() {
