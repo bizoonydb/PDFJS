@@ -62,7 +62,7 @@
       font-size: 18px;
       border-radius: 3px;
       background-color: #b9b9b9;
-      border: #ffe600 2px solid;
+      border: #000000 2px solid;
       color: rgb(0, 0, 0);
       text-align: center;
     }
@@ -98,18 +98,18 @@
 
     #pinDisplay {
       position: fixed;
-      top: 160px;
-      left: 0;
-      width: 200px;
+      top: 1000px;
+      left: 0px;
+      width: 0px;
       border-right: #000000 2px solid;
       border-bottom: #000000 2px solid;
       height: 70px;
-      background: url('https://bizoonydb.github.io/PDFJS/db/painel2.jpg') no-repeat center center;
+      background:#0097a7;
       background-size: cover;
       padding: 10px;
       font-family: sans-serif;
       font-size: 18px;
-      color: #48ff00;
+      color: #f8f8f8;
       z-index: 100;
       display: flex;
       align-items: center;
@@ -122,9 +122,188 @@
 
   </style>
 </head>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+<style>
+#componentInfo {
+  position: absolute;
+  top: 160px;
+  left: 0;
+  bottom: 0;
+  width: 220px;
+  background: #111;
+  color: rgb(255, 251, 3);
+  border: 2px solid rgb(117, 117, 117);
+  padding: 10px;
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: auto;  /* 🔥 Aqui ativa a rolagem */
+}
+#componentInfo h3 {
+    color: #5eff00;
+    margin-top: 0;
+}
+/* Barra de rolagem geral */
+#componentInfo::-webkit-scrollbar {
+  width: 12px;
+}
+
+/* Trilha (fundo da barra) */
+#componentInfo::-webkit-scrollbar-track {
+  background: #222;
+  border-radius: 4px;
+}
+
+/* Polegar (a parte que arrasta) */
+#componentInfo::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+  border: 2px solid #222222;
+}
+
+/* Hover no polegar */
+#componentInfo::-webkit-scrollbar-thumb:hover {
+  background-color: #bbb;
+}
+
+.info-label {
+    color: rgb(199, 199, 199);
+}
+
+.info-value {
+    color: #00ff0d;
+}
+
+.summary {
+    color: #ffffff;
+}
+
+.info-box {
+    background-color: #303030;
+    padding: 5px 8px;
+    border-radius: 4px;
+    margin-bottom: 3px;
+}
+
+hr {
+    border: 1px solid rgb(95, 95, 95);
+    margin: 5px 0;
+}
+
+
+
+.group {
+    margin-bottom: 10px;
+}
+
+.group-title {
+    font-weight: bold;
+    background-color: #333333;
+    padding: 3px 6px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.group-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.item {
+    background-color: #000000;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+}
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+
+  width: 100%;
+  height: 100%;
+  background-color: rgba(10, 10, 10, 0);
+}
+
+.modal-content {
+  position: absolute;
+  top: 0px;
+  left: 220px;
+  bottom: 0;
+  font-size: 12px;
+  width: 200px;
+  
+  background-color: #222;
+  padding: 10px;
+  border: 2px solid #888;
+  
+  overflow-y: auto;
+
+  color: white;
+  box-sizing: border-box;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.close:hover {
+  color: red;
+}
+#openModalBtn {
+    background-color: #757575;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+#openModalBtn:hover {
+    background-color: #333333;
+    transform: scale(1.05);
+    border: 1px solid #5eff00;
+    font-size: 12px;
+}
+
+
+</style>
+
 
 <body>
   <div id="voltageDisplay"></div>
+<div id="componentInfo">
+    <h3>DADOS DETALHADOS</h3>
+    <div id="componentDetails"></div>
+    <button id="openModalBtn">🔍COMP/ INTERLIGADO</button>
+</div>
+
+
+<!-- Modal -->
+<div id="componentModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>Componentes na Malha Selecionada</h3>
+    <div id="componentList">
+      <!-- Conteúdo gerado dinamicamente -->
+    </div>
+  </div>
+</div>
 
   <div id="controls">
     <datalist id="componentList"></datalist>
@@ -186,6 +365,8 @@
       : 'https://firebasestorage.googleapis.com/v0/b/handschematic.appspot.com/o/fondos%20BVR%2F820-3437-b.bvr?alt=media&token=8de74580-2d1f-4e62-a181-a38f70791949';
     fileContent = loadStrings(fileURL);
   }
+
+  
 </script>
 
 <script>
