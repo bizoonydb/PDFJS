@@ -845,39 +845,41 @@ function mousePressed() {
             }
 
             if (hit) {
-                const tipPos = { x: worldX, y: worldY, side: part.side };
-                let tooltipText;
+    const tipPos = { x: worldX, y: worldY, side: part.side };
+    let tooltipText;
 
-                if (pin.net === "GND" || pin.net === "NC") {
-                    tooltipText = `Parte: ${part.name}<br>Net: ${pin.net}`;
-                    selectedPin = null;
-                } else {
-                    tooltipText = `COMP: ${part.name}<br>MALHA: ${pin.net}<br>PINO: ${pin.name}`;
-                    selectedPin = pin;
-                    actualizarRedSeleccionada();
-                }
+    if (pin.net === "GND" || pin.net === "NC") {
+        tooltipText = `Parte: ${part.name} /  PINO: ${pin.net}`;
+        selectedPin = null;
+    } else {
+        tooltipText = `COMP: ${part.name}/ MALHA: ${pin.net} / PINO: ${pin.name}`;
+        selectedPin = pin;
+        actualizarRedSeleccionada();
+    }
 
-                tooltip = {
-                    text: tooltipText,
-                    ...tipPos
-                };
+    tooltip = {
+        text: tooltipText,
+        ...tipPos
+    };
 
-                // Atualiza display do pino
-                const pinDisplay = document.getElementById("pinDisplay");
-                if (pinDisplay) {
-                    pinDisplay.innerHTML = tooltipText;
-                }
+    const pinDisplay = document.getElementById("pinDisplay");
+    if (pinDisplay) {
+        pinDisplay.innerHTML = tooltipText;
+    }
 
-                // Atualiza display de voltagem separado
-                const voltageDisplay = document.getElementById("voltageDisplay");
-                if (voltageDisplay) {
-                    const voltage = netNameToVoltage(pin.net);
-                    voltageDisplay.textContent = voltage ? voltage : '...';
-                }
+    const voltageDisplay = document.getElementById("voltageDisplay");
+    if (voltageDisplay) {
+        const voltage = netNameToVoltage(pin.net);
+        voltageDisplay.textContent = voltage ? voltage : '...';
+    }
 
-                found = true;
-                break;
-            }
+    // 👉 Chama a função para atualizar o container
+    updateComponentInfo(part, pin);
+
+    found = true;
+    break;
+}
+
         }
         if (found) break;
     }
@@ -893,12 +895,18 @@ function netNameToVoltage(netName) {
     const name = netName.toUpperCase();
 
     const voltageMap = {
-        'VBAT': '4,2V',
-        'VBUS': '5,0V',
+        'VBAT': '4.2V',
+        'VBUS': '5.0V',
         'VPH_PWR': '4,2V',
-        'VSYS': '4,2V',
+        'VSYS': '4.2V',
+        'VIO18': '1.8V',
+        'VCN18': '1.8V',
+        'VIO28': '2.8V',
+        'VCN28': '2.8V',
+        'PP_VDD_M': '4.2V',
+        'PP_VDDM': '4.2V',
         'GND': 'GND',
-        'NC': 'NC'
+        
     };
 
     // Verifica os nomes pré-mapeados
@@ -911,24 +919,190 @@ function netNameToVoltage(netName) {
     // Detecta padrão com 2 dígitos, tipo "10V53" ou "10P53"
     const match2 = name.match(/(\d{2})(V|P)(\d{2})/);
     if (match2) {
-        return `${match2[1]},${match2[3]}V`;
+        return `${match2[1]}.${match2[3]}V`;
     }
 
     // Padrão com 1 inteiro e 2 decimais, ex: 1P85 → 1,85V
     const match1p2 = name.match(/(\d)(V|P)(\d{2})/);
     if (match1p2) {
-        return `${match1p2[1]},${match1p2[3]}V`;
+        return `${match1p2[1]}.${match1p2[3]}V`;
     }
 
     // Detecta padrão com 1 dígito, tipo "1V8" ou "3P3"
     const match1 = name.match(/(\d)(V|P)(\d)/);
     if (match1) {
-        return `${match1[1]},${match1[3]}V`;
+        return `${match1[1]}.${match1[3]}V`;
     }
 
     return ''; // Se não reconhece, retorna vazio
 }
+let currentNet = null; // 🔥 Salvar a net atual
+function updateComponentInfo(part = null, pin = null) {
+    const container = document.getElementById('componentInfo');
+    const details = document.getElementById('componentDetails');
 
+    if (!details) return;
+
+    if (typeof parts === 'undefined' || !Array.isArray(parts)) {
+        details.innerHTML = `<div class="summary"><b>Dados não carregados</b></div>`;
+        return;
+    }
+
+    const totalComponents = parts.length;
+    const totalNets = new Set(parts.flatMap(p => (p.pins || []).map(pin => pin.net))).size;
+    const totalPins = parts.reduce((acc, p) => acc + (p.pins ? p.pins.length : 0), 0);
+
+    const isEmpty = !part || !pin;
+
+    const componente = isEmpty ? '---' : part.name;
+    const tipo = isEmpty ? '---' : getComponentType(part.name);
+    const pads = isEmpty ? '---' : (part.pins ? part.pins.length : '---');
+    const net = isEmpty ? '---' : pin.net;
+    const voltage = isEmpty ? '---' : (typeof netNameToVoltage === 'function' ? (netNameToVoltage(pin.net) || '---') : '---');
+    const netCount = isEmpty ? '---' : parts.filter(p => (p.pins || []).some(pn => pn.net === pin.net)).length;
+
+    // 🔥 Salvar a net atual
+    currentNet = isEmpty ? null : pin.net;
+
+    // 🔥 Gerar lista agrupada por tipo
+    let componentsOnNet = isEmpty 
+        ? []
+        : parts.filter(p => (p.pins || []).some(pn => pn.net === pin.net));
+
+    const grouped = {};
+    componentsOnNet.forEach(comp => {
+        const type = getComponentType(comp.name);
+        if (!grouped[type]) grouped[type] = [];
+        grouped[type].push(comp.name);
+    });
+
+    const componentsListHTML = componentsOnNet.length > 0 
+        ? `
+        <div class="scrollable">
+            ${Object.entries(grouped).map(([type, names]) => `
+                <div class="group">
+                    <div class="group-title">${type}</div>
+                    <div class="group-items">
+                    ${net}
+                        ${names.map(n => `<span class="item">${n}</span>`).join(' ')}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        `
+        : '---';
+
+    details.innerHTML = `
+        <div class="summary">
+        DADOS DO COMPONENTE
+            <div class="info-box"><span class="info-label">COMPONENTE:</span> <span class="info-value">${componente}</span></div><hr>
+            <div class="info-box"><span class="info-label">TIPO:</span> <span class="info-value">${tipo}</span></div><hr>
+            <div class="info-box"><span class="info-label">PADS:</span> <span class="info-value">${pads}</span></div><hr>
+            <div class="info-box"><span class="info-label">MALHA:</span> <span class="info-value">${net}</span></div><hr>
+            <div class="info-box"><span class="info-label">VOLTAGEM:</span> <span class="info-value">${voltage}</span></div><hr>
+            <div class="info-box"><span class="info-label">COMP/ NA MALHA:</span> <span class="info-value">${netCount}</span></div>
+        </div>
+        <hr>
+        <div class="summary">
+        TOTAL NA PLACA
+            <div class="info-box"><span class="info-label">COMPONENTES:</span> <span class="info-value">${totalComponents}</span></div>
+            <div class="info-box"><span class="info-label">MALHAS:</span> <span class="info-value">${totalNets}</span></div>
+            <div class="info-box"><span class="info-label">PADS:</span> <span class="info-value">${totalPins}</span></div>
+        </div><hr>
+        COMPONENTES NA MALHA
+     <div class="summary">
+        <div class="info-box">
+            
+        </div>
+    `;
+}
+
+updateComponentInfo();
+// Função para detectar o tipo de componente
+function getComponentType(name) {
+    const prefix = name.toUpperCase();
+    if (prefix.startsWith('CON') || prefix.startsWith('J')) return 'CONECTOR';
+    if (prefix.startsWith('ZD') || prefix.startsWith('DZ')) return 'DIODO ZENER';
+    if (prefix.startsWith('R')) return 'RESISTOR';
+    if (prefix.startsWith('C')) return 'CAPACITOR';
+    if (prefix.startsWith('U')) return 'CIRCUITO INTEGRADO';
+    if (prefix.startsWith('L')) return 'BOBINA / INDUTOR';
+    if (prefix.startsWith('D')) return 'DIODO';
+    if (prefix.startsWith('Q')) return 'TRANSISTOR';
+    return 'NÃO DEFINIDO';
+}
+updateComponentInfo();
+
+  
+// 🔥 Função para gerar lista no modal baseada na currentNet
+function generateComponentListForNet() {
+    const container = document.getElementById('componentList');
+    container.innerHTML = '';
+
+    if (!currentNet) {
+        container.innerHTML = '<div>Nenhuma malha selecionada</div>';
+        return;
+    }
+
+    const componentsOnNet = parts.filter(p => 
+        (p.pins || []).some(pn => pn.net === currentNet)
+    );
+
+    if (componentsOnNet.length === 0) {
+        container.innerHTML = '<div>Nenhum componente nesta malha</div>';
+        return;
+    }
+
+    const grouped = {};
+    componentsOnNet.forEach(comp => {
+        const type = getComponentType(comp.name);
+        if (!grouped[type]) grouped[type] = [];
+        grouped[type].push(comp.name);
+    });
+
+    for (const [type, items] of Object.entries(grouped)) {
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'group';
+
+        const title = document.createElement('div');
+        title.className = 'group-title';
+        title.textContent = type;
+        groupDiv.appendChild(title);
+
+        const itemsDiv = document.createElement('div');
+        itemsDiv.className = 'group-items';
+
+        items.forEach(name => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item';
+            itemDiv.textContent = name;
+            itemsDiv.appendChild(itemDiv);
+        });
+
+        groupDiv.appendChild(itemsDiv);
+        container.appendChild(groupDiv);
+    }
+}
+
+// 🔥 Controle do Modal
+const modal = document.getElementById("componentModal");
+const btn = document.getElementById("openModalBtn");
+const span = document.getElementsByClassName("close")[0];
+
+btn.onclick = function() {
+    generateComponentListForNet();
+    modal.style.display = "block";
+}
+
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
 
 
 function mouseDragged() {
