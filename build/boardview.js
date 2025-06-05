@@ -715,6 +715,7 @@ function netNameToVoltage(netName) {
         'GND': 'GND',
 
         '+3.3': '3.3v',
+      '+3V': '3.0v',
         '+5V': '5.0v',
         '12V': '12.0v',
         
