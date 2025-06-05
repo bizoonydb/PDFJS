@@ -1180,41 +1180,60 @@ function computeBottomOffset() {
     // (En el pasado este margen era de 50, pero se amplió a 200)
 }
 
+function drawOrthogonalLine(x1, y1, x2, y2) {
+    console.log(`Linha de (${x1}, ${y1}) para (${x2}, ${y2})`);
+    line(x1, y1, x2, y1); // horizontal
+    line(x2, y1, x2, y2); // vertical
+}
 
-function drawSelectedNetConnections() {
-    if (netLines.length === 0) return;
-
+function drawBlueDot(x, y) {
     push();
-    // Cor verde fixo
-    stroke(0, 255, 0);
-    strokeWeight(3 / scaleFactor); // Espessura proporcional ao zoom
-    noFill();
-
-    for (let seg of netLines) {
-        line(seg.x1, seg.y1, seg.x2, seg.y2);
-    }
-
+    fill(255, 0, 255,); // VerMELHO PINO SELECIONADO
+    strokeWeight(1);
+    ellipse(x, y, 6, 6);
     pop();
 }
 
 
-
-
-function actualizarRedSeleccionada() {
+function drawSelectedNetConnections() {
     if (!selectedPin) return;
 
-    const netWorker = new Worker("netWorker.js");
+    push();
+    strokeWeight(2);
+    stroke(0, 255, 0); // Verde para la línea de conexión
+    noFill();
 
-    netWorker.postMessage({
-        parts,
-        selectedNet: selectedPin.net,
-        displayMode,
-        bottomOffset
+    let connectedPoints = [];
+
+    for (let part of parts) {
+        let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+
+        for (let pin of part.pins) {
+            if (pin.net === selectedPin.net) {
+                let px = pin.x + (part.side === "B" ? groupOffset : 0);
+                let py = pin.y;
+                connectedPoints.push({ x: px, y: py });
+            }
+        }
+    }
+
+    connectedPoints.sort((a, b) => a.x - b.x || a.y - b.y);
+
+    console.log("Pontos conectados:");
+    connectedPoints.forEach(p => {
+        console.log(`(${p.x}, ${p.y})`);
+        drawBlueDot(p.x, p.y);
     });
 
-    netWorker.onmessage = function (e) {
-        netLines = e.data.lines;
-    };
+    for (let i = 1; i < connectedPoints.length; i++) {
+        let p1 = connectedPoints[i - 1];
+        let p2 = connectedPoints[i];
+        console.log(`Linha: (${p1.x}, ${p1.y}) -> (${p2.x}, ${p2.y})`);
+        drawOrthogonalLine(p1.x, p1.y, p2.x, p2.y);
+    }
+    
+
+    pop();
 }
 
 
@@ -1690,6 +1709,36 @@ function moveToNextPinInNet() {
         offsetX = width / 2 - (selectedPin.x + groupOffset) * scaleFactor;
         offsetY = height / 2 - selectedPin.y * scaleFactor;
         //renderBuffer();
+    }
+}
+function actualizarRedSeleccionada() {
+    if (!selectedPin) {
+        netLines = [];
+        return;
+    }
+
+    let connectedPoints = [];
+
+    for (let part of parts) {
+        let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+
+        for (let pin of part.pins) {
+            if (pin.net === selectedPin.net) {
+                let px = pin.x + (part.side === "B" ? groupOffset : 0);
+                let py = pin.y;
+                connectedPoints.push({ x: px, y: py });
+            }
+        }
+    }
+
+    connectedPoints.sort((a, b) => a.x - b.x || a.y - b.y);
+
+    netLines = [];
+
+    for (let i = 1; i < connectedPoints.length; i++) {
+        const p1 = connectedPoints[i - 1];
+        const p2 = connectedPoints[i];
+        netLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
     }
 }
 
