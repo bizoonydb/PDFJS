@@ -589,59 +589,297 @@ function mouseWheel(event) {
  }
  
  // Detecta el click convirtiendo las coordenadas de pantalla a mundo
- function mousePressed() {
-    isDragging = true; // Oculta os nomes durante o arraste
-    cursor('grabbing'); // Altera o cursor para dar feedback visual
-
+ 
+function mousePressed() {
+    // Converter posição do mouse para coordenadas do mundo
     let worldPos = screenToWorld(mouseX, mouseY);
     let mx = worldPos.x;
     let my = worldPos.y;
     let found = false;
 
-
-    // Recorrer cada parte y sus pines para ver si se hizo click sobre alguno
     for (let part of parts) {
         if (displayMode === "top" && part.side !== "T") continue;
         if (displayMode === "bottom" && part.side !== "B") continue;
         let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
 
         for (let pin of part.pins) {
-            if (pin.net === "GND") continue; // Opcional: omitir GND
-            let d = dist(mx, my, pin.x + groupOffset, pin.y);
-            if (pin.net === "NC") continue; // Opcional: omitir NC
-            
-            if (d <= pin.radius) {
-                tooltip = {
-                    text: `COMP: ${part.name}\nMALHA: ${pin.net}\nPINO: ${pin.number}`,
-                    x: pin.x,
-                    y: pin.y,
-                    side: part.side
-                };
-                selectedPin = pin;
-                found = true;
-            
-                // ATUALIZA O DISPLAY
-                const display = document.getElementById("pinDisplay");
-                if (display) display.textContent = tooltip.text;
-            
-                break;
-            
+            // Calcula o centro da pad
+            let worldX = pin.x + groupOffset;
+            let worldY = pin.y;
+
+            // Verifica se o clique está dentro da pad
+            let hit = false;
+            if (pin.outline && pin.outline.length) {
+                const poly = pin.outline.map(v => ({
+                    x: v.x + worldX,
+                    y: v.y + worldY
+                }));
+                hit = pointInPolygon(mx, my, poly);
+            } else {
+                hit = dist(mx, my, worldX, worldY) <= pin.radius;
             }
+
+            if (hit) {
+    const tipPos = { x: worldX, y: worldY, side: part.side };
+    let tooltipText;
+
+    if (pin.net === "GND" || pin.net === "NC") {
+        tooltipText = `Parte: ${part.name} /  PINO: ${pin.net}`;
+        selectedPin = null;
+    } else {
+        tooltipText = `COMP: ${part.name}/ MALHA: ${pin.net} / PINO: ${pin.name}`;
+        selectedPin = pin;
+        actualizarRedSeleccionada();
+    }
+
+    tooltip = {
+        text: tooltipText,
+        ...tipPos
+    };
+
+    const pinDisplay = document.getElementById("pinDisplay");
+    if (pinDisplay) {
+        pinDisplay.innerHTML = tooltipText;
+    }
+
+    const voltageDisplay = document.getElementById("voltageDisplay");
+    if (voltageDisplay) {
+        const voltage = netNameToVoltage(pin.net);
+        voltageDisplay.textContent = voltage ? voltage : '...';
+    }
+
+    // 👉 Chama a função para atualizar o container
+    updateComponentInfo(part, pin);
+
+    found = true;
+    break;
+}
+
         }
         if (found) break;
     }
 
-    // Si no se encontró ningún pin, no modificamos tooltip ni selectedPin
-    // if (!found) {
-    //     tooltip = null;
-    //     selectedPin = null;
-    // }
-
-    return false;
+    return false; // Evita comportamento padrão
 }
 
- // Arrastre (drag) basado en la diferencia en coordenadas "mundo"
- // Se calcula la diferencia entre la posición actual y la anterior (convertidas a mundo)
+
+// Função que converte nome da malha (net.name) em voltagem exibível
+function netNameToVoltage(netName) {
+    if (!netName) return '';
+
+    const name = netName.toUpperCase();
+
+    const voltageMap = {
+        'VBAT': '4.2V',
+        'VBUS': '5.0V',
+        'VPH_PWR': '4,2V',
+        'VSYS': '4.2V',
+        'VIO18': '1.8V',
+        'VCN18': '1.8V',
+        'VIO28': '2.8V',
+        'VCN28': '2.8V',
+        'PP_VDD_M': '4.2V',
+        'PP_VDDM': '4.2V',
+        'GND': 'GND',
+        
+    };
+
+    // Verifica os nomes pré-mapeados
+    for (const key in voltageMap) {
+        if (name.includes(key)) {
+            return voltageMap[key];
+        }
+    }
+
+    // Detecta padrão com 2 dígitos, tipo "10V53" ou "10P53"
+    const match2 = name.match(/(\d{2})(V|P)(\d{2})/);
+    if (match2) {
+        return `${match2[1]}.${match2[3]}V`;
+    }
+
+    // Padrão com 1 inteiro e 2 decimais, ex: 1P85 → 1,85V
+    const match1p2 = name.match(/(\d)(V|P)(\d{2})/);
+    if (match1p2) {
+        return `${match1p2[1]}.${match1p2[3]}V`;
+    }
+
+    // Detecta padrão com 1 dígito, tipo "1V8" ou "3P3"
+    const match1 = name.match(/(\d)(V|P)(\d)/);
+    if (match1) {
+        return `${match1[1]}.${match1[3]}V`;
+    }
+
+    return ''; // Se não reconhece, retorna vazio
+}
+let currentNet = null; // 🔥 Salvar a net atual
+function updateComponentInfo(part = null, pin = null) {
+    const container = document.getElementById('componentInfo');
+    const details = document.getElementById('componentDetails');
+
+    if (!details) return;
+
+    if (typeof parts === 'undefined' || !Array.isArray(parts)) {
+        details.innerHTML = `<div class="summary"><b>Dados não carregados</b></div>`;
+        return;
+    }
+
+    const totalComponents = parts.length;
+    const totalNets = new Set(parts.flatMap(p => (p.pins || []).map(pin => pin.net))).size;
+    const totalPins = parts.reduce((acc, p) => acc + (p.pins ? p.pins.length : 0), 0);
+
+    const isEmpty = !part || !pin;
+
+    const componente = isEmpty ? '---' : part.name;
+    const tipo = isEmpty ? '---' : getComponentType(part.name);
+    const pads = isEmpty ? '---' : (part.pins ? part.pins.length : '---');
+    const net = isEmpty ? '---' : pin.net;
+    const voltage = isEmpty ? '---' : (typeof netNameToVoltage === 'function' ? (netNameToVoltage(pin.net) || '---') : '---');
+    const netCount = isEmpty ? '---' : parts.filter(p => (p.pins || []).some(pn => pn.net === pin.net)).length;
+
+    // 🔥 Salvar a net atual
+    currentNet = isEmpty ? null : pin.net;
+
+    // 🔥 Gerar lista agrupada por tipo
+    let componentsOnNet = isEmpty 
+        ? []
+        : parts.filter(p => (p.pins || []).some(pn => pn.net === pin.net));
+
+    const grouped = {};
+    componentsOnNet.forEach(comp => {
+        const type = getComponentType(comp.name);
+        if (!grouped[type]) grouped[type] = [];
+        grouped[type].push(comp.name);
+    });
+
+    const componentsListHTML = componentsOnNet.length > 0 
+        ? `
+        <div class="scrollable">
+            ${Object.entries(grouped).map(([type, names]) => `
+                <div class="group">
+                    <div class="group-title">${type}</div>
+                    <div class="group-items">
+                    ${net}
+                        ${names.map(n => `<span class="item">${n}</span>`).join(' ')}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        `
+        : '---';
+
+    details.innerHTML = `
+        <div class="summary">
+        DADOS DO COMPONENTE
+            <div class="info-box"><span class="info-label">COMPONENTE:</span> <span class="info-value">${componente}</span></div><hr>
+            <div class="info-box"><span class="info-label">TIPO:</span> <span class="info-value">${tipo}</span></div><hr>
+            <div class="info-box"><span class="info-label">PADS:</span> <span class="info-value">${pads}</span></div><hr>
+            <div class="info-box"><span class="info-label">MALHA:</span> <span class="info-value">${net}</span></div><hr>
+            <div class="info-box"><span class="info-label">VOLTAGEM:</span> <span class="info-value">${voltage}</span></div><hr>
+            <div class="info-box"><span class="info-label">COMP/ NA MALHA:</span> <span class="info-value">${netCount}</span></div>
+        </div>
+        <hr>
+        <div class="summary">
+        TOTAL NA PLACA
+            <div class="info-box"><span class="info-label">COMPONENTES:</span> <span class="info-value">${totalComponents}</span></div>
+            <div class="info-box"><span class="info-label">MALHAS:</span> <span class="info-value">${totalNets}</span></div>
+            <div class="info-box"><span class="info-label">PADS:</span> <span class="info-value">${totalPins}</span></div>
+        </div><hr>
+        COMPONENTES NA MALHA
+     <div class="summary">
+        <div class="info-box">
+            
+        </div>
+    `;
+}
+
+updateComponentInfo();
+// Função para detectar o tipo de componente
+function getComponentType(name) {
+    const prefix = name.toUpperCase();
+    if (prefix.startsWith('CON') || prefix.startsWith('J')) return 'CONECTOR';
+    if (prefix.startsWith('ZD') || prefix.startsWith('DZ')) return 'DIODO ZENER';
+    if (prefix.startsWith('R')) return 'RESISTOR';
+    if (prefix.startsWith('C')) return 'CAPACITOR';
+    if (prefix.startsWith('U')) return 'CIRCUITO INTEGRADO';
+    if (prefix.startsWith('L')) return 'BOBINA / INDUTOR';
+    if (prefix.startsWith('D')) return 'DIODO';
+    if (prefix.startsWith('Q')) return 'TRANSISTOR';
+    return 'NÃO DEFINIDO';
+}
+updateComponentInfo();
+
+  
+// 🔥 Função para gerar lista no modal baseada na currentNet
+function generateComponentListForNet() {
+    const container = document.getElementById('componentList');
+    container.innerHTML = '';
+
+    if (!currentNet) {
+        container.innerHTML = '<div>Nenhuma malha selecionada</div>';
+        return;
+    }
+
+    const componentsOnNet = parts.filter(p => 
+        (p.pins || []).some(pn => pn.net === currentNet)
+    );
+
+    if (componentsOnNet.length === 0) {
+        container.innerHTML = '<div>Nenhum componente nesta malha</div>';
+        return;
+    }
+
+    const grouped = {};
+    componentsOnNet.forEach(comp => {
+        const type = getComponentType(comp.name);
+        if (!grouped[type]) grouped[type] = [];
+        grouped[type].push(comp.name);
+    });
+
+    for (const [type, items] of Object.entries(grouped)) {
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'group';
+
+        const title = document.createElement('div');
+        title.className = 'group-title';
+        title.textContent = type;
+        groupDiv.appendChild(title);
+
+        const itemsDiv = document.createElement('div');
+        itemsDiv.className = 'group-items';
+
+        items.forEach(name => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item';
+            itemDiv.textContent = name;
+            itemsDiv.appendChild(itemDiv);
+        });
+
+        groupDiv.appendChild(itemsDiv);
+        container.appendChild(groupDiv);
+    }
+}
+
+// 🔥 Controle do Modal
+const modal = document.getElementById("componentModal");
+const btn = document.getElementById("openModalBtn");
+const span = document.getElementsByClassName("close")[0];
+
+btn.onclick = function() {
+    generateComponentListForNet();
+    modal.style.display = "block";
+}
+
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+
  function mouseDragged() {
  
      if (mouseButton === LEFT || mouseButton === RIGHT) {
@@ -733,7 +971,6 @@ function drawBlueDot(x, y) {
     pop();
 }
 
-
 function drawSelectedNetConnections() {
     if (!selectedPin) return;
 
@@ -774,6 +1011,8 @@ function drawSelectedNetConnections() {
 
     pop();
 }
+
+
 
 
 
@@ -1088,44 +1327,77 @@ function parseFile() {
      });
  }
  
- function moveToNextPinInNet() {
-     if (!selectedPin) return;
-     let sameNetPins = [];
-     for (let part of parts) {
-         for (let pin of part.pins) {
-             if (pin.net === selectedPin.net) {
-                 sameNetPins.push({ pin, partSide: part.side, partName: part.name });
-             }
-         }
-     }
-     if (sameNetPins.length > 1) {
-         let currentIndex = sameNetPins.findIndex(
-             (item) => item.pin === selectedPin
-         );
-         let nextIndex = (currentIndex + 1) % sameNetPins.length;
-         let nextItem = sameNetPins[nextIndex];
-         if (displayMode !== "all") {
-             if (nextItem.partSide === "T" && displayMode !== "top") {
-                 displayMode = "top";
-             } else if (nextItem.partSide === "B" && displayMode !== "bottom") {
-                 displayMode = "bottom";
-             }
-         }
-         let groupOffset =
-             displayMode === "all" && nextItem.partSide === "B" ? bottomOffset : 0;
-         selectedPin = nextItem.pin;
-         tooltip = {
-             text: `Parte: ${nextItem.partName}\nNet: ${nextItem.pin.net}`,
-             x: nextItem.pin.x,
-             y: nextItem.pin.y,
-             side: nextItem.partSide,
-         };
-         offsetX = width / 2 - (selectedPin.x + groupOffset) * scaleFactor;
-         offsetY = height / 2 - selectedPin.y * scaleFactor;
-         renderBuffer();
-     }
- }
+function moveToNextPinInNet() {
+    if (!selectedPin) return;
+    let sameNetPins = [];
+    for (let part of parts) {
+        for (let pin of part.pins) {
+            if (pin.net === selectedPin.net) {
+                sameNetPins.push({ pin, partSide: part.side, partName: part.name });
+            }
+        }
+    }
+    if (sameNetPins.length > 1) {
+        let currentIndex = sameNetPins.findIndex(
+            (item) => item.pin === selectedPin
+        );
+        let nextIndex = (currentIndex + 1) % sameNetPins.length;
+        let nextItem = sameNetPins[nextIndex];
+        if (displayMode !== "all") {
+            if (nextItem.partSide === "T" && displayMode !== "top") {
+                displayMode = "top";
+                flipHorizontal = true;
+            } else if (nextItem.partSide === "B" && displayMode !== "bottom") {
+                displayMode = "bottom";
+                flipHorizontal = false;
+            }
+        }
+        let groupOffset =
+            displayMode === "all" && nextItem.partSide === "B" ? bottomOffset : 0;
+        selectedPin = nextItem.pin;
+        actualizarRedSeleccionada();
 
+        tooltip = {
+            text: `Parte: ${nextItem.partName}\nNet: ${nextItem.pin.net}`,
+            x: nextItem.pin.x,
+            y: nextItem.pin.y,
+            side: nextItem.partSide,
+        };
+        offsetX = width / 2 - (selectedPin.x + groupOffset) * scaleFactor;
+        offsetY = height / 2 - selectedPin.y * scaleFactor;
+        //renderBuffer();
+    }
+}
+function actualizarRedSeleccionada() {
+    if (!selectedPin) {
+        netLines = [];
+        return;
+    }
+
+    let connectedPoints = [];
+
+    for (let part of parts) {
+        let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+
+        for (let pin of part.pins) {
+            if (pin.net === selectedPin.net) {
+                let px = pin.x + (part.side === "B" ? groupOffset : 0);
+                let py = pin.y;
+                connectedPoints.push({ x: px, y: py });
+            }
+        }
+    }
+
+    connectedPoints.sort((a, b) => a.x - b.x || a.y - b.y);
+
+    netLines = [];
+
+    for (let i = 1; i < connectedPoints.length; i++) {
+        const p1 = connectedPoints[i - 1];
+        const p2 = connectedPoints[i];
+        netLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
+    }
+}
  
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
