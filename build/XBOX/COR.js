@@ -960,133 +960,90 @@ function drawSelectedNetConnections() {
 
 
 
-
-
 function drawComponentBoundingBoxes() {
-    let backgroundRects = [];
+    let backgroundRects = []; // Lista para armazenar os preenchimentos
 
+    // Primeiro, coletamos as informações dos retângulos de fundo
     for (let part of parts) {
         if (displayMode === "top" && part.side !== "T") continue;
         if (displayMode === "bottom" && part.side !== "B") continue;
         let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
 
-        let minX = Infinity, minY = Infinity;
-        let maxX = -Infinity, maxY = -Infinity;
+        if (part.pins.length > 0) {
+            let minX = Infinity, minY = Infinity;
+            let maxX = -Infinity, maxY = -Infinity;
 
-        if (part.outline && part.outline.length > 0) {
-            for (let i = 0; i < part.outline.length; i += 2) {
-                let relX = part.outline[i];
-                let relY = part.outline[i + 1];
-
-                let absX = part.origin.x + relX;
-                let absY = part.origin.y + relY;
-
-                minX = Math.min(minX, absX);
-                maxX = Math.max(maxX, absX);
-                minY = Math.min(minY, absY);
-                maxY = Math.max(maxY, absY);
-            }
-        } else if (part.pins && part.pins.length > 0) {
             for (let pin of part.pins) {
-                let pinX = pin.x + part.origin.x;
-                let pinY = pin.y + part.origin.y;
-                minX = Math.min(minX, pinX);
-                maxX = Math.max(maxX, pinX);
-                minY = Math.min(minY, pinY);
-                maxY = Math.max(maxY, pinY);
+                let r = pin.radius * 0.75;
+                minX = Math.min(minX, pin.x - r);
+                maxX = Math.max(maxX, pin.x + r);
+                minY = Math.min(minY, pin.y - r);
+                maxY = Math.max(maxY, pin.y + r);
             }
-        } else {
-            continue; // Pular se não houver outline nem pinos
+
+            // Definir cor de preenchimento por tipo de componente
+            let fillColor;
+            if (part.name.startsWith("C")) {
+                fillColor = color(255, 255, 150, 85);
+            } else if (part.name.startsWith("R")) {
+                fillColor = color(50, 50, 50, 100);
+            } else if (part.name.startsWith("MIC")) {
+                fillColor = color(255, 255, 150, 225);
+            } else if (part.name.startsWith("N")) {
+                fillColor = color(0, 0, 255, 0);
+            } else if (part.name.startsWith("L")) {
+                fillColor = color(30, 30, 30, 205);
+            } else if (part.name.startsWith("ZD")) {
+                fillColor = color(80, 80, 80, 125);
+            } else if (part.name.startsWith("U")) {
+                fillColor = color(50, 50, 50, 100);
+            } else if (part.name.startsWith("S")) {
+                fillColor = color(128, 128, 128, 115);
+            } else if (part.name.startsWith("H")) {
+                fillColor = color(50, 50, 50, 120);
+            } else if (part.name.startsWith("J")) {
+                fillColor = color(200, 200, 200, 115);
+            } else if (part.name.startsWith("D")) {
+                fillColor = color(80, 80, 80, 125);
+            } else if (part.name.startsWith("Q")) {
+                fillColor = color(80, 80, 80, 125);
+            } else if (part.name.startsWith("RF")) {
+                fillColor = color(255, 255, 0, 105);
+            } else if (part.name.startsWith("ANT")) {
+                fillColor = color(128, 128, 128, 155);
+            } else if (part.name.startsWith("PA")) {
+                fillColor = color(50, 50, 50, 120);
+            } else if (part.name.startsWith("F")) {
+                fillColor = color(0, 0, 255, 75);
+            } else {
+                fillColor = color(255, 255, 0, 0);
+
+            }
+    
+ 
+            // Guardamos os dados para desenhar depois
+            backgroundRects.push({ x: minX + groupOffset, y: minY, w: maxX - minX, h: maxY - minY, color: fillColor });
         }
-        let x = minX + groupOffset;
-        let y = minY;
-        let w = maxX - minX;
-        let h = maxY - minY;
-
-        // Corrigido: Verifica se está completamente fora da tela
-        let screenMin = worldToScreen(x, y);
-        let screenMax = worldToScreen(x + w, y + h);
-
-        let screenLeft   = Math.min(screenMin.x, screenMax.x);
-        let screenRight  = Math.max(screenMin.x, screenMax.x);
-        let screenTop    = Math.min(screenMin.y, screenMax.y);
-        let screenBottom = Math.max(screenMin.y, screenMax.y);
-
-        let completelyOffScreen =
-            screenRight < 0 ||
-            screenLeft > width ||
-            screenBottom < 0 ||
-            screenTop > height;
-
-        if (completelyOffScreen) continue;
-
-
-        backgroundRects.push({ 
-            x, 
-            y, 
-            w, 
-            h, 
-            fillColor: determineFillColor(part)
-        });
     }
-
-    // Desenhar os retângulos visíveis
+    // 2. Desenhamos os fundos DEPOIS
     noStroke();
     for (let rectData of backgroundRects) {
-        fill(rectData.fillColor);
+        fill(rectData.color);
         rect(rectData.x, rectData.y, rectData.w, rectData.h);
     }
 
-    // Desenhar bordas do componente
-    stroke(150, 150, 150);
+    // 1. Desenhamos as bordas  COR DAS BORDAS DOS COMPONENTES e pinos PRIMEIRO
+    stroke(255, 255, 255,100);
     noFill();
-    strokeWeight(2);
-
+    strokeWeight(1,5);
     for (let rectData of backgroundRects) {
         rect(rectData.x, rectData.y, rectData.w, rectData.h);
     }
+    
+
+    
 }
 
-// Função de cor conforme o nome do componente
-function determineFillColor(part) {
-    if (part.name.startsWith("C")) {
-        return color(255, 255, 150, 85);
-    } else if (part.name.startsWith("R")) {
-        return color(50, 50, 50, 100);
-    } else if (part.name.startsWith("MIC")) {
-        return color(255, 255, 150, 225);
-    } else if (part.name.startsWith("N")) {
-        return color(0, 0, 255, 0);
-    } else if (part.name.startsWith("L")) {
-        return color(30, 30, 30);
-    } else if (part.name.startsWith("ZD")) {
-        return color(80, 80, 80, 125);
-    } else if (part.name.startsWith("U")) {
-        return color(10, 10, 10);
-    } else if (part.name.startsWith("u")) {
-        return color(10, 10, 10);
-    } else if (part.name.startsWith("S")) {
-        return color(128, 128, 128, 115);
-    } else if (part.name.startsWith("H")) {
-        return color(50, 50, 50, 120);
-    } else if (part.name.startsWith("J")) {
-        return color(200, 200, 200, 35);
-    } else if (part.name.startsWith("D")) {
-        return color(80, 80, 80, 125);
-    } else if (part.name.startsWith("Q")) {
-        return color(80, 80, 80, 125);
-    } else if (part.name.startsWith("RF")) {
-        return color(255, 255, 0, 105);
-    } else if (part.name.startsWith("ANT")) {
-        return color(128, 128, 128, 155);
-    } else if (part.name.startsWith("PA")) {
-        return color(50, 50, 50, 120);
-    } else if (part.name.startsWith("F")) {
-        return color(0, 0, 255, 75);
-    } else {
-        return color(255, 255, 0, 0);
-    }
-}
 
 function drawPartNames() {
     if (scaleFactor < 1.1 || scaleFactor >= 4.0 || isDragging) return;
