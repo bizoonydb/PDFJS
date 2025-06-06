@@ -1,7 +1,7 @@
 /**
  * @licstart The following is the entire license notice for the
  * JavaScript code in this page
- *
+ *att 06/06/2025
  * Copyright 2023 Mozilla Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
