@@ -2477,7 +2477,7 @@ Object.defineProperty(exports, "__esModule", ({
   exports.DEFAULT_SCALE_DELTA = DEFAULT_SCALE_DELTA;
   const MIN_SCALE = 0.1;
   exports.MIN_SCALE = MIN_SCALE;
-  const MAX_SCALE = 50.0;   //ori 10.0 escala de zoom
+  const MAX_SCALE = 40.0;   //ori 10.0 escala de zoom
   exports.MAX_SCALE = MAX_SCALE;
   const UNKNOWN_SCALE = 0;
   exports.UNKNOWN_SCALE = UNKNOWN_SCALE;
@@ -3075,7 +3075,7 @@ Object.defineProperty(exports, "__esModule", ({
       kind: OptionKind.VIEWER
     },
     maxCanvasPixels: {           // propieda de pixel maximos para renderizar   aqui aumenta el renderizado a 8k
-      value: 16777216,            // multiplicare por 2 para ver como renderiza dominik ojo
+      value: 165999916,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao
       kind: OptionKind.VIEWER
     },
     forcePageColors: {
@@ -4802,6 +4802,7 @@ Object.defineProperty(exports, "__esModule", ({
         case _pdf_find_controller.FindState.WRAPPED:
           findMsg = this.l10n.get(`find_reached_${previous ? "top" : "bottom"}`);
           break;
+          
       }
       this.findField.setAttribute("data-status", status);
       this.findField.setAttribute("aria-invalid", state === _pdf_find_controller.FindState.NOT_FOUND);
@@ -4811,7 +4812,10 @@ Object.defineProperty(exports, "__esModule", ({
         this.#adjustWidth();
       });
       this.updateResultsCount(matchesCount);
+      
     }
+    
+    
     updateResultsCount({
       current = 0,
       total = 0
@@ -4836,6 +4840,20 @@ Object.defineProperty(exports, "__esModule", ({
         this.findResultsCount.textContent = msg;
         this.#adjustWidth();
       });
+      // ─── CENTRALIZA O TEXTO DESTACADO ────────────────────────────────
+  // ─── CENTRALIZA O TEXTO DESTACADO ────────────────────────────────
+  setTimeout(() => {
+    const selected = document.querySelector('.highlight.selected');
+    if (selected) {
+      selected.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',    // centraliza verticalmente
+        inline: 'center'    // agora centraliza horizontalmente também
+      });
+    }
+  }, 0);
+  // ─────────────────────────────────────────────────────────────────
+
     }
     open() {
       if (!this.opened) {
@@ -13819,6 +13837,7 @@ Object.defineProperty(exports, "__esModule", ({
     document.addEventListener("DOMContentLoaded", webViewerLoad, true);
   }
   })();
+  
   
   /******/ })()
   ;
