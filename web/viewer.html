@@ -1,17 +1,18 @@
-
+<!--07/06/2025
+-->
 <!DOCTYPE html>
 <html dir="ltr" mozdisallowselectionprint>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="google" content="notranslate">
-    <title>06/06/25</title>
+    <title>PDF_ssssb</title>
 <link rel="resource" type="application/l10n" href="https://bizoonydb.github.io/PDFJS/locale/locale.properties">
 <script src="https://bizoonydb.github.io/PDFJS/build/pdf.js"></script>
 
-    <link rel="stylesheet" href="https://bizoonydb.github.io/PDFJS/web/viewer.css">
+    <link rel="stylesheet" href="viewer.css">
 
-  <script src="https://bizoonydb.github.io/PDFJS/web/viewer.js"></script>
+  <script src="viewer.js"></script>
   </head>
 <style>
 #toolbarViewerRight {
@@ -23,6 +24,7 @@
     gap: 5px;
     margin-right: 150px;
 }
+
 
 .secondaryToolbarButton {
     width: 5px;
@@ -40,7 +42,7 @@
 }
 
 .secondaryToolbarButton span {
-    display: none;
+    display: none; /* Esconde o texto dentro do botão */
 }
 
 .secondaryToolbarButton.toggled {
@@ -48,7 +50,7 @@
 }
 
 .secondaryToolbarButton:hover {
-    background-color: #4a4a4a;  /* Cor de fundo mais clara ao passar o mouse */
+    background-color: #5c5b5b;  /* Cor de fundo mais clara ao passar o mouse */
 }
 .secondaryToolbarButton i {
     color: #1d1c1c;  /* Cor do ícone */
@@ -456,11 +458,14 @@
                     <option title="" value="0.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 50 }'>50%</option>
                     <option title="" value="0.75" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 75 }'>75%</option>
                     <option title="" value="1" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 100 }'>100%</option>
-                    <option title="" value="1.25" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 125 }'>125%</option>
+                    
                     <option title="" value="1.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 150 }'>150%</option>
                     <option title="" value="2" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 200 }'>200%</option>
-                    <option title="" value="3" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 300 }'>300%</option>
+                    
                     <option title="" value="4" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 400 }'>400%</option>
+                    <option title="" value="5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 500 }'>500%</option>
+                    <option title="" value="8" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 800 }'>800%</option>
+                    <option title="" value="10" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale":1000 }'>1000%</option>
                   </select>
                 </span>
               </div>
@@ -477,7 +482,7 @@
           </div>
         </div>
          <!--dominik-->
-         <div id="customProgress" style="text-align:center;background:#FDFDFB;min-height:95vh">
+         <div id="customProgress" style="text-align:center;background:#ffffff;min-height:95vh">
           <!--<img src="images/documentLoading.gif" /> -->
         </div> 
         <script>
