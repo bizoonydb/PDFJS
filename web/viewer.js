@@ -1,7 +1,7 @@
 /**
  * @licstart The following is the entire license notice for the
  * JavaScript code in this page
- *att 07/06/2025
+ *att 06/06/2025
  * Copyright 2023 Mozilla Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12176,7 +12176,7 @@ Object.defineProperty(exports, "__esModule", ({
       items.zoomIn.disabled = pageScale >= _ui_utils.MAX_SCALE;
       //items.zoomIn.disabled = pageScale >= _ui_utils.MAX_SCALE; dominik
       this.l10n.get("page_scale_percent", {
-        scale: Math.round(pageScale * 10000) / 10 //10000  scale: Math.round(pageScale * 10000) / 100
+        scale: Math.round(pageScale * 1000) / 10 //10000  scale: Math.round(pageScale * 10000) / 100
         //aqui se modifica el zoom de la ruedita dominikcell
       }).then(msg => {
         let predefinedValueFound = false;
