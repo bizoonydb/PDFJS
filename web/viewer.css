@@ -1,5 +1,5 @@
 /* Copyright 2014 Mozilla Foundation
- * ATT 06/06/2025
+ * ATT 07/06/2025
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -65,7 +65,7 @@
   padding: 1px;
   background-color: var(--highlight-bg-color);
     border: 5px solid rgb(0, 0, 0) !important;           /* borda azul */
-  border-radius: 15px;                          /* mantém o arredondado */
+  border-radius: 10px;                          /* mantém o arredondado */
   box-sizing: border-box; 
  
   z-index: 999;
@@ -78,7 +78,7 @@
   
   .textLayer .highlight.begin {
     border-radius: 4px 0 0 4px;
-    border: 2px solid #ff0a0a;
+    border: 2px solid #1100ff;
   }
   
   .textLayer .highlight.end {
@@ -1276,7 +1276,7 @@
     overflow: visible;
     border: var(--page-border);
     background-clip: content-box;
-    background-color: rgba(255, 255, 255, 1);
+    background-color: rgba(255, 255, 255, 1); 
   }
   
   .pdfViewer .dummyPage {
@@ -1397,15 +1397,15 @@
     --toolbar-icon-opacity: 0.7;
     --doorhanger-icon-opacity: 0.9;
   
-    --main-color: rgba(12, 12, 13, 1);
+    --main-color: rgb(0, 0, 0);
     --body-bg-color: rgb(255, 255, 255);
     --progressBar-color: rgb(255, 242, 0);
-    --progressBar-bg-color: rgb(255, 255, 0);
+    --progressBar-bg-color: rgb(0, 0, 0);
     
     --progressBar-blend-color: rgba(116, 177, 239, 1);
-    --scrollbar-color: auto;
-    --scrollbar-bg-color: auto;
-    --toolbar-icon-bg-color: rgba(0, 0, 0, 1);
+    --scrollbar-color: rgb(102, 102, 102);
+    --scrollbar-bg-color: rgb(219, 219, 219);
+    --toolbar-icon-bg-color: rgb(0, 0, 0);
     --toolbar-icon-hover-bg-color: rgba(0, 0, 0, 1);
   
     --sidebar-narrow-bg-color: rgba(125, 125, 125, 0.9);
@@ -1418,22 +1418,22 @@
         rgba(0, 0, 0, 0.25),
       0 1px 0 rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
     --toolbarSidebar-border-bottom: none;
-    --button-hover-color: rgba(221, 222, 223, 1);
-    --toggled-btn-color: rgba(0, 0, 0, 1);
+    --button-hover-color: rgb(87, 87, 87);
+    --toggled-btn-color: rgb(39, 39, 39);
     --toggled-btn-bg-color: rgba(0, 0, 0, 0.3);
     --toggled-hover-active-btn-color: rgba(0, 0, 0, 0.4);
     --toggled-hover-btn-outline: none;
     --dropdown-btn-bg-color: rgb(153, 153, 153);
     --dropdown-btn-border: none;
     --separator-color: rgba(0, 0, 0, 0.3);
-    --field-color: rgba(6, 6, 6, 1);
+    --field-color: rgb(255, 255, 255);
     --field-bg-color: rgb(97, 97, 97);
     --field-border-color: rgb(0, 0, 0);
     --treeitem-color: rgba(0, 0, 0, 0.8);
     --treeitem-bg-color: rgba(0, 0, 0, 0.15);
     --treeitem-hover-color: rgba(0, 0, 0, 0.9);
     --treeitem-selected-color: rgba(0, 0, 0, 0.9);
-    --treeitem-selected-bg-color: rgba(0, 0, 0, 0.25);
+    --treeitem-selected-bg-color: rgba(0, 0, 0, 0.774);
     --thumbnail-hover-color: rgba(0, 0, 0, 0.1);
     --thumbnail-selected-color: rgba(0, 0, 0, 0.2);
     --doorhanger-bg-color: rgb(153, 153, 153);
@@ -1883,21 +1883,24 @@
   }
   
   #findInput {
-    width: 130px;
+    width: 250px;
   }
   #findInput::-moz-placeholder {
     font-style: normal;
+    
   }
   #findInput::placeholder {
     font-style: normal;
+    
   }
   #findInput[data-status="pending"] {
     background-image: var(--loading-icon);
     background-repeat: no-repeat;
     background-position: calc(50% + 48% * var(--dir-factor));
+    
   }
   #findInput[data-status="notFound"] {
-    background-color: rgba(255, 0, 0, 0.856);
+    background-color: rgba(255, 0, 0, 0.342);
   }
   
   .secondaryToolbar,
@@ -2392,7 +2395,7 @@
     inset-inline-end: 2px;
     /* Create a filled circle, with a diameter of 9 pixels, using only CSS: */
     content: "";
-    background-color: rgba(112, 219, 85, 1);
+    background-color: rgb(58, 247, 0);
     height: 9px;
     width: 9px;
     border-radius: 50%;
@@ -2547,7 +2550,7 @@
   }
   
   .toolbarField:focus {
-    border-color: #ff0a0a;
+    border-color: #09ff00;
   }
   
   .toolbarLabel {
@@ -2926,5 +2929,5 @@
       display: none;
     }
   }
-
+  
   
