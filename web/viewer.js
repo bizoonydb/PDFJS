@@ -1,7 +1,7 @@
 /**
  * @licstart The following is the entire license notice for the
  * JavaScript code in this page
- *att 06/06/2025
+ *att 07/06/2025
  * Copyright 2023 Mozilla Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -469,7 +469,7 @@ Object.defineProperty(exports, "__esModule", ({
         this.pdfCursorTools = new _webPdf_cursor_tools.PDFCursorTools({
           container,
           eventBus,
-          cursorToolOnLoad: 1   //1    //cursor tools dominik dmk activa handtools
+          cursorToolOnLoad: 1   //1    //cursor tools dominik dmk ativa handtools maozinha ativa o graab , ativa a maozinha
         });
       }
       
@@ -3023,7 +3023,7 @@ Object.defineProperty(exports, "__esModule", ({
       kind: OptionKind.VIEWER + OptionKind.PREFERENCE
     },
     defaultZoomDelay: {
-      value: 55000,    //500 dominik  aparentemente mejora la movilidad el zoom y el renderizado mas fluido estando 55000
+      value: 550,    //500 dominik  aparentemente mejora la movilidad el zoom y el renderizado mas fluido estando 55000 zoom em milesegundos
       kind: OptionKind.VIEWER + OptionKind.PREFERENCE
     },
     defaultZoomValue: {
@@ -3075,7 +3075,7 @@ Object.defineProperty(exports, "__esModule", ({
       kind: OptionKind.VIEWER
     },
     maxCanvasPixels: {           // propieda de pixel maximos para renderizar   aqui aumenta el renderizado a 8k
-      value: 165999916,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao
+      value: 165399916,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao
       kind: OptionKind.VIEWER
     },
     forcePageColors: {
@@ -4904,7 +4904,7 @@ Object.defineProperty(exports, "__esModule", ({
   Object.defineProperty(exports, "__esModule", ({
     value: false //ojo
   }));
-  //busqueda en codigo rastreo dominik
+  //busqueda en codigo rastreo dominik    CENTRALIZA  O TEXTO
   exports.PDFFindController = exports.FindState = void 0;
   var _ui_utils = __webpack_require__(3);
   var _pdf_find_utils = __webpack_require__(18);
@@ -4917,8 +4917,9 @@ Object.defineProperty(exports, "__esModule", ({
   };
   exports.FindState = FindState;
   const FIND_TIMEOUT = 250;
-  const MATCH_SCROLL_OFFSET_TOP = -50;     // -50
-  const MATCH_SCROLL_OFFSET_LEFT = -400;  //-400 dominik
+  const MATCH_SCROLL_OFFSET_TOP = -(window.innerHeight / 2);     // -50
+  const MATCH_SCROLL_OFFSET_LEFT = -(window.innerHeight / 2);    // -50
+ 
   const CHARACTERS_TO_NORMALIZE = {
     "\u2010": "-",
     "\u2018": "'",
@@ -5207,25 +5208,35 @@ Object.defineProperty(exports, "__esModule", ({
       });
     }
     scrollMatchIntoView({
-      element = null,
-      selectedLeft = 0,   //0
-      pageIndex = -1,    //-1
-      matchIndex = -1    //-1 dominik
-    }) {
-      if (!this._scrollMatches || !element) {
-        return;
-      } else if (matchIndex === -1 || matchIndex !== this._selected.matchIdx) {
-        return;
-      } else if (pageIndex === -1 || pageIndex !== this._selected.pageIdx) {
-        return;
-      }
-      this._scrollMatches = false;  //dominik  true, nose,,, mielczarek contron de busqueda examples... hace la busqueda constamte,ente creo
-      const spot = {
-        top: MATCH_SCROLL_OFFSET_TOP,
-        left: selectedLeft + MATCH_SCROLL_OFFSET_LEFT
-      };
-      (0, _ui_utils.scrollIntoView)(element, spot, true);
-    }
+  element = null,
+  selectedLeft = 0,//centralisa mais o testo //centralisa o texto
+  selectedtop = 0,//
+  selectedright = 0,
+  pageIndex = -1,
+  matchIndex = -1
+}) {
+  if (!this._scrollMatches || !element) {
+    return;
+  } else if (matchIndex === -1 || matchIndex !== this._selected.matchIdx) {
+    return;
+  } else if (pageIndex === -1 || pageIndex !== this._selected.pageIdx) {
+    return;
+  }
+
+  this._scrollMatches = false;
+
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+  const elementWidth = element.offsetWidth || 0;
+  const centeredLeft = selectedLeft - (viewportWidth / 2) + (elementWidth / 2);
+
+  const spot = {
+    top: MATCH_SCROLL_OFFSET_TOP,
+    left: centeredLeft
+  };
+
+  (0, _ui_utils.scrollIntoView)(element, spot, true);
+}
+
     #reset() {
       this._highlightMatches = false;
       this._scrollMatches = false;
@@ -9283,7 +9294,7 @@ Object.defineProperty(exports, "__esModule", ({
     _updateLocation(firstPage) {
       const currentScale = this._currentScale;
       const currentScaleValue = this._currentScaleValue;
-      const normalizedScaleValue = parseFloat(currentScaleValue) === currentScale ? Math.round(currentScale * 60000) / 100 : currentScaleValue; 
+      const normalizedScaleValue = parseFloat(currentScaleValue) === currentScale ? Math.round(currentScale * 10000) / 100 : currentScaleValue; 
       //const normalizedScaleValue = parseFloat(currentScaleValue) === currentScale ? Math.round(currentScale * 10000) / 100 : currentScaleValue; 
       
       const pageNumber = firstPage.id;
@@ -12165,7 +12176,7 @@ Object.defineProperty(exports, "__esModule", ({
       items.zoomIn.disabled = pageScale >= _ui_utils.MAX_SCALE;
       //items.zoomIn.disabled = pageScale >= _ui_utils.MAX_SCALE; dominik
       this.l10n.get("page_scale_percent", {
-        scale: Math.round(pageScale * 1000) / 10 //10000  scale: Math.round(pageScale * 10000) / 100
+        scale: Math.round(pageScale * 10000) / 10 //10000  scale: Math.round(pageScale * 10000) / 100
         //aqui se modifica el zoom de la ruedita dominikcell
       }).then(msg => {
         let predefinedValueFound = false;
