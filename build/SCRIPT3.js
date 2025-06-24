@@ -309,6 +309,24 @@ if (scaleFactor >= 0.2) {
                 fill(255, 70, 70);
             } else if (typeof pin.net === "string" && pin.net.startsWith("PP_VS")) {
                 fill(255, 70, 70);
+             } else if (typeof pin.net === "string" && pin.net.startsWith("0P")) {
+                fill(255, 70, 70);
+             } else if (typeof pin.net === "string" && pin.net.startsWith("1P")) {
+                fill(255, 70, 70);
+             } else if (typeof pin.net === "string" && pin.net.startsWith("2P")) {
+                fill(255, 70, 70);
+             } else if (typeof pin.net === "string" && pin.net.startsWith("3P")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("4P")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("5P")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("5V")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("1V")) {
+                fill(255, 70, 70);
+            } else if (typeof pin.net === "string" && pin.net.startsWith("2V")) {
+                fill(255, 70, 70);
             } else if (isPPnV) {
                 fill(230, 200, 100);
             } else if (pin.net === "GND") {
