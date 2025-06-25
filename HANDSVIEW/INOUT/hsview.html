@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Visualizador de Malhas</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #f0f0f0;
+    font-family: sans-serif;
+  }
+  #toolbar {
+    position: absolute;
+    top: 10px; left: 10px;
+    z-index: 10;
+    background: #ffffffdd;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    display: flex; gap: 10px; align-items: center;
+  }
+  #toolbar input {
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  #toolbar button {
+    padding: 6px 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #2d89ef;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  #toolbar button:hover {
+    background-color: #1a5fb4;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+  }
+  canvas.dragging {
+    cursor: grabbing;
+  }
+#painelMalhas {
+  position: absolute;
+  top: 88%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  background: #3d3d3d70;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 850px; /* limite pra não ficar muito largo */
+  width: 90vw;
+  max-height: 280px; /* altura fixa, sem barra de rolagem */
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-gap: 2px;
+  font-size: 12px;
+}
+
+.caixaMalha {
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  user-select: none;
+}
+
+.blocoCor {
+  height: 100%;
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #000000;
+  color: rgb(0, 0, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+ font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <input type="text" id="busca" placeholder="Buscar malha..." />
+  <button onclick="rotacionar(90)">⟳ Girar 90°</button>
+  <button onclick="rotacionar(-90)">⟲ Girar -90°</button>
+</div>
+<div id="painelMalhas"></div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const inputBusca = document.getElementById("busca");
+const jsonUrl = "malhas (6).json"; // Link do seu JSON
+
+let img = new Image();
+let malhas = [];
+let malhaBuscada = null;
+let malhaPiscando = null;
+let piscarVisivel = true;
+let piscarInterval = null;
+let offsetX = 0, offsetY = 0;
+let scale = 1;
+let rotation = 0; // graus
+
+let isDragging = false;
+let dragStart = { x: 0, y: 0 };
+let dragStartOffset = { x: 0, y: 0 };
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  centralizarImagem();
+  desenhar();
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+// Função para converter graus para radianos
+function degToRad(deg) {
+  return deg * Math.PI / 180;
+}
+
+// Função para aplicar a rotação inversa no arrasto para ficar natural
+function rotateVector(x, y, angleRad) {
+  const cos = Math.cos(angleRad);
+  const sin = Math.sin(angleRad);
+  return {
+    x: x * cos - y * sin,
+    y: x * sin + y * cos
+  };
+}
+
+// Evento de mouse down - começa arrastar
+canvas.addEventListener("mousedown", e => {
+  isDragging = true;
+  dragStart.x = e.clientX;
+  dragStart.y = e.clientY;
+  dragStartOffset.x = offsetX;
+  dragStartOffset.y = offsetY;
+  canvas.classList.add("dragging");
+});
+
+// Evento de mouse move - arrasta
+canvas.addEventListener("mousemove", e => {
+  if (!isDragging) return;
+
+  const dx = e.clientX - dragStart.x;
+  const dy = e.clientY - dragStart.y;
+
+  // Ajusta movimento para compensar rotação (negativa para inverter)
+  const rotated = rotateVector(dx, dy, -degToRad(rotation));
+
+  offsetX = dragStartOffset.x + rotated.x;
+  offsetY = dragStartOffset.y + rotated.y;
+
+  desenhar();
+});
+
+// Termina arrastar
+canvas.addEventListener("mouseup", () => {
+  isDragging = false;
+  canvas.classList.remove("dragging");
+});
+canvas.addEventListener("mouseleave", () => {
+  isDragging = false;
+  canvas.classList.remove("dragging");
+});
+
+// Zoom focado no cursor do mouse
+canvas.addEventListener("wheel", e => {
+  e.preventDefault();
+
+  // Centro da tela
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+
+  // Zoom
+  const zoomAmount = e.deltaY < 0 ? 1.1 : 0.9;
+  const newScale = scale * zoomAmount;
+
+  // Calcular posição da imagem em coordenadas mundo antes do zoom
+  const imageCenterX = (centerX - canvas.width / 2 - offsetX) / scale;
+  const imageCenterY = (centerY - canvas.height / 2 - offsetY) / scale;
+
+  // Atualizar offsets para manter o centro da imagem fixo
+  offsetX = offsetX - imageCenterX * (newScale - scale);
+  offsetY = offsetY - imageCenterY * (newScale - scale);
+
+  scale = newScale;
+
+  desenhar();
+});
+
+
+// Busca de malha
+inputBusca.addEventListener("input", () => {
+  const termo = inputBusca.value.toLowerCase().trim();
+
+  if (termo === "") {
+    malhaBuscada = null; // mostra todas
+  } else {
+    // filtra para mostrar apenas as correspondentes
+    malhaBuscada = termo;
+  }
+ atualizarPainelMalhas(); // 👈 aqui
+  desenhar();
+});
+
+
+// Rotacionar a imagem e malhas em torno do centro da tela
+function rotacionar(graus) {
+  rotation = (rotation + graus) % 360;
+  desenhar();
+}
+
+// Centraliza a imagem na tela, com zoom ajustado para caber
+function centralizarImagem() {
+  if (!img.width || !img.height) return;
+
+  scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+
+  offsetX = 0;
+  offsetY = 0;
+
+  rotation = 0;
+}
+
+
+
+// Desenha imagem, malhas e texto
+function desenhar() {
+  ctx.resetTransform();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+
+  // 1. Translada para o centro da tela (origem)
+  ctx.resetTransform();
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+// 1. Translada para centro do canvas
+ctx.translate(canvas.width / 2, canvas.height / 2);
+// 2. Aplica rotação
+ctx.rotate(degToRad(rotation));
+// 3. Aplica offset (pan)
+ctx.translate(offsetX, offsetY);
+// 4. Aplica escala
+ctx.scale(scale, scale);
+// 5. Translada para voltar origem para canto superior esquerdo da imagem
+ctx.translate(-img.width / 2, -img.height / 2);
+
+// Desenha imagem no 0,0 (origem transformada)
+ctx.drawImage(img, 0, 0);
+
+
+  // Ajuste para malhas: como a imagem está deslocada em offsetX/offsetY, o sistema já compensa.
+  // No entanto, as malhas são desenhadas considerando 0,0 da imagem.
+malhas.forEach(m => {
+  const termoBusca = malhaBuscada?.toLowerCase() || "";
+  const nomeMalha = (m.nome || "").toLowerCase();
+
+  // Define se é uma malha que está sendo buscada
+  const isCorrespondente = termoBusca && nomeMalha.includes(termoBusca);
+  const isBuscaAtiva = termoBusca !== "";
+
+  // Verifica se é a malha que está piscando
+  let corMalha = m.cor;
+  if (malhaPiscando === m) {
+    corMalha = piscarVisivel ? m.cor : "rgba(255, 255, 255, 0.1)"; // piscando entre cor original e quase transparente/branco
+  }
+
+  // Estilo com base na busca e piscar
+  ctx.strokeStyle = isBuscaAtiva && !isCorrespondente ? "rgba(150,150,150,0.2)" : corMalha;
+  ctx.fillStyle = isBuscaAtiva && !isCorrespondente ? "rgba(150,150,150,0.2)" : corMalha;
+  ctx.lineWidth = 2;
+  // Desenha linhas com dobras
+  for (let i = 1; i < m.pontos.length; i++) {
+    const p0 = m.pontos[i - 1];
+    const p1 = m.pontos[i];
+    const dobra = m.dobras[i - 1] || { x: p1.x, y: p0.y };
+
+    ctx.beginPath();
+    ctx.moveTo(p0.x, p0.y);
+    ctx.lineTo(dobra.x, p0.y);
+    ctx.lineTo(dobra.x, p1.y);
+    ctx.stroke();
+  }
+
+  // Desenha pontos visíveis
+  for (let p of m.pontos) {
+    if (p.visivel) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Caixa com nome da malha na maior linha
+  if (m.pontos.length > 1 && m.dobras.length > 0) {
+    let maxLen = 0, maxIndex = 0, orientacao = "horizontal";
+
+    for (let i = 1; i < m.pontos.length; i++) {
+      const p0 = m.pontos[i - 1];
+      const p1 = m.pontos[i];
+      const dobra = m.dobras[i - 1] || { x: p1.x, y: p0.y };
+
+      const lenH = Math.abs(dobra.x - p0.x);
+      const lenV = Math.abs(p1.y - p0.y);
+      const total = lenH + lenV;
+
+      if (total > maxLen) {
+        maxLen = total;
+        maxIndex = i - 1;
+        orientacao = lenV > lenH ? "vertical" : "horizontal";
+      }
+    }
+
+    const p0 = m.pontos[maxIndex];
+    const p1 = m.pontos[maxIndex + 1];
+    const dobra = m.dobras[maxIndex] || { x: p1.x, y: p0.y };
+
+    const cxText = dobra.x;
+    const cyText = (p0.y + p1.y) / 2;
+
+    ctx.save();
+    ctx.translate(cxText, cyText);
+    if (orientacao === "vertical") ctx.rotate(-Math.PI / 2);
+    ctx.font = "8px sans-serif";
+
+    const nome = m.nome || "net";
+    const w = ctx.measureText(nome).width + 12;
+    const h = 9;
+
+    ctx.fillStyle = isBuscaAtiva && !isCorrespondente ? "rgba(150,150,150,0.2)" : m.cor;
+    ctx.fillRect(-w / 2, -h / 2, w, h);
+    ctx.strokeStyle = "transparente";
+    ctx.strokeRect(-w / 2, -h / 2, w, h);
+
+    ctx.fillStyle = "#000";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(nome, 0, 0);
+    ctx.restore();
+  }
+});
+
+}
+
+// Carrega JSON e imagem
+fetch(jsonUrl)
+  .then(res => res.json())
+  .then(data => {
+    malhas = data.malhas || [];
+    img.src = data.imageURL;
+
+    img.onload = () => {
+  centralizarImagem();
+  desenhar();
+  atualizarPainelMalhas(); // 👈 aqui
+};
+  });
+
+
+ function atualizarPainelMalhas() {
+  const painel = document.getElementById("painelMalhas");
+  painel.innerHTML = "";
+
+  const termo = inputBusca.value.toLowerCase().trim();
+  const temBusca = termo.length > 0;
+
+  const lista = temBusca
+    ? malhas.filter(m => m.nome?.toLowerCase().includes(termo))
+    : malhas;
+
+  lista.forEach(m => {
+    const div = document.createElement("div");
+    div.className = "caixaMalha";
+
+    // Torna clicável
+    div.style.cursor = "pointer";
+
+    // Evento clique para piscar a malha
+    div.onclick = () => {
+      iniciarPiscarMalha(m);
+    };
+
+    const cor = document.createElement("div");
+    cor.className = "blocoCor";
+    cor.style.backgroundColor = m.cor;
+    cor.textContent = m.nome || "sem nome"; // nome dentro da cor
+
+    div.appendChild(cor);
+    painel.appendChild(div);
+  });
+}
+
+function centralizarNaMalha(m) {
+  if (!m.pontos || m.pontos.length < 2 || !m.dobras || m.dobras.length === 0) return;
+
+  // Encontrar o maior segmento (linha com dobra) - mesmo que faz para desenhar o texto
+  let maxLen = 0, maxIndex = 0;
+  for(let i=1; i < m.pontos.length; i++) {
+    const p0 = m.pontos[i-1];
+    const p1 = m.pontos[i];
+    const dobra = m.dobras[i-1] || { x: p1.x, y: p0.y };
+
+    const lenH = Math.abs(dobra.x - p0.x);
+    const lenV = Math.abs(p1.y - p0.y);
+    const total = lenH + lenV;
+
+    if(total > maxLen) {
+      maxLen = total;
+      maxIndex = i-1;
+    }
+  }
+
+  // Pega os pontos e dobra do maior segmento
+  const p0 = m.pontos[maxIndex];
+  const p1 = m.pontos[maxIndex + 1];
+  const dobra = m.dobras[maxIndex] || { x: p1.x, y: p0.y };
+
+  // Coordenadas do texto
+  const cxText = dobra.x;
+  const cyText = (p0.y + p1.y) / 2;
+
+  // Aplica escala
+  const xEscalado = cxText * scale;
+  const yEscalado = cyText * scale;
+
+  // Aplica rotação
+  const rotRad = degToRad(rotation);
+  const cos = Math.cos(rotRad);
+  const sin = Math.sin(rotRad);
+
+  const xRot = xEscalado * cos - yEscalado * sin;
+  const yRot = xEscalado * sin + yEscalado * cos;
+
+  // Centraliza no meio do canvas, offset é o inverso do ponto rotacionado
+  offsetX = -xRot;
+  offsetY = -yRot;
+
+  desenhar();
+}
+
+function iniciarPiscarMalha(malha) {
+  malhaPiscando = malha;
+  piscarVisivel = true;
+
+  if (piscarInterval) clearInterval(piscarInterval);
+
+  piscarInterval = setInterval(() => {
+    piscarVisivel = !piscarVisivel;
+    desenhar();
+  }, 300);
+
+  setTimeout(() => {
+    clearInterval(piscarInterval);
+    malhaPiscando = null;
+    desenhar();
+  }, 5000);
+}
+lista.forEach(m => {
+  const div = document.createElement("div");
+  div.className = "caixaMalha";
+
+  div.style.cursor = "pointer";
+
+  div.onclick = () => {
+    centralizarNaMalha(m);
+    piscarMalha(m); // se tiver função de piscar
+  };
+
+  const cor = document.createElement("div");
+  cor.className = "blocoCor";
+  cor.style.backgroundColor = m.cor;
+  cor.textContent = m.nome || "sem nome";
+
+  div.appendChild(cor);
+  painel.appendChild(div);
+});
+
+</script>
+
+</body>
+</html>
