@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Editor BVR com Nets (Preserva estrutura)</title>
+<style>
+body {
+  font-family: monospace;
+  margin: 0;
+  display: flex;
+  height: 100vh;
+  background-color: #121212;
+  color: #eeff02;
+}
+#leftPanel {
+  width: 320px;
+  border-right: 1px solid #333;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: #1e1e1e;
+}
+label, button {
+  margin: 5px 0;
+  display: block;
+  color: #e0e0e0;
+}
+input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px;
+  background-color: #2c2c2c;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+.item-list {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #333;
+  margin-bottom: 10px;
+  background-color: #1e1e1e;
+}
+.item {
+  padding: 5px;
+  cursor: pointer;
+  border-bottom: 1px solid #333;
+}
+.item:hover { background: #333; }
+.item.selected { background: #555; font-weight: bold; }
+button {
+  background-color: #333;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+button:hover { background-color: #444; }
+</style>
+</head>
+<body>
+
+<div id="leftPanel">
+  <h2>Editor BVR</h2>
+  <label>Carregar arquivo BVR:
+    <input type="file" id="fileInput" accept=".bvr,.txt" />
+  </label>
+
+  <h3>Componentes</h3>
+  <input type="text" id="searchPart" placeholder="Pesquisar componente..." />
+  <div id="partsList" class="item-list"></div>
+
+  <h3>Malhas (Nets)</h3>
+  <input type="text" id="searchNet" placeholder="Pesquisar malha..." />
+  <div id="netsList" class="item-list"></div>
+
+  <h3>Edição</h3>
+  <label>Nome do Componente:
+    <input type="text" id="editPartName" disabled />
+  </label>
+  <button id="btnSavePart" disabled>Salvar nome componente</button>
+
+  <label>Nome da Malha (Net):
+    <input type="text" id="editNetName" disabled />
+  </label>
+  <button id="btnSaveNet" disabled>Salvar nome malha</button>
+
+  <button id="btnExport" disabled>Exportar BVR</button>
+</div>
+
+<div id="canvasContainer">
+  <canvas id="canvas" width="600" height="600"></canvas>
+</div>
+
+<script>
+// === parserWorker.js inline ===
+const parserWorkerCode = `
+self.onmessage = function(e) {
+  const fileContent = e.data;
+  const parts = [];
+  const outlinePoints = [];
+  let imageUrl = null;
+  let i = 0;
+  while (i < fileContent.length) {
+    let line = fileContent[i].trim();
+    if (line.startsWith("IMAGE_URL")) {
+      imageUrl = line.split(/\\s+/)[1];
+      i++;
+      continue;
+    }
+    if (line.startsWith("PART_NAME")) {
+      let tokens = line.split(/\\s+/);
+      let partName = tokens[1];
+      let part = {
+        name: partName,
+        _originalName: partName,
+        pins: [],
+        side: "T",
+        nets: new Set(),
+        outline: []
+      };
+      i++;
+      while (i < fileContent.length && !fileContent[i].trim().startsWith("PART_END")) {
+        let innerLine = fileContent[i].trim();
+        if (innerLine.startsWith("PART_SIDE")) {
+          part.side = innerLine.split(/\\s+/)[1];
+        }
+        if (innerLine.startsWith("PIN_ID")) {
+          let pin = {};
+          i++;
+          while (i < fileContent.length && !fileContent[i].trim().startsWith("PIN_END")) {
+            let pinLine = fileContent[i].trim();
+            let tokensPin = pinLine.split(/\\s+/);
+            if (tokensPin[0] === "PIN_ORIGIN") {
+              pin.x = parseFloat(tokensPin[1]);
+              pin.y = parseFloat(tokensPin[2]);
+            }
+            if (tokensPin[0] === "PIN_NET") {
+              pin.net = tokensPin.slice(1).join(" ");
+              part.nets.add(pin.net);
+            }
+            if (tokensPin[0] === "PIN_RADIUS") {
+              pin.radius = parseFloat(tokensPin[1]);
+            }
+            i++;
+          }
+          part.pins.push(pin);
+        } else {
+          i++;
+        }
+      }
+      part.nets = Array.from(part.nets);
+      parts.push(part);
+    } else {
+      i++;
+    }
+  }
+  self.postMessage({ parts, outlinePoints, imageUrl });
+};
+`;
+const blob = new Blob([parserWorkerCode], {type:"application/javascript"});
+const parserWorker = new Worker(URL.createObjectURL(blob));
+
+// === Variáveis ===
+let parts = [];
+let outlinePoints = [];
+let imageUrl = null;
+let originalLines = [];
+
+const fileInput = document.getElementById("fileInput");
+const partsList = document.getElementById("partsList");
+const netsList = document.getElementById("netsList");
+const searchNet = document.getElementById("searchNet");
+const searchPart = document.getElementById("searchPart");
+const editPartName = document.getElementById("editPartName");
+const editNetName = document.getElementById("editNetName");
+const btnSavePart = document.getElementById("btnSavePart");
+const btnSaveNet = document.getElementById("btnSaveNet");
+const btnExport = document.getElementById("btnExport");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let selectedPartIndex = null;
+let selectedNetName = null;
+let lastLoadedLines = [];
+
+// === Carregar arquivo ===
+fileInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    const text = evt.target.result;
+    lastLoadedLines = text.split(/\r?\n/);
+    parserWorker.postMessage(lastLoadedLines);
+  };
+  reader.readAsText(file);
+});
+
+// === Recebe parser ===
+parserWorker.onmessage = function(e){
+  parts = e.data.parts;
+  outlinePoints = e.data.outlinePoints;
+  imageUrl = e.data.imageUrl;
+  originalLines = lastLoadedLines.slice(); // salva original
+  selectedPartIndex = null;
+  selectedNetName = null;
+  updateUIAfterLoad();
+};
+
+function updateUIAfterLoad(){
+  renderPartsList();
+  renderNetsList();
+  clearSelection();
+  drawCanvas();
+  btnExport.disabled = false;
+}
+
+function renderPartsList() {
+  partsList.innerHTML = "";
+  let filteredParts = parts;
+
+  const filter = searchPart.value.trim().toLowerCase();
+  if (filter !== "") {
+    filteredParts = parts.filter(part => part.name.toLowerCase().includes(filter));
+  }
+
+  filteredParts.forEach((part, idx) => {
+    const div = document.createElement("div");
+    div.className = "item" + (idx === selectedPartIndex ? " selected" : "");
+    div.textContent = `${part.name} (Pins: ${part.pins.length})`;
+    div.onclick = () => {
+      // Precisa usar o índice real no array original:
+      selectedPartIndex = parts.indexOf(part);
+      selectedPinIndex = 0;
+      selectedNetName = null;
+      updateSelection("part");
+    };
+    partsList.appendChild(div);
+  });
+}
+searchPart.addEventListener("input", () => {
+  renderPartsList();
+});
+function getGlobalNets(){
+  const netSet = new Set();
+  parts.forEach(part=>{
+    part.pins.forEach(pin=>{
+      if(pin.net) netSet.add(pin.net);
+    });
+  });
+  return Array.from(netSet).sort();
+}
+
+function renderNetsList(){
+  netsList.innerHTML = "";
+  let nets = getGlobalNets();
+  const filter = searchNet.value.trim().toLowerCase();
+  if (filter) {
+    nets = nets.filter(n => n.toLowerCase().includes(filter));
+  }
+  nets.forEach(net=>{
+    const div = document.createElement("div");
+    div.className = "item" + (net === selectedNetName ? " selected" : "");
+    div.textContent = net;
+    div.onclick = () => {
+      selectedNetName = net;
+      selectedPartIndex = null;
+      updateSelection("net");
+    };
+    netsList.appendChild(div);
+  });
+}
+
+function clearSelection(){
+  selectedPartIndex = null;
+  selectedNetName = null;
+  editPartName.value = "";
+  editNetName.value = "";
+  editPartName.disabled = true;
+  editNetName.disabled = true;
+  btnSavePart.disabled = true;
+  btnSaveNet.disabled = true;
+  renderPartsList();
+  renderNetsList();
+}
+
+function updateSelection(type){
+  if (type === "part") {
+    const part = parts[selectedPartIndex];
+    editPartName.value = part.name;
+    editPartName.disabled = false;
+    btnSavePart.disabled = false;
+    editNetName.disabled = true;
+    btnSaveNet.disabled = true;
+  } else if (type === "net") {
+    editNetName.value = selectedNetName || "";
+    editNetName.disabled = false;
+    btnSaveNet.disabled = false;
+    editPartName.disabled = true;
+    btnSavePart.disabled = true;
+  }
+  renderPartsList();
+  renderNetsList();
+  drawCanvas();
+}
+
+// === Botões ===
+btnSavePart.addEventListener("click", () => {
+  if (selectedPartIndex === null) return alert("Selecione um componente.");
+  const newName = editPartName.value.trim();
+  if (!newName) return alert("Nome inválido.");
+  parts[selectedPartIndex]._originalName = parts[selectedPartIndex].name; // Salva original
+  parts[selectedPartIndex].name = newName;
+  renderPartsList();
+  alert("Nome atualizado!");
+});
+
+btnSaveNet.addEventListener("click", () => {
+  if (!selectedNetName) return alert("Selecione uma net.");
+  const newName = editNetName.value.trim();
+  if (!newName) return alert("Nome inválido.");
+
+  parts.forEach(part => {
+    part.pins.forEach(pin => {
+      if (pin.net === selectedNetName) {
+        if (!pin._originalNet) pin._originalNet = pin.net; // Marca original se ainda não tiver
+        pin.net = newName;
+      }
+    });
+  });
+  selectedNetName = newName;
+  renderNetsList();
+  renderPartsList();
+  alert("Net atualizada!");
+});
+
+btnExport.addEventListener("click", () => {
+  if (!originalLines.length) return alert("Nenhum arquivo carregado.");
+
+  // Começa com uma cópia do arquivo original
+  let lines = originalLines.slice();
+
+  // Substituir PART_NAME se mudou
+  parts.forEach(part => {
+    if (part.name !== part._originalName) {
+      lines = lines.map(line => {
+        if (line.trim().startsWith("PART_NAME")) {
+          const tokens = line.trim().split(/\s+/);
+          if (tokens[1] === part._originalName) {
+            return `PART_NAME ${part.name}`;
+          }
+        }
+        return line;
+      });
+    }
+  });
+
+  // Substituir PIN_NET se mudou
+  parts.forEach(part => {
+    part.pins.forEach(pin => {
+      if (pin._originalNet && pin.net !== pin._originalNet) {
+        lines = lines.map(line => {
+          if (line.trim().startsWith("PIN_NET")) {
+            const tokens = line.trim().split(/\s+/);
+            const netValue = tokens.slice(1).join(" ");
+            if (netValue === pin._originalNet) {
+              return `PIN_NET ${pin.net}`;
+            }
+          }
+          return line;
+        });
+      }
+    });
+  });
+
+  // Cria Blob e baixa
+  const finalContent = lines.join("\n");
+  const blobFile = new Blob([finalContent], { type: "text/plain" });
+  const url = URL.createObjectURL(blobFile);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "exported.bvr";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+
+
+searchNet.addEventListener("input", () => renderNetsList());
+
+function drawCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  parts.forEach(part => {
+    part.pins.forEach(pin => {
+      const x = pin.x + 300;
+      const y = pin.y + 300;
+      ctx.beginPath();
+      ctx.fillStyle = "#3498db";
+      ctx.arc(x, y, pin.radius || 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#000";
+      ctx.fillText(pin.net, x + 8, y);
+    });
+  });
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Iframe com Margem</title>
+  <style>
+    body {
+      margin: 0;
+    }
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 250px; /* margem esquerda */
+      width: calc(100% - 250px); /* ocupa o restante da tela */
+      height: 100vh; /* altura total da tela */
+      border: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <iframe src="https://bizoonydb.github.io/PDFJS/db/drone.html"></iframe>
+</body>
+</html>
