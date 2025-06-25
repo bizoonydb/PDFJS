@@ -94,7 +94,12 @@
 <canvas id="canvas"></canvas>
 
 <script>
-  const jsonURL = "A03S_INOUT.json";
+  function getFileFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("file") || "A03S_INOUT.json"; // valor padrão
+}
+
+const jsonURL = getFileFromURL();
 
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
