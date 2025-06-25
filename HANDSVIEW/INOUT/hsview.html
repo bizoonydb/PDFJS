@@ -12,34 +12,43 @@
     font-family: sans-serif;
   }
   #toolbar {
-    position: absolute;
-    top: 10px; left: 10px;
-    z-index: 10;
-    background: #ffffffdd;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    display: flex; gap: 10px; align-items: center;
-  }
-  #toolbar input {
-    padding: 5px 10px;
-    font-size: 14px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-  }
-  #toolbar button {
-    padding: 6px 10px;
-    font-size: 14px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    background-color: #2d89ef;
-    color: white;
-    transition: background-color 0.3s ease;
-  }
-  #toolbar button:hover {
-    background-color: #1a5fb4;
-  }
+  position: absolute;
+  top: 0px; left: 0px;
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+  background: rgba(133, 132, 132, 0.9); /* fundo escuro */
+  padding: 5px 12px;
+  border-radius: 0px;
+  user-select: none;
+  border: 2px solid #868686;
+  box-shadow: 0 0 10px rgba(199, 199, 199, 0.5);
+}
+
+#toolbar button {
+  padding: 6px 12px;
+  font-size: 14px;
+  background-color: #686868;
+  color: #fff;
+  border: 1px solid #000000;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#toolbar button:hover {
+  background-color: #252525;
+}
+
+#toolbar input[type="text"] {
+  background: #c4c4c4;
+  color: #fcf700;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 14px;
+}
+
   canvas {
     display: block;
     width: 100%;
@@ -55,7 +64,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
-  background: #3d3d3d70;
+  background: #3d3d3dd2;
   padding: 10px;
   border-radius: 10px;
   max-width: 850px; /* limite pra não ficar muito largo */
@@ -102,8 +111,9 @@
 
 <div id="toolbar">
   <input type="text" id="busca" placeholder="Buscar malha..." />
-  <button onclick="rotacionar(90)">⟳ Girar 90°</button>
-  <button onclick="rotacionar(-90)">⟲ Girar -90°</button>
+  <button onclick="rotacionar(-90)">⟲</button>
+  <button onclick="rotacionar(90)">⟳ </button>
+  
 </div>
 <div id="painelMalhas"></div>
 
@@ -114,7 +124,13 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 const inputBusca = document.getElementById("busca");
-const jsonUrl = "malhas (6).json"; // Link do seu JSON
+// Verifica se tem ?file= na URL
+function getJSONFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("file") || "malhas (6).json"; // valor padrão se não passar nada
+}
+const jsonUrl = getJSONFromURL();
+
 
 let img = new Image();
 let malhas = [];
