@@ -2,542 +2,180 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>IN-OUT-TENSAO</title>
+  <title>Gerenciador IN/OUT</title>
   <style>
-   html, body {
-    background: #ffffff;
-      margin: 0; padding: 0;
-      width: 100%; height: 100%;
-      overflow: hidden;
-      font-family: sans-serif;
+    html, body {
+      margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: sans-serif;
+      background: #ffffff;
     }
 
-    #controls {
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    #topInfo {
       position: absolute;
-      top: 10px; left: 10px;
-      z-index: 10;
+      top: 40px;
+      left: 50%;
+       border: #000 solid 2px;
+      transform: translateX(-50%);
       display: flex;
-      gap: 10px;
-      background: rgba(255,255,255,0.8);
-      padding: 8px 12px;
-      border-radius: 5px;
+      gap: 0px;
+      z-index: 4;
+    }
+
+    .infoBox {
+        
+      padding: 10px 16px;
+      border-radius: 0px;
+      font-weight: bold;
+      font-size: 30px;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    #deviceName {
+       
+      background: rgb(238, 215, 10);
+      color: rgb(0, 0, 0);
+    }
+
+    #sectorName {
+      background: rgb(255, 255, 255);
+      color: rgb(0, 0, 0);
+      font-style: italic;
+      
+      border: 3px solid rgba(231, 235, 12, 0.973);
+    }
+
+    #fileManager {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 200px;
+      max-height: 300px;
+      background: rgba(0, 0, 0, 0.596);
+      color: rgb(255, 238, 0);
+      border-radius: 8px;
+      overflow-y: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      padding: 10px;
+      z-index: 3;
+    }
+
+    #fileManager h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      text-align: center;
+      border-bottom: 1px solid #444;
+      padding-bottom: 5px;
+    }
+
+    .fileItem {
+      cursor: pointer;
+      padding: 6px;
+      margin-bottom: 5px;
+      background: #222;
+      border-radius: 4px;
+      transition: background 0.2s;
       user-select: none;
     }
 
-    button {
-      padding: 4px 10px;
-      font-size: 14px;
-      cursor: pointer;
+    .fileItem:hover {
+      background: #444;
     }
 
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      cursor: grab;
-      z-index: 999;
-    }
-    canvas.dragging {
-      cursor: grabbing;
-    }
-
-    #hoverText {
-      position: absolute;
-      pointer-events: none;
-      background: yellow;
+    .fileItem.selected {
+      background: rgb(255, 238, 0);
       color: black;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-family: sans-serif;
-      font-size: 14px;
-      white-space: nowrap;
-      user-select: text;
-      display: none !important;
-      z-index: 20;
+      font-weight: bold;
     }
-    #copyAlert {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: #4caf50; /* verde */
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-family: sans-serif;
-  font-size: 18px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
-  z-index: 1000;
-}
 
-#copyAlert.show {
-  opacity: 1;
-  pointer-events: auto;
-}
+    #watermarkContainer {
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 180px);
+      grid-auto-rows: 130px;
+      gap: 0;
+      opacity: 0.09;
+    }
+
+    .watermarkText {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ffffff;
+      transform: rotate(-15deg);
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      letter-spacing: 1px;
+    }
   </style>
 </head>
 <body>
 
-<div id="controls">
-  <button onclick="rotateImage(-90)">⟲  </button>
-  <button onclick="rotateImage(90)">⟳  </button>
-  <button onclick="resetView()">🎯 </button>
-  <button id="prevBtn" disabled>◀ </button>
-  <button id="nextBtn" disabled> ▶</button>
-  <input type="text" id="searchInput" placeholder="Buscar ..." />
-  
+<div id="topInfo">
+  <div class="infoBox" id="deviceName">A03S SM-A037</div>
+  <div class="infoBox" id="sectorName"> </div>
 </div>
-<div id="copyAlert"> TEXTO COPIADO</div>
-<div id="hoverText"></div>
+</div>
 
-<canvas id="canvas"></canvas>
+<div id="watermarkContainer"></div>
+
+<iframe id="viewer" src=""></iframe>
+
+<div id="fileManager">
+  <h3>SETORES</h3>
+  <div class="fileItem" data-filename="A03S_CPUVOLT.json" data-description="CPU VOLT" onclick="loadFile(this)">CPU VOLT</div>
+  <div class="fileItem" data-filename="A03S_INOUT.json" data-description="IN OUT VOLT" onclick="loadFile(this)">IN OUT VOLT</div>
+  <div class="fileItem" data-filename="A03S_EMMCVOLT.json" data-description="eMMC VOLT" onclick="loadFile(this)">eMMC VOLT</div>
+</div>
 
 <script>
-  const jsonURL = "A03S_INOUT.json";
+  const viewer = document.getElementById("viewer");
+  const fileItems = document.querySelectorAll(".fileItem");
+  const sectorName = document.getElementById("sectorName");
 
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
+  function loadFile(element) {
+    const fileName = element.getAttribute("data-filename");
+    const description = element.getAttribute("data-description");
 
-  const dpr = window.devicePixelRatio || 1;
+    const jsonURL = "https://bizoonydb.github.io/PDFJS/build/SM/" + fileName;
+    const viewerURL = "https://bizoonydb.github.io/PDFJS/HANDSVIEW/INOUT/VIEW.html?file=" + encodeURIComponent(jsonURL);
+    viewer.src = viewerURL;
 
-  let img = new Image();
-  let annotations = [];
-let copiedText = null; // texto marcado em vermelho
-  let scale = 1;
-  let offsetX = 0;
-  let offsetY = 0;
-  let rotation = 0; // em graus
+    sectorName.textContent = description;
 
-  let isDraggingCanvas = false;
-  let dragStart = { x: 0, y: 0 };
-
-  let searchTerm = "";
-  let searchResults = [];
-  let currentIndex = -1;
-
-  const searchInput = document.getElementById("searchInput");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
-const hoverTextDiv = document.getElementById("hoverText"); // ← adicione esta linha
-
-
-  searchInput.addEventListener("input", () => {
-    searchTerm = searchInput.value.trim().toLowerCase();
-    updateSearchResults();
-  });
-
-  prevBtn.addEventListener("click", () => {
-    if (searchResults.length === 0) return;
-    currentIndex = (currentIndex - 1 + searchResults.length) % searchResults.length;
-    centerOnAnnotation(searchResults[currentIndex]);
-    draw();
-    updateButtons();
-  });
-
-  nextBtn.addEventListener("click", () => {
-    if (searchResults.length === 0) return;
-    currentIndex = (currentIndex + 1) % searchResults.length;
-    centerOnAnnotation(searchResults[currentIndex]);
-    draw();
-    updateButtons();
-  });
-
-  function updateSearchResults() {
-    if (!searchTerm) {
-      searchResults = [];
-      currentIndex = -1;
-      prevBtn.disabled = true;
-      nextBtn.disabled = true;
-      resetView();
-      draw();
-      return;
-    }
-
-    searchResults = annotations.filter(a => a.text.toLowerCase().includes(searchTerm));
-    if (searchResults.length > 0) {
-      currentIndex = 0;
-      centerOnAnnotation(searchResults[currentIndex]);
-      prevBtn.disabled = false;
-      nextBtn.disabled = false;
-    } else {
-      currentIndex = -1;
-      prevBtn.disabled = true;
-      nextBtn.disabled = true;
-      resetView();
-    }
-    draw();
+    fileItems.forEach(item => item.classList.remove("selected"));
+    element.classList.add("selected");
   }
 
-function centerOnAnnotation(annotation) {
-  if (!annotation || !img.width || !img.height) return;
-
-  // 🔴 Remove qualquer rotação
-  rotation = 0;
-
-  // 🟥 Destaca o texto copiado
-  copiedText = annotation.text;
-
-  // 📌 Posição do texto (não do pino!)
-  const px = annotation.x * img.width;
-  const py = annotation.y * img.height;
-
-  const fontSize = 14;
-  ctx.font = `${fontSize}px sans-serif`;
-  const textX = annotation.textPosX !== undefined ? annotation.textPosX : px + 50;
-  const textY = annotation.textPosY !== undefined ? annotation.textPosY : py - fontSize - 20;
-
-  // 🎯 Centraliza o texto diretamente (sem rotação envolvida)
-  const screenCenterX = window.innerWidth / 2;
-  const screenCenterY = window.innerHeight / 2;
-
-  offsetX = screenCenterX - textX * scale;
-  offsetY = screenCenterY - textY * scale;
-
-  draw();
-}
-
-
-
-  function updateButtons() {
-    prevBtn.disabled = searchResults.length <= 1;
-    nextBtn.disabled = searchResults.length <= 1;
-  }
-
- function resizeCanvas() {
-    canvas.width = window.innerWidth * dpr;
-    canvas.height = window.innerHeight * dpr;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(dpr, dpr);
-    adjustImageToFit();
-    draw();
-  }
-
-  function adjustImageToFit() {
-    if (!img.width || !img.height) return;
-    const scaleX = window.innerWidth / img.width;
-    const scaleY = window.innerHeight / img.height;
-    scale = Math.min(scaleX, scaleY);
-    offsetX = (window.innerWidth - img.width * scale) / 2;
-    offsetY = (window.innerHeight - img.height * scale) / 2;
-  }
-
-  function resetView() {
-    adjustImageToFit();
-    rotation = 0;
-    copiedText = null;
-    draw();
-  }
-
-  canvas.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    const wheel = e.deltaY < 0 ? 1.1 : 0.9;
-    const cx = e.clientX;
-    const cy = e.clientY;
-    offsetX = cx - (cx - offsetX) * wheel;
-    offsetY = cy - (cy - offsetY) * wheel;
-    scale *= wheel;
-    draw();
-  });
-
-  let lastOffsetX = 0;
-  let lastOffsetY = 0;
-
-  canvas.addEventListener("mousedown", (e) => {
-    isDraggingCanvas = true;
-    dragStart.x = e.clientX;
-    dragStart.y = e.clientY;
-    lastOffsetX = offsetX;
-    lastOffsetY = offsetY;
-    canvas.classList.add("dragging");
-  });
-
-  canvas.addEventListener("mousemove", (e) => {
-    hoverTextDiv.style.display = "none";
-    if (isDraggingCanvas) {
-      const dx = e.clientX - dragStart.x;
-      const dy = e.clientY - dragStart.y;
-
-      const angle = (rotation * Math.PI) / 180;
-      const rotatedDx = dx * Math.cos(angle) + dy * Math.sin(angle);
-      const rotatedDy = -dx * Math.sin(angle) + dy * Math.cos(angle);
-
-      offsetX = lastOffsetX + rotatedDx;
-      offsetY = lastOffsetY + rotatedDy;
-      draw();
+  window.onload = () => {
+    const firstItem = fileItems[0];
+    if (firstItem) {
+      loadFile(firstItem);
     }
 
-    // Mostrar hoverText se estiver perto do texto
+    const watermarkContainer = document.getElementById('watermarkContainer');
+    const count = Math.ceil(window.innerWidth / 120) * Math.ceil(window.innerHeight / 40);
 
-    if (!img.width || !img.height) {
-      hoverTextDiv.style.display = "none";
-      return;
+    for (let i = 0; i < count; i++) {
+      const wm = document.createElement('div');
+      wm.className = 'watermarkText';
+      wm.textContent = 'DIGITAL BOARD';
+      watermarkContainer.appendChild(wm);
     }
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = (e.clientX - rect.left) * dpr;
-    const mouseY = (e.clientY - rect.top) * dpr;
-
-    // Passo 1: coords canvas -> coords imagem (inverso zoom+pan)
-    let x = (mouseX / dpr - offsetX) / scale;
-    let y = (mouseY / dpr - offsetY) / scale;
-
-    // Passo 2: coords imagem -> coords sem rotação (inverso rotação)
-    const centerX = window.innerWidth / 2 / scale - offsetX / scale;
-    const centerY = window.innerHeight / 2 / scale - offsetY / scale;
-    const angle = (-rotation * Math.PI) / 180;
-    const dx = x - centerX;
-    const dy = y - centerY;
-    const rotatedX = dx * Math.cos(angle) - dy * Math.sin(angle) + centerX;
-    const rotatedY = dx * Math.sin(angle) + dy * Math.cos(angle) + centerY;
-
-    const threshold = 10;
-    let found = null;
-
-    for (const a of annotations) {
-      const px = a.x * img.width;
-      const py = a.y * img.height;
-
-      const fontSize = 14;
-      ctx.font = `${fontSize}px sans-serif`;
-      const text = a.text;
-      const padding = 6;
-
-      const textX = a.textPosX !== undefined ? a.textPosX : px + 50;
-      const textY = a.textPosY !== undefined ? a.textPosY : py - fontSize - 20;
-
-      const textWidth = ctx.measureText(text).width + padding * 2;
-      const textHeight = fontSize + padding;
-
-      if (
-        rotatedX >= textX &&
-        rotatedX <= textX + textWidth &&
-        rotatedY >= textY &&
-        rotatedY <= textY + textHeight
-      ) {
-        found = a;
-        break;
-      }
-    }
-
-    if (found) {
-      // Posiciona a div hoverText com o texto da anotação, no lugar correto
-      const screenX = found.textPosX !== undefined ? found.textPosX : found.x * img.width + 50;
-      const screenY = found.textPosY !== undefined ? found.textPosY : found.y * img.height - 14 - 20;
-
-      // Aplica rotação (direto, não inverso)
-      const tx = screenX - centerX;
-      const ty = screenY - centerY;
-      const rotatedScreenX = tx * Math.cos((rotation * Math.PI) / 180) - ty * Math.sin((rotation * Math.PI) / 180) + centerX;
-      const rotatedScreenY = tx * Math.sin((rotation * Math.PI) / 180) + ty * Math.cos((rotation * Math.PI) / 180) + centerY;
-
-      // Aplica zoom e pan
-      const finalX = rotatedScreenX * scale + offsetX;
-      const finalY = rotatedScreenY * scale + offsetY;
-
-      hoverTextDiv.style.left = `${finalX}px`;
-      hoverTextDiv.style.top = `${finalY}px`;
-      hoverTextDiv.textContent = found.text;
-      hoverTextDiv.style.display = "block";
-    } else {
-      hoverTextDiv.style.display = "none";
-    }
-  });
-
-  canvas.addEventListener("mouseup", () => {
-    isDraggingCanvas = false;
-    canvas.classList.remove("dragging");
-  });
-
-  canvas.addEventListener("mouseleave", () => {
-    isDraggingCanvas = false;
-    canvas.classList.remove("dragging");
-    hoverTextDiv.style.display = "none";
-  });
-
-  // Clique no canvas para copiar texto e marcar em vermelho
-  canvas.addEventListener("click", (e) => {
-    if (!img.width || !img.height) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = (e.clientX - rect.left) * dpr;
-    const mouseY = (e.clientY - rect.top) * dpr;
-
-    let x = (mouseX / dpr - offsetX) / scale;
-    let y = (mouseY / dpr - offsetY) / scale;
-
-    const centerX = window.innerWidth / 2 / scale - offsetX / scale;
-    const centerY = window.innerHeight / 2 / scale - offsetY / scale;
-
-    const angle = (-rotation * Math.PI) / 180;
-    const dx = x - centerX;
-    const dy = y - centerY;
-
-    const rotatedX = dx * Math.cos(angle) - dy * Math.sin(angle) + centerX;
-    const rotatedY = dx * Math.sin(angle) + dy * Math.cos(angle) + centerY;
-
-    for (const a of annotations) {
-      const px = a.x * img.width;
-      const py = a.y * img.height;
-
-      const fontSize = 14;
-      ctx.font = `${fontSize}px sans-serif`;
-      const text = a.text;
-      const padding = 6;
-
-      const textX = a.textPosX !== undefined ? a.textPosX : px + 50;
-      const textY = a.textPosY !== undefined ? a.textPosY : py - fontSize - 20;
-
-      const textWidth = ctx.measureText(text).width + padding * 2;
-      const textHeight = fontSize + padding;
-
-      if (
-        rotatedX >= textX &&
-        rotatedX <= textX + textWidth &&
-        rotatedY >= textY &&
-        rotatedY <= textY + textHeight
-      ) {
-        navigator.clipboard.writeText(text).then(() => {
-          copiedText = text;
-          draw();
-          showCopyAlert();
-
-        }).catch(() => {
-          
-        });
-        break;
-      }
-    }
-  });
-function showCopyAlert() {
-  const alert = document.getElementById("copyAlert");
-  alert.classList.add("show");
-  setTimeout(() => {
-    alert.classList.remove("show");
-  }, 2000); // 1 segundo
-}
-
-  function rotateImage(degrees) {
-    rotation = (rotation + degrees) % 360;
-    draw();
-  }
-
-  function draw() {
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.scale(dpr, dpr);
-
-    // Aplica pan e zoom (sem rotação)
-    ctx.translate(offsetX, offsetY);
-    ctx.scale(scale, scale);
-
-    // Salva estado antes da rotação
-    ctx.save();
-
-    // Roda conteúdo ao redor do centro visível
-    const centerX = window.innerWidth / 2 / scale - offsetX / scale;
-    const centerY = window.innerHeight / 2 / scale - offsetY / scale;
-
-    ctx.translate(centerX, centerY);
-    ctx.rotate((rotation * Math.PI) / 180);
-    ctx.translate(-centerX, -centerY);
-
-    // Desenha imagem
-    if (img.src) ctx.drawImage(img, 0, 0);
-
-    // Função para retângulo arredondado
-    function roundRect(ctx, x, y, width, height, radius) {
-      if (typeof radius === "number") {
-        radius = { tl: radius, tr: radius, br: radius, bl: radius };
-      } else {
-        const defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
-        for (let side in defaultRadius) {
-          radius[side] = radius[side] || 0;
-        }
-      }
-      ctx.beginPath();
-      ctx.moveTo(x + radius.tl, y);
-      ctx.lineTo(x + width - radius.tr, y);
-      ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
-      ctx.lineTo(x + width, y + height - radius.br);
-      ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
-      ctx.lineTo(x + radius.bl, y + height);
-      ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
-      ctx.lineTo(x, y + radius.tl);
-      ctx.quadraticCurveTo(x, y, x + radius.tl, y);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    // Desenha anotações
-annotations.forEach((a) => {
-  const px = a.x * img.width;
-  const py = a.y * img.height;
-
-  const fontSize = 14;
-  ctx.font = `${fontSize}px sans-serif`;
-  const text = a.text;
-  const padding = 6;
-  const radius = 6;
-
-  const textX = a.textPosX !== undefined ? a.textPosX : px + 50;
-  const textY = a.textPosY !== undefined ? a.textPosY : py - fontSize - 20;
-
-  const textWidth = ctx.measureText(text).width + padding * 2;
-  const textHeight = fontSize + padding;
-
-  const isHighlighted = copiedText === text;
-
-  // Linha em L
-  ctx.beginPath();
-  ctx.moveTo(px, py);
-  ctx.lineTo(textX, py);
-  ctx.lineTo(textX, textY + textHeight / 2);
-  ctx.strokeStyle = isHighlighted ? "red" : "yellow";
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // Fundo arredondado (vermelho se selecionado, senão amarelo)
-  ctx.fillStyle = isHighlighted ? "red" : "yellow";
-  roundRect(ctx, textX, textY, textWidth, textHeight, radius);
-
-  // Texto
-  ctx.fillStyle = "black";
-  ctx.textBaseline = "top";
-  ctx.fillText(text, textX + padding, textY + padding / 2);
-
-  // Ponto
-  ctx.beginPath();
-  ctx.arc(px, py, 5, 0, 2 * Math.PI);
-  ctx.fillStyle = isHighlighted ? "red" : "yellow";
-  ctx.fill();
-});
-
-
-    // Restaura contexto
-    ctx.restore();
-  }
-
-  async function loadJSONandStart() {
-    try {
-      const response = await fetch(jsonURL);
-      if (!response.ok) throw new Error(`Erro ao carregar JSON: ${response.status}`);
-      const data = await response.json();
-      if (!data.imageURL || !data.annotations) throw new Error("JSON inválido");
-
-      annotations = data.annotations;
-      img.src = data.imageURL;
-      img.onload = () => {
-        adjustImageToFit();
-        draw();
-      };
-    } catch (err) {
-      alert(err.message);
-    }
-  }
-
-  window.addEventListener("resize", resizeCanvas);
-  loadJSONandStart();
-  resizeCanvas();
+  };
 </script>
 
 </body>
