@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR" >
+<head>
+  <meta charset="UTF-8" />
+  <title>Anotador com texto arrastável e remoção com X</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      overflow: hidden;
+    }
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 10;
+      font-family: sans-serif;
+      font-size: 14px;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+    canvas.dragging {
+      cursor: grabbing;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <label>Carregar imagem:
+      <input type="file" id="imageLoader" accept="image/*" />
+    </label>
+    <label>Carregar JSON:
+      <input type="file" id="jsonLoader" accept=".json" />
+    </label>
+    <button id="saveJson">Salvar JSON</button>
+    <p>Zoom: roda do mouse | Arrastar: mouse | Novo ponto: segure <b>ESPAÇO</b> e clique</p>
+    <p><b>Dica:</b> Clique no texto de uma anotação para arrastar. Durante o arraste, aperte <b>X</b> para remover.</p>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const imageLoader = document.getElementById("imageLoader");
+    const jsonLoader = document.getElementById("jsonLoader");
+    const saveJsonBtn = document.getElementById("saveJson");
+
+    let img = new Image();
+    let imageURL = "";
+    let annotations = [];
+
+    let scale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    let isDraggingCanvas = false;
+    let dragStart = { x: 0, y: 0 };
+
+    let addPointMode = false;
+
+    // Para arrastar textos
+    let draggingTextIndex = -1;
+    let dragTextOffset = { x: 0, y: 0 };
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      adjustImageToFit();
+      draw();
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    imageLoader.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          imageURL = event.target.result;
+          img.src = imageURL;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    img.onload = () => {
+      adjustImageToFit();
+      draw();
+    };
+
+    function adjustImageToFit() {
+      if (!img.width || !img.height) return;
+
+      const scaleX = canvas.width / img.width;
+      const scaleY = canvas.height / img.height;
+      scale = Math.min(scaleX, scaleY);
+      offsetX = (canvas.width - img.width * scale) / 2;
+      offsetY = (canvas.height - img.height * scale) / 2;
+    }
+
+    canvas.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const wheel = e.deltaY < 0 ? 1.1 : 0.9;
+      const rect = canvas.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const cy = e.clientY - rect.top;
+      offsetX = cx - (cx - offsetX) * wheel;
+      offsetY = cy - (cy - offsetY) * wheel;
+      scale *= wheel;
+      draw();
+    });
+
+    canvas.addEventListener("mousedown", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left - offsetX) / scale;
+      const my = (e.clientY - rect.top - offsetY) / scale;
+
+      // Verifica se clicou em algum texto para arrastar
+      const clickedIndex = findTextAtPos(mx, my);
+      if (clickedIndex >= 0) {
+        draggingTextIndex = clickedIndex;
+        const t = getTextRect(annotations[clickedIndex]);
+        dragTextOffset.x = mx - t.x;
+        dragTextOffset.y = my - t.y;
+        canvas.classList.add("dragging");
+        return; // não inicia drag canvas
+      }
+
+      // Se segurando espaço, adiciona ponto
+      if (addPointMode) return; // não drag canvas, vai adicionar ponto no click
+
+      // Inicia drag do canvas
+      isDraggingCanvas = true;
+      dragStart.x = e.clientX - offsetX;
+      dragStart.y = e.clientY - offsetY;
+      canvas.style.cursor = "grabbing";
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left - offsetX) / scale;
+      const my = (e.clientY - rect.top - offsetY) / scale;
+
+      if (draggingTextIndex >= 0) {
+        // Move texto
+        const ann = annotations[draggingTextIndex];
+        ann.textPosX = mx - dragTextOffset.x;
+        ann.textPosY = my - dragTextOffset.y;
+        draw();
+        return;
+      }
+
+      if (isDraggingCanvas) {
+        offsetX = e.clientX - dragStart.x;
+        offsetY = e.clientY - dragStart.y;
+        draw();
+      }
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      if (draggingTextIndex >= 0) {
+        draggingTextIndex = -1;
+        canvas.classList.remove("dragging");
+      }
+      isDraggingCanvas = false;
+      canvas.style.cursor = "grab";
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        addPointMode = true;
+      }
+      // Apaga o ponto selecionado e texto se estiver arrastando texto e apertar X
+      if ((e.key === "x" || e.key === "X") && draggingTextIndex >= 0) {
+        annotations.splice(draggingTextIndex, 1);
+        draggingTextIndex = -1;
+        canvas.classList.remove("dragging");
+        draw();
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      if (e.code === "Space") {
+        addPointMode = false;
+      }
+    });
+
+    canvas.addEventListener("click", (e) => {
+      if (!addPointMode) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left - offsetX) / scale;
+      const y = (e.clientY - rect.top - offsetY) / scale;
+      const text = prompt("Digite a anotação:", "");
+      if (text !== null) {
+        annotations.push({ x: x / img.width, y: y / img.height, text: text });
+        draw();
+      }
+    });
+
+    saveJsonBtn.addEventListener("click", () => {
+  // Salva todas as propriedades relevantes incluindo texto customizado
+  const cleanAnnotations = annotations.map(a => {
+    return {
+      x: a.x,
+      y: a.y,
+      text: a.text,
+      textPosX: a.textPosX,
+      textPosY: a.textPosY
+    };
+  });
+
+  const data = {
+    imageURL: imageURL,
+    annotations: cleanAnnotations,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "MINI3PRO.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+jsonLoader.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = JSON.parse(event.target.result);
+      imageURL = data.imageURL;
+      annotations = data.annotations || [];
+      // Agora NÃO remove mais textPosX/textPosY para preservar posição customizada
+      img.src = imageURL;
+    };
+    reader.readAsText(file);
+  }
+});
+
+    // Retorna retângulo do texto no canvas (em coordenadas do sistema da imagem)
+    function getTextRect(ann) {
+      const fontSize = 14;
+      ctx.font = `${fontSize}px sans-serif`;
+      const padding = 4;
+      const textWidth = ctx.measureText(ann.text).width;
+      const textHeight = fontSize;
+
+      const x = ann.textPosX !== undefined ? ann.textPosX : ann.x * img.width + 50;
+      const y = ann.textPosY !== undefined ? ann.textPosY : ann.y * img.height - textHeight - 20;
+
+      return { x, y, width: textWidth + padding * 2, height: textHeight + padding };
+    }
+
+    // Verifica se clicou no texto (dentro do retângulo)
+    function findTextAtPos(x, y) {
+      for (let i = annotations.length - 1; i >= 0; i--) { // do topo para baixo
+        const rect = getTextRect(annotations[i]);
+        if (
+          x >= rect.x && x <= rect.x + rect.width &&
+          y >= rect.y && y <= rect.y + rect.height
+        ) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function draw() {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+
+      if (img.src) {
+        ctx.drawImage(img, 0, 0);
+      }
+
+      annotations.forEach(a => {
+        const px = a.x * img.width;
+        const py = a.y * img.height;
+
+        const fontSize = 14;
+        ctx.font = `${fontSize}px sans-serif`;
+        const text = a.text;
+        const padding = 4;
+        const textHeight = fontSize;
+
+        const rect = getTextRect(a);
+        const textX = rect.x;
+        const textY = rect.y;
+        const textWidth = rect.width;
+        const textHeightWithPad = rect.height;
+
+        // Linha em L: ponto -> alinhamento horizontal com texto -> texto
+        ctx.beginPath();
+        ctx.moveTo(px, py);
+        ctx.lineTo(textX, py);
+        ctx.lineTo(textX, textY + textHeightWithPad / 2);
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Fundo vermelho texto
+        ctx.fillStyle = "red";
+        ctx.fillRect(textX, textY, textWidth, textHeightWithPad);
+
+        // Texto branco
+        ctx.fillStyle = "white";
+        ctx.fillText(text, textX + padding, textY + textHeight);
+
+        // Ponto
+        ctx.beginPath();
+        ctx.arc(px, py, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = "red";
+        ctx.fill();
+      });
+    }
+  </script>
+</body>
+</html>
