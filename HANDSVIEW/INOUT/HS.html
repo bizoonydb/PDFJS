@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Editor de Malhas com Dobra e Renomeação</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f0f2f5;
+    }
+
+    #controls {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: #ffffffee;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10;
+      max-width: 280px;
+    }
+
+    #controls label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    #controls input[type="file"],
+    #controls input[type="color"] {
+      margin-top: 4px;
+      width: 100%;
+    }
+
+    #controls button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background-color: #2d89ef;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #controls button:hover {
+      background-color: #1b5fbd;
+    }
+
+    #malhasList {
+      margin-top: 12px;
+      padding: 6px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background-color: #fafafa;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 13px;
+    }
+
+    #malhasList div {
+      padding: 4px 6px;
+      border-bottom: 1px solid #eee;
+    }
+
+    #malhasList div:last-child {
+      border-bottom: none;
+    }
+
+    #malhasList div input[type="text"] {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+
+    #controls p {
+      font-size: 12px;
+      color: #333;
+      margin-top: 10px;
+      line-height: 1.4em;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    canvas.dragging {
+      cursor: grabbing;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <label>Imagem:
+      <input type="file" id="imageLoader" accept="image/*" />
+    </label><br />
+    <label>JSON:
+      <input type="file" id="jsonLoader" accept=".json" />
+    </label><br />
+    <button id="saveJson">Salvar JSON</button><br /><br />
+    <label>Cor:
+      <input type="color" id="corMalha" value="#ff0000" />
+    </label>
+    <button id="novaMalha">Nova Malha</button>
+    <div id="malhasList"></div>
+    <p>
+      <b>Click</b>: com <b>ESPAÇO</b> pressionado adiciona ponto (bolinha)<br />
+      <b>Click</b>: sem ESPAÇO cria dobra (linha em L) continuando a malha<br />
+      <b>X</b>: desfaz último ponto e dobra<br />
+      Zoom: roda do mouse<br />
+      Arrastar: mouse<br />
+      Arraste a linha para mover apenas a dobra
+    </p>
+  </div>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const imageLoader = document.getElementById("imageLoader");
+    const jsonLoader = document.getElementById("jsonLoader");
+    const saveJsonBtn = document.getElementById("saveJson");
+    const corInput = document.getElementById("corMalha");
+    const novaMalhaBtn = document.getElementById("novaMalha");
+    const malhasList = document.getElementById("malhasList");
+
+    let img = new Image();
+    let imageURL = "";
+    let malhas = [];
+    let malhaAtual = null;
+
+    let scale = 1, offsetX = 0, offsetY = 0;
+    let isDragging = false, movedDuringDrag = false;
+    let dragStart = { x: 0, y: 0 };
+
+    let draggingDobra = null;
+    let dragOffset = { x: 0, y: 0 };
+
+    let isSpacePressed = false;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      ajustarImagem();
+      desenhar();
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    imageLoader.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = evt => {
+          imageURL = evt.target.result;
+          img.src = imageURL;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    img.onload = () => {
+      ajustarImagem();
+      desenhar();
+    };
+
+    function ajustarImagem() {
+      if (!img.width || !img.height) return;
+      const scaleX = canvas.width / img.width;
+      const scaleY = canvas.height / img.height;
+      scale = Math.min(scaleX, scaleY);
+      offsetX = (canvas.width - img.width * scale) / 2;
+      offsetY = (canvas.height - img.height * scale) / 2;
+    }
+
+     canvas.addEventListener("mousedown", e => {
+
+         movedDuringDrag = false; // reset no começo do mousedown para um novo ciclo
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left - offsetX) / scale;
+  const my = (e.clientY - rect.top - offsetY) / scale;
+
+  // Checa se clicou em alguma dobra para arrastar ela
+  for (let m of malhas) {
+    for (let i = 1; i < m.pontos.length; i++) {
+      const p0 = m.pontos[i - 1];
+      const p1 = m.pontos[i];
+      if (!m.dobras) m.dobras = [];
+      if (!m.dobras[i - 1]) m.dobras[i - 1] = { x: p1.x, y: p0.y };
+      const dobra = m.dobras[i - 1];
+
+      const horizontal = { x1: p0.x, y1: p0.y, x2: dobra.x, y2: p0.y };
+      const vertical = { x1: dobra.x, y1: p0.y, x2: dobra.x, y2: p1.y };
+
+      if (
+        distanciaPontoParaSegmento(mx, my, horizontal.x1, horizontal.y1, horizontal.x2, horizontal.y2) < 10 / scale ||
+        distanciaPontoParaSegmento(mx, my, vertical.x1, vertical.y1, vertical.x2, vertical.y2) < 10 / scale
+      ) {
+        draggingDobra = { malha: m, index: i - 1 };
+        dragOffset = { x: mx, y: my };
+        canvas.classList.add("dragging");
+        isDragging = false;  // não inicia arrasto de canvas, só da dobra
+        movedDuringDrag = false;
+        return;
+      }
+    }
+  }
+
+  // Se não clicou em dobra, inicia arrasto do canvas
+  isDragging = true;
+  movedDuringDrag = false;
+  dragStart.x = e.clientX - offsetX;
+  dragStart.y = e.clientY - offsetY;
+  canvas.classList.add("dragging");
+});
+
+canvas.addEventListener("mousemove", e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left - offsetX) / scale;
+  const my = (e.clientY - rect.top - offsetY) / scale;
+
+  if (draggingDobra) {
+    const { malha, index } = draggingDobra;
+    const dx = mx - dragOffset.x;
+    const dy = my - dragOffset.y;
+    dragOffset = { x: mx, y: my };
+
+    malha.dobras[index].x += dx;
+    malha.dobras[index].y += dy;
+
+    desenhar();
+    return;
+  }
+
+  if (isDragging) {
+    const dx = e.clientX - dragStart.x - offsetX;
+    const dy = e.clientY - dragStart.y - offsetY;
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) movedDuringDrag = true;
+    offsetX = e.clientX - dragStart.x;
+    offsetY = e.clientY - dragStart.y;
+    desenhar();
+  }
+});
+
+canvas.addEventListener("mouseup", e => {
+  isDragging = false;
+  draggingDobra = null;
+  canvas.classList.remove("dragging");
+  // aqui só resetar movedDuringDrag não ajuda sozinho,
+  // deixamos o valor para o click distinguir se foi arrasto ou clique
+});
+
+canvas.addEventListener("click", e => {
+  // Ignorar clique se houve movimento (arrasto) ou se não há malha selecionada
+  if (movedDuringDrag || !malhaAtual) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left - offsetX) / scale;
+  const y = (e.clientY - rect.top - offsetY) / scale;
+
+  const pontos = malhaAtual.pontos;
+  const dobras = malhaAtual.dobras || [];
+
+  if (isSpacePressed) {
+    pontos.push({ x, y, visivel: true });
+  } else {
+    if (pontos.length === 0) return;
+    dobras.push({ x, y });
+    pontos.push({ x, y, visivel: false });
+  }
+
+  malhaAtual.dobras = dobras;
+  desenhar();
+});
+
+    canvas.addEventListener("wheel", e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const cy = e.clientY - rect.top;
+      const zoom = e.deltaY < 0 ? 1.1 : 0.9;
+      const wx = (cx - offsetX) / scale;
+      const wy = (cy - offsetY) / scale;
+      scale *= zoom;
+      offsetX = cx - wx * scale;
+      offsetY = cy - wy * scale;
+      desenhar();
+    });
+
+  
+
+   
+
+   novaMalhaBtn.addEventListener("click", () => {
+  const nova = {
+    nome: `net ${malhas.length + 1}`,
+    cor: corInput.value,
+    pontos: [],
+    dobras: []
+  };
+  malhas.push(nova);
+  malhaAtual = nova;
+  atualizarLista();
+});
+
+   function atualizarLista() {
+  malhasList.innerHTML = "";
+  malhas.forEach((m, i) => {
+    if (!m.nome) m.nome = `net ${i + 1}`;
+
+    const div = document.createElement("div");
+    div.style.display = "flex";
+    div.style.alignItems = "center";
+    div.style.marginBottom = "4px";
+    div.style.gap = "8px";
+
+    // Quadradinho colorido
+    const colorBox = document.createElement("div");
+    colorBox.style.width = "16px";
+    colorBox.style.height = "16px";
+    colorBox.style.borderRadius = "3px";
+    colorBox.style.backgroundColor = m.cor;
+    colorBox.style.flexShrink = "0";
+
+    // Input de nome
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = m.nome;
+    input.style.flexGrow = "1";
+    input.style.border = "1px solid #ccc";
+    input.style.borderRadius = "4px";
+    input.style.padding = "2px 6px";
+    input.style.fontSize = "13px";
+
+    input.addEventListener("blur", () => {
+      if (input.value.trim() === "") {
+        input.value = m.nome; // não aceita vazio
+      } else {
+        m.nome = input.value.trim();
+      }
+      atualizarLista();
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        input.blur();
+      }
+    });
+
+    div.appendChild(colorBox);
+    div.appendChild(input);
+    malhasList.appendChild(div);
+  });
+}
+
+
+    window.addEventListener("keydown", e => {
+      if (e.code === "Space") isSpacePressed = true;
+      if ((e.key === "x" || e.key === "X") && malhaAtual && malhaAtual.pontos.length > 0) {
+        malhaAtual.pontos.pop();
+        malhaAtual.dobras.pop();
+        desenhar();
+      }
+    });
+
+    window.addEventListener("keyup", e => {
+      if (e.code === "Space") isSpacePressed = false;
+    });
+
+    jsonLoader.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = evt => {
+          const data = JSON.parse(evt.target.result);
+          imageURL = data.imageURL;
+          malhas = data.malhas || [];
+          malhaAtual = malhas[malhas.length - 1] || null;
+          img.src = imageURL;
+          atualizarLista();
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    saveJsonBtn.addEventListener("click", () => {
+      const data = {
+        imageURL,
+        malhas
+      };
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "malhas.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    function distanciaPontoParaSegmento(px, py, x1, y1, x2, y2) {
+      const dx = x2 - x1, dy = y2 - y1;
+      if (dx === 0 && dy === 0) return Math.hypot(px - x1, py - y1);
+      const t = ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy);
+      const tClamped = Math.max(0, Math.min(1, t));
+      const lx = x1 + tClamped * dx;
+      const ly = y1 + tClamped * dy;
+      return Math.hypot(px - lx, py - ly);
+    }
+
+    function desenhar() {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+
+  if (img.src) ctx.drawImage(img, 0, 0);
+
+  malhas.forEach(m => {
+    ctx.strokeStyle = m.cor;
+    ctx.fillStyle = m.cor;
+    ctx.lineWidth = 2;
+
+    // Desenha pontos (bolinhas visíveis)
+    for (let i = 0; i < m.pontos.length; i++) {
+      const p = m.pontos[i];
+      if (p.visivel) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    }
+
+    // Desenha linhas em L
+    for (let i = 1; i < m.pontos.length; i++) {
+      const p0 = m.pontos[i - 1];
+      const p1 = m.pontos[i];
+      const dobra = (m.dobras && m.dobras[i - 1]) || { x: p1.x, y: p0.y };
+
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y);
+      ctx.lineTo(dobra.x, p0.y);
+      ctx.lineTo(dobra.x, p1.y);
+      ctx.stroke();
+    }
+
+    // Desenhar nome da malha na maior linha (com rotação)
+    if (m.pontos.length > 1 && m.dobras.length > 0) {
+      let maxLen = 0;
+      let maxIndex = 0;
+      let orientacao = "horizontal";
+
+      for (let i = 1; i < m.pontos.length; i++) {
+        const p0 = m.pontos[i - 1];
+        const p1 = m.pontos[i];
+        const dobra = m.dobras[i - 1] || { x: p1.x, y: p0.y };
+
+        const lenH = Math.abs(dobra.x - p0.x);
+        const lenV = Math.abs(p1.y - p0.y);
+        const totalLen = lenH + lenV;
+
+        if (totalLen > maxLen) {
+          maxLen = totalLen;
+          maxIndex = i - 1;
+          orientacao = lenV > lenH ? "vertical" : "horizontal";
+        }
+      }
+
+      const p0 = m.pontos[maxIndex];
+      const p1 = m.pontos[maxIndex + 1];
+      const dobra = m.dobras[maxIndex] || { x: p1.x, y: p0.y };
+
+      const cx = dobra.x;
+      const cy = (p0.y + p1.y) / 2;
+
+      const nome = m.nome || `net ${maxIndex + 1}`;
+      const padding = 6;
+      ctx.font = "10px sans-serif";
+      const textMetrics = ctx.measureText(nome);
+      const largura = textMetrics.width + padding * 2;
+      const altura = 12;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      if (orientacao === "vertical") {
+        ctx.rotate(-Math.PI / 2);
+      }
+
+      // Desenha fundo colorido da etiqueta
+      ctx.fillStyle = m.cor;
+      ctx.fillRect(-largura / 2, -altura / 2, largura, altura);
+
+      // Borda
+      
+      // Texto
+      ctx.fillStyle = "#000";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(nome, 0, 0);
+
+      ctx.restore();
+    }
+  });
+}
+
+
+  </script>
+</body>
+</html>
