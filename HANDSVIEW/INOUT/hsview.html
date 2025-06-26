@@ -17,32 +17,34 @@
   z-index: 10;
   display: flex;
   gap: 10px;
-  background: rgba(133, 132, 132, 0.9); /* fundo escuro */
+  background: #d3d1d1;
   padding: 5px 12px;
   border-radius: 0px;
   user-select: none;
-  border: 2px solid #868686;
+  border: 3px solid #868686;
   box-shadow: 0 0 10px rgba(199, 199, 199, 0.5);
 }
 
 #toolbar button {
   padding: 6px 12px;
   font-size: 14px;
-  background-color: #686868;
-  color: #fff;
-  border: 1px solid #000000;
-  border-radius: 10px;
+  background-color: #ffd901;
+  color: #000000;
+  border: 0px solid #000000;
+  border-radius: 8px;
+  
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  
 }
 
 #toolbar button:hover {
-  background-color: #252525;
+  background-color: #ffd901;
+  border: #000000 solid 1px;
 }
 
 #toolbar input[type="text"] {
-  background: #c4c4c4;
-  color: #fcf700;
+  background: #9e9e9e;
+  color: #000000;
   border: 1px solid #444;
   border-radius: 4px;
   padding: 5px 10px;
@@ -60,18 +62,18 @@
   }
 #painelMalhas {
   position: absolute;
-  top: 88%;
+  top: 90%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
-  background: #3d3d3dd2;
+  background: #ffffff00;
   padding: 10px;
   border-radius: 10px;
-  max-width: 850px; /* limite pra não ficar muito largo */
+  max-width: 780px; /* limite pra não ficar muito largo */
   width: 90vw;
   max-height: 280px; /* altura fixa, sem barra de rolagem */
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.562);
 
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -81,24 +83,32 @@
 
 .caixaMalha {
   height: 30px;
-  border-radius: 6px;
+   border-top-left-radius: 20px;
+  border-top-right-radius: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 20px; /* só esse lado arredondado */
   cursor: pointer;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  border: #000000 solid 1px;
   user-select: none;
 }
 
+.caixaMalha:hover {
+  transform: translateY(-4px) scale(1.05);
+  background-color: #ddd;
+  border: 1px solid #000000;
+}
 .blocoCor {
   height: 100%;
   width: 100%;
-  border-radius: 6px;
-  border: 1px solid #000000;
+  
+ 
   color: rgb(0, 0, 0);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
- font-size: 13px;
+ font-size: 12px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -127,7 +137,7 @@ const inputBusca = document.getElementById("busca");
 // Verifica se tem ?file= na URL
 function getJSONFromURL() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("file") || "malhas (6).json"; // valor padrão se não passar nada
+  return params.get("file") || "A03S_CARGA.json"; // valor padrão se não passar nada
 }
 const jsonUrl = getJSONFromURL();
 
@@ -258,7 +268,7 @@ function rotacionar(graus) {
 function centralizarImagem() {
   if (!img.width || !img.height) return;
 
-  scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+  scale = Math.min(canvas.width / img.width, canvas.height / img.height) * 0.8;
 
   offsetX = 0;
   offsetY = 0;
@@ -410,18 +420,23 @@ fetch(jsonUrl)
   const termo = inputBusca.value.toLowerCase().trim();
   const temBusca = termo.length > 0;
 
-  const lista = temBusca
+  const nomesExibidos = new Set(); // 👈 armazena nomes únicos
+
+  const lista = (temBusca
     ? malhas.filter(m => m.nome?.toLowerCase().includes(termo))
-    : malhas;
+    : malhas
+  ).filter(m => {
+    const nome = (m.nome || "").toLowerCase();
+    if (nomesExibidos.has(nome)) return false;
+    nomesExibidos.add(nome);
+    return true;
+  });
 
   lista.forEach(m => {
     const div = document.createElement("div");
     div.className = "caixaMalha";
-
-    // Torna clicável
     div.style.cursor = "pointer";
 
-    // Evento clique para piscar a malha
     div.onclick = () => {
       iniciarPiscarMalha(m);
     };
@@ -429,13 +444,12 @@ fetch(jsonUrl)
     const cor = document.createElement("div");
     cor.className = "blocoCor";
     cor.style.backgroundColor = m.cor;
-    cor.textContent = m.nome || "sem nome"; // nome dentro da cor
+    cor.textContent = m.nome || "sem nome";
 
     div.appendChild(cor);
     painel.appendChild(div);
   });
 }
-
 function centralizarNaMalha(m) {
   if (!m.pontos || m.pontos.length < 2 || !m.dobras || m.dobras.length === 0) return;
 
