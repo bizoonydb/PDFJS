@@ -123,9 +123,12 @@ hr {
   
   <button id="addBlocoBtn">Adicionar bloco de bolinhas</button>
   <hr />
-  <label>Tamanho bolinhas do bloco selecionado (px):</label>
+  <label>(px):</label>
   <input type="number" id="tamBolinhasSelecionado" min="1" disabled />
   <button id="saveImgBtn">Salvar imagem</button>
+  <hr>
+  <button id="apagarLinhasBtn">formato x</button>
+
 </div>
 
 <canvas id="canvas"></canvas>
@@ -422,6 +425,38 @@ hr {
       }
     }
   });
+const apagarLinhasBtn = document.getElementById('apagarLinhasBtn');
+
+apagarLinhasBtn.addEventListener('click', () => {
+  if (!selectedBlock) {
+    alert('Selecione um bloco primeiro.');
+    return;
+  }
+
+  const { cols, rows } = selectedBlock;
+
+  if (!selectedBlock.removedBolinhas) selectedBlock.removedBolinhas = new Set();
+
+  for (let col = 0; col < cols; col++) {
+    for (let row = 0; row < rows; row++) {
+      const bolinhaIdx = col * rows + row;
+
+      // Se a linha for par (0,2,4,...), apagar bolinhas em colunas pares
+      if (row % 2 === 0) {
+        if (col % 2 === 0) {
+          selectedBlock.removedBolinhas.add(bolinhaIdx);
+        }
+      } else { // linha ímpar (1,3,5,...), apagar bolinhas em colunas ímpares
+        if (col % 2 === 1) {
+          selectedBlock.removedBolinhas.add(bolinhaIdx);
+        }
+      }
+    }
+  }
+
+  bolinhaSelecionada = null;
+  desenhar();
+});
 
   // Zoom roda mouse
   canvas.addEventListener('wheel', e => {
