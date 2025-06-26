@@ -2,152 +2,96 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>INFO-HARDWARE</title>
+  <title>Gerenciador IN/OUT</title>
   <style>
-   html, body {
+    html, body {
       margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: sans-serif;
       background: #ffffff;
     }
 
-   iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1; /* Fica por trás do cabeçalho */
-}
-#header {
-  position: absolute;
-  top: 0;
-  left: 320px;
-  right: 0; /* para ocupar o espaço restante */
-  height: auto; /* deixar altura automática para suportar múltiplas linhas */
-  min-height: 45px;
-  display: flex;
-  flex-wrap: wrap; /* permite quebra de linha */
-  align-items: center;
-  justify-content: space-between;
-  padding: 3px 15px;
-  background: #f9f9f9;
-  border-bottom: 2px solid #ccc;
-  z-index: 10;
-  box-sizing: border-box;
-  gap: 10px; /* espaço entre linhas ao quebrar */
-}
-
-#topInfo {
-  display: flex;
-  gap: 0px;
-  
-  align-items: center;
-  justify-content: flex-start;
-  flex: 1 1 auto; /* permite crescer e encolher */
-  min-width: 100px; /* para não sumir em telas pequenas */
-}
-
-.infoBox {
-  border: #000000 solid 1px;
-  padding: 6px 12px;
-  font-weight: bold;
-  font-size: 18px;
-  white-space: nowrap;
- 
-  border-radius: 50px;
-}
-
-
-#fileManager {
-  display: flex;
-  flex-wrap: wrap; /* permite que os botões quebrem para nova linha */
-  gap: 6px;
-  align-items: center;
-  justify-content: flex-end;
-  flex: 1 1 auto; /* permite crescer e encolher */
-  min-width: 150px; /* evita sumir */
-}
-
-/* Ajustes para telas menores */
-@media (max-width: 700px) {
-  #header {
-    left: 0; /* remove a margem esquerda para usar tela inteira */
-    width: 100%;
-  }
-  
-  #topInfo, #fileManager {
-    min-width: auto;
-    flex-basis: 100%; /* ocupam 100% para empilhar */
-    justify-content: center;
-  }
-
-  
-
-  
-  }
-
-
-    #deviceName {
-      
-      background: rgb(238, 215, 10);
-      color: rgb(0, 0, 0);
-        border-top: 2px solid rgba(0, 0, 0, 0.973);
-  border-left: 2px solid rgba(0, 0, 0, 0.973);
-  border-bottom: 2px solid rgba(0, 0, 0, 0.973);
-  border-right: none; /* remove a borda da direita */
-  border-top-left-radius: 50;
-  border-top-right-radius: 0;
-  border-bottom-left-radius: 50;
-  border-bottom-right-radius: 0px; /* só esse lado arredondado */
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      position: relative;
+      z-index: 1;
     }
 
-  #sectorName {
-  background: #fff;
-  color: #000;
-  font-style: italic;
-    border-top: 2px solid rgba(0, 0, 0, 0.973);
-  border-left: none;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.973);
-  border-right: 2px solid rgba(0, 0, 0, 0.973);
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 20px; /* só esse lado arredondado */
-}
-
-
-    
-
-    #fileButtons {
-      border: #00000000 solid 1px;
-       background: #d3d1d1; /* cor de fundo cinza claro */
-      padding: 5px 13px;
+    #topInfo {
+      position: absolute;
+      top: 100000px;
+      left: 50%;
+       border: #000 solid 2px;
+      transform: translateX(-50%);
       display: flex;
-      flex-wrap: nowrap;
-      gap: 6px;
-      border-radius: 50px;
+      gap: 0px;
+      z-index: 4;
+    }
+
+    .infoBox {
+        
+      padding: 10px 16px;
+      border-radius: 0px;
+      font-weight: bold;
+      font-size: 30px;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    #deviceName {
+       
+      background: rgb(238, 215, 10);
+      color: rgb(0, 0, 0);
+    }
+
+    #sectorName {
+      background: rgb(255, 255, 255);
+      color: rgb(0, 0, 0);
+      font-style: italic;
+      
+      border: 3px solid rgba(231, 235, 12, 0.973);
+    }
+
+    #fileManager {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 200px;
+      max-height: 300px;
+      background: rgba(0, 0, 0, 0.596);
+      color: rgb(255, 238, 0);
+      border-radius: 8px;
+      overflow-y: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      padding: 10px;
+      z-index: 3;
+    }
+
+    #fileManager h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      text-align: center;
+      border-bottom: 1px solid #444;
+      padding-bottom: 5px;
     }
 
     .fileItem {
-      
       cursor: pointer;
-      padding: 6px 10px;
-      background: #ffd901;
-      border-radius: 50px;
-      
-      white-space: nowrap;
-      font-size: 14px;
+      padding: 6px;
+      margin-bottom: 5px;
+      background: #222;
+      border-radius: 4px;
+      transition: background 0.2s;
+      user-select: none;
     }
 
     .fileItem:hover {
-      background: #ffd901;
-      color: rgb(0, 0, 0);
-      border: #000 solid 1px;
+      background: #444;
     }
 
     .fileItem.selected {
-      background: rgb(71, 71, 71);
-      color: white;
+      background: rgb(255, 238, 0);
+      color: black;
       font-weight: bold;
     }
 
@@ -157,7 +101,7 @@
       top: 0; left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 0;
+      z-index: 2;
       display: grid;
       grid-template-columns: repeat(auto-fill, 180px);
       grid-auto-rows: 130px;
@@ -179,37 +123,25 @@
   </style>
 </head>
 <body>
-<div id="header">
-  <div id="topInfo">
-    <div class="infoBox" id="deviceName">A03S SM-A037</div>
-    <div class="infoBox" id="sectorName"></div>
-  </div>
 
-<div id="fileManager">
-    
-    <div id="fileButtons">
-      <div class="fileItem" data-filename="A03S_CARGA.json" data-description="CARGA E DADOS" onclick="loadFile(this)">CARGA</div>
-      <div class="fileItem" data-filename="A03S_SPKMIC.json" data-description="AUDIO" onclick="loadFile(this)">MIC SPK</div>
-      <div class="fileItem" data-filename="A03S_BACKLIGHT.json" data-description="BACKLIGHT" onclick="loadFile(this)">BACKLIGHT</div>
-      <div class="fileItem" data-filename="A03S_POWER_SA.json" data-description="ON OFF VOL" onclick="loadFile(this)">BOTÕES</div>
-      <div class="fileItem" data-filename="A03S_DOCK.json" data-description="DOCK DE CARGA" onclick="loadFile(this)">DOCK</div>
-      <div class="fileItem" data-filename="COMPNAME.json" data-description="COMPONENTES" onclick="loadFile(this)">COMP</div>
-       <div class="fileItem" data-description="TENSÕES" onclick="loadURL(this, 'https://bizoonydb.github.io/PDFJS/build/SM/A03S_INOUT_hs.html')">TENSÕES</div>
-
-      
-    </div>
-  </div>
+<div id="topInfo">
+  <div class="infoBox" id="deviceName">A03S SM-A037</div>
+  <div class="infoBox" id="sectorName"> </div>
 </div>
-
+</div>
 
 <div id="watermarkContainer"></div>
 
 <iframe id="viewer" src=""></iframe>
 
-
+<div id="fileManager">
+  <h3>SETORES</h3>
+  <div class="fileItem" data-filename="A03S_CPUVOLT.json" data-description="CPU VOLT" onclick="loadFile(this)">CPU VOLT</div>
+  <div class="fileItem" data-filename="A03S_INOUT.json" data-description="IN OUT VOLT" onclick="loadFile(this)">IN OUT VOLT</div>
+  <div class="fileItem" data-filename="A03S_EMMCVOLT.json" data-description="eMMC VOLT" onclick="loadFile(this)">eMMC VOLT</div>
+</div>
 
 <script>
-  
   const viewer = document.getElementById("viewer");
   const fileItems = document.querySelectorAll(".fileItem");
   const sectorName = document.getElementById("sectorName");
@@ -219,7 +151,7 @@
     const description = element.getAttribute("data-description");
 
     const jsonURL = "https://bizoonydb.github.io/PDFJS/build/SM/" + fileName;
-    const viewerURL = "https://bizoonydb.github.io/PDFJS/HANDSVIEW/INOUT/hsview.html?file=" + encodeURIComponent(jsonURL);
+    const viewerURL = "https://bizoonydb.github.io/PDFJS/HANDSVIEW/INOUT/VIEW.html?file=" + encodeURIComponent(jsonURL);
     viewer.src = viewerURL;
 
     sectorName.textContent = description;
@@ -244,23 +176,6 @@
       watermarkContainer.appendChild(wm);
     }
   };
-
- function loadURL(element, url) {
-  const viewer = document.getElementById("viewer");
-  viewer.src = url;
-
-  // Remove seleção dos outros botões
-  document.querySelectorAll('.fileItem').forEach(item => item.classList.remove('selected'));
-
-  // Adiciona seleção ao botão clicado
-  element.classList.add('selected');
-
-  // Atualiza descrição
-  const description = element.getAttribute("data-description");
-  sectorName.textContent = description || "DIGITAL BOARD";
-}
-
-
 </script>
 
 </body>
