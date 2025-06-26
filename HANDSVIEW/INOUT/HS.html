@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Editor de Malhas com Dobra e Renomeação</title>
+  <title>Editor de HARDWARE SOLUTION </title>
   <style>
     html, body {
       margin: 0;
@@ -15,75 +15,99 @@
     }
 
     #controls {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: #ffffffee;
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 10;
-      max-width: 280px;
-    }
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #ffffffcc;
+  padding: 4px 10px;
+  border-bottom: 1px solid #ccc;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+  font-size: 12px;
+  height: 40px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
 
-    #controls label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      font-size: 14px;
-    }
+#controls label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  font-weight: 500;
+  font-size: 11px;
+}
 
-    #controls input[type="file"],
-    #controls input[type="color"] {
-      margin-top: 4px;
-      width: 100%;
-    }
+#controls input[type="file"],
+#controls input[type="color"] {
+  max-width: 110px;
+  height: 22px;
+  padding: 0;
+  font-size: 11px;
+}
 
-    #controls button {
-      margin-top: 10px;
-      width: 100%;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      background-color: #2d89ef;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+#controls button {
+  padding: 3px 10px;
+  font-size: 11px;
+  border-radius: 4px;
+  background-color: #2d89ef;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s ease;
+  height: 24px;
+}
 
-    #controls button:hover {
-      background-color: #1b5fbd;
-    }
+#controls button:hover {
+  background-color: #1b5fbd;
+}
 
-    #malhasList {
-      margin-top: 12px;
-      padding: 6px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      background-color: #fafafa;
-      max-height: 150px;
-      overflow-y: auto;
-      font-size: 13px;
-    }
+#sidebar {
+  position: absolute;
+  top: 40px; /* logo abaixo da barra de ferramentas */
+  left: 0;
+  width: 200px;
+  height: calc(100% - 40px);
+  background: #f4f4f4;
+  border-right: 1px solid #ccc;
+  padding: 8px;
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.05);
+  z-index: 5;
+  overflow-y: auto;
+}
 
-    #malhasList div {
-      padding: 4px 6px;
-      border-bottom: 1px solid #eee;
-    }
+#malhasList {
+  font-size: 12px;
+}
 
-    #malhasList div:last-child {
-      border-bottom: none;
-    }
+#malhasList div {
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-    #malhasList div input[type="text"] {
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 2px 6px;
-      font-size: 13px;
-      box-sizing: border-box;
-    }
+#malhasList input[type="text"] {
+  flex: 1;
+  padding: 2px 4px;
+  font-size: 11px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+#malhasList div div {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
 
     #controls p {
       font-size: 12px;
@@ -117,7 +141,7 @@
       <input type="color" id="corMalha" value="#ff0000" />
     </label>
     <button id="novaMalha">Nova Malha</button>
-    <div id="malhasList"></div>
+
     <p>
       <b>Click</b>: com <b>ESPAÇO</b> pressionado adiciona ponto (bolinha)<br />
       <b>Click</b>: sem ESPAÇO cria dobra (linha em L) continuando a malha<br />
@@ -126,6 +150,10 @@
       Arrastar: mouse<br />
       Arraste a linha para mover apenas a dobra
     </p>
+  </div>
+
+ <div id="sidebar">
+    <div id="malhasList"></div>
   </div>
   <canvas id="canvas"></canvas>
 
