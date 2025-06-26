@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel de Ferramentas</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: white;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Sidebar da esquerda */
+    #sidebar {
+      width: 250px;
+      background-color: #1e1e1e;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    #sidebar h3 {
+      margin-top: 0;
+    }
+
+    #sidebar a {
+      background-color: #2c2c2c;
+      color: white;
+      text-decoration: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 5px;
+      text-align: center;
+      transition: background 0.3s;
+    }
+
+    #sidebar a:hover {
+      background-color: #444;
+    }
+
+    /* Iframe ao centro */
+    #iframeContainer {
+      flex: 1;
+      background-color: #181818;
+      display: flex;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Painel lateral à direita */
+    #infoPanel {
+      width: 300px;
+      background-color: #1e1e1e;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    #relogio {
+      font-size: 22px;
+      font-weight: bold;
+      color: #00ffcc;
+      text-align: center;
+    }
+
+    #dica {
+      font-size: 15px;
+      font-style: italic;
+      color: #aaa;
+    }
+
+    #ultimos h4 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #ccc;
+    }
+
+    #ultimos ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    #ultimos li {
+      margin-bottom: 8px;
+    }
+
+    #ultimos a {
+      color: #00bfff;
+      text-decoration: none;
+    }
+
+    #ultimos a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu lateral esquerdo -->
+  <div id="sidebar">
+    <h3>Ferramentas</h3>
+    <a href="#" onclick="abrirFerramenta('https://bizoonydb.github.io/PDFJS/db/MENU.html', 'app digital board')"
+       title="APP DIGITAL BOARD">APP DIGITAL BOARD</a>
+
+    <a href="#" onclick="abrirFerramenta('https://bizoonydb.github.io/PDFJS/HANDSVIEW/INOUT/DRONE.html', 'EDITOR DE BVR')"
+       title="EDITAR NOMES DE MALHAS E COMPONENTES DE ARQUIVOS .BVR">EDITOR DE BVR</a>
+
+    <a href="#" onclick="abrirFerramenta('https://bizoonydb.github.io/PDFJS/HANDSVIEW/INOUT/criar.html', 'EDITOR IN-OUT VOLT')"
+       title="EDITOR DE ARQUIVOS IN-OUT-VOLTAGE, SERVE PARA ADICIONAR TENÇOES">EDITOR IN-OUT VOLT</a>
+
+    <a href="#" onclick="abrirFerramenta('https://bizoonydb.github.io/PDFJS/HANDSVIEW/INOUT/HS.html', 'CRIAR INFO_HARDWARE')"
+       title="EDITOR E CRIADOR DE HARDWARE SOLUTIONS">CRIAR INFO_HARDWARE</a>
+
+    <a href="#" onclick="abrirFerramenta('https://bizoonydb.github.io/PDFJS/db/folder.html', 'FOLDER 1')"
+       title="adicionar arquivos todos juntos e separa pela extençao, ex aa.pdf j.pdf e gera 2 arquivos">FOLDER 1 </a>
+
+       <a href="#" onclick="abrirFerramenta('https://bizoonydb.github.io/PDFJS/db/folder2.html', 'FOLDER 2')"
+       title="A">FOLDER 2</a>
+
+       <a href="#" onclick="abrirFerramenta('https://bizoonydb.github.io/PDFJS/db/folder3.html', 'FOLDER 3')"
+       title="adicionar arquivos em massa , o mais atualizado">FOLDER 3</a>
+  </div>
+
+  <!-- Centro com iframe -->
+  <div id="iframeContainer">
+    <iframe id="mainViewer" src="https://bizoonydb.github.io/PDFJS/db/MENU.html"></iframe>
+  </div>
+
+  <!-- Painel lateral direito com relógio, dica e histórico -->
+  <div id="infoPanel">
+    <div id="relogio">--:--:--</div>
+    <div id="dica">Carregando dica do dia...</div>
+
+    <div id="ultimos">
+      <h4>🕘 Últimos acessos</h4>
+      <ul id="lista-ultimos"></ul>
+    </div>
+  </div>
+
+  <script>
+    function atualizarRelogio() {
+      const agora = new Date();
+      const horas = agora.getHours().toString().padStart(2, '0');
+      const minutos = agora.getMinutes().toString().padStart(2, '0');
+      const segundos = agora.getSeconds().toString().padStart(2, '0');
+      document.getElementById("relogio").innerText = `${horas}:${minutos}:${segundos}`;
+    }
+    setInterval(atualizarRelogio, 1000);
+    atualizarRelogio();
+
+    const dicas = [
+      "Use Ctrl+F para buscar rapidamente informações em qualquer página.",
+      "Faça backup dos seus arquivos BVR regularmente!",
+      "Experimente usar zoom com a roda do mouse no editor.",
+      "Clique com o botão direito em componentes para ver mais opções.",
+      "Use nomes curtos e claros para suas malhas.",
+      "Salve antes de sair! Evite perder edições importantes.",
+      "Explore o modo escuro: menos cansaço visual à noite.",
+      "Dica técnica: mantenha suas nets organizadas por cores."
+    ];
+
+    function mostrarDicaAleatoria() {
+      const dica = dicas[Math.floor(Math.random() * dicas.length)];
+      document.getElementById("dica").innerText = dica;
+    }
+    mostrarDicaAleatoria();
+
+    function abrirFerramenta(url, nome) {
+      // Abre em nova aba
+      window.open(url, "_blank");
+
+      // Salva nos últimos acessos
+      const acessos = JSON.parse(localStorage.getItem("ultimosAcessos") || "[]");
+      const existente = acessos.findIndex(item => item.url === url);
+      if (existente !== -1) acessos.splice(existente, 1);
+      acessos.unshift({ nome, url });
+      if (acessos.length > 5) acessos.length = 5;
+      localStorage.setItem("ultimosAcessos", JSON.stringify(acessos));
+
+      // Atualiza painel
+      atualizarListaUltimos();
+    }
+
+    function atualizarListaUltimos() {
+      const lista = document.getElementById("lista-ultimos");
+      lista.innerHTML = "";
+      const acessos = JSON.parse(localStorage.getItem("ultimosAcessos") || "[]");
+
+      if (acessos.length === 0) {
+        lista.innerHTML = "<li>Nenhum acesso recente.</li>";
+        return;
+      }
+
+      acessos.forEach(item => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="${item.url}" target="_blank">${item.nome}</a>`;
+        lista.appendChild(li);
+      });
+    }
+
+    atualizarListaUltimos();
+  </script>
+
+</body>
+</html>
