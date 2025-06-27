@@ -500,11 +500,11 @@ annotations.forEach((a) => {
   const px = a.x * img.width;
   const py = a.y * img.height;
 
-  const fontSize = 14;
+  const fontSize = 18;
   ctx.font = `${fontSize}px sans-serif`;
   const text = a.text;
-  const padding = 6;
-  const radius = 6;
+  const padding = 10;
+  const radius = 16;
 
   const textX = a.textPosX !== undefined ? a.textPosX : px + 50;
   const textY = a.textPosY !== undefined ? a.textPosY : py - fontSize - 20;
