@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gerenciador IN/OUT</title>
+  <style>
+   html, body {
+      margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: sans-serif;
+      background: #ffffff;
+    }
+
+   iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1; /* Fica por trás do cabeçalho */
+}
+#header {
+  position: absolute;
+  top: 0;
+  left: 320px;
+  right: 0; /* para ocupar o espaço restante */
+  height: auto; /* deixar altura automática para suportar múltiplas linhas */
+  min-height: 45px;
+  display: flex;
+  flex-wrap: wrap; /* permite quebra de linha */
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 15px;
+  background: #f9f9f9;
+  border-bottom: 2px solid #ccc;
+  z-index: 10;
+  box-sizing: border-box;
+  gap: 10px; /* espaço entre linhas ao quebrar */
+}
+
+#topInfo {
+  display: flex;
+  gap: 0px;
+  
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1 1 auto; /* permite crescer e encolher */
+  min-width: 100px; /* para não sumir em telas pequenas */
+}
+
+.infoBox {
+  border: #000000 solid 1px;
+  padding: 6px 12px;
+  font-weight: bold;
+  font-size: 18px;
+  white-space: nowrap;
+ 
+  border-radius: 50px;
+}
+
+
+#fileManager {
+  display: flex;
+  flex-wrap: wrap; /* permite que os botões quebrem para nova linha */
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1 1 auto; /* permite crescer e encolher */
+  min-width: 150px; /* evita sumir */
+}
+
+/* Ajustes para telas menores */
+@media (max-width: 700px) {
+  #header {
+    left: 0; /* remove a margem esquerda para usar tela inteira */
+    width: 100%;
+  }
+  
+  #topInfo, #fileManager {
+    min-width: auto;
+    flex-basis: 100%; /* ocupam 100% para empilhar */
+    justify-content: center;
+  }
+
+  
+
+  
+  }
+
+
+    #deviceName {
+      
+      background: rgb(238, 215, 10);
+      color: rgb(0, 0, 0);
+        border-top: 2px solid rgba(0, 0, 0, 0.973);
+  border-left: 2px solid rgba(0, 0, 0, 0.973);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.973);
+  border-right: none; /* remove a borda da direita */
+  border-top-left-radius: 50;
+  border-top-right-radius: 0;
+  border-bottom-left-radius: 50;
+  border-bottom-right-radius: 0px; /* só esse lado arredondado */
+    }
+
+  #sectorName {
+  background: #fff;
+  color: #000;
+  font-style: italic;
+    border-top: 2px solid rgba(0, 0, 0, 0.973);
+  border-left: none;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.973);
+  border-right: 2px solid rgba(0, 0, 0, 0.973);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 20px; /* só esse lado arredondado */
+}
+
+
+    
+
+    #fileButtons {
+      border: #00000000 solid 1px;
+       background: #d3d1d1; /* cor de fundo cinza claro */
+      padding: 5px 13px;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 6px;
+      border-radius: 50px;
+    }
+
+    .fileItem {
+      
+      cursor: pointer;
+      padding: 6px 10px;
+      background: #ffd901;
+      border-radius: 50px;
+      
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    .fileItem:hover {
+      background: #ffd901;
+      color: rgb(0, 0, 0);
+      border: #000 solid 1px;
+    }
+
+    .fileItem.selected {
+      background: rgb(71, 71, 71);
+      color: white;
+      font-weight: bold;
+    }
+
+    #watermarkContainer {
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 99;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 180px);
+      grid-auto-rows: 130px;
+      gap: 0;
+      opacity: 0.09;
+    }
+
+    .watermarkText {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ffffff;
+      transform: rotate(-15deg);
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+<div id="header">
+  <div id="topInfo">
+    <div class="infoBox" id="deviceName">DJI MINI3 PRO</div>
+    <div class="infoBox" id="sectorName"></div>
+  </div>
+
+<div id="fileManager">
+    
+    <div id="fileButtons">
+      <div class="fileItem" data-filename="MINI3PRO_COMPNAME.json" data-description="COMP NAME" onclick="loadFile(this)">CI NA PLACA</div>
+      <div class="fileItem" data-filename="3PRO_SDCARD.json" data-description="SD CARD" onclick="loadFile(this)">SD CARD</div>
+      <div class="fileItem" data-filename="MINI3PRO_2.4GHZ.json" data-description="SINAL 2.4GHZ" onclick="loadFile(this)">2.4GHZ</div>
+      
+      
+      
+      
+       <div class="fileItem" data-description="TENSÕES" onclick="loadURL(this, 'https://bizoonydb.github.io/PDFJS/build/SM/MINI3PRO_tensao_hs')">TENSÕES</div>
+       
+
+      
+    </div>
+  </div>
+</div>
+
+
+<div id="watermarkContainer"></div>
+
+<iframe id="viewer" src=""></iframe>
+
+
+
+<script>
+  
+  const viewer = document.getElementById("viewer");
+  const fileItems = document.querySelectorAll(".fileItem");
+  const sectorName = document.getElementById("sectorName");
+
+  function loadFile(element) {
+    const fileName = element.getAttribute("data-filename");
+    const description = element.getAttribute("data-description");
+
+    const jsonURL = "https://bizoonydb.github.io/PDFJS/build/SM/" + fileName;
+    const viewerURL = "https://bizoonydb.github.io/PDFJS/HANDSVIEW/INOUT/hsview.html?file=" + encodeURIComponent(jsonURL);
+    viewer.src = viewerURL;
+
+    sectorName.textContent = description;
+
+    fileItems.forEach(item => item.classList.remove("selected"));
+    element.classList.add("selected");
+  }
+
+  window.onload = () => {
+    const firstItem = fileItems[0];
+    if (firstItem) {
+      loadFile(firstItem);
+    }
+
+    const watermarkContainer = document.getElementById('watermarkContainer');
+    const count = Math.ceil(window.innerWidth / 120) * Math.ceil(window.innerHeight / 40);
+
+    for (let i = 0; i < count; i++) {
+      const wm = document.createElement('div');
+      wm.className = 'watermarkText';
+      wm.textContent = 'DIGITAL BOARD';
+      watermarkContainer.appendChild(wm);
+    }
+  };
+
+ function loadURL(element, url) {
+  const viewer = document.getElementById("viewer");
+  viewer.src = url;
+
+  // Remove seleção dos outros botões
+  document.querySelectorAll('.fileItem').forEach(item => item.classList.remove('selected'));
+
+  // Adiciona seleção ao botão clicado
+  element.classList.add('selected');
+
+  // Atualiza descrição
+  const description = element.getAttribute("data-description");
+  sectorName.textContent = description || "DIGITAL BOARD";
+}
+
+
+</script>
+
+</body>
+</html>
