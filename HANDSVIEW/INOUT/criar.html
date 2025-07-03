@@ -4,32 +4,73 @@
   <meta charset="UTF-8" />
   <title>Anotador com texto arrastável e remoção com X</title>
   <style>
-    html, body {
-      margin: 0; padding: 0;
-      width: 100%; height: 100%;
-      overflow: hidden;
-    }
-    #controls {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 10px;
-      border-radius: 5px;
-      z-index: 10;
-      font-family: sans-serif;
-      font-size: 14px;
-    }
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      cursor: grab;
-    }
-    canvas.dragging {
-      cursor: grabbing;
-    }
-  </style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    color: rgb(255, 217, 0);
+    height: 100%;
+    overflow: hidden;
+    font-family: "Segoe UI", sans-serif;
+    background-color: #f9f9f9;
+  }
+
+  #controls {
+    position: fixed;
+    top: 0;
+    left: 0;
+    color: rgb(255, 217, 0);
+    width: 100%;
+    background: #2e2e2ecc;
+    padding: 10px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid #ccc;
+    z-index: 10;
+    box-sizing: border-box;
+    backdrop-filter: blur(5px);
+  }
+
+  #controls label {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  #controls input[type="file"],
+  #controls button {
+    font-size: 14px;
+    padding: 4px 8px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    background: #f5f5f5;
+    cursor: pointer;
+  }
+
+  #controls button:hover {
+    background-color: #ddd;
+  }
+
+  #controls p {
+    margin: 0;
+    font-size: 13px;
+    color: #ff0101;
+    font-style: italic;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+  }
+
+  canvas.dragging {
+    cursor: grabbing;
+  }
+</style>
+
 </head>
 <body>
   <div id="controls">
