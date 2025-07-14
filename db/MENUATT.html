@@ -23,48 +23,52 @@
         /* Theme classes */
         :root {
             --bg-color: #000033;
-            --text-color: #00aaff;
+            --text-color: #ffffff;
             --accent-color: #00aaff;
             --highlight-color: #00eeff;
             --folder-color: #2600ff;
             --code-color: #fbff00;
             --image-color: #f68fff;
             --border-color: #00aaff;
+            --claro:#04b0ff2f;
             --sidebar-bg: linear-gradient(to bottom, #000000, #2424246c);
         }
         
         .theme-blue {
             --bg-color: #000033;
-            --text-color: #00aaff;
+            --text-color: #ffffff;
             --accent-color: #00aaff;
             --highlight-color: #00eeff;
             --folder-color: #2600ff;
             --code-color: #fbff00;
             --image-color: #f68fff;
             --border-color: #00aaff;
+            --claro:#04b0ff3b;
             --sidebar-bg: linear-gradient(to bottom, #000000, #2424246c);
         }
         
         .theme-green {
             --bg-color: #003300;
-            --text-color: #00ff88;
+            --text-color: #ffffff;
             --accent-color: #00ff88;
             --highlight-color: #00ffaa;
             --folder-color: #00aa44;
             --code-color: #ffff00;
             --image-color: #88ff88;
             --border-color: #00ff88;
+            --claro:#04ff3a3b;
             --sidebar-bg: linear-gradient(to bottom, #001100, #113311);
         }
         .theme-yellow {
             --bg-color: #333200;
-            --text-color: #d9ff00;
+            --text-color: #ffffff;
             --accent-color: #eeff00;
             --highlight-color: #d0ff00;
             --folder-color: #99aa00;
             --code-color: #ffff00;
             --image-color: #fffd88;
             --border-color: #eeff00;
+            --claro:#fbff043b;
             --sidebar-bg: linear-gradient(to bottom, #111100, #c4c70a3a);
         }
         
@@ -77,18 +81,20 @@
             --code-color: #ffaa00;
             --image-color: #ff88aa;
             --border-color: #ff4444;
+            --claro:#ff04043b;
             --sidebar-bg: linear-gradient(to bottom, #110000, #331111);
         }
         
         .theme-white {
             --bg-color: #f0f0f0;
-            --text-color: #333333;
+            --text-color: #ffffff;
             --accent-color: #0066cc;
             --highlight-color: #0099ff;
             --folder-color: #0066cc;
             --code-color: #cc6600;
             --image-color: #cc00cc;
             --border-color: #666666;
+            --claro:#1d1d1d3b;
             --sidebar-bg: linear-gradient(to bottom, #e0e0e0, #ffffff);
         }
         
@@ -111,12 +117,19 @@ header {
   font-size: 26px;
   letter-spacing: 2px;
   text-align: left;
+  text-shadow: 0 0 10px var(--highlight-color);
   overflow: hidden;
   border-bottom: 2px solid var(--accent-color);
   box-shadow: 0 0 20px var(--highlight-color);
   clip-path: polygon(0 0, 100% 0, 100% 80%, 95% 100%, 5% 100%, 0 80%);
 }
-
+h1 {
+  margin: 0;
+  font-size: 50px;
+  font-weight: bold;
+  color: var(--text-color);
+  text-shadow: 0 0 10px var(--highlight-color);
+}
 /* Linhas horizontais animadas (efeito circuito) */
 
 header::after {
@@ -140,64 +153,7 @@ header::after {
   100% { transform: translateX(100%); }
 }
 
-/* "Pinos" estilo circuito */
-header .pins {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 0;
-  pointer-events: none;
-}
 
-header .pins::before,
-header .pins::after {
-  content: '';
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: var(--highlight-color);
-  border-radius: 50%;
-  box-shadow: 0 0 10px var(--highlight-color);
-  top: -5px;
-}
-
-header .pins::before {
-  left: 80px;
-}
-
-header .pins::after {
-  left: 160px;
-}
-
-/* Efeitos decorativos "gamer" laterais */
-header .edge-deco {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 50px;
-  background: repeating-linear-gradient(
-    135deg,
-    var(--highlight-color),
-    var(--highlight-color) 2px,
-    transparent 2px,
-    transparent 4px
-  );
-  opacity: 0.1;
-}
-
-header .edge-deco.left {
-  left: 0;
-}
-header .edge-deco.right {
-  right: 0;
-}
-
-/* Prevenir seleção e arrasto */
-* {
-  -webkit-user-drag: none;
-  user-select: none;
-}
 
 /* Previne seleção/arrasto */
 * {
@@ -581,7 +537,7 @@ header .edge-deco.right {
 </head>
 <body class="theme-blue">
     <header>
-        <h1 class="text-2xl font-bold">DIGITAL BOARD</h1>
+        <h1 class="text-2xl font-bold">-----</h1>
     </header>
     <div class="sidebar2">
 
@@ -7770,17 +7726,17 @@ border-radius: 15px 0px 15px 0px;
   display: none;
 }
 
-/* Marca d'água */
+
 /* Marca d'água centralizada no topo */
 .watermark {
   position: fixed;
   top: 0px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 18px;
+  font-size: 12px;
   font-weight: bold;
   color: var(--text-color);
-  background-color: var(--bg-color);
+  background-color: var(--claro);
   padding: 5px 10px;
   border-radius: 0px 0px 25px 25px;
   border: 2px solid var(--accent-color);
@@ -9134,7 +9090,7 @@ tr:nth-child(even) {
 
     <!-- Imagem Fixa -->
   <div class="fixed-image">
-    <img src="https://bizoonydb.github.io/PDFJS/db/Picsart_25-07-14_16-02-10-350.png" alt="Imagem Fixa">
+    <img src="https://bizoonydb.github.io/PDFJS/db/Picsart_25-07-14_19-16-57-675.png" alt="Imagem Fixa">
   </div>
 
 
