@@ -70,7 +70,7 @@
         
         .theme-red {
             --bg-color: #330000;
-            --text-color: #ff4444;
+            --text-color: #ffffff;
             --accent-color: #ff4444;
             --highlight-color: #ff6666;
             --folder-color: #aa0000;
@@ -97,19 +97,114 @@
             color: var(--text-color);
         }
 
-        header {
-            background-color: var(--bg-color);
-            color: var(--accent-color);
-            border-bottom: 1px solid var(--accent-color);
-            box-shadow: 0 0 15px var(--highlight-color);
-            padding: 10px;
-            text-align: center;
-        }
-        
-        * {
-            -webkit-user-drag: none;
-            user-select: none;
-        }
+      @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
+
+header {
+  position: relative;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  padding: 30px 0;
+  border-left: var(--highlight-color) solid 2px;
+  border-radius:30px 0px 20px 0;
+  padding-left: 80px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 26px;
+  letter-spacing: 2px;
+  text-align: left;
+  overflow: hidden;
+  border-bottom: 2px solid var(--accent-color);
+  box-shadow: 0 0 20px var(--highlight-color);
+  clip-path: polygon(0 0, 100% 0, 100% 80%, 95% 100%, 5% 100%, 0 80%);
+}
+
+/* Linhas horizontais animadas (efeito circuito) */
+
+header::after {
+  content: '';
+  position: absolute;
+  height: 5px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, var(--highlight-color), transparent);
+  animation: moveLine 4s linear infinite;
+  opacity: 0.6;
+}
+
+
+header::after {
+  top: 60%;
+  animation-delay: 2s;
+}
+
+@keyframes moveLine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* "Pinos" estilo circuito */
+header .pins {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+}
+
+header .pins::before,
+header .pins::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--highlight-color);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--highlight-color);
+  top: -5px;
+}
+
+header .pins::before {
+  left: 80px;
+}
+
+header .pins::after {
+  left: 160px;
+}
+
+/* Efeitos decorativos "gamer" laterais */
+header .edge-deco {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 50px;
+  background: repeating-linear-gradient(
+    135deg,
+    var(--highlight-color),
+    var(--highlight-color) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  opacity: 0.1;
+}
+
+header .edge-deco.left {
+  left: 0;
+}
+header .edge-deco.right {
+  right: 0;
+}
+
+/* Prevenir seleção e arrasto */
+* {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* Previne seleção/arrasto */
+* {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
 
         a, img, div, p, span, button {
             -webkit-user-drag: none;
@@ -485,9 +580,9 @@
     </style>
 </head>
 <body class="theme-blue">
-    
+    <header>
         <h1 class="text-2xl font-bold">DIGITAL BOARD</h1>
-    
+    </header>
     <div class="sidebar2">
 
         <div class="botoes-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;">
@@ -7676,19 +7771,23 @@ border-radius: 15px 0px 15px 0px;
 }
 
 /* Marca d'água */
+/* Marca d'água centralizada no topo */
 .watermark {
   position: fixed;
-  bottom: 5px;
-  right: 5px;
-  font-size: 11px;
+  top: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
   font-weight: bold;
-  color: var(--accent-color);
-  background-color: rgba(8, 55, 77, 0.83);
+  color: var(--text-color);
+  background-color: var(--bg-color);
   padding: 5px 10px;
-  border-radius: 5px;
+  border-radius: 0px 0px 25px 25px;
+  border: 2px solid var(--accent-color);
   z-index: 1111;
   pointer-events: none;
 }
+
 
 /* Texto em destaque */
 .highlight {
@@ -8220,57 +8319,7 @@ border-radius: 15px 0px 15px 0px;
 
 
 
-<!DOCTYPE html>
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-</head>
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        height: 100vh; /* Garante que o corpo tenha 100% da altura da janela */
-        
-    }
 
-    .fixed-image {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw; /* Ocupa 100% da largura da janela */
-       
-        z-index: 99; /* Fica ACIMA de outros elementos */
-    }
-
-    .fixed-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Ajusta a imagem para cobrir toda a tela sem distorção */
-		z-index: 5; /* Fica ACIMA de outros elementos */
-    }
-
-    .content {
-        position: relative;
-        z-index: 1; /* Garante que o texto fique acima da imagem */
-        color: white;
-        text-align: center;
-        padding: 20px;
-        
-    }
-    
-  </style>
-
-<body class='header-page  wsite-theme-light'>
-
-    <!-- Imagem Fixa -->
-  <div class="fixed-image">
-    <img src="https://bizoonydb.github.io/PDFJS/db/CABC.jpg" alt="Imagem Fixa">
-  </div>
-
-
-</body>
-</html>
 
 
 
@@ -9037,6 +9086,57 @@ tr:nth-child(even) {
     <img src="https://bizoonydb.github.io/PDFJS/db/anc.jpg" alt="baner 1">
     
   </div>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100vh; /* Garante que o corpo tenha 100% da altura da janela */
+        
+    }
+
+    .fixed-image {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw; /* Ocupa 100% da largura da janela */
+       
+        z-index: 99; /* Fica ACIMA de outros elementos */
+    }
+
+    .fixed-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ajusta a imagem para cobrir toda a tela sem distorção */
+		z-index: 5; /* Fica ACIMA de outros elementos */
+    }
+
+    .content {
+        position: relative;
+        z-index: 1; /* Garante que o texto fique acima da imagem */
+        color: white;
+        text-align: center;
+        padding: 20px;
+        
+    }
+    
+  </style>
+
+<body class='header-page  wsite-theme-light'>
+
+    <!-- Imagem Fixa -->
+  <div class="fixed-image">
+    <img src="https://bizoonydb.github.io/PDFJS/db/Picsart_25-07-14_16-02-10-350.png" alt="Imagem Fixa">
+  </div>
+
 
 </body>
 </html>
