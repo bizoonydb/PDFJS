@@ -7879,9 +7879,9 @@ border-radius: 15px 0px 15px 0px;
 #ciInput {
     padding: 8px 0px;
     font-size: 14px;
-    margin-right: 60px;
+    margin-right: 84px;
     border: 2px solid var(--accent-color);
-    border-radius: 8px;
+    border-radius: 15px 0px 0px 15px;
     background-color: var(--claro);
     color: var(--text-color);
     outline: none;
@@ -7899,14 +7899,44 @@ border-radius: 15px 0px 15px 0px;
     border-color: var(--accent-color);
     box-shadow: 0 0 10px var(--claro);
   }
- 
+ .close-btnn {
+    position: absolute;
+    top: 0px;
+    right: 170px;
+    font-size: 17px;
+    color: #ff0000;
+    background-color: transparent;
+    border: var(--accent-color) solid 2px;
+    border-radius: 0px 15px 15px 0px;
+    box-shadow: 0 0 5px var(--accent-color);
+    cursor: pointer;
+    padding: 5px 10px;
+    z-index: 9999999;
+  }
+
+  .close-btnn:hover {
+    position: absolute;
+    top: 0px;
+    right: 170px;
+    font-size: 15px;
+    color: #000000;
+    background-color: #e20101;
+    border: var(--accent-color) solid 2px;
+    border-radius: 0px 15px 15px 0px;
+    box-shadow: 0 0 5px var(--accent-color);
+    cursor: pointer;
+    padding: 5px 10px;
+    z-index: 9999999;
+  }
 </style>
 
 </head>
 <body>
 
 <div class="button-container">
+  <span class="close-btnn" onclick="ocultarContainer()">X</span>
   <input type="text" id="ciInput" placeholder="Digite o CI..." oninput="buscarCI()">
+  
   <a href="https://wa.me/message/6X46IDVVWEIQM1" target="_blank">
     <img src="https://bizoonydb.github.io/PDFJS/db/botn/suporte.png" alt="Suporte Técnico">
   </a>
@@ -7957,7 +7987,7 @@ border-radius: 15px 0px 15px 0px;
   top: 0; left: 0;
   width: 100%; height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
-  z-index: 9999;
+  z-index: 999999999;
   visibility: hidden;
   opacity: 0;
   transition: visibility 0s, opacity 0.3s ease;
@@ -7981,6 +8011,7 @@ border-radius: 15px 0px 15px 0px;
   animation: fadeIn 0.3s ease;
   border: 3px solid var(--accent-color);
   position: relative;
+  
 }
 
 /* Animação */
@@ -8082,7 +8113,7 @@ border-radius: 15px 0px 15px 0px;
 
 /* Itens de usuário */
 .user-item {
-  background-color: #d3d3d3;
+  background-color: #4d4d4d;
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 6px 15px var(--accent-color);
@@ -8292,48 +8323,24 @@ body {
   margin: 0;
 }
 
-.search-container {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  display: none; /* Inicialmente oculto */
-  background: url('https://bizoonydb.github.io/PDFJS/db/barra-de-pesquisa.jpg') no-repeat center;
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
-  width: 280px;
-  height: 75px;
-  padding: 10px;
-  box-sizing: border-box;
-  z-index: 999999;
-  color: var(--code-color); /* Texto do container */
-}
 
-.search-container input {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  font-size: 18px;
-  background: transparent;
-  outline: none;
-  text-align: center;
-  color: var(--text-color); /* Texto do input */
-}
 
 #resultado {
   position: fixed;
-  bottom: 110px;
-  right: 20px;
-  width: 480px;
-  background-color: #33333388;
+    font-size: 18px;
+  top: 115px;
+  left: 255px;
+  right: 0;
+  bottom: 0;
+  background-color: #030303d3;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow-y: auto;
-  max-height: 280px;
   display: none;
   z-index: 999999;
-  color: var(--accent-color); /* Texto dos resultados */
+  color: var(--text-color); /* Texto dos resultados */
 }
+
 
 table {
   width: 100%;
@@ -8343,7 +8350,7 @@ table {
 }
 
 th, td {
-  border: 1px solid var(--code-color);
+  border: 1px solid var(--highlight-color);
   padding: 9px;
   text-align: left;
 }
@@ -8385,6 +8392,24 @@ tr:nth-child(even) {
 .close-btn:focus {
   outline: none;
 }
+.close-btnv {
+  font-size: 24px;
+  color: var(--text-color);
+  cursor: pointer;
+  background-color: #00000065;
+  width: 60px;
+  height: 61px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  border: 2px solid  var(--highlight-color);
+  position: absolute;
+  top: 7px;
+  right: 9999999px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
 
       
     </style>
@@ -8392,8 +8417,8 @@ tr:nth-child(even) {
 <body>
     <!-- Container de busca fixa -->
     <div class="search-container">
-        <input type="text" id="ciInput" placeholder="Digite o CI..." oninput="buscarCI()">
-        <span class="close-btn" onclick="ocultarContainer()">X</span>
+       
+        <span class="close-btnv" onclick="ocultarContainer()">X</span>
     </div>
 
     <!-- Resultados da busca -->
@@ -8811,7 +8836,11 @@ tr:nth-child(even) {
           const resultadoDiv = document.getElementById("resultado");
           resultadoDiv.innerHTML = "";
       
-          if (ciDigitado === "") return;
+            // 👉 Oculta o resultado se o campo estiver vazio
+  if (ciDigitado === "") {
+    resultadoDiv.style.display = "none";
+    return;
+  }
       
           let encontrados = [];
           for (let marca in celulares) {
