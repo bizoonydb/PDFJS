@@ -7371,7 +7371,7 @@ function openTab(fileUrl, type) {
   iframe.dataset.originalUrl = fileUrl;
   iframe.dataset.fileType = type;
   iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
-
+iframe.setAttribute('scrolling', 'no'); // Oculta rolagem na maioria dos navegadores
   iframe.setAttribute('loading', 'lazy');
 
 
@@ -7696,6 +7696,7 @@ border-radius: 15px 0px 15px 0px;
       background: transparent;
       display: block;
     }
+    
 
     .expand-btn {
       position: absolute;
