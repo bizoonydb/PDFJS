@@ -20,19 +20,7 @@
           
         }
         
-        /* Theme classes */
-        :root {
-            --bg-color: #000033;
-            --text-color: #ffffff;
-            --accent-color: #00aaff;
-            --highlight-color: #00eeff;
-            --folder-color: #2600ff;
-            --code-color: #fbff00;
-            --image-color: #f68fff;
-            --border-color: #00aaff;
-            --claro:#04b0ff2f;
-            --sidebar-bg: linear-gradient(to bottom, #000000, #2424246c);
-        }
+       
         
         .theme-blue {
             --bg-color: #000033;
@@ -60,16 +48,16 @@
             --sidebar-bg: linear-gradient(to bottom, #001100, #113311);
         }
         .theme-yellow {
-            --bg-color: #333200;
+                 --bg-color: #181818;
             --text-color: #ffffff;
-            --accent-color: #eeff00;
-            --highlight-color: #d0ff00;
-            --folder-color: #99aa00;
-            --code-color: #ffff00;
-            --image-color: #fffd88;
-            --border-color: #eeff00;
-            --claro:#fbff043b;
-            --sidebar-bg: linear-gradient(to bottom, #111100, #c4c70a3a);
+            --accent-color: #ffda07;
+            --highlight-color: #ffe600;
+            --folder-color: #cc0000;
+            --code-color: #cc6600;
+            --image-color: #ff02ff;
+            --border-color: #dbcc00;
+            --claro:#1d1d1d3b;
+            --sidebar-bg: linear-gradient(to bottom, #1b1b1b, #363636);
         }
         
         .theme-red {
@@ -85,17 +73,17 @@
             --sidebar-bg: linear-gradient(to bottom, #110000, #331111);
         }
         
-        .theme-white {
-            --bg-color: #f0f0f0;
-            --text-color: #ffffff;
-            --accent-color: #0066cc;
-            --highlight-color: #0099ff;
-            --folder-color: #0066cc;
-            --code-color: #cc6600;
-            --image-color: #cc00cc;
-            --border-color: #666666;
+        .theme-dark {
+            --bg-color: #303030;
+            --text-color: #d1d1d1;
+            --accent-color: #acabab;
+            --highlight-color: #8f8c8c;
+            --folder-color: #414141;
+            --code-color: #ff0303;
+            --image-color: #e705e7;
+            --border-color: #6b6b6b;
             --claro:#1d1d1d3b;
-            --sidebar-bg: linear-gradient(to bottom, #e0e0e0, #ffffff);
+            --sidebar-bg: linear-gradient(to bottom, #1b1b1b, #363636);
         }
         
         body {
@@ -7382,7 +7370,8 @@ function openTab(fileUrl, type) {
   iframes.set(tabId, iframe);
   iframe.dataset.originalUrl = fileUrl;
   iframe.dataset.fileType = type;
-  iframe.setAttribute('sandbox', '');
+  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+
   iframe.setAttribute('loading', 'lazy');
 
 
@@ -7863,7 +7852,7 @@ border-radius: 15px 0px 15px 0px;
     justify-content: flex-end;
     align-items: flex-start;
     padding: 0px;
-    pointer-events: none;
+   
     z-index: 999;
   }
 
@@ -7878,7 +7867,7 @@ border-radius: 15px 0px 15px 0px;
     border-radius: 10px;
     transition: all 0.3s ease;
     box-shadow: 0 0 5px var(--main-color);
-    border: 1px solid var(--main-color);
+    border: 1px solid var(--accent-color);
   }
 
   .button-container img:hover {
@@ -7887,32 +7876,41 @@ border-radius: 15px 0px 15px 0px;
     border: 1px solid var(--main-color);
     filter: drop-shadow(0 0 5px var(--main-color));
   }
-
-  /* Exemplo de tema aplicado ao <body>: */
-  .blue-theme {
-    --main-color: #00ccff;
+#ciInput {
+    padding: 8px 0px;
+    font-size: 14px;
+    margin-right: 60px;
+    border: 2px solid var(--accent-color);
+    border-radius: 8px;
+    background-color: var(--claro);
+    color: var(--text-color);
+    outline: none;
+    width: 150px;
+    transition: 0.3s ease;
+    box-shadow: inset 0 0 5px var(--border-color);
+    z-index: 9999999;
   }
 
-  .green-theme {
-    --main-color: #00ff88;
+  #ciInput::placeholder {
+    color: #ffffff88;
   }
 
-  .purple-theme {
-    --main-color: #cc00ff;
+  #ciInput:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px var(--claro);
   }
-
-  .red-theme {
-    --main-color: #ff0033;
-  }
+ 
 </style>
 
 </head>
 <body>
 
 <div class="button-container">
+  <input type="text" id="ciInput" placeholder="Digite o CI..." oninput="buscarCI()">
   <a href="https://wa.me/message/6X46IDVVWEIQM1" target="_blank">
     <img src="https://bizoonydb.github.io/PDFJS/db/botn/suporte.png" alt="Suporte Técnico">
   </a>
+  
   <a href="https://bizoonydb.github.io/PDFJS/bci.html" target="_blank">
     <img src="https://bizoonydb.github.io/PDFJS/db/botn/bci.png" alt="Busca por CI">
     
@@ -8193,8 +8191,8 @@ border-radius: 15px 0px 15px 0px;
 <button class="theme-btn" style="background-color:#ff0033; color:#000;" onclick="setTheme('red')">
   <i class="fas fa-fire"></i> Red
 </button>
-<button class="theme-btn" style="background-color:#ffffff; color:#000;" onclick="setTheme('white')">
-  <i class="fas fa-snowflake"></i> White
+<button class="theme-btn" style="background-color:#000000; color:#6b6b6b;" onclick="setTheme('dark')">
+  <i class="fas fa-snowflake"></i> dark
 </button>
 <button class="theme-btn" style="background-color:#ffe600; color:#000;" onclick="setTheme('yellow')">
   <i class="fas fa-sun"></i> Yellow
@@ -9021,7 +9019,7 @@ tr:nth-child(even) {
       right: 0;
       bottom: 0;
       border-radius: 20px;
-      border: 2px solid var(--text-color);
+      border: 2px solid var(--border-color);
       overflow: hidden;
       
       background-color: black; /* só pra destacar quando sobrar espaço */
