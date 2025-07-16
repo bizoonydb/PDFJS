@@ -3075,7 +3075,7 @@ Object.defineProperty(exports, "__esModule", ({
       kind: OptionKind.VIEWER
     },
     maxCanvasPixels: {           // propieda de pixel maximos para renderizar   aqui aumenta el renderizado a 8k
-      value: 165399916,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao
+      value: 132100916,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao
       kind: OptionKind.VIEWER
     },
     forcePageColors: {
@@ -8018,7 +8018,7 @@ Object.defineProperty(exports, "__esModule", ({
         alpha: false
       });
       ctx.save();
-      ctx.fillStyle = "rgb(255, 255, 255)";
+      ctx.fillStyle = "rgb(0, 0, 0)";
       ctx.fillRect(0, 0, width, height);
       ctx.restore();
       return [tempCanvas, tempCanvas.getContext("2d")];
@@ -12231,6 +12231,7 @@ Object.defineProperty(exports, "__esModule", ({
       canvas.width = 0;
       canvas.height = 0;
     }
+    
   }
   exports.Toolbar = Toolbar;
   
@@ -13371,7 +13372,7 @@ Object.defineProperty(exports, "__esModule", ({
     scratchCanvas.height = Math.floor(size.height * PRINT_UNITS);
     const ctx = scratchCanvas.getContext("2d");
     ctx.save();
-    ctx.fillStyle = "rgb(255, 255, 255)";
+    ctx.fillStyle = "rgb(0, 0, 0)";
     ctx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
     ctx.restore();
     return Promise.all([pdfDocument.getPage(pageNumber), printAnnotationStoragePromise]).then(function ([pdfPage, printAnnotationStorage]) {
@@ -13853,3 +13854,14 @@ Object.defineProperty(exports, "__esModule", ({
   /******/ })()
   ;
   //# sourceMappingURL=viewer.js.map
+// Adiciona classe dark-mode se houver mais de 1 página
+PDFViewerApplication.initializedPromise.then(() => {
+  const app = PDFViewerApplication;
+
+  app.eventBus.on('documentloaded', () => {
+    const totalPages = app.pdfDocument.numPages;
+    if (totalPages > 1) {
+      document.body.classList.add('dark-mode');
+    }
+  });
+});
