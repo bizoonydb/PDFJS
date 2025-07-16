@@ -14,9 +14,9 @@
  */
 /*color de resaltador*/
 :root {
-    --highlight-bg-color: rgba(255, 0, 0, 1);
+    --highlight-bg-color: rgba(255, 0, 0, 0.39);
     
-    --highlight-selected-bg-color: rgba(255, 0, 0, 1);
+    --highlight-selected-bg-color: rgba(255, 0, 0, 0.548);
     
   }
   
@@ -32,7 +32,7 @@
     text-align: initial;
     inset: 0;
     overflow: hidden;
-    opacity: 0.25;
+   
     line-height: 1;
     -webkit-text-size-adjust: none;
        -moz-text-size-adjust: none;
@@ -64,7 +64,7 @@
   margin: -1px;
   padding: 1px;
   background-color: var(--highlight-bg-color);
-    border: 5px solid rgb(0, 0, 0) !important;           /* borda azul */
+    border: 5px solid rgb(255, 251, 0) !important;           /* borda azul */
   border-radius: 10px;                          /* mantém o arredondado */
   box-sizing: border-box; 
  
