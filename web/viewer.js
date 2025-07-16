@@ -3075,7 +3075,7 @@ Object.defineProperty(exports, "__esModule", ({
       kind: OptionKind.VIEWER
     },
     maxCanvasPixels: {           // propieda de pixel maximos para renderizar   aqui aumenta el renderizado a 8k
-      value: 132100916,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao
+      value: 102100016,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao
       kind: OptionKind.VIEWER
     },
     forcePageColors: {
