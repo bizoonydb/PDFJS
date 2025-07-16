@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="google" content="notranslate">
-    <title>PDF_ssssb</title>
+    <title>PDF_db</title>
 <link rel="resource" type="application/l10n" href="https://bizoonydb.github.io/PDFJS/locale/locale.properties">
 <script src="https://bizoonydb.github.io/PDFJS/build/pdf.js"></script>
 
@@ -15,16 +15,41 @@
   <script src="viewer.js"></script>
   </head>
 <style>
+  .toolbarFieldd {
+    background-color: #808080;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 5px;
+    padding: 3px;
+    font-size: 12px;
+    
+    width: 60px;
+    height: 26px;
+  
+   
+  }
 #toolbarViewerRight {
     position: fixed;
     top: 5px;
-    right: 10px;
+    right: 80px;
     z-index: 1000;
     display: flex;
     gap: 5px;
     margin-right: 150px;
+    width: 40px;
+    height: 30px;
+  
 }
 
+ .dark-mode canvas {
+      filter: invert(100%) hue-rotate(180deg);
+      background: black !important;
+    }
+
+    .dark-mode {
+      background: black !important;
+      color: white !important;
+    }
 
 .secondaryToolbarButton {
     width: 5px;
@@ -354,14 +379,22 @@
                     <span data-l10n-id="next_label">Next</span>
                   </button>
                 </div>
+                
                 <input type="number" id="pageNumber" class="toolbarField" title="página" value="1" min="1" tabindex="15" data-l10n-id="page" autocomplete="off">
                 <span id="numPages" class="toolbarLabel"></span>
               </div>
+               
               <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+              
               <div id="toolbarViewerRight" role="radiogroup">
+                <button class="toolbarFieldd"id="toggleDarkMode">COR</button>
                 <button id="pageRotateCw" class="secondaryToolbarButton" title="Rotate Clockwise" tabindex="58" data-l10n-id="page_rotate_cw">
+                  
               <span data-l10n-id="page_rotate_cw_label">Rotate Clockwise</span>
             </button>
+            
             <button id="pageRotateCcw" class="secondaryToolbarButton" title="Rotate Counterclockwise" tabindex="59" data-l10n-id="page_rotate_ccw">
               <span data-l10n-id="page_rotate_ccw_label">Rotate Counterclockwise</span>
             </button>
@@ -373,10 +406,18 @@
 
                 
               </div>
+              
               <button id="cop" class="secondaryToolbarButtonn" title="Copiar Texto Selecionado">
+                
                 <i class="fas fa-copy"></i>
             </button>
 <script>
+     const button = document.getElementById("toggleDarkMode");
+    const body = document.body;
+
+    button.addEventListener("click", () => {
+      body.classList.toggle("dark-mode");
+    });
   document.getElementById('cop').addEventListener('click', () => {
     const selectedText = window.getSelection().toString();
     if (selectedText) {
