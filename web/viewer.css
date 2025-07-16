@@ -1399,12 +1399,12 @@
   
     --main-color: rgb(0, 0, 0);
     --body-bg-color: rgb(255, 255, 255);
-    --progressBar-color: rgb(255, 242, 0);
+    --progressBar-color: rgb(221, 221, 221);
     --progressBar-bg-color: rgb(0, 0, 0);
     
     --progressBar-blend-color: rgba(116, 177, 239, 1);
     --scrollbar-color: rgb(102, 102, 102);
-    --scrollbar-bg-color: rgb(219, 219, 219);
+    --scrollbar-bg-color: rgb(46, 46, 46);
     --toolbar-icon-bg-color: rgb(0, 0, 0);
     --toolbar-icon-hover-bg-color: rgba(0, 0, 0, 1);
   
