@@ -409,6 +409,37 @@ hr {
   });
 </script>
 
+  <script>
+window.addEventListener('message', (event) => {
+  const data = event.data;
+
+  if (data.action === 'saveState') {
+    // Exemplo simples: zoom, scroll e botões com classe 'active'
+    const zoom = document.body.style.zoom || '1';
+    const scrollY = window.scrollY;
+    const buttons = [...document.querySelectorAll('.active')].map(el => el.id);
+
+    window.parent.postMessage({
+      action: 'stateSaved',
+      tabId: data.tabId,
+      state: { zoom, scrollY, buttons }
+    }, '*');
+  }
+
+  if (data.action === 'restoreState' && data.state) {
+    if (data.state.zoom) document.body.style.zoom = data.state.zoom;
+    if (data.state.scrollY) window.scrollTo(0, data.state.scrollY);
+    if (data.state.buttons) {
+      data.state.buttons.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('active');
+      });
+    }
+  }
+});
+</script>
+
+
 
 
 </body>
