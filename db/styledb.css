@@ -160,7 +160,7 @@ header::after {
             position: fixed;
             top: 185px;
             left: 0;
-            height: calc(100vh - 70px);
+            height: calc(100vh - 185px);
             border-right: 0px solid var(--highlight-color);
             padding: 15px;
             width: 250px;
