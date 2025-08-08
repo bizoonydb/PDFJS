@@ -158,7 +158,7 @@ header::after {
 
         .sidebar {
             position: fixed;
-            top: 70px;
+            top: 185px;
             left: 0;
             height: calc(100vh - 70px);
             border-right: 0px solid var(--highlight-color);
