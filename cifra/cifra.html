@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chord Keeper - Armazene suas cifras</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4CAF50">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #000000; }
+::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* Sidebar Windows-style */
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+.sidebar-folder { cursor: pointer; }
+.sidebar-folder:hover { background-color: #3b3b3b; }
+.sidebar-folder input { background: transparent; border: none; color: white; width: 100%; }
+
+button, input, select, textarea { transition: all 0.2s; }
+button:hover { opacity: 0.9; }
+.flex-1.flex.flex-col.overflow-hidden { background-color: #7c0b0b; /* mesmo fundo do sidebar e editor */ }
+/* Header */
+#chordHeader {
+    position: fixed;
+    top: 0;
+    left: 255px;
+    right: 0;
+    height: 60px; /* altura menor */
+    background-color: #1f2937;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px; /* padding menor */
+    box-sizing: border-box;
+    z-index: 50;
+}
+
+/* Inputs à esquerda */
+#chordHeader .header-left input {
+    height: 28px;       /* menor altura */
+    line-height: 28px;
+    font-size: 14px;    /* fonte menor */
+    padding: 0 6px;
+    margin-right: 6px;
+    border: none;
+    border-radius: 4px;
+    background-color: #3b3b3b;
+    color: white;
+}
+
+/* Botões à direita */
+#chordHeader .header-right {
+    display: flex;
+    gap: 6px;
+}
+
+#chordHeader .header-right button {
+    height: 28px;       /* menor altura */
+    font-size: 12px;    /* fonte menor */
+    padding: 0 6px;     /* padding menor */
+    display: flex;
+    align-items: center;
+    gap: 4px;           /* gap menor entre ícone e texto */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+}
+
+/* Cores individuais */
+#saveChordHeader { background-color: #4CAF50; }
+#saveChordHeader:hover { background-color: #45A049; }
+
+#printChordHeader { background-color: #2196F3; }
+#printChordHeader:hover { background-color: #1976D2; }
+
+#deleteChordHeader { background-color: #F44336; }
+#deleteChordHeader:hover { background-color: #D32F2F; }
+
+#fullscreenChordHeader { background-color: #FF9800; }
+#fullscreenChordHeader:hover { background-color: #FB8C00; }
+
+#chordHeader .header-right button:hover {
+    background-color: #5c5c5c;
+}
+
+/* Expand / Collapse button */
+#expandChordBtn, #collapseBtn {
+    height: 28px;
+    font-size: 12px;
+    padding: 0 6px;
+    border-radius: 4px;
+    color: white;
+    background-color: #444;
+    cursor: pointer;
+}
+#expandChordBtn:hover, #collapseBtn:hover {
+    background-color: #666;
+}
+
+/* Estado vazio */
+#emptyState {
+    background-color: #121212;
+    color: white;
+}
+
+/* Editor de cifras */
+#chordEditor {
+    background-color: #121212;
+    color: white;
+}
+
+/* Conteúdo editável */
+#chordContent {
+    background-color: transparent;
+    color: white;
+    font-family: monospace;
+    font-size: 18px; /* menor fonte para telas pequenas */
+    white-space: pre-wrap;
+}
+
+/* Dropdown e inputs dentro do editor */
+#chordFolder, #chordFolder option, #newFolderName {
+    background-color: #121212;
+    color: white;
+    border: 1px solid #333;
+}
+
+/* Print styles */
+@media print {
+    .no-print { display: none !important; }
+    body { padding: 0; margin: 0; }
+    .chord-content { padding: 0 !important; margin: 0 !important; }
+}
+
+/* Responsivo para telas pequenas */
+@media (max-width: 768px) {
+    #chordHeader {
+        height: 50px;
+        padding: 0 6px;
+    }
+    #chordHeader .header-left input {
+        height: 24px;
+        font-size: 12px;
+    }
+    #chordHeader .header-right button,
+    #expandChordBtn, #collapseBtn {
+        height: 24px;
+        font-size: 10px;
+        padding: 0 4px;
+    }
+    #chordContent {
+        font-size: 16px;
+    }
+}
+
+</style>
+</head>
+<body class="bg-gray-100 flex h-screen">
+
+  <!-- Sidebar -->
+  <div class="w-64 bg-gray-800 text-white flex flex-col no-print" id="sidebar">
+    <div class="p-4 border-b border-gray-700">
+      <h1 class="text-xl font-bold flex items-center"><i class="fas fa-music mr-2"></i> CIFRAS BIZOONY</h1>
+      <div class="mt-4 relative">
+        <input type="text" id="searchInput" placeholder="Buscar cifra..." class="w-full px-3 py-2 bg-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <i class="fas fa-search absolute right-3 top-2.5 text-gray-400"></i>
+        
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto">
+      <div class="p-4">
+        <button id="newChordBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded flex items-center justify-center mb-4">
+          <i class="fas fa-plus mr-2"></i> Nova Cifra
+        </button>
+
+        <div id="folders" class="space-y-2">
+          <!-- Folders dinâmicos -->
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 border-t border-gray-700 text-sm text-gray-400">
+      <div id="connectionStatus" class="flex items-center"><i class="fas fa-circle mr-2 text-green-500"></i> <span>Online</span></div>
+      <div class="mt-2">Armazenamento: <span id="storageUsage">0%</span></div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Cabeçalho global -->
+   <div id="chordHeader" class="no-print">
+  <!-- Título e artista à esquerda -->
+  <div class="header-left">
+    <input type="text" id="chordTitleHeader" placeholder="Título da cifra">
+    <input type="text" id="chordArtistHeader" placeholder="Artista">
+  </div>
+
+  <!-- Botões à direita -->
+  <div class="header-right">
+   
+<input type="file" id="importBackupInput" accept="application/json" style="display:none">
+    <button id="saveChordHeader">Salvar</button>
+     <button id="exportBackupBtn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded flex items-center gap-2">
+  <i class="fas fa-download"></i> Exportar Backup
+</button>
+    <button id="importBackupBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded flex items-center gap-2">
+  <i class="fas fa-upload"></i> Importar Backup
+</button>
+    <button id="deleteAllBtn" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded flex items-center gap-2">
+  <i class="fas fa-trash-alt"></i> Excluir Todos
+</button>
+<button id="expandChordBtn" class="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded flex items-center gap-2">
+  <i class="fas fa-expand-arrows-alt"></i> Expandir
+</button>
+
+    
+  </div>
+</div>
+    <!-- Área do editor -->
+    <div class="flex-1 flex flex-col overflow-hidden pt-24">
+      <div id="chordEditor" class="hidden flex flex-col flex-1 overflow-auto p-6 bg-white">
+        <div class="mb-4 flex items-center">
+          <label for="chordFolder" class="mr-2">Pasta:</label>
+          <select id="chordFolder" class="border rounded px-2 py-1 bg-white">
+            <option value="Geral">Geral</option>
+            <option value="Favoritas">Favoritas</option>
+            <option value="Trabalho">Trabalho</option>
+            <option value="Estudo">Estudo</option>
+          </select>
+          
+          <button id="newFolderBtn" class="ml-2 text-blue-600 hover:text-blue-800"><i class="fas fa-folder-plus"></i> Nova pasta</button>
+          <button id="printChordHeader">Imprimir</button>
+    <button id="deleteChordHeader">Excluir</button>
+        </div>
+
+        <div id="chordContent" contenteditable="true" 
+          style="font-family: monospace; font-size: 43px;  white-space: pre-wrap;"></div>
+
+        <div class="mt-4 flex items-center text-sm text-gray-500">
+          <i class="fas fa-info-circle mr-2"></i> <span>Dica: Use Ctrl+B para negrito, Ctrl+I para itálico</span>
+        </div>
+      </div>
+      
+
+      <!-- Estado vazio quando nenhuma cifra selecionada -->
+      <div id="emptyState" class="h-full flex flex-col items-center justify-center text-gray-500">
+        <i class="fas fa-music text-5xl mb-4"></i>
+        <h2 class="text-xl font-semibold mb-2">Nenhuma cifra selecionada</h2>
+        <p class="text-center max-w-md">Selecione uma cifra da lista ou crie uma nova para começar.</p>
+        <button id="createFirstChord" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded flex items-center">
+          <i class="fas fa-plus mr-2"></i> Criar primeira cifra
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nova Pasta -->
+  <div id="newFolderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg p-6 w-96">
+      <h3 class="text-xl font-bold mb-4">Nova Pasta</h3>
+      <input type="text" id="newFolderName" placeholder="Nome da pasta" class="w-full px-3 py-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <div class="flex justify-end space-x-2">
+        <button id="cancelNewFolder" class="px-4 py-2 border rounded hover:bg-gray-100">Cancelar</button>
+        <button id="confirmNewFolder" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Criar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const exportBackupBtn = document.getElementById('exportBackupBtn');
+exportBackupBtn.addEventListener('click', exportarBackup);
+
+const importBackupBtn = document.getElementById('importBackupBtn');
+const importBackupInput = document.getElementById('importBackupInput');
+
+importBackupBtn.addEventListener('click', () => importBackupInput.click());
+importBackupInput.addEventListener('change', (event) => importarBackup(event));
+// Elementos do DOM
+const chordTitle = document.getElementById('chordTitleHeader'); // usamos o header como referência
+const chordArtist = document.getElementById('chordArtistHeader');
+const chordContent = document.getElementById('chordContent');
+const chordFolder = document.getElementById('chordFolder');
+const chordEditor = document.getElementById('chordEditor');
+const emptyState = document.getElementById('emptyState');
+const foldersContainer = document.getElementById('folders');
+
+const newChordBtn = document.getElementById('newChordBtn');
+const createFirstChord = document.getElementById('createFirstChord');
+const saveChordHeader = document.getElementById('saveChordHeader');
+const printChordHeader = document.getElementById('printChordHeader');
+const deleteChordHeader = document.getElementById('deleteChordHeader');
+const fullscreenChordBtn = document.getElementById('fullscreenChordHeader');
+
+const searchInput = document.getElementById('searchInput');
+const connectionStatus = document.getElementById('connectionStatus');
+const storageUsage = document.getElementById('storageUsage');
+
+const newFolderBtn = document.getElementById('newFolderBtn');
+const newFolderModal = document.getElementById('newFolderModal');
+const newFolderName = document.getElementById('newFolderName');
+const confirmNewFolder = document.getElementById('confirmNewFolder');
+const cancelNewFolder = document.getElementById('cancelNewFolder');
+const savePageBtn = document.createElement('button');
+savePageBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Página Offline';
+savePageBtn.style.cssText = 'margin-left:6px; background-color:#8000ff; color:white; padding:6px 10px; border-radius:4px; cursor:pointer;';
+document.querySelector('#chordHeader .header-right').appendChild(savePageBtn);
+
+
+
+// IndexedDB
+let db;
+const DB_NAME = 'ChordKeeperDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'chords';
+
+const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+request.onupgradeneeded = function(event){
+    db = event.target.result;
+    if(!db.objectStoreNames.contains(STORE_NAME)){
+        const store = db.createObjectStore(STORE_NAME, {keyPath:'id', autoIncrement:true});
+        store.createIndex('title','title',{unique:false});
+        store.createIndex('folder','folder',{unique:false});
+    }
+};
+
+request.onsuccess = function(event){
+    db = event.target.result;
+    loadChords();
+    updateStorageUsage();
+    updateConnectionStatus();
+};
+
+request.onerror = function(event){
+    console.error(event);
+};
+const expandChordBtn = document.getElementById('expandChordBtn');
+let isExpanded = false;
+
+// Cria botão flutuante de recolher
+const collapseBtn = document.createElement('button');
+collapseBtn.innerHTML = '<i class="fas fa-compress-arrows-alt"></i>';
+collapseBtn.style.position = 'fixed';
+collapseBtn.style.top = '10px';
+collapseBtn.style.right = '10px';
+collapseBtn.style.zIndex = '1100';
+collapseBtn.style.backgroundColor = '#FF9800';
+collapseBtn.style.color = 'white';
+collapseBtn.style.border = 'none';
+collapseBtn.style.padding = '10px 15px';
+collapseBtn.style.borderRadius = '6px';
+collapseBtn.style.cursor = 'pointer';
+collapseBtn.style.display = 'none'; // inicialmente oculto
+collapseBtn.title = 'Recolher editor';
+document.body.appendChild(collapseBtn);
+
+// Função para recolher editor
+collapseBtn.addEventListener('click', () => {
+    chordEditor.style.position = '';
+    chordEditor.style.top = '';
+    chordEditor.style.left = '';
+    chordEditor.style.width = '';
+    chordEditor.style.height = '';
+    chordEditor.style.zIndex = '';
+    chordEditor.style.backgroundColor = '';
+    isExpanded = false;
+    collapseBtn.style.display = 'none';
+    expandChordBtn.innerHTML = '<i class="fas fa-expand-arrows-alt"></i> Expandir';
+});
+
+// Botão principal expandir/recolher
+expandChordBtn.addEventListener('click', () => {
+    if(!chordEditor) return;
+
+    if(!isExpanded){
+        chordEditor.style.position = 'fixed';
+        chordEditor.style.top = '0';
+        chordEditor.style.left = '0';
+        chordEditor.style.width = '100%';
+        chordEditor.style.height = '100%';
+        chordEditor.style.zIndex = '1000';
+        chordEditor.style.backgroundColor = '#121212';
+        collapseBtn.style.display = 'block'; // mostra o botão flutuante
+        expandChordBtn.innerHTML = '<i class="fas fa-expand-arrows-alt"></i> Expandir';
+    } else {
+        chordEditor.style.position = '';
+        chordEditor.style.top = '';
+        chordEditor.style.left = '';
+        chordEditor.style.width = '';
+        chordEditor.style.height = '';
+        chordEditor.style.zIndex = '';
+        chordEditor.style.backgroundColor = '';
+        collapseBtn.style.display = 'none';
+        expandChordBtn.innerHTML = '<i class="fas fa-expand-arrows-alt"></i> Expandir';
+    }
+
+    isExpanded = !isExpanded;
+});
+
+
+// Variáveis globais
+let currentChordId = null;
+let chords = [];
+let folderList = ['Geral','Favoritas','Trabalho','Estudo'];
+
+// Funções de status
+function updateConnectionStatus(){
+    const isOnline = navigator.onLine;
+    const icon = connectionStatus.querySelector('i');
+    const span = connectionStatus.querySelector('span');
+    if(isOnline){
+        icon.className='fas fa-circle mr-2 text-green-500';
+        span.textContent='Online';
+    } else {
+        icon.className='fas fa-circle mr-2 text-yellow-500';
+        span.textContent='Offline (modo local)';
+    }
+}
+
+function updateStorageUsage(){
+    if(navigator.storage && navigator.storage.estimate){
+        navigator.storage.estimate().then(e=>{
+            const p = (e.usage/e.quota*100).toFixed(1);
+            storageUsage.textContent = p+'%';
+        });
+    }
+}
+
+// Criar nova cifra
+function createNewChord(){
+    currentChordId = null;
+    chordTitle.value = '';
+    chordArtist.value = '';
+    chordContent.innerText = '';
+    chordFolder.value = 'Geral';
+    emptyState.classList.add('hidden');
+    chordEditor.classList.remove('hidden');
+    chordTitle.focus();
+    chordHeader.classList.remove('hidden');
+}
+
+// Salvar cifra
+function saveCurrentChord(){
+    if(!chordTitle.value.trim()){ alert('Insira um título'); return; }
+
+    const chord = {
+        title: chordTitle.value.trim(),
+        artist: chordArtist.value.trim(),
+        content: chordContent.innerText,
+        folder: chordFolder.value,
+        updatedAt: new Date().toISOString()
+    };
+
+    const tx = db.transaction(STORE_NAME,'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+
+    let req;
+    if(currentChordId){
+        chord.id = currentChordId;
+        req = store.put(chord);
+    } else {
+        req = store.add(chord);
+    }
+
+    req.onsuccess = (e)=>{
+        currentChordId = e.target.result;
+        loadChords();
+        highlightChords();
+        showMessage('Cifra salva com sucesso!');
+        updateStorageUsage();
+    };
+    req.onerror = (e)=>{ console.error(e); alert('Erro ao salvar'); };
+}
+
+// Carregar cifra
+function loadChord(id){
+    const tx = db.transaction(STORE_NAME,'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    store.get(Number(id)).onsuccess = function(e){
+        const chord = e.target.result;
+        if(chord){
+            currentChordId = chord.id;
+            chordTitle.value = chord.title;
+            chordArtist.value = chord.artist || '';
+            chordFolder.value = chord.folder;
+
+            // Conteúdo com destaque
+            const chordRegex = /\b([A-G][#b]?m?(maj|min|7|m7|sus4|dim)?[0-9]?)\b/g;
+            const content = chord.content.replace(chordRegex, '<span style="color:red;font-weight:bold;font-size:42px">$1</span>').replace(/\n/g,'<br>');
+            chordContent.innerHTML = content;
+
+            emptyState.classList.add('hidden');
+            chordEditor.classList.remove('hidden');
+
+            chordHeader.classList.remove('hidden'); // <- adiciona isso
+            
+        }
+    };
+}
+
+// Excluir cifra
+function deleteCurrentChord(){
+    if(!currentChordId || !confirm('Excluir?')) return;
+    const tx = db.transaction(STORE_NAME,'readwrite'); 
+    const store = tx.objectStore(STORE_NAME);
+    store.delete(currentChordId).onsuccess = function(){
+        currentChordId = null; 
+        chordEditor.classList.add('hidden'); 
+        emptyState.classList.remove('hidden'); 
+        loadChords(); 
+        updateStorageUsage(); 
+        showMessage('Cifra excluída com sucesso!');
+    };
+}
+
+// Imprimir cifra
+function printCurrentChord(){
+    if(!currentChordId) return;
+    const win = window.open('','_blank');
+    win.document.write(`<pre>${chordTitle.value}\n${chordArtist.value}\n\n${chordContent.innerText}</pre><script>window.onload=function(){window.print();}<\/script>`);
+    win.document.close();
+}
+
+// Carregar todas cifras
+function loadChords(){
+    chords = [];
+    const tx = db.transaction(STORE_NAME,'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    store.openCursor().onsuccess = function(e){
+        const cursor = e.target.result;
+        if(cursor){
+            chords.push(cursor.value);
+            cursor.continue();
+        } else {
+            renderFolders(searchInput.value);
+        }
+    };
+}
+
+// Renderizar pastas e cifras
+function renderFolders(filter=''){
+    foldersContainer.innerHTML = '';
+    const folders = {};
+    folderList.forEach(f => folders[f] = []);
+
+    const searchText = filter.trim().toLowerCase();
+
+    chords.forEach(c => {
+        const contentText = c.content.replace(/<[^>]*>/g,'').replace(/\s+/g,' ').toLowerCase();
+        const titleText = c.title.trim().toLowerCase();
+        const artistText = c.artist ? c.artist.trim().toLowerCase() : '';
+
+        if(!searchText || 
+           titleText.includes(searchText) || 
+           artistText.includes(searchText) || 
+           contentText.includes(searchText)) {
+
+            if(!folders[c.folder]) folders[c.folder] = [];
+            folders[c.folder].push(c);
+
+            if (![...chordFolder.options].some(opt => opt.value === c.folder)) {
+                const option = document.createElement('option');
+                option.value = c.folder;
+                option.textContent = c.folder;
+                chordFolder.appendChild(option);
+            }
+        }
+    });
+
+    Object.keys(folders).sort().forEach(f => {
+        const folderChords = folders[f];
+        if(folderChords.length === 0) return;
+
+        const folderEl = document.createElement('div');
+        folderEl.className = 'mb-4';
+
+        const folderHeader = document.createElement('div');
+        folderHeader.className = 'flex items-center justify-between p-2 hover:bg-gray-700 rounded cursor-pointer sidebar-folder';
+        folderHeader.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-folder mr-2 text-yellow-400"></i> 
+                <span>${f}</span> 
+                <span class="ml-2 text-xs bg-gray-700 px-2 py-1 rounded-full">${folderChords.length}</span>
+            </div>
+            <i class="fas fa-chevron-down text-xs"></i>
+        `;
+        folderHeader.addEventListener('dblclick', ()=>renameFolder(f));
+
+        const chordList = document.createElement('div');
+        chordList.className = 'ml-6 mt-1 space-y-1 hidden';
+
+        folderChords.sort((a,b)=>a.title.localeCompare(b.title)).forEach(c=>{
+            const ce = document.createElement('div'); 
+            ce.className='p-2 hover:bg-gray-700 rounded cursor-pointer flex items-center'; 
+            ce.dataset.id = c.id;
+
+            const iconClass = c.folder==='Favoritas'?'fa-star text-yellow-400':'fa-file-alt text-blue-400';
+            const artistText = c.artist?`<span class="ml-2 text-xs text-gray-400 truncate">${c.artist}</span>`:'';
+            ce.innerHTML = `<i class="fas ${iconClass} mr-2"></i><span class="truncate">${c.title}</span>${artistText}`;
+
+            if(searchText){
+                const titleMatch = c.title.toLowerCase().includes(searchText);
+                const artistMatch = c.artist && c.artist.toLowerCase().includes(searchText);
+                const contentMatch = c.content.replace(/<[^>]*>/g,'').toLowerCase().includes(searchText);
+                if(titleMatch || artistMatch || contentMatch){
+                    ce.style.backgroundColor = '#2563EB';
+                    ce.style.color = 'white';
+                    chordList.classList.remove('hidden');
+                }
+            }
+
+            ce.addEventListener('click', ()=>loadChord(c.id)); 
+            chordList.appendChild(ce);
+        });
+
+        folderHeader.addEventListener('click', ()=>{ 
+            const icon = folderHeader.querySelector('i.fa-chevron-down, i.fa-chevron-up'); 
+            chordList.classList.toggle('hidden');
+            icon.className = chordList.classList.contains('hidden') ? 'fas fa-chevron-down text-xs' : 'fas fa-chevron-up text-xs';
+        });
+
+        folderEl.appendChild(folderHeader);
+        folderEl.appendChild(chordList);
+        foldersContainer.appendChild(folderEl);
+    });
+
+    updateStorageUsage();
+}
+
+// Destacar acordes
+let typingTimer;
+chordContent.addEventListener('input', ()=>{
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(()=>highlightChords(), 300);
+});
+
+function highlightChords() {
+    const sel = window.getSelection();
+    const text = chordContent.innerText;
+
+    // Salva a posição do cursor em caracteres
+    let cursorCharIndex = 0;
+    if (sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        const preRange = range.cloneRange();
+        preRange.selectNodeContents(chordContent);
+        preRange.setEnd(range.endContainer, range.endOffset);
+        cursorCharIndex = preRange.toString().length;
+    }
+
+    // Aplica regex de destaque
+    chordContent.innerHTML = text.replace(/\b([A-G][#b]?m?(maj|min|7|m7|sus4|dim)?[0-9]?)\b/g,
+        '<span style="color:red;font-weight:bold;font-size:42px">$1</span>'
+    );
+
+    // Restaura o cursor
+    const range = document.createRange();
+    let charCount = 0;
+    let nodeStack = [chordContent];
+    let node, found = false;
+
+    while(nodeStack.length && !found) {
+        node = nodeStack.shift();
+        if(node.nodeType === 3) { // text node
+            const nextCharCount = charCount + node.length;
+            if(cursorCharIndex <= nextCharCount) {
+                range.setStart(node, cursorCharIndex - charCount);
+                range.collapse(true);
+                found = true;
+            }
+            charCount = nextCharCount;
+        } else {
+            nodeStack = Array.from(node.childNodes).concat(nodeStack);
+        }
+    }
+
+    sel.removeAllRanges();
+    sel.addRange(range);
+}
+
+
+// Rolagem com as setas do teclado
+document.addEventListener("keydown", (e) => {
+    if (chordEditor.classList.contains("hidden")) return; // só funciona se tiver cifra aberta
+
+    const step = 60; // quantidade de pixels por vez
+    if (e.key === "ArrowDown") {
+        e.preventDefault();
+        chordEditor.scrollBy({ top: step, behavior: "smooth" });
+    }
+    if (e.key === "ArrowUp") {
+        e.preventDefault();
+        chordEditor.scrollBy({ top: -step, behavior: "smooth" });
+    }
+});
+// ---------------- EXPORTAR BACKUP ----------------
+function exportarBackup() {
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const request = store.getAll();
+
+    request.onsuccess = function() {
+        const chords = request.result;
+
+        // Agrupa por pasta
+        const pastas = {};
+        chords.forEach(c => {
+            if (!pastas[c.folder]) pastas[c.folder] = [];
+            pastas[c.folder].push({
+                title: c.title,
+                artist: c.artist,
+                content: c.content,
+                updatedAt: c.updatedAt
+            });
+        });
+
+        // Monta backup final
+        const backup = {
+            pastas: Object.keys(pastas).map(nome => ({
+                nome,
+                cifras: pastas[nome]
+            }))
+        };
+
+        // Baixa o JSON
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "backup_cifras.json";
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+}
+
+// ---------------- IMPORTAR BACKUP ----------------
+function importarBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const backup = JSON.parse(e.target.result);
+
+            if (!backup.pastas) {
+                alert("Arquivo inválido.");
+                return;
+            }
+
+            const tx = db.transaction(STORE_NAME, "readwrite");
+            const store = tx.objectStore(STORE_NAME);
+
+            backup.pastas.forEach(pasta => {
+                pasta.cifras.forEach(cifra => {
+                    const chord = {
+                        title: cifra.title,
+                        artist: cifra.artist || "",
+                        content: cifra.content || "",
+                        folder: pasta.nome,
+                        updatedAt: cifra.updatedAt || new Date().toISOString()
+                    };
+                    store.add(chord);
+                });
+            });
+
+            tx.oncomplete = function() {
+                alert("Backup importado com sucesso!");
+                loadChords();
+            };
+        } catch (err) {
+            alert("Erro ao importar: " + err.message);
+        }
+    };
+    reader.readAsText(file);
+}
+// Mensagem temporária
+function showMessage(msg){
+    const d = document.createElement('div'); 
+    d.className='fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow-lg flex items-center'; 
+    d.textContent = msg; 
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),2000);
+}
+
+// Modal nova pasta
+function showNewFolderModal(){ newFolderModal.classList.remove('hidden'); newFolderName.value=''; newFolderName.focus(); }
+function hideNewFolderModal(){ newFolderModal.classList.add('hidden'); }
+function createNewFolder(){
+    const name = newFolderName.value.trim(); 
+    if(!name){ alert('Nome inválido'); return; }
+    if([...chordFolder.options].some(opt => opt.value === name)){ alert('Pasta já existe'); return; }
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    chordFolder.appendChild(option);
+    folderList.push(name);
+    hideNewFolderModal();
+}
+
+// Renomear pasta
+function renameFolder(oldName){
+    const newName = prompt('Renomear pasta', oldName); 
+    if(!newName || newName.trim()==oldName) return;
+    chords.forEach(c=>{ if(c.folder===oldName) c.folder=newName; });
+    const tx = db.transaction(STORE_NAME,'readwrite'); 
+    const store = tx.objectStore(STORE_NAME);
+    chords.forEach(c=>store.put(c));
+    if(folderList.includes(oldName)) folderList[folderList.indexOf(oldName)] = newName;
+    loadChords();
+}
+
+// Atalhos Ctrl+B / Ctrl+I
+chordContent.addEventListener('keydown', function(e){
+    if(e.ctrlKey){
+        if(e.key==='b'){ e.preventDefault(); document.execCommand('bold'); }
+        if(e.key==='i'){ e.preventDefault(); document.execCommand('italic'); }
+    }
+});
+const deleteAllBtn = document.getElementById('deleteAllBtn');
+
+deleteAllBtn.addEventListener('click', () => {
+    if (!confirm('Tem certeza que deseja excluir **todos** os dados? Esta ação não pode ser desfeita.')) return;
+
+    // Excluir todos os dados do IndexedDB
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.clear().onsuccess = () => {
+        currentChordId = null;
+        chords = [];
+        chordEditor.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        loadChords();
+        updateStorageUsage();
+        showMessage('Todos os dados foram excluídos!');
+    };
+});
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log('Service Worker registrado'))
+    .catch(err => console.error('Erro ao registrar SW:', err));
+}
+let deferredPrompt;
+const installBtn = document.createElement('button');
+installBtn.innerHTML = '<i class="fas fa-download"></i> Instalar App';
+installBtn.className = 'bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded flex items-center gap-2';
+installBtn.style.display = 'none';
+document.querySelector('#chordHeader .header-right').appendChild(installBtn);
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'flex';
+});
+
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if(outcome === 'accepted') {
+            console.log('App instalado!');
+        }
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+    }
+});
+
+// Eventos
+newChordBtn.addEventListener('click', createNewChord);
+createFirstChord.addEventListener('click', createNewChord);
+saveChordHeader.addEventListener('click', saveCurrentChord);
+printChordHeader.addEventListener('click', printCurrentChord);
+deleteChordHeader.addEventListener('click', deleteCurrentChord);
+newFolderBtn.addEventListener('click', showNewFolderModal);
+confirmNewFolder.addEventListener('click', createNewFolder);
+cancelNewFolder.addEventListener('click', hideNewFolderModal);
+searchInput.addEventListener('input', ()=>renderFolders(searchInput.value));
+chordContent.addEventListener('input', highlightChords);
+window.addEventListener('online', updateConnectionStatus);
+window.addEventListener('offline', updateConnectionStatus);
+fullscreenChordBtn.addEventListener('click', ()=>{
+    if(document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+});
+
+
+
+</script>
+
+
+</body>
+</html>
