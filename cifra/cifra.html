@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CIFRA BIZOONY.</title>
+<title>Chord Keeper - Armazene suas cifras</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4CAF50">
 
@@ -830,19 +830,47 @@ function highlightChords() {
 
 
 // Rolagem com as setas do teclado
-document.addEventListener("keydown", (e) => {
-    if (chordEditor.classList.contains("hidden")) return; // só funciona se tiver cifra aberta
+const lineHeight = parseInt(getComputedStyle(chordContent).lineHeight);
 
-    const step = 60; // quantidade de pixels por vez
+document.addEventListener("keydown", (e) => {
+    if (chordEditor.classList.contains("hidden")) return;
+
+    const spans = Array.from(chordContent.querySelectorAll("span"));
+    if (!spans.length) return;
+
+    const editorTop = chordEditor.scrollTop;
+    const editorHeight = chordEditor.clientHeight;
+    const contentHeight = chordContent.scrollHeight;
+
     if (e.key === "ArrowDown") {
         e.preventDefault();
-        chordEditor.scrollBy({ top: step, behavior: "smooth" });
+        for (let i = 0; i < spans.length; i++) {
+            const s = spans[i];
+            if (s.offsetTop > editorTop + editorHeight - lineHeight) {
+                // rola para baixo deixando a última linha do bloco atual visível
+                let target = s.offsetTop - lineHeight;
+                target = Math.min(target, contentHeight - editorHeight);
+                chordEditor.scrollTo({ top: target, behavior: "smooth" });
+                break;
+            }
+        }
     }
+
     if (e.key === "ArrowUp") {
         e.preventDefault();
-        chordEditor.scrollBy({ top: -step, behavior: "smooth" });
+        for (let i = spans.length - 1; i >= 0; i--) {
+            const s = spans[i];
+            if (s.offsetTop < editorTop + lineHeight) {
+                // rola para cima deixando a última linha do bloco acima visível
+                let target = s.offsetTop - editorHeight + lineHeight * 2;
+                target = Math.max(target, 0);
+                chordEditor.scrollTo({ top: target, behavior: "smooth" });
+                break;
+            }
+        }
     }
 });
+
 // ---------------- EXPORTAR BACKUP ----------------
 function exportarBackup() {
     const tx = db.transaction(STORE_NAME, 'readonly');
