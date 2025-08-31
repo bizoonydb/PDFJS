@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CIFRAS BIZOONY</title>
+<title>CIFRA BIZOONY</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4CAF50">
 
@@ -73,16 +73,43 @@ button:hover { opacity: 0.9; }
     cursor: pointer;
     color: white;
 }
+#saveChordHeader,
+#printChordHeader,
+#deleteChordHeader {
+    border: none;
+    border-radius: 6px;      /* bordas arredondadas */
+    padding: 6px 12px;       /* espaço interno */
+    font-size: 14px;
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s;
+}
 
-/* Cores individuais */
-#saveChordHeader { background-color: #4CAF50; }
-#saveChordHeader:hover { background-color: #45A049; }
+#saveChordHeader {
+    background-color: #4CAF50;
+}
 
-#printChordHeader { background-color: #2196F3; }
-#printChordHeader:hover { background-color: #1976D2; }
+#saveChordHeader:hover {
+    background-color: #45A049;
+}
 
-#deleteChordHeader { background-color: #F44336; }
-#deleteChordHeader:hover { background-color: #D32F2F; }
+#printChordHeader {
+    background-color: #2196F3;
+}
+
+#printChordHeader:hover {
+    background-color: #1976D2;
+}
+
+#deleteChordHeader {
+    background-color: #F44336;
+}
+
+#deleteChordHeader:hover {
+    background-color: #D32F2F;
+}
+
+
 
 #fullscreenChordHeader { background-color: #FF9800; }
 #fullscreenChordHeader:hover { background-color: #FB8C00; }
@@ -113,8 +140,11 @@ button:hover { opacity: 0.9; }
 
 /* Editor de cifras */
 #chordEditor {
+    margin-top: 65px ;
     background-color: #121212;
     color: white;
+    height: calc(100vh - 60px); /* 100% da tela menos altura do header */
+  overflow-y: auto;
 }
 
 /* Conteúdo editável */
@@ -122,6 +152,7 @@ button:hover { opacity: 0.9; }
     background-color: transparent;
     color: white;
     font-family: monospace;
+    
     font-size: 18px; /* menor fonte para telas pequenas */
     white-space: pre-wrap;
 }
@@ -140,6 +171,10 @@ button:hover { opacity: 0.9; }
     .chord-content { padding: 0 !important; margin: 0 !important; }
 }
 
+#confirmModal button { transition: all 0.2s; }
+#confirmModal button:hover { opacity: 0.9; }
+
+
 /* Responsivo para telas pequenas */
 @media (max-width: 768px) {
     #chordHeader {
@@ -148,6 +183,7 @@ button:hover { opacity: 0.9; }
     }
     #chordHeader .header-left input {
         height: 24px;
+        
         font-size: 12px;
     }
     #chordHeader .header-right button,
@@ -158,8 +194,13 @@ button:hover { opacity: 0.9; }
     }
     #chordContent {
         font-size: 16px;
+        
     }
 }
+#renameFolderModal input { background-color: #121212; color: white; border: 1px solid #333; }
+#renameFolderModal button { transition: all 0.2s; }
+#renameFolderModal button:hover { opacity: 0.9; }
+
 
 </style>
 </head>
@@ -208,7 +249,7 @@ button:hover { opacity: 0.9; }
   <div class="header-right">
    
 <input type="file" id="importBackupInput" accept="application/json" style="display:none">
-    <button id="saveChordHeader">Salvar</button>
+    
      <button id="exportBackupBtn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded flex items-center gap-2">
   <i class="fas fa-download"></i> Exportar Backup
 </button>
@@ -225,8 +266,39 @@ button:hover { opacity: 0.9; }
     
   </div>
 </div>
+
+
+<!-- Modal de Confirmação -->
+<div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded-lg p-6 w-96">
+    <h3 class="text-xl font-bold mb-4">Confirmação</h3>
+    <p id="confirmModalText" class="mb-4">Tem certeza?</p>
+    <div class="flex justify-end space-x-2">
+      <button id="cancelConfirm" class="px-4 py-2 border rounded hover:bg-gray-100">Cancelar</button>
+      <button id="confirmAction" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal Renomear Pasta -->
+<div id="renameFolderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded-lg p-6 w-96">
+    <h3 class="text-xl font-bold mb-4">Renomear Pasta</h3>
+    <input type="text" id="renameFolderInput" placeholder="Novo nome da pasta" class="w-full px-3 py-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <div class="flex justify-end space-x-2">
+      <button id="cancelRenameFolder" class="px-4 py-2 border rounded hover:bg-gray-100">Cancelar</button>
+      <button id="confirmRenameFolder" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Renomear</button>
+    </div>
+  </div>
+</div>
+
+
+
+
     <!-- Área do editor -->
-    <div class="flex-1 flex flex-col overflow-hidden pt-24">
+    <div class="flex-1 flex flex-col overflow-hidden">
+
       <div id="chordEditor" class="hidden flex flex-col flex-1 overflow-auto p-6 bg-white">
         <div class="mb-4 flex items-center">
           <label for="chordFolder" class="mr-2">Pasta:</label>
@@ -238,8 +310,15 @@ button:hover { opacity: 0.9; }
           </select>
           
           <button id="newFolderBtn" class="ml-2 text-blue-600 hover:text-blue-800"><i class="fas fa-folder-plus"></i> Nova pasta</button>
-          <button id="printChordHeader">Imprimir</button>
-    <button id="deleteChordHeader">Excluir</button>
+           
+   <div class="ml-auto flex gap-2">
+    <button id="saveChordHeader">Salvar</button>
+    <button id="printChordHeader">Imprimir</button>
+    <button id="deleteChordHeader">Excluir</button>  
+  <button id="transposeUp" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded font-bold">SUBIR TOM</button>
+  <button id="transposeDown" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded font-bold">DESCER TOM</button>
+</div>
+
         </div>
 
         <div id="chordContent" contenteditable="true" 
@@ -274,8 +353,16 @@ button:hover { opacity: 0.9; }
       </div>
     </div>
   </div>
+  
 
 <script>
+
+    document.getElementById('transposeUp').addEventListener('click', ()=>transposeChordContent(1));
+document.getElementById('transposeDown').addEventListener('click', ()=>transposeChordContent(-1));
+
+
+    const CHORDS = ['C','C#','Db','D','D#','Eb','E','F','F#','Gb','G','G#','Ab','A','A#','Bb','B'];
+
 const exportBackupBtn = document.getElementById('exportBackupBtn');
 exportBackupBtn.addEventListener('click', exportarBackup);
 
@@ -309,10 +396,6 @@ const newFolderModal = document.getElementById('newFolderModal');
 const newFolderName = document.getElementById('newFolderName');
 const confirmNewFolder = document.getElementById('confirmNewFolder');
 const cancelNewFolder = document.getElementById('cancelNewFolder');
-const savePageBtn = document.createElement('button');
-savePageBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Página Offline';
-savePageBtn.style.cssText = 'margin-left:6px; background-color:#8000ff; color:white; padding:6px 10px; border-radius:4px; cursor:pointer;';
-document.querySelector('#chordHeader .header-right').appendChild(savePageBtn);
 
 
 
@@ -482,45 +565,98 @@ function saveCurrentChord(){
 }
 
 // Carregar cifra
-function loadChord(id){
+function loadChord(id) {
     const tx = db.transaction(STORE_NAME,'readonly');
     const store = tx.objectStore(STORE_NAME);
-    store.get(Number(id)).onsuccess = function(e){
+    store.get(Number(id)).onsuccess = function(e) {
         const chord = e.target.result;
-        if(chord){
+        if(chord) {
             currentChordId = chord.id;
             chordTitle.value = chord.title;
             chordArtist.value = chord.artist || '';
             chordFolder.value = chord.folder;
 
-            // Conteúdo com destaque
-            const chordRegex = /\b([A-G][#b]?m?(maj|min|7|m7|sus4|dim)?[0-9]?)\b/g;
-            const content = chord.content.replace(chordRegex, '<span style="color:red;font-weight:bold;font-size:42px">$1</span>').replace(/\n/g,'<br>');
-            chordContent.innerHTML = content;
+            // Texto puro
+            chordContent.textContent = chord.content;
+
+            // Aplica destaque e preserva quebras de linha
+            highlightChords();
 
             emptyState.classList.add('hidden');
             chordEditor.classList.remove('hidden');
-
-            chordHeader.classList.remove('hidden'); // <- adiciona isso
-            
+            chordHeader.classList.remove('hidden');
         }
     };
 }
 
-// Excluir cifra
-function deleteCurrentChord(){
-    if(!currentChordId || !confirm('Excluir?')) return;
-    const tx = db.transaction(STORE_NAME,'readwrite'); 
-    const store = tx.objectStore(STORE_NAME);
-    store.delete(currentChordId).onsuccess = function(){
-        currentChordId = null; 
-        chordEditor.classList.add('hidden'); 
-        emptyState.classList.remove('hidden'); 
-        loadChords(); 
-        updateStorageUsage(); 
-        showMessage('Cifra excluída com sucesso!');
-    };
+function highlightChords() {
+    const sel = window.getSelection();
+    const text = chordContent.textContent;
+
+    // Salva posição do cursor
+    let cursorCharIndex = 0;
+    if(sel.rangeCount > 0){
+        const range = sel.getRangeAt(0);
+        const preRange = range.cloneRange();
+        preRange.selectNodeContents(chordContent);
+        preRange.setEnd(range.endContainer, range.endOffset);
+        cursorCharIndex = preRange.toString().length;
+    }
+
+    // Regexs
+    const chordRegex = /\b([A-G][#b]?m?(maj|min|7|m7|sus[24]?|dim|aug|add[0-9]+)?[0-9]?)\b/g;
+    const bracketRegex = /\[([^\]]+)\]/g;
+
+    // Aplica destaque e preserva \n com <br>
+    let html = text
+        .replace(chordRegex, '<span style="color:red;font-weight:bold;font-size:42px">$1</span>')
+        .replace(bracketRegex, '<span style="color:green;font-weight:bold;font-size:42px">[$1]</span>')
+        .replace(/\n/g, '<br>');
+
+    chordContent.innerHTML = html;
+
+    // Restaura cursor
+    const range = document.createRange();
+    let charCount = 0;
+    let nodeStack = [chordContent];
+    let node, found = false;
+
+    while(nodeStack.length && !found){
+        node = nodeStack.shift();
+        if(node.nodeType === 3){
+            const nextCharCount = charCount + node.length;
+            if(cursorCharIndex <= nextCharCount){
+                range.setStart(node, cursorCharIndex - charCount);
+                range.collapse(true);
+                found = true;
+            }
+            charCount = nextCharCount;
+        } else {
+            nodeStack = Array.from(node.childNodes).concat(nodeStack);
+        }
+    }
+
+    sel.removeAllRanges();
+    sel.addRange(range);
 }
+
+function deleteCurrentChord(){
+    if(!currentChordId) return;
+
+    showConfirm('Tem certeza que deseja excluir esta cifra?', () => {
+        const tx = db.transaction(STORE_NAME,'readwrite'); 
+        const store = tx.objectStore(STORE_NAME);
+        store.delete(currentChordId).onsuccess = function(){
+            currentChordId = null; 
+            chordEditor.classList.add('hidden'); 
+            emptyState.classList.remove('hidden'); 
+            loadChords(); 
+            updateStorageUsage(); 
+            showMessage('Cifra excluída com sucesso!');
+        };
+    });
+}
+
 
 // Imprimir cifra
 function printCurrentChord(){
@@ -642,7 +778,6 @@ chordContent.addEventListener('input', ()=>{
     clearTimeout(typingTimer);
     typingTimer = setTimeout(()=>highlightChords(), 300);
 });
-
 function highlightChords() {
     const sel = window.getSelection();
     const text = chordContent.innerText;
@@ -657,10 +792,15 @@ function highlightChords() {
         cursorCharIndex = preRange.toString().length;
     }
 
-    // Aplica regex de destaque
-    chordContent.innerHTML = text.replace(/\b([A-G][#b]?m?(maj|min|7|m7|sus4|dim)?[0-9]?)\b/g,
+    // Destaca acordes vermelhos
+    let highlighted = text.replace(/\b([A-G][#b]?m?(maj|min|7|m7|sus4|dim)?[0-9]?)\b/g,
         '<span style="color:red;font-weight:bold;font-size:42px">$1</span>'
     );
+
+    // Destaca palavras/frases entre colchetes em verde
+    highlighted = highlighted.replace(/(\[.*?\])/g, '<span style="color:green;font-weight:bold;font-size:42px">$1</span>');
+
+    chordContent.innerHTML = highlighted;
 
     // Restaura o cursor
     const range = document.createRange();
@@ -686,6 +826,7 @@ function highlightChords() {
     sel.removeAllRanges();
     sel.addRange(range);
 }
+
 
 
 // Rolagem com as setas do teclado
@@ -807,17 +948,70 @@ function createNewFolder(){
     hideNewFolderModal();
 }
 
-// Renomear pasta
+const renameFolderModal = document.getElementById('renameFolderModal');
+const renameFolderInput = document.getElementById('renameFolderInput');
+const cancelRenameFolder = document.getElementById('cancelRenameFolder');
+const confirmRenameFolder = document.getElementById('confirmRenameFolder');
+
+let folderToRename = null; // guarda a pasta que será renomeada
+
 function renameFolder(oldName){
-    const newName = prompt('Renomear pasta', oldName); 
-    if(!newName || newName.trim()==oldName) return;
-    chords.forEach(c=>{ if(c.folder===oldName) c.folder=newName; });
+    folderToRename = oldName;
+    renameFolderInput.value = oldName;
+    renameFolderModal.classList.remove('hidden');
+    renameFolderInput.focus();
+}
+
+// Cancelar renomeação
+cancelRenameFolder.addEventListener('click', ()=>{
+    renameFolderModal.classList.add('hidden');
+});
+
+// Confirmar renomeação
+confirmRenameFolder.addEventListener('click', ()=>{
+    const newName = renameFolderInput.value.trim();
+    if(!newName || newName === folderToRename){
+        renameFolderModal.classList.add('hidden');
+        return;
+    }
+
+    chords.forEach(c=>{ if(c.folder===folderToRename) c.folder=newName; });
+
     const tx = db.transaction(STORE_NAME,'readwrite'); 
     const store = tx.objectStore(STORE_NAME);
     chords.forEach(c=>store.put(c));
-    if(folderList.includes(oldName)) folderList[folderList.indexOf(oldName)] = newName;
+
+    if(folderList.includes(folderToRename)) folderList[folderList.indexOf(folderToRename)] = newName;
+
+    renameFolderModal.classList.add('hidden');
     loadChords();
+});
+
+const confirmModal = document.getElementById('confirmModal');
+const confirmModalText = document.getElementById('confirmModalText');
+const cancelConfirm = document.getElementById('cancelConfirm');
+const confirmAction = document.getElementById('confirmAction');
+
+let confirmCallback = null; // função a executar se confirmar
+
+function showConfirm(message, callback){
+    confirmModalText.innerHTML = message;
+    confirmModal.classList.remove('hidden');
+    confirmCallback = callback;
 }
+
+// Cancelar
+cancelConfirm.addEventListener('click', ()=>{
+    confirmModal.classList.add('hidden');
+    confirmCallback = null;
+});
+
+// Confirmar
+confirmAction.addEventListener('click', ()=>{
+    confirmModal.classList.add('hidden');
+    if(confirmCallback) confirmCallback();
+    confirmCallback = null;
+});
 
 // Atalhos Ctrl+B / Ctrl+I
 chordContent.addEventListener('keydown', function(e){
@@ -827,52 +1021,53 @@ chordContent.addEventListener('keydown', function(e){
     }
 });
 const deleteAllBtn = document.getElementById('deleteAllBtn');
-
 deleteAllBtn.addEventListener('click', () => {
-    if (!confirm('Tem certeza que deseja excluir **todos** os dados? Esta ação não pode ser desfeita.')) return;
-
-    // Excluir todos os dados do IndexedDB
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    store.clear().onsuccess = () => {
-        currentChordId = null;
-        chords = [];
-        chordEditor.classList.add('hidden');
-        emptyState.classList.remove('hidden');
-        loadChords();
-        updateStorageUsage();
-        showMessage('Todos os dados foram excluídos!');
-    };
+    showConfirm('Tem certeza que deseja excluir <b>todos</b> os dados? Esta ação não pode ser desfeita.', () => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        store.clear().onsuccess = () => {
+            currentChordId = null;
+            chords = [];
+            chordEditor.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            loadChords();
+            updateStorageUsage();
+            showMessage('Todos os dados foram excluídos!');
+        };
+    });
 });
+
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js')
     .then(() => console.log('Service Worker registrado'))
     .catch(err => console.error('Erro ao registrar SW:', err));
 }
-let deferredPrompt;
-const installBtn = document.createElement('button');
-installBtn.innerHTML = '<i class="fas fa-download"></i> Instalar App';
-installBtn.className = 'bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded flex items-center gap-2';
-installBtn.style.display = 'none';
-document.querySelector('#chordHeader .header-right').appendChild(installBtn);
+function transposeChord(chord, semitones) {
+    const regex = /^([A-G][b#]?)(.*)$/; // mantém para extrair base e suffix
+    const match = chord.match(regex);
+    if (!match) return chord; // se não casar, é palavra comum
 
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.style.display = 'flex';
-});
+    let [_, base, suffix] = match;
+    if (!CHORDS.includes(base)) return chord; // evita palavras que começam com D, E, etc.
 
-installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if(outcome === 'accepted') {
-            console.log('App instalado!');
+    let idx = CHORDS.indexOf(base);
+    let newIdx = (idx + semitones) % CHORDS.length;
+    if (newIdx < 0) newIdx += CHORDS.length;
+
+    return CHORDS[newIdx] + suffix;
+}
+function transposeChordContent(semitones){
+    const spans = chordContent.querySelectorAll('span');
+    spans.forEach(span => {
+        const chordText = span.innerText.trim();
+        // só transpõe se for um acorde válido
+        if(/^([A-G][b#]?)(m|maj|min|dim|aug|sus|add|[0-9]+)?$/i.test(chordText)){
+            const newChord = transposeChord(chordText, semitones);
+            span.innerText = newChord;
         }
-        deferredPrompt = null;
-        installBtn.style.display = 'none';
-    }
-});
+    });
+}
+
 
 // Eventos
 newChordBtn.addEventListener('click', createNewChord);
