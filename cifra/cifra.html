@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>cifras heard</title>
+<title>Chord Keeper - Armazene suas cifras</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4CAF50">
 
@@ -831,45 +831,67 @@ function highlightChords() {
 
 // Rolagem com as setas do teclado
 const lineHeight = parseInt(getComputedStyle(chordContent).lineHeight);
-
 document.addEventListener("keydown", (e) => {
-    if (chordEditor.classList.contains("hidden")) return;
+    // --- Mantém a lógica de rolagem que você já tem ---
+    if (chordEditor && !chordEditor.classList.contains("hidden")) {
+        const spans = Array.from(chordContent.querySelectorAll("span"));
+        if (spans.length) {
+            const editorTop = chordEditor.scrollTop;
+            const editorHeight = chordEditor.clientHeight;
+            const contentHeight = chordContent.scrollHeight;
 
-    const spans = Array.from(chordContent.querySelectorAll("span"));
-    if (!spans.length) return;
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                for (let i = 0; i < spans.length; i++) {
+                    const s = spans[i];
+                    if (s.offsetTop > editorTop + editorHeight - lineHeight) {
+                        let target = s.offsetTop - lineHeight;
+                        target = Math.min(target, contentHeight - editorHeight);
+                        chordEditor.scrollTo({ top: target, behavior: "smooth" });
+                        break;
+                    }
+                }
+            }
 
-    const editorTop = chordEditor.scrollTop;
-    const editorHeight = chordEditor.clientHeight;
-    const contentHeight = chordContent.scrollHeight;
-
-    if (e.key === "ArrowDown") {
-        e.preventDefault();
-        for (let i = 0; i < spans.length; i++) {
-            const s = spans[i];
-            if (s.offsetTop > editorTop + editorHeight - lineHeight) {
-                // rola para baixo deixando a última linha do bloco atual visível
-                let target = s.offsetTop - lineHeight;
-                target = Math.min(target, contentHeight - editorHeight);
-                chordEditor.scrollTo({ top: target, behavior: "smooth" });
-                break;
+            if (e.key === "ArrowUp") {
+                e.preventDefault();
+                for (let i = spans.length - 1; i >= 0; i--) {
+                    const s = spans[i];
+                    if (s.offsetTop < editorTop + lineHeight) {
+                        let target = s.offsetTop - editorHeight + lineHeight * 2;
+                        target = Math.max(target, 0);
+                        chordEditor.scrollTo({ top: target, behavior: "smooth" });
+                        break;
+                    }
+                }
             }
         }
     }
 
-    if (e.key === "ArrowUp") {
+    // --- NOVO: Navegação entre cifras ---
+    if (e.key === "ArrowRight") {
         e.preventDefault();
-        for (let i = spans.length - 1; i >= 0; i--) {
-            const s = spans[i];
-            if (s.offsetTop < editorTop + lineHeight) {
-                // rola para cima deixando a última linha do bloco acima visível
-                let target = s.offsetTop - editorHeight + lineHeight * 2;
-                target = Math.max(target, 0);
-                chordEditor.scrollTo({ top: target, behavior: "smooth" });
-                break;
-            }
-        }
+        mudarCifra(1); // próxima
+    }
+
+    if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        mudarCifra(-1); // anterior
     }
 });
+
+function mudarCifra(direcao) {
+    if (!currentChordId || !chords || chords.length === 0) return;
+
+    const indexAtual = chords.findIndex(c => c.id === currentChordId);
+    if (indexAtual === -1) return;
+
+    let novoIndex = indexAtual + direcao;
+    if (novoIndex < 0) novoIndex = chords.length - 1; // volta pro fim
+    if (novoIndex >= chords.length) novoIndex = 0;   // volta pro início
+
+    loadChord(chords[novoIndex].id);
+}
 
 // ---------------- EXPORTAR BACKUP ----------------
 function exportarBackup() {
