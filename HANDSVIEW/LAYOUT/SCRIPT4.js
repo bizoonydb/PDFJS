@@ -535,10 +535,12 @@ parts.forEach(part => {
  let blinkInterval = 15;  // Intervalo em frames para alternar as cores (ajuste conforme necessário)
  
  function draw() {
+    
     background(255);
    
     // T1: Rotação global centrada no canvas
     push();
+    
     translate(width / 2, height / 2);
     rotate(rotationAngle);
     translate(-width / 2, -height / 2);
@@ -563,6 +565,7 @@ parts.forEach(part => {
   
     // 🔽 Desenha a imagem de fundo com zoom e pan aplicados
     drawBackgroundImage();
+    
     
     function getBvrBoundingBox() {
         let xs = outlinePoints.map(p => p.x);
@@ -690,15 +693,15 @@ drawComponentBoundingBoxes();
 
     // -----------------------------------------
 
-    
-
+     
+      
     // Dibujar el buffer
     image(buffer, 0, 0);
     
 
     // Atualiza o estado de piscamento
 blinkState = (frameCount % blinkInterval < blinkInterval / 2) ? 255 : 0;  // Alterna entre 255 e 0 a cada intervalo
-
+ drawPartNames();
 // Desenha os pinos com efeito de piscar
 /// Desenha os pinos com efeito de piscar
 if (scaleFactor >= 0.2) {
@@ -872,9 +875,10 @@ if (scaleFactor >= 0.2) {
 
     
     
-    drawSelectedNetConnections();
+    
+    
    
-    drawPartNames();
+    drawSelectedNetConnections();
 
     pop(); // Fin T3: Traslación y escalado
     pop(); // Fin T2: Reflejo horizontal
@@ -1373,7 +1377,9 @@ function drawBlueDot(x, y) {
 
 
 
-// ------------------ MOUSE CLICK ------------------
+
+
+// ------------------ MOUSE PRESSED ------------------
 function mousePressed() {
     let worldPos = screenToWorld(mouseX, mouseY);
     let mx = worldPos.x;
@@ -1417,18 +1423,16 @@ function handlePinClick(part, pin) {
         const colorInput = document.getElementById("netColorPicker");
         const rgb = hexToRgb(colorInput.value);
 
-        // Verifica se o pino já está selecionado
         const existingIndex = selectedNets.findIndex(p => p.id === pinId);
         if (existingIndex === -1) {
-            // Adiciona o pino à net
             selectedNets.push({ id: pinId, net: pin.net, color: rgb });
         } else {
-            // Remove apenas o pino clicado, mantendo os outros da mesma net
             selectedNets.splice(existingIndex, 1);
         }
 
-        // Atualiza todas as nets desenhadas, incluindo essa
+        // ⚡ Chamada imediata para atualizar linhas e desenhar
         actualizarRedSeleccionada();
+       
     }
 
     tooltip = { text: tooltipText, x: pin.x, y: pin.y, side: part.side };
@@ -1445,45 +1449,6 @@ function handlePinClick(part, pin) {
     updateComponentInfo(part, pin);
 }
 
-// ------------------ ATUALIZAR RED SELECIONADA ------------------
-function actualizarRedSeleccionada() {
-    netLines = [];
-
-    // Agrupa pinos por net
-    const netsMap = {};
-    selectedNets.forEach(sel => {
-        if (!netsMap[sel.net]) netsMap[sel.net] = new Set();
-        netsMap[sel.net].add(sel.id);
-    });
-
-    for (let netName in netsMap) {
-        const pinIds = Array.from(netsMap[netName]);
-        let connectedPoints = [];
-
-        for (let part of parts) {
-            let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
-
-            for (let pin of part.pins) {
-                const pinId = `${part.name}_${pin.name}`;
-                if (pin.net === netName && pinIds.includes(pinId)) {
-                    let px = pin.x + (part.side === "B" ? groupOffset : 0);
-                    let py = pin.y;
-                    connectedPoints.push({ x: px, y: py });
-                }
-            }
-        }
-
-        // Ordena e conecta todos os pinos restantes da net
-        connectedPoints.sort((a, b) => a.x - b.x || a.y - b.y);
-
-        for (let i = 1; i < connectedPoints.length; i++) {
-            const p1 = connectedPoints[i - 1];
-            const p2 = connectedPoints[i];
-            netLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p1.y, net: netName });
-            netLines.push({ x1: p2.x, y1: p1.y, x2: p2.x, y2: p2.y, net: netName });
-        }
-    }
-}
 // ------------------ DESENHO DAS CONEXÕES ------------------
 function drawSelectedNetConnections() {
     if (!selectedNets || selectedNets.length === 0) return;
@@ -1492,76 +1457,406 @@ function drawSelectedNetConnections() {
     strokeWeight(2);
     noFill();
 
+    // Agrupa pinos por net
     const netsMap = {};
     selectedNets.forEach(sel => {
         if (!netsMap[sel.net]) netsMap[sel.net] = [];
         netsMap[sel.net].push(sel.id);
     });
 
-    const offsetMap = {}; // armazena deslocamentos por coordenada
-
     for (let netName in netsMap) {
         const color = selectedNets.find(n => n.net === netName)?.color || [0, 255, 0];
         stroke(...color);
 
         const connectedPoints = [];
+
+        // Obter coordenadas de cada pino
         for (let pinId of netsMap[netName]) {
-            for (let part of parts) {
-                let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
-                for (let pin of part.pins) {
-                    const currentId = `${part.name}_${pin.name}`;
-                    if (currentId === pinId) {
-                        connectedPoints.push({
-                            pin,
-                            center: { x: pin.x + groupOffset, y: pin.y }
-                        });
-                    }
-                }
-            }
+            const [partName, pinName] = pinId.split("_");
+            const part = parts.find(p => p.name === partName);
+            if (!part) continue;
+            const pin = part.pins.find(p => p.name === pinName);
+            if (!pin) continue;
+
+            const groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+            connectedPoints.push({ x: pin.x + groupOffset, y: pin.y });
         }
 
+        // Desenha linhas L entre pinos consecutivos
         for (let i = 1; i < connectedPoints.length; i++) {
-            const p1 = connectedPoints[i - 1].center;
-            const p2 = connectedPoints[i].center;
-
-            const keyH = `H_${Math.round(p1.y)}`;
-            const keyV = `V_${Math.round(p1.x)}`;
-            if (!offsetMap[keyH]) offsetMap[keyH] = 0;
-            if (!offsetMap[keyV]) offsetMap[keyV] = 0;
-
-            const step = 4; // ajuste para o tamanho do deslocamento
-            const offsetPerp = (offsetMap[keyH] + offsetMap[keyV]) * step;
+            const p1 = connectedPoints[i - 1];
+            const p2 = connectedPoints[i];
 
             if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
-                // horizontal primeiro
-                const midX = p2.x;
-                const midY = p1.y + offsetPerp;
-
-                line(p1.x, p1.y, p1.x, p1.y + offsetPerp);   // saída vertical
-                line(p1.x, p1.y + offsetPerp, midX, midY);   // horizontal desviado
-                line(midX, midY, p2.x, p2.y);               // vertical até centro
-                line(p2.x, p2.y, p2.x, midY);               // fecha L
+                const midY = p1.y;
+                line(p1.x, p1.y, p2.x, midY);
+                line(p2.x, midY, p2.x, p2.y);
             } else {
-                // vertical primeiro
-                const midX = p1.x + offsetPerp;
-                const midY = p2.y;
-
-                line(p1.x, p1.y, p1.x + offsetPerp, p1.y); // saída horizontal
-                line(p1.x + offsetPerp, p1.y, midX, midY); // vertical desviado
-                line(midX, midY, p2.x, p2.y);              // horizontal até centro
-                line(p2.x, p2.y, midX, p2.y);              // fecha L
+                const midX = p1.x;
+                line(p1.x, p1.y, midX, p2.y);
+                line(midX, p2.y, p2.x, p2.y);
             }
-
-            offsetMap[keyH]++;
-            offsetMap[keyV]++;
         }
 
-        // Desenha os pinos selecionados
-        connectedPoints.forEach(p => drawBlueDot(p.center.x, p.center.y, 4));
+        // Pontos azuis
+        connectedPoints.forEach(p => drawBlueDot(p.x, p.y, 4));
     }
 
     pop();
 }
+function expandNetByPassThroughOnlyMarked(cor) {
+    const alreadySelected = new Set(selectedNets.map(sel => sel.id));
+    const alreadyExpandedParts = new Set();
+    let queue = [];
+
+    // Inicializa a fila apenas com os pinos já selecionados (marcados pelas palavras-chave e cor)
+    for (let sel of selectedNets) {
+        if (sel.color.toString() !== cor.toString()) continue; // só expande para a cor atual
+        const [partName, pinName] = sel.id.split("_");
+        const part = parts.find(p => p.name === partName);
+        if (!part) continue;
+        const pin = part.pins.find(p => p.name === pinName);
+        if (!pin) continue;
+        queue.push({ part, pin, fromNet: pin.net });
+    }
+
+    while (queue.length > 0) {
+        const { part, pin, fromNet } = queue.shift();
+
+        // Só propaga para componentes de 2 pinos
+        if (part.pins.length !== 2) continue;
+
+        const netsInPart = Array.from(new Set(part.pins.map(p => p.net).filter(Boolean)));
+        if (netsInPart.length !== 2) continue;
+
+        const partKey = part.name + "_" + part.pins.map(p => p.net).join("_");
+        if (alreadyExpandedParts.has(partKey)) continue;
+        alreadyExpandedParts.add(partKey);
+
+        // Só propaga se algum pino do componente já está marcado
+        const algumMarcado = part.pins.some(p => alreadySelected.has(`${part.name}_${p.name}`));
+        if (!algumMarcado) continue;
+
+        // Descobre a outra net
+        const otherNet = netsInPart.find(n => n !== fromNet);
+
+        // NÃO marca se a outra net for GND
+        if (!otherNet || otherNet.trim().toUpperCase() === "GND") continue;
+
+        // Marca apenas o outro pino deste componente, com a mesma cor
+        let marcouNovo = false;
+        for (let otherPin of part.pins) {
+            if (otherPin.net === otherNet) {
+                const pinId = `${part.name}_${otherPin.name}`;
+                if (!alreadySelected.has(pinId)) {
+    selectedNets.push({ id: pinId, net: otherNet, color: cor });
+    alreadySelected.add(pinId);
+
+    // ⚡ Desenhar imediatamente a linha conectando o novo pino
+      markAndDrawFullNet(otherNet, cor);
+      expandNetWithTwoPadComponents(pin.net, cor);
+}
+            }
+        }
+
+        // Se marcou novo pino, continua expansão para outros componentes de 2 pinos conectados à nova net
+        if (marcouNovo) {
+            for (let nextPart of parts) {
+                if (nextPart.pins.length !== 2) continue;
+                const nextNets = Array.from(new Set(nextPart.pins.map(p => p.net).filter(Boolean)));
+                if (nextNets.length !== 2) continue;
+
+                // Só adiciona se algum pino desse componente tem a outra net
+                if (nextPart.pins.some(p => p.net === otherNet)) {
+                    const nextPartKey = nextPart.name + "_" + nextPart.pins.map(p => p.net).join("_");
+                    if (!alreadyExpandedParts.has(nextPartKey)) {
+                        for (let nextPin of nextPart.pins) {
+                            if (nextPin.net === otherNet) {
+                                queue.push({ part: nextPart, pin: nextPin, fromNet: otherNet });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Atualiza todas as nets apenas **uma vez no final**
+    actualizarRedSeleccionada();
+    
+    
+}
+function expandNetWithTwoPadComponents(netName, color, maxHops = 5) {
+    const visitedNets = new Set(); 
+    const queue = [netName];
+
+    while (queue.length > 0) {
+        const currentNet = queue.shift();
+        if (visitedNets.has(currentNet)) continue;
+        visitedNets.add(currentNet);
+
+        // Marca e desenha toda a net atual
+        markAndDrawFullNet(currentNet, color);
+
+        // Agora verifica todos os componentes dessa net
+        for (let part of parts) {
+            if (part.pins.length !== 2) continue; // só 2 pads
+            const netsInPart = Array.from(new Set(part.pins.map(p => p.net).filter(Boolean)));
+            if (netsInPart.length !== 2) continue; // precisa ter 2 nets distintas
+
+            // Esse componente está ligado à net atual?
+            if (!netsInPart.includes(currentNet)) continue;
+
+            // Descobre a outra net
+            const otherNet = netsInPart.find(n => n !== currentNet);
+            if (!otherNet) continue;
+
+            // Ignora nets inválidas
+            if (["GND", "NC"].includes(otherNet.toUpperCase())) continue;
+
+            // Se ainda não visitamos essa outra net, adiciona na fila
+            if (!visitedNets.has(otherNet)) {
+                queue.push(otherNet);
+            }
+        }
+    }
+}
+
+
+function markAndDrawFullNet(netName, color) {
+    if (!netName) return;
+
+    // Procura todos os pinos de todos os componentes dessa net
+    for (let part of parts) {
+        const groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+
+        for (let pin of part.pins) {
+            if (pin.net === netName) {
+                const pinId = `${part.name}_${pin.name}`;
+
+                // Adiciona a selectedNets se ainda não estiver
+                if (!selectedNets.some(p => p.id === pinId)) {
+                    selectedNets.push({ id: pinId, net: netName, color: color });
+                }
+            }
+        }
+    }
+
+    // Desenha toda a net
+    const connectedPins = selectedNets
+        .filter(p => p.net === netName)
+        .map(p => {
+            const [partName, pinName] = p.id.split("_");
+            const part = parts.find(pt => pt.name === partName);
+            if (!part) return null;
+            const pin = part.pins.find(pt => pt.name === pinName);
+            if (!pin) return null;
+            const offset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+            return { x: pin.x + offset, y: pin.y };
+        })
+        .filter(Boolean);
+
+    if (connectedPins.length <= 1) return;
+
+    stroke(...(selectedNets.find(p => p.net === netName)?.color || [0, 255, 0]));
+    strokeWeight(2);
+
+    // linhas L
+    for (let i = 1; i < connectedPins.length; i++) {
+        const p1 = connectedPins[i - 1];
+        const p2 = connectedPins[i];
+        if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
+            const midY = p1.y;
+            line(p1.x, p1.y, p2.x, midY);
+            line(p2.x, midY, p2.x, p2.y);
+        } else {
+            const midX = p1.x;
+            line(p1.x, p1.y, midX, p2.y);
+            line(midX, p2.y, p2.x, p2.y);
+        }
+    }
+
+    // pontos azuis
+    connectedPins.forEach(p => drawBlueDot(p.x, p.y, 4));
+}
+
+
+
+// ------------------ ATUALIZAR RED SELECIONADA ------------------
+function actualizarRedSeleccionada(ordenarPorProximidade = false) {
+    netLines = []; // limpa as linhas antigas
+
+    const netsMap = {};
+    selectedNets.forEach(sel => {
+        if (!netsMap[sel.net]) netsMap[sel.net] = [];
+        netsMap[sel.net].push(sel.id);
+    });
+
+    for (let netName in netsMap) {
+        const pinIds = netsMap[netName];
+        let connectedPoints = [];
+
+        // coleta coordenadas de todos os pinos selecionados
+        for (let sel of pinIds) {
+            const [partName, pinName] = sel.split("_");
+            const part = parts.find(p => p.name === partName);
+            if (!part) continue;
+            const pin = part.pins.find(p => p.name === pinName);
+            if (!pin) continue;
+            const groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+            connectedPoints.push({ x: pin.x + groupOffset, y: pin.y });
+        }
+
+        if (connectedPoints.length <= 1) continue;
+
+        if (ordenarPorProximidade) {
+            connectedPoints.sort((a, b) => a.x - b.x || a.y - b.y);
+        }
+
+        // cria linhas L
+        for (let i = 1; i < connectedPoints.length; i++) {
+            const p1 = connectedPoints[i - 1];
+            const p2 = connectedPoints[i];
+            if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
+                const midY = p1.y;
+                netLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: midY, net: netName });
+                netLines.push({ x1: p2.x, y1: midY, x2: p2.x, y2: p2.y, net: netName });
+            } else {
+                const midX = p1.x;
+                netLines.push({ x1: p1.x, y1: p1.y, x2: midX, y2: p2.y, net: netName });
+                netLines.push({ x1: midX, y1: p2.y, x2: p2.x, y2: p2.y, net: netName });
+            }
+        }
+    }
+}
+
+
+
+let originalPins = []; // armazena os pinos iniciais com id, net e cor
+
+function marcarNetsPorNome(regras, ordenarPorProximidade = false) {
+    const regrasLower = regras.map(r => ({ termo: r.termo.toLowerCase(), cor: r.cor }));
+
+    if (Array.isArray(selectedNets)) selectedNets.length = 0;
+
+    for (let part of parts) {
+        for (let pin of part.pins) {
+            if (!pin.net) continue;
+            const netName = String(pin.net).toLowerCase();
+            const pinId = `${part.name}_${pin.name}`;
+            for (let r of regrasLower) {
+                if (netName.includes(r.termo)) {
+                    if (!selectedNets.some(p => p.id === pinId)) {
+                        selectedNets.push({ id: pinId, net: pin.net, color: r.cor });
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    // Salva os pinos originais
+    originalPins = selectedNets.map(p => ({ ...p }));
+
+    // Expande para cada cor das regras
+    for (let r of regrasLower) {
+        expandNetByPassThroughOnlyMarked(r.cor);
+    }
+
+    // Ordenar por proximidade se necessário
+    if (ordenarPorProximidade) {
+        const netsMap = {};
+        selectedNets.forEach(sel => {
+            if (!netsMap[sel.net]) netsMap[sel.net] = [];
+            netsMap[sel.net].push(sel);
+        });
+        selectedNets = [];
+        for (let netName in netsMap) {
+            let pinsWithCoord = netsMap[netName].map(sel => {
+                let found = null;
+                for (let part of parts) {
+                    for (let pin of part.pins) {
+                        if (`${part.name}_${pin.name}` === sel.id) {
+                            found = { sel, x: pin.x, y: pin.y };
+                            break;
+                        }
+                    }
+                    if (found) break;
+                }
+                return found;
+            }).filter(Boolean);
+            pinsWithCoord.sort((a, b) => a.x - b.x || a.y - b.y);
+            pinsWithCoord.forEach(obj => selectedNets.push(obj.sel));
+        }
+    }
+}
+
+// ------------------ REMOVE PINOS EXPANDIDOS ------------------
+function compressExpandedNets() {
+    if (!originalPins || originalPins.length === 0) return;
+
+    // Filtra apenas os pinos originais
+    selectedNets = selectedNets.filter(p => originalPins.some(op => op.id === p.id));
+
+    // Ordena da esquerda para a direita (por X)
+    selectedNets.sort((a, b) => {
+        let partA = parts.find(pt => pt.name === a.id.split("_")[0]);
+        let partB = parts.find(pt => pt.name === b.id.split("_")[0]);
+        let pinA = partA.pins.find(pt => pt.name === a.id.split("_")[1]);
+        let pinB = partB.pins.find(pt => pt.name === b.id.split("_")[1]);
+        return (pinA.x || 0) - (pinB.x || 0);
+    });
+}
+
+
+
+
+
+function keyPressed() {
+    if (key === 'q' || key === 'Q') {
+        // Regras CARGAMENTO USB
+        marcarNetsPorNome([
+            { termo: "vbus", cor: [255, 0, 0] },
+            { termo: "v_bus", cor: [255, 0, 0] },        
+            { termo: "usb_dm", cor: [255, 255, 0] },   
+            { termo: "usb_dp", cor: [0, 255, 0] },     
+            { termo: "usb_id", cor: [0, 0, 255] },   
+            { termo: "cc1", cor: [0, 155, 255] },
+            { termo: "cc2", cor: [155, 0, 255] }      
+        ], true);
+        return false;
+    }
+
+    if (key === 'w' || key === 'W') {
+        // BACKLIGHT
+        marcarNetsPorNome([
+            { termo: "LEDK", cor: [255, 255, 0] },
+            { termo: "LED_K", cor: [255, 255, 0] }, 
+            { termo: "LEDA", cor: [0, 150, 255] },
+            { termo: "cabc", cor: [250, 150, 0] },
+            { termo: "cab_c", cor: [250, 150, 0] }, 
+            { termo: "LED_A", cor: [0, 150, 255] }
+        ]);
+        return false;
+    }
+
+    if (key === 'X' || key === 'x') {
+        compressExpandedNets();
+        return false;
+    }
+
+    if (key === 'm' || key === 'M') {
+        marcarNetsPorNome([{ termo: "mic_bias", cor: [0, 255, 255] }]);
+        return false;
+    }
+
+    if (key === 'c' || key === 'C') {
+        marcarNetsPorNome([{ termo: "cam", cor: [255, 0, 255] }]);
+        return false;
+    }
+}
+
+
 
 
 
@@ -1909,6 +2204,7 @@ function moveToNextPinInNet() {
             displayMode === "all" && nextItem.partSide === "B" ? bottomOffset : 0;
         selectedPin = nextItem.pin;
         actualizarRedSeleccionada();
+        drawSelectedNetConnections();
 
         tooltip = {
             text: `Parte: ${nextItem.partName}\nNet: ${nextItem.pin.net}`,
@@ -1929,12 +2225,7 @@ function windowResized() {
     renderBuffer(); // Vuelve a dibujar el contenido después del ajuste
 }
 
-function keyPressed() {
-    if (document.activeElement.tagName === "INPUT") {
-        return; // Permite escribir en el input
-    }
-    return false; // Evita que p5.js bloquee la entrada
-}
+
 
 
 
