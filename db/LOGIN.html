@@ -12,20 +12,25 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        
         height: 100vh;
         margin: 0;
         font-family: 'Poppins', sans-serif;
     }
     /* Estiliza o cabeçalho fixo */
     .header-wrap {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-background-color: #333333; /* cor do cab*/
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.618);/*cor da sombra do cabeçalho*/
-        padding: 10px 0;
-    }
+    position: fixed;
+    top: 0;
+    left: 330px;       /* começa após o login de 400px */
+    border-bottom: 2px solid #3d3d3d;
+    right: 0;          /* vai até a borda direita */
+    height: 40px;      /* ajuste conforme necessário */
+    background-color: #333333;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.618);
+    padding: 10px 20px;
+    z-index: 999999;
+}
+
 
     /* Centraliza e ajusta os botões */
     .topbar {
@@ -33,6 +38,7 @@ background-color: #333333; /* cor do cab*/
         align-items: center;
         justify-content: center; /* Centraliza os botões */
         padding: 0 20px;
+        z-index: 999999;
     }
 
     .buttons {
@@ -53,12 +59,14 @@ background-color: #333333; /* cor do cab*/
         border-radius: 5px;
         text-decoration: none;
         cursor: pointer;
+        
         white-space: nowrap; /* Evita que os botões quebrem linha */
     }
 
     .button img {
         width: 20px;
         height: auto;
+        
         margin-left: 8px;
     }
 
@@ -75,6 +83,7 @@ background-color: #333333; /* cor do cab*/
     /* Responsividade para telas menores */
     @media (max-width: 600px) {
         .buttons {
+            
             flex-wrap: wrap; /* Permite que os botões quebrem linha em telas pequenas */
             justify-content: center;
         }
@@ -96,7 +105,7 @@ background-color: #333333; /* cor do cab*/
         <a href="https://wa.me/message/6X46IDVVWEIQM1" class="button">SUPORTE
           <img src="https://bizoonycell.weebly.com/uploads/1/3/2/9/132996655/picsart-24-06-18-11-21-43-961_orig.png" alt="WhatsApp">
         </a>
-        <a href="https://bizoonydb.github.io/PDFJS/db/MENUATT" class="button">COMPRAR ACESSO
+        <a href="" class="button">COMPRAR ACESSO
           <img src="https://images.vexels.com/media/users/3/136534/isolated/lists/c93f32e11dbf6b5fe3efc5be5554ec50-icone-de-cadeado.png" alt="Cadeado">
         </a>
         <a href="https://bizoonydb.github.io/PDFJS/db/loginadm.html" class="button">LOGIN ADMIN
@@ -132,127 +141,102 @@ background-color: #333333; /* cor do cab*/
 
 
     <style>
-        /* Estilos CSS vão aqui */
-       
 
-        .login-container {
-            display: flex; /* Permite o uso de flexbox para alinhar itens */
-            background-color: rgba(37, 37, 37, 0.887);
-            border-radius: 10px;
-            border: 6px solid;
-            border-color: #e3cc00;
-            padding: 30px;
-            box-shadow: 0 6px 100px rgba(242, 255, 0, 0.192);
-            max-width: 800px; /* Ajuste conforme necessário */
-        
-        }
 
-        .login-form, .register-form {
-            flex: 1; /* Ocupa o espaço restante */
-            text-align: center; /* Centraliza o texto dentro do container */
-        }
+/* Área da imagem à esquerda */
+.side-image {
+    position: fixed;
+    top: 40px;         /* distância do topo */
+    left: 330px;       /* respeita o login à esquerda */
+    right: 0;          /* vai até a borda direita */
+    bottom: 0;    /* vai até a base da tela */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000000;
+    z-index: 50;
+}
 
-        .login-form img {
-            width: 90px; /* Ajuste o tamanho da imagem conforme necessário */
-            height: auto;
-            margin-bottom: 0px; /* Espaço abaixo da imagem */
-            float: left; /* Alinha a imagem à esquerda por padrão */
-        }
+.side-image img {
+    margin-top: 30px;
+     width: 100%;       /* preenche toda a largura disponível */
+    height: 100%;   
+     border-radius: 10px;
+    
+}
 
-        .logo-right {
-            float: left; /* Alinha a imagem à direita */
-            
-            
-        }
+        /* Container de login fixo à direita */
+.login-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 330px;        /* largura fixa */
+    height: 100vh;       /* altura total da tela */
+    background-color: rgba(36, 36, 36, 0.95);
+    border-radius: 0px 10px 10px 0px;
+    border-right: 2px solid #e3cc00;
+    padding: 30px;
+    box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* centraliza verticalmente */
+    align-items: center;     /* centraliza horizontalmente */
+    box-sizing: border-box;  /* padding não corta o conteúdo */
+    z-index: 100;
+}
 
-        .side-image {
-            flex: 1; /* Ocupa o espaço ao lado */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            
-        }
+/* Formulário dentro do login */
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* centraliza campos e botões */
+    gap: 12px;           /* espaço entre campos */
+    text-align: left;    /* mantém label/texto à esquerda */
+}
 
-        .side-image img {
-            width: 100%; /* 100% da largura do container pai (.side-image) */
-            height: auto; /* Altura automática para manter a proporção */
-            max-width: 400px; /* Tamanho máximo igual ao máximo da caixa geral */
-            border-radius: 5%;/* borda arrendondada */
-            
-        }
+/* Inputs e botões */
+input[type="text"],
+input[type="password"],
+input[type="submit"],
+input[type="button"] {
+    width: 100%;          /* preenche todo o form */
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 22px;
+    outline: none;
+    background-color: #1f1f1f;
+    color: #fbff09;
+    transition: all 0.3s ease;
+}
 
-        form {
-            width: 100%;
-            text-align: left; /* Alinha o texto do formulário à esquerda */
-        }
+/* Botão */
+input[type="button"] {
+    background-color: #e3cc00;
+    color: #333;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
 
-        input[type="text"],
-        input[type="password"],
-        input[type="button"],
-        input[type="submit"] {
-            width: calc(100% - 30px); /* Considera o padding do formulário */
-            padding: 15px;
-            margin: 12px;
-            margin-top: 0px;
-            border: 3px solid #000000;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 18px;
-            outline: none;
-            background-color: #48450719;
-            color: #ddff00;
-        }
+input[type="button"]:hover {
+    background-color: #d1b800;
+    transform: translateY(-2px);
+}
 
-        input[type="button"] {
-            background-color: #d5ce04ed;
-           
-            color: rgb(0, 0, 0);
-            border: 3px solid #000000;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+/* Título do login */
+.login-title {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #e9bf05;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    display: inline-block;
+}
 
-        input[type="button"]:hover {
-            background-color: #232323;
-        }
 
-        .login-title {
-            font-size: 40px; /* Tamanho da fonte */
-            margin-bottom: 19px; /* Espaçamento inferior */
-            margin-top: -19px; /* Espaçamento superior */
-            color: rgb(0, 0, 0);
-            text-shadow: 1px 1px rgb(242, 255, 0);
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            font-family: 'Roboto', sans-serif; /* Outra fonte para o título */
-        }
-
-        .login-title::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%; /* Começa fora da tela */
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(120deg, rgba(255, 255, 255, 0) 0%, rgba(251, 255, 0, 0.196) 50%, rgba(255, 255, 255, 0) 100%);
-            transform: skewX(-50deg); /* Inclinação do reflexo */
-            z-index: 1;
-            pointer-events: none;
-            animation: light-sweep 8s linear infinite; /* Ciclo total: 1s de movimento + 5s de espera */
-        }
-
-        @keyframes light-sweep {
-            0% {
-                left: -100%;
-            }
-            20% {
-                left: 100%; /* Reflexo atravessa a tela em 10% do tempo total */
-            }
-            100% {
-                left: 100%; /* Espera o restante do ciclo (90%) */
-            }
-        }
         .alert {
             position: absolute;
             background-color: #f44336;
@@ -449,15 +433,15 @@ input[type="button"]:hover {
         <div class="login-form">
             <h1 class="login-title">DIGITAL BOARD</h1>
             <form id="loginForm">
-                <input type="text" name="username" placeholder="NOME DE USUARIO" autocomplete="off"><br>
-                <input type="password" name="password" placeholder="SENHA..."><br>
-                <input type="button" value="Entrar" onClick="Login()">
-                <input type="button" value="Cadastrar" onClick="redirectToCadastro()">
+                <input type="text" name="username" placeholder="USER NAME" autocomplete="off"><br>
+                <input type="password" name="password" placeholder="PASSWORD..."><br>
+                <input type="button" value="LOGIN" onClick="Login()">
+                <input type="button" value="REGISTER" onClick="redirectToCadastro()">
                 
-                <a href="https://bizoonydb.github.io/PDFJS/db/DEMO.html" class="link-button"><span style="font-weight: bold; color: rgb(0, 0, 0);">DEMO</span></a><span style="font-weight: bold; color: rgb(255, 255, 255);">v0.5.2</span></a><br><!-- versao verção-->
-                <a href="#" onClick="mostrarFormularioRedefinirSenha()"><span style="font-weight: bold; color: rgb(255, 225, 0);">Esqueceu sua senha</span></a><br>
-                <label><input type="checkbox" id="remember-me"> <span style="font-weight: bold; color: red;">Lembrar-me</span></label>
-                
+                <a href="https://bizoonydb.github.io/PDFJS/db/DEMO.html" class="link-button"><span style="font-weight: bold; color: rgb(0, 0, 0);">FREE</span></a>
+                <a href="#" onClick="mostrarFormularioRedefinirSenha()"><span style="font-weight: bold; color: rgb(255, 225, 0);">reset password</span></a>
+                <label><input type="checkbox" id="remember-me"> <span style="font-weight: bold; color: red;">Lembrar-me</span></label><br><br>
+                <span style="font-weight: bold; color: rgb(255, 255, 255);">v1.5.2</span></a><br><!-- versao verção-->               
 
                 
             </form>
@@ -465,16 +449,16 @@ input[type="button"]:hover {
         <div class="register-form" style="display: none;">
             <h1 class="login-title">Cadastro</h1>
             <form id="registerForm">
-                <input type="text" name="newUsername" placeholder="NOME DE USUARIO" autocomplete="off"><br>
+                <input type="text" name="newUsername" placeholder="New Username" autocomplete="off"><br>
                 <input type="text" name="email" id="email" placeholder="E-MAIL" required><br>
-                <input type="password" name="newPassword" placeholder="NOVA SENHA"><br>
-                <input type="text" name="activationCode" placeholder="CÓDIGO DE ATIVAÇAO"><br> <!-- Novo campo para o código de ativação -->
-                <input type="button" value="Cadastrar" onClick="Cadastro()">
-                <input type="button" value="Cancelar" onClick="cancelar()">
+                <input type="password" name="newPassword" placeholder="New Password"><br>
+                <input type="text" name="activationCode" placeholder="activation Code"><br> <!-- Novo campo para o código de ativação -->
+                <input type="button" value="REGISTER" onClick="Cadastro()">
+                <input type="button" value="BACK" onClick="cancelar()">
             </form>
         </div>
         <div class="side-image">
-            <img src="https://bizoonydb.github.io/PDFJS/db/0_5_2.jpg" alt="Side Image"><!--imagem baner principal -->
+            <img src="https://bizoonydb.github.io/PDFJS/db/Picsart_25-09-13_03-55-36-209.jpg" alt="Side Image"><!--imagem baner principal -->
         </div>
     </div>
     
@@ -482,41 +466,41 @@ input[type="button"]:hover {
     <!-- Popup de senha incorreta -->
     <div id="senhaIncorretaPopup" class="popup vermelho">
         <span class="close" onclick="closeSenhaIncorretaPopup()">&times;</span>
-        <p>Senha incorreta. Por favor, verifique suas credenciais.</p>
+        <p>ERROR. Please check your credentials.</p>
     </div>
 
     <!-- Popup de login expirado -->
     <div id="loginExpiredPopup" class="popup amarelo">
         <span class="close" onclick="closeLoginExpiredPopup()">&times;</span>
-        <p>LOGIN EXPIRADO, RENOVE SEU ACESSO!!!<br>WHATSAPP (33)98444-4376</p>
+        <p>LOGIN EXPIRED, RENEW YOUR ACCESS!!!<br>WHATSAPP (33)98444-4376</p>
     </div>
 
     <!-- Popup de cadastro bem-sucedido -->
     <div id="cadastroPopup" class="popup verde">
         <span class="close" onclick="closeCadastroPopup()">&times;</span>
-        <p>Cadastro realizado com sucesso!</p>
+        <p>REGISTRATION COMPLETED SUCCESFULLY!</p>
     </div>
 
     <!-- Popup de código de ativação incorreto -->
     <div id="codigoAtivacaoIncorretoPopup" class="popup azul">
         <span class="close" onclick="closeCodigoAtivacaoIncorretoPopup()">&times;</span>
-        <p>CÓDIGO DE ACESSO INCORRETO,VERIFIQUE E TENTE NOVAMETE.</p>
+        <p>INCORRECT ACCESS CODE, CHECK AND TRY AGAIN.</p>
     </div>
 
     <!-- Popup de usuário já cadastrado -->
     <div id="usuarioExistentePopup" class="popup vermelho">
         <span class="close" onclick="closeUsuarioExistentePopup()">&times;</span>
-        <p>Este usuário já está cadastrado. Por favor, escolha outro nome de usuário.</p>
+        <p>This user is already registered. Please choose another username.</p>
     </div>
     <!-- Popup de preencha todos os campos -->
     <div id="preenchaTodosCamposPopup" class="popup azul">
         <span class="close" onclick="closePreenchaTodosCamposPopup()">&times;</span>
-        <p>PREENCHA TODOS OS DADOS.</p>
+        <p>FILL IN ALL THE DATA.</p>
     </div>
     <!-- Popup de redefinir senha -->
     <div id="redefinirSenhaPopup" class="popup azul">
     <span class="close" onclick="fecharRedefinirSenhaPopup()">&times;</span>
-    <h2><span style="font-weight: bold; color: rgb(229, 255, 0);">REDEFINIR SENHA</span></h2>
+    <h2><span style="font-weight: bold; color: rgb(229, 255, 0);">RESET PASSWORD</span></h2>
     <form id="resetPasswordForm">
         <input type="text" name="resetUsername" placeholder="Usuário" autocomplete="off"><br>
         <input type="password" name="newPassword" placeholder="Nova Senha"><br>
@@ -554,12 +538,12 @@ function resetPassword() {
     });
 
     if (!usuarioExistente) {
-        alert('Usuário não encontrado.');
+        alert('User not found.');
         return;
     }
 
     if (newPassword !== confirmPassword) {
-        alert('As senhas não coincidem.');
+        alert('The passwords do not match.');
         return;
     }
 
@@ -573,7 +557,7 @@ function resetPassword() {
     fecharRedefinirSenhaPopup();
 
     // Exibe mensagem de sucesso (opcional)
-    alert('Senha redefinida com sucesso!');
+    alert('Password reset successfully!');
 }
 
         // Função para verificar se localStorage é suportado
@@ -614,17 +598,17 @@ function resetPassword() {
        // Função para validar o código de ativação e definir o tempo de validade em dias
 function validarCodigoAtivacao(codigo) {
     var codigosValidos = {
-        "DBED1605": 365,  // 1 ano (365 dias)
-        "DBED2605": 730,  // 2 anos (730 dias)
-        "DBED043605": 36525,
-        "DBED1001": 1,
-        "DBED1875": 37293,
-        "DBED2325": 210,
-        "DBED06605": 180,  // 6MESES
-        "DBED4589": 100,  // 4 MESES
-        "DBED2498": 180,  // 6MESES
-        "DBED3485": 180,  // 6MESES
-        "DBED2485": 42,  // 2MESES
+        "DBED16051": 365,  // 1 ano (365 dias)
+        "DBED26051": 730,  // 2 anos (730 dias)
+        "DBED0436051": 36525,
+        "DBED0001": 1,
+        "DBED18751": 37293,
+        "DBED23251": 210,
+        "DBED066051": 180,  // 6MESES
+        "DBED45891": 100,  // 4 MESES
+        "DBED24981": 180,  // 6MESES
+        "DBED34851": 180,  // 6MESES
+        "DBED24851": 42,  // 2MESES
     };
 
     // Verifica se o código é válido e retorna o período de validade em dias
@@ -838,6 +822,8 @@ function Cadastro() {
 
 
 
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -847,6 +833,7 @@ function Cadastro() {
     <style>
         body {
             font-family: Arial, sans-serif;
+            background: #000000;
         }
         /* Estilos para o alerta */
         .alert {
@@ -864,6 +851,7 @@ function Cadastro() {
             justify-content: space-between;
             align-items: center;
             width: 300px;
+            z-index: 99999;
         }
         .alert .message {
             margin-right: 10px;
@@ -888,36 +876,42 @@ function Cadastro() {
             z-index: 999;
         }
         /* Estilos para a mensagem de carregamento (alerta) */
-        .loading-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            align-items: center;
-            font-size: 20px;
-            color: rgb(255, 255, 255);
-            background-color: #4e4e4e94;
-            padding: 20px;
-            border-radius: 5px;
-            border: 2px solid #e6ff01f6;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 999;
-        }
-        .loading-spinner {
-            border: 4px solid #a3a3a3;; /* Cor da bola */
-            border-top: 4px solid #ffee00; /* Cor do topo da bola */
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
-        }
-        /* Animação da bola de carregamento */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        /* Container de loading */
+.loading-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #000;
+    background-color: #e6e6e6; /* cor de janela Windows */
+    padding: 20px 25px;
+    border-radius: 6px;
+    border: 1px solid #aaa; /* borda típica Windows */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* sombra suave */
+    z-index: 99999;
+}
+
+/* Spinner estilo Windows */
+.loading-spinner {
+    border: 4px solid #ccc;       /* cor base da bola */
+    border-top: 4px solid #0078d7; /* cor típica do Windows (azul) */
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    animation: spin 1s linear infinite;
+    margin-left: 15px;
+}
+
+/* Animação de rotação */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
         .close-btn:hover {
             color: #ffffff; /* Cor ao passar o mouse */
         }
