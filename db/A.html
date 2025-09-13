@@ -822,6 +822,8 @@ function Cadastro() {
 
 
 
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -831,6 +833,7 @@ function Cadastro() {
     <style>
         body {
             font-family: Arial, sans-serif;
+            background: #000000;
         }
         /* Estilos para o alerta */
         .alert {
@@ -848,6 +851,7 @@ function Cadastro() {
             justify-content: space-between;
             align-items: center;
             width: 300px;
+            z-index: 99999;
         }
         .alert .message {
             margin-right: 10px;
@@ -872,36 +876,42 @@ function Cadastro() {
             z-index: 999;
         }
         /* Estilos para a mensagem de carregamento (alerta) */
-        .loading-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            align-items: center;
-            font-size: 20px;
-            color: rgb(255, 255, 255);
-            background-color: #4e4e4e94;
-            padding: 20px;
-            border-radius: 5px;
-            border: 2px solid #e6ff01f6;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 999;
-        }
-        .loading-spinner {
-            border: 4px solid #a3a3a3;; /* Cor da bola */
-            border-top: 4px solid #ffee00; /* Cor do topo da bola */
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
-        }
-        /* Animação da bola de carregamento */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        /* Container de loading */
+.loading-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #000;
+    background-color: #e6e6e6; /* cor de janela Windows */
+    padding: 20px 25px;
+    border-radius: 6px;
+    border: 1px solid #aaa; /* borda típica Windows */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* sombra suave */
+    z-index: 99999;
+}
+
+/* Spinner estilo Windows */
+.loading-spinner {
+    border: 4px solid #ccc;       /* cor base da bola */
+    border-top: 4px solid #0078d7; /* cor típica do Windows (azul) */
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    animation: spin 1s linear infinite;
+    margin-left: 15px;
+}
+
+/* Animação de rotação */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
         .close-btn:hover {
             color: #ffffff; /* Cor ao passar o mouse */
         }
