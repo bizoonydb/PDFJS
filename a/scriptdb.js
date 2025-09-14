@@ -203,20 +203,7 @@ function switchTab(tabId) {
     
 
 
-      // BOTAO DE EXTENDER A TELA
-      document.addEventListener('DOMContentLoaded', function() {
-        loadUserWatermark();
-        
-        document.getElementById('toggleExpand').addEventListener('click', function() {
-          const tabContainer = document.getElementById('tabContainer');
-          if (tabContainer.style.marginLeft === '0px') {
-            tabContainer.style.marginLeft = '250px';
-          } else {
-            tabContainer.style.marginLeft = '0px';
-          }
-        });
-      });
-  
+   
       // Código para buscar arquivos
       const folders = document.querySelectorAll('details');
 
@@ -844,3 +831,17 @@ function switchTab(tabId) {
             document.querySelector(".search-container").style.display = "none";
             document.querySelector("#resultado").style.display = "none"; // Oculta o resultado também
         }
+
+       document.addEventListener('DOMContentLoaded', function() {
+  // loadUserWatermark(); // comente para testar se não existir
+
+  document.getElementById('toggleExpand').addEventListener('click', function() {
+    const tabContainer = document.getElementById('tabContainer');
+    const currentMargin = window.getComputedStyle(tabContainer).marginLeft;
+    if (currentMargin === '0px') {
+      tabContainer.style.marginLeft = '250px';
+    } else {
+      tabContainer.style.marginLeft = '0px';
+    }
+  });
+});
