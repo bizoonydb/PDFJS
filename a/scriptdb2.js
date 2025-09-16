@@ -35,7 +35,7 @@ document.addEventListener('click', function(event) {
     window.open(link, '_blank');
   } else {
     // Links normais abrem normalmente em nova aba
-    window.open(link, '_blank');
+      window.location.href = link; // aqui muda!
   }
 });
 
