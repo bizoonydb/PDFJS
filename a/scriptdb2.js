@@ -21,23 +21,28 @@ document.addEventListener('click', function(event) {
   const link = target.dataset.url || target.href;
   if (!link) return;
 
-  event.preventDefault(); // impede o comportamento padrão
+  event.preventDefault();      // impede o comportamento padrão
+  event.stopPropagation();     // evita propagação que poderia abrir duas vezes
 
   // Links especiais abrem nos seus leitores/visualizadores em nova aba
   if (link.endsWith('.pdf')) {
-    // Abre seu leitor de PDF passando o link como parâmetro
-    window.open(`https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(link)}`, '_blank');
+    window.open(
+      `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(link)}`,
+      '_blank'
+    );
   } else if (link.endsWith('.bvr')) {
-    // Abre seu visualizador de BVR passando o link como parâmetro
-    window.open(`https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=${encodeURIComponent(link)}`, '_blank');
+    window.open(
+      `https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=${encodeURIComponent(link)}`,
+      '_blank'
+    );
   } else if (link.endsWith('_db') || link.endsWith('_hs')) {
-    // Outros tipos especiais, se necessário
     window.open(link, '_blank');
   } else {
-    // Links normais abrem normalmente em nova aba
-      window.location.href = link; // aqui muda!
+    // Links normais abrem na mesma aba
+    window.location.href = link;
   }
 });
+
 
 
     
