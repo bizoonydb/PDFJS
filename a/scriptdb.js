@@ -15,32 +15,33 @@ function closeAlert() {
   document.getElementById('dbAlert').style.display = 'none';//FECHAR ALERT
 }
 
-// Capturar cliques em links de PDF, BVR (_db) e HS (_hs)
 document.addEventListener('click', function(event) {
   const target = event.target.closest('a');
-  if (target && target.href) {
-    event.preventDefault(); // Evita o comportamento padrão do link
-    
-    // Verifica se já existe um .bvr ou _db aberto
+  if (target && (target.dataset.url || target.href)) {
+    event.preventDefault();
+
+    // usa data-url se existir, senão href normal
+    const link = target.dataset.url || target.href;
+
     const existingBvrOrDbIframe = document.querySelector('iframe[src*="index.html"], iframe[src*="_db"]');
-    
-    if (target.href.endsWith('.pdf')) {
-      openTab(target.href, 'pdf');
-    } else if (target.href.endsWith('.bvr') || target.href.endsWith('_db')) {
+
+    if (link.endsWith('.pdf')) {
+      openTab(link, 'pdf');
+    } else if (link.endsWith('.bvr') || link.endsWith('_db')) {
       if (existingBvrOrDbIframe) {
-        document.getElementById('dbAlert').style.display = 'block'; // Exibe alerta
+        document.getElementById('dbAlert').style.display = 'block';
       } else {
-        const type = target.href.endsWith('.bvr') ? 'bvr' : 'db';
-        openTab(target.href, type);
+        const type = link.endsWith('.bvr') ? 'bvr' : 'db';
+        openTab(link, type);
       }
-    } else if (target.href.endsWith('_hs')) {
-      // Permite abrir vários _hs sem restrições
-      openTab(target.href, 'hs');
+    } else if (link.endsWith('_hs')) {
+      openTab(link, 'hs');
     } else {
-      window.location.href = target.href;
+      window.location.href = link;
     }
   }
 });
+
 
 // Função genérica para abrir abas de arquivos PDF, BVR (_db) e HS (_hs)
 function openTab(fileUrl, type) {
