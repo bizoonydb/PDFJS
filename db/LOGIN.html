@@ -715,7 +715,7 @@ function Cadastro() {
             });
 
             if (usuarioValido && new Date(usuarioValido.expirationDate) > new Date()) {
-                window.location.href = 'https://bizoonydb.github.io/PDFJS/db/MENU.html';
+                window.location.href = 'https://bizoonydb.github.io/PDFJS/a/menu.html';
             } else if (usuarioValido && new Date(usuarioValido.expirationDate) <= new Date()) {
                 showLoginExpiredMessage();
             } else {
@@ -960,7 +960,7 @@ function Cadastro() {
         const expiraEm = new Date(dataExpiracao).getTime();
 
         if (dataAtual < expiraEm) {
-            window.location.href = 'https://bizoonydb.github.io/PDFJS/db/MENU.html';
+            window.location.href = 'https://bizoonydb.github.io/PDFJS/a/menu.html';
         } else {
             exibirAlerta();
         }
@@ -987,5 +987,6 @@ function Cadastro() {
 
 </body>
 </html>
+
 
 
