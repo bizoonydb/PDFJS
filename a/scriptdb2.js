@@ -1,7 +1,21 @@
 
   
      
-        
+        function openInFirstTab(url) {
+    // Pega a primeira aba armazenada no map de tabs
+    const firstTabId = Array.from(tabs.keys())[0]; 
+    if (!firstTabId) return;
+
+    const firstTab = tabs.get(firstTabId);
+    const resolvedUrl = resolveSpecialUrl(url);
+
+    // Atualiza webview da primeira aba
+    firstTab.webview.src = resolvedUrl;
+    firstTab.url = resolvedUrl;
+
+    // Faz a primeira aba ficar ativa
+    switchTab(firstTabId);
+}
 
     
       let tabCount = 0;
