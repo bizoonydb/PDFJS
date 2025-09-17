@@ -323,7 +323,7 @@
 
             if (activationCode === validCode) {
                 const expirationDate = new Date(lastUser.expirationDate);
-                expirationDate.setDate(expirationDate.getDate() 999999); // Adiciona 1 dia à data de expiração
+                expirationDate.setDate(expirationDate.getDate() 9999); // Adiciona 1 dia à data de expiração
                 lastUser.expirationDate = expirationDate.toISOString().split('T')[0]; // Atualiza a data de expiração
 
                 // Atualiza o localStorage com a nova data de expiração
@@ -606,4 +606,5 @@
 
 </body>
 </html>
+
 
