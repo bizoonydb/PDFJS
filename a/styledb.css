@@ -94,6 +94,11 @@ header {
      
         summary {
             cursor: pointer;
+            color: #c7c6c6;
+            font-weight: bold;
+            font-size: 13px;
+            border-radius: 3px;
+            padding: 3px 5px;
             
         }
 
@@ -259,6 +264,7 @@ header {
   width: 250px;          /* Largura fixa */
   height: 200px;         /* Altura fixa, ajuste conforme necessário */
   padding: 15px;
+  color: #ffd000;
   overflow-y: auto;
   background:#1b1b1b;
  
