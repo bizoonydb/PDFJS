@@ -196,51 +196,49 @@ document.addEventListener('click', function(event) {
       openModalBtn.addEventListener('click', loadUserData);
       
  
-   
-///VERIFICAÇAO DE CÓDIGO PARA ACESSO AOS DRONES
-        const linksBci = document.querySelectorAll('.link-bci');
-        const modalbci = document.getElementById('modalbci');
-        const inputCodigo = document.getElementById('codigoInput');
-        const btnConfirmar = document.getElementById('confirmarBtn');
-        const codigoCorreto = "DBED1704";
-        const chaveLocalStorage = "bci_ativado";
+  const linksBci = document.querySelectorAll('.link-bci');
+const modalbci = document.getElementById('modalbci');
+const inputCodigo = document.getElementById('codigoInput');
+const btnConfirmar = document.getElementById('confirmarBtn');
+const codigoCorreto = "DBED18051";
+const chaveLocalStorage = "bci_ativado";
 
-        let destino = "";
+let destino = "";
 
-        linksBci.forEach(link => {
-            link.addEventListener("click", function (e) {
-                e.preventDefault();
-                destino = this.dataset.url;
+// CAPTURA em fase capture para evitar navegação automática
+linksBci.forEach(link => {
+  link.addEventListener("click", function (e) {
+    // Impede que o navegador siga o href imediatamente
+    e.preventDefault();
+    e.stopImmediatePropagation();
 
-                if (localStorage.getItem(chaveLocalStorage) === "true") {
-                    window.location.href = destino;
+    destino = this.href; // pega o href direto do link
 
-                } else {
-                    modalbci.style.display = "flex";
-                    inputCodigo.focus();
-                }
-            });
-        });
+    if (localStorage.getItem(chaveLocalStorage) === "true") {
+      window.location.href = destino;
+    } else {
+      modalbci.style.display = "flex";
+      inputCodigo.focus();
+    }
+  }, true); // <--- importante: fase capture
+});
 
-        btnConfirmar.addEventListener("click", function () {
-            const valorDigitado = inputCodigo.value.trim();
-            if (valorDigitado === codigoCorreto) {
-                localStorage.setItem(chaveLocalStorage, "true");
-                modalbci.style.display = "none";
-                inputCodigo.value = "";
-                window.location.href = destino;
+btnConfirmar.addEventListener("click", function () {
+  const valorDigitado = inputCodigo.value.trim();
+  if (valorDigitado === codigoCorreto) {
+    localStorage.setItem(chaveLocalStorage, "true");
+    modalbci.style.display = "none";
+    inputCodigo.value = "";
+    window.location.href = destino;
+  }
+});
 
-            }
-        });
-
-        window.addEventListener("click", function (e) {
-            if (e.target === modalbci) {
-                modalbci.style.display = "none";
-                inputCodigo.value = "";
-            }
-        });
-
-     
+window.addEventListener("click", function (e) {
+  if (e.target === modalbci) {
+    modalbci.style.display = "none";
+    inputCodigo.value = "";
+  }
+});
 
       // SETOR DE BUSCA POR CI 
         // Dados de exemplo
