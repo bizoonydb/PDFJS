@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BITMAP</title>
+  <!-- Carregar p5.js do CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000000;
+      color: #15ff00;
+    }
+    canvas {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: auto;
+    }
+    /* Controles flutuantes */
+    #controls {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  z-index: 1000;
+  background: #808080;
+  padding: 0px;
+  border: 3px solid #808080;
+  box-shadow: 0 0 20px rgba(246, 255, 0, 0);
+  display: flex;
+  flex-direction:row;
+  align-items: center;
+  
+}
+#controls button, #controls input {
+  margin: 0px 2px;
+  padding: 0px;
+  width: 45px;
+  height: 30px;
+  font-size: 8px;
+  cursor: pointer;
+  text-align: center;
+  border: none;
+  background-color: #5f5e5e;
+  color: rgb(251, 255, 0);
+  border-radius: 0%;
+  transition: background-color 0.3s, transform 0.2s;
+}
+#controls button:hover {
+  background-color: rgb(56, 56, 56);
+  color: rgb(255, 0, 0);
+  transform: scale(1.1);
+}
+#controls input {
+  width: 100px;
+  font-size: 12px;
+  border-radius: 0px;
+  border: none;
+  background-color: #5f5e5e;
+  color: rgb(0, 0, 0);
+  text-align: center;
+}
+#searchComponent {
+  width: 150px;
+  font-size: 15px;
+  border: 1px solid #fb00ff;
+ 
+  background-color: rgb(208, 219, 0);
+  color: rgb(0, 0, 0);
+  text-align: center;
+}
+    button img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      border: none;
+      outline: none;
+      display: block;
+    }
+
+    #voltageDisplay {
+     position: fixed;
+      top: 0;
+      left: 0;
+      width: 200px;
+      height: 140px;
+      background: url('https://bizoonydb.github.io/PDFJS/db/MULT2.jpg') no-repeat center center;
+      background-size: cover;
+      padding: 10px;
+      font-family: sans-serif;
+      font-size: 40px;
+      color: #424242;
+      z-index: 100;
+      display: flex;
+      border-right: #000000 2px solid;
+      align-items: center;
+      justify-content: center;
+      text-align: left;
+    }
+
+    #pinDisplay {
+      position: fixed;
+      top: 1000px;
+      left: 0px;
+      width: 0px;
+      border-right: #000000 2px solid;
+      border-bottom: #000000 2px solid;
+      height: 70px;
+      background:#0097a7;
+      background-size: cover;
+      padding: 10px;
+      font-family: sans-serif;
+      font-size: 18px;
+      color: #f8f8f8;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: left;
+    }
+  #netInput {
+  display: none;
+}
+
+  </style>
+</head>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+<style>
+#componentInfo {
+  position: absolute;
+  top: 160px;
+  left: 0;
+  bottom: 0;
+  width: 220px;
+  background: #111;
+  color: rgb(255, 251, 3);
+  border: 2px solid rgb(117, 117, 117);
+  padding: 10px;
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: auto;  /* 🔥 Aqui ativa a rolagem */
+}
+#componentInfo h3 {
+    color: #5eff00;
+    margin-top: 0;
+}
+/* Barra de rolagem geral */
+#componentInfo::-webkit-scrollbar {
+  width: 12px;
+}
+
+/* Trilha (fundo da barra) */
+#componentInfo::-webkit-scrollbar-track {
+  background: #222;
+  border-radius: 4px;
+}
+
+/* Polegar (a parte que arrasta) */
+#componentInfo::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+  border: 2px solid #222222;
+}
+
+/* Hover no polegar */
+#componentInfo::-webkit-scrollbar-thumb:hover {
+  background-color: #bbb;
+}
+
+.info-label {
+    color: rgb(199, 199, 199);
+}
+
+.info-value {
+    color: #00ff0d;
+}
+
+.summary {
+    color: #ffffff;
+}
+
+.info-box {
+    background-color: #303030;
+    padding: 5px 8px;
+    border-radius: 4px;
+    margin-bottom: 3px;
+}
+
+hr {
+    border: 1px solid rgb(95, 95, 95);
+    margin: 5px 0;
+}
+
+
+
+.group {
+    margin-bottom: 10px;
+}
+
+.group-title {
+    font-weight: bold;
+    background-color: #333333;
+    padding: 3px 6px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.group-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.item {
+    background-color: #000000;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+}
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+
+  width: 100%;
+  height: 100%;
+  background-color: rgba(10, 10, 10, 0);
+}
+
+.modal-content {
+  position: absolute;
+  top: 0px;
+  left: 220px;
+  bottom: 0;
+  font-size: 12px;
+  width: 200px;
+  
+  background-color: #222;
+  padding: 10px;
+  border: 2px solid #888;
+  
+  overflow-y: auto;
+
+  color: white;
+  box-sizing: border-box;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.close:hover {
+  color: red;
+}
+#openModalBtn {
+    background-color: #757575;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+#openModalBtn:hover {
+    background-color: #333333;
+    transform: scale(1.05);
+    border: 1px solid #5eff00;
+    font-size: 12px;
+}
+
+
+
+  </style>
+  <link type="text/css" rel="stylesheet" charset="UTF-8" href="https://www.gstatic.com/_/translate_http/_/ss/k=translate_http.tr.NJgGN_yGIWM.L.W.O/am=AAY/d=0/rs=AN8SPfrTSMIvWAFISYN4u74dPJrX0HgUsw/m=el_main_css"></head>
+<body>
+  <div id="pinDisplay">
+  
+</div>
+
+<body>
+  <div id="voltageDisplay"></div>
+<div id="componentInfo">
+    <h3>DADOS DETALHADOS</h3>
+    <div id="componentDetails"></div>
+    <button id="openModalBtn">🔍COMP/ INTERLIGADO</button>
+</div>
+
+
+<!-- Modal -->
+<div id="componentModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>Componentes na Malha Selecionada</h3>
+    <div id="componentList">
+      <!-- Conteúdo gerado dinamicamente -->
+    </div>
+  </div>
+</div>
+  <div id="controls">
+    <input id="searchComponent" type="text" placeholder="Search component" list="componentList">
+    <datalist id="componentList"></datalist>
+    <button id="toggleBgBtn"type="button">🖼️<br>BORDAS</button>
+
+    <button id="btnRotate">🔄<br>GIRAR</button>
+    <button id="btnNextNet">🔽<br>PROXIMO</button>
+    <button id="btnAll">🔄<br>AMBOS</button>
+    <button id="btnTop">⬆️<br>TOP</button>
+    <button id="btnBottom">⬇️<br>BOTTOM</button>
+    
+    <button id="flipButton">🔁<br>VIRAR</button>
+  </div>
+   <script>
+    function preload() {
+      bgImage = loadImage("https://bizoonydb.github.io/PDFJS/build/DRONE/Picsart_25-09-18_11-28-49-180.jpg"); // BORDA OUTLINE
+       // Obtenha parâmetros de URL
+       let params = getURLParams();
+       // Se o parâmetro fileLink existir, decodifique-o; caso contrário, use um valor padrão
+       let fileURL = params.fileLink ? decodeURIComponent(params.fileLink) : 'https://bizoonydb.github.io/PDFJS/build/DRONE/Air3S-PP004417.06 PCB layer.bvr';
+       // Faça upload do arquivo usando o URL decodificado
+       fileContent = loadStrings(fileURL);
+
+   }
+   
+  </script>
+   
+  
+  
+  <!-- O canvas é criado automaticamente no corpo por meio de p5.js -->
+  
+  
+  <script src="https://bizoonydb.github.io/PDFJS/build/SCRIPT3.js"></script>
+</body>
+</html>
