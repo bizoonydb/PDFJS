@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Digital Board</title>
+<style>
+html, body {
+    background: #000;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    color: #ffd900;
+    height: 100%;
+    font-family: sans-serif;
+    overflow: hidden;
+}
+
+/* Toolbar fixa */
+#toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background-color: #222;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    z-index: 1000;
+}
+
+/* Título */
+#title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffd900;
+    padding: 5px 10px;
+    border: 2px solid #ffd900;
+    box-shadow: 2px 2px 5px #000;
+    border-radius: 5px;
+}
+
+
+#toolbarButtons {
+    display: flex;
+    flex-direction: row-reverse; /* isso mantém os botões em linha, invertendo a ordem */
+    align-items: center;         /* centraliza verticalmente */
+    gap: 10px;                   /* espaçamento entre os botões */
+
+}
+#toolbarButtons button {
+    margin-left: 5px; /* espaçamento entre botões */
+    padding: 10px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    color: #ffd900;
+    background-color: #444;
+    border: none;
+    border-radius: 4px;
+}
+
+#toolbarButtons button:hover { background-color: #666; }
+
+/* Container principal abaixo da toolbar */
+#mainContainer {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Barra de abas */
+#tabs {
+    height: 35px;
+    display: flex;
+    background: #333;
+    flex-shrink: 0;
+   
+}
+
+.tab {
+    padding: 5px 10px;
+    background: #696969;
+    color: #fff;
+    border-radius: 3px 3px 0 0;
+    margin-right: 2px;
+    cursor: pointer;
+     border-radius: 20px 0 20px 0;
+    min-width: 80px;   /* largura mínima da aba */
+    
+    
+    display: flex;      /* garante que o conteúdo interno se ajuste */
+    align-items: center; /* centraliza verticalmente o texto */
+    justify-content: center; /* centraliza horizontalmente o texto */
+}
+
+
+.tab.active { background: #222; 
+border: #ffd900 solid 2px;}
+
+.tab .close-btn {
+    margin-left: 10px;
+    padding-left: 4px;
+    padding-right: 4px;
+    border-radius: 50%;
+    border: rgb(255, 0, 0) solid 2px;
+    color: #f00;
+    cursor: pointer;
+}
+
+/* Container de webviews */
+#webviewContainer {
+    flex: 1;
+    display: flex;
+    position: relative;
+    
+}
+
+webview {
+     border-radius: 20px; /* ou 20px, etc */
+    
+  overflow: hidden; /* importante para cortar o conteúdo dentro do radius */
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    display: none; /* apenas a aba ativa fica visível */
+}
+
+webview.active {
+    display: flex;
+    
+}
+.overlay.fullscreen {
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+     
+    <div id="title">DIGITAL BOARD  </div>ATE AQUI NOS AJUDOU O SENHOR 1 SAMUEL 7:12
+    
+    <div id="toolbarButtons">
+        <button id="closeAppBtn"  title="SAIR"style="background:#df5656;">❌</button>
+        <button id="fullscreenBtn" title="MINIMIZAR"  style="background:#84a5ff;">🖥️</button>
+        
+       <button title="SOMENTE PARA ADMINS" onclick="openInFirstTab('https://bizoonydb.github.io/PDFJS/db/loginadm.html');" 
+        style="background:#2ad138; color:#ffffff; padding:10px 13px; border:none; border-radius:6px; cursor:pointer;">
+  👷‍♀️
+</button>
+
+
+
+      <button id="toggleSizeBtn" title="Expandir/Reduzir">
+  <!-- Ícone de tela cheia -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+    <path d="M1 1h6v2H3v4H1V1zm8 0h6v6h-2V3h-4V1zm6 8v6h-6v-2h4v-4h2zm-8 6H1v-6h2v4h4v2z"/>
+  </svg>
+</button>
+
+<button id="reloadBtn" title="Recarregar">
+  <!-- Ícone de recarregar -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+    <path d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 1 .832-.554A4 4 0 1 0 8 4V1.5a.5.5 0 0 1 1 0V4a.5.5 0 0 1-.5.5H5a.5.5 0 0 1 0-1h2.5z"/>
+  </svg>
+</button>
+
+<button id="forwardBtn" title="Avançar">
+  <!-- Ícone de seta para direita -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h7.793l-3.147-3.146a.5.5 0 1 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 1 1-.708-.708L12.293 8.5H4.5A.5.5 0 0 1 4 8z"/>
+  </svg>
+</button>
+
+<button id="backBtn" title="Voltar">
+  <!-- Ícone de seta para esquerda -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H3.707l3.147 3.146a.5.5 0 0 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L3.707 7.5H11.5A.5.5 0 0 1 12 8z"/>
+  </svg>
+</button>
+
+        <button id="#" style="border:2px solid #2ffc06; border-radius:6px; padding:6px 12px; background:#000; color:#ffd900; font-weight:600; ">
+  🟢 BRASIL </button>
+       
+</button>
+
+    </div>
+</div>
+
+<div id="mainContainer">
+    <div id="tabs"></div>
+    <div id="webviewContainer"></div>
+</div>
+
+<script>
+    
+    function openInFirstTab(url) {
+    // Pega a primeira aba armazenada no map de tabs
+    const firstTabId = Array.from(tabs.keys())[0]; 
+    if (!firstTabId) return;
+
+    const firstTab = tabs.get(firstTabId);
+    const resolvedUrl = resolveSpecialUrl(url);
+
+    // Atualiza webview da primeira aba
+    firstTab.webview.src = resolvedUrl;
+    firstTab.url = resolvedUrl;
+
+    // Faz a primeira aba ficar ativa
+    switchTab(firstTabId);
+}
+
+const tabsDiv = document.getElementById('tabs');
+const webviewContainer = document.getElementById('webviewContainer');
+
+let tabCount = 0;
+let activeTabId = null;
+const tabs = new Map();
+function resolveSpecialUrl(url) {
+    const u = url.toLowerCase();
+    if (u.endsWith('.pdf')) {
+        return 'https://bizoonydb.github.io/PDFJS/web/viewer.html?file=' + encodeURIComponent(url);
+    }
+    if (u.endsWith('.bvr')) {
+        return 'https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=' + encodeURIComponent(url);
+    }
+    return url;
+}
+// Função para criar nova aba
+function openTab(url) {
+    const originalUrl = url;            // guarda URL real
+    url = resolveSpecialUrl(url);       // resolve PDF/BVR antes de abrir
+
+    const tabId = `tab${tabCount++}`;
+
+    // pega o nome do arquivo da URL original
+    // pega o nome do arquivo da URL original
+let name = originalUrl.split('/').pop();
+name = decodeURIComponent(name); // decodifica caracteres especiais
+// remove a extensão (.pdf, .bvr, etc)
+const dotIndex = name.lastIndexOf('.');
+if (dotIndex !== -1) {
+    name = name.slice(0, dotIndex);
+}
+// limita a 10 caracteres
+if (name.length > 10) {
+    name = name.slice(0, 10) + '...';
+}
+    // Cria aba visual
+    const tab = document.createElement('div');
+    tab.className = 'tab';
+    tab.innerHTML = `<span>${name}</span><span class="close-btn">×</span>`;
+    tab.onclick = () => switchTab(tabId);
+    tab.querySelector('.close-btn').onclick = e => { e.stopPropagation(); closeTab(tabId); };
+    tabsDiv.appendChild(tab);
+
+    // Cria webview
+    const webview = document.createElement('webview');
+    webview.src = url; 
+    webview.setAttribute('preload', 'preload.js');
+    webview.classList.add('active');
+    webviewContainer.appendChild(webview);
+    webview.addEventListener('ipc-message', (e) => {
+      if (e.channel === 'open-url') {
+        openTab(e.args[0]);
+      }
+    });
+    // Dentro do openTab, depois de criar o webview
+
+// Garante que links normais (window.location.href) abram na aba atual
+webview.addEventListener('will-navigate', (e) => {
+    const navUrl = resolveSpecialUrl(e.url);
+
+    // Se já existe uma aba com essa URL, apenas alterna para ela
+    for (let [tabId, tabData] of tabs.entries()) {
+        if (tabData.url === navUrl) {
+            switchTab(tabId);
+            e.preventDefault();
+            return;
+        }
+    }
+
+    // Caso contrário, carrega na aba atual
+    if (activeTabId && tabs.has(activeTabId)) {
+        e.preventDefault(); // impede criar nova aba
+        tabs.get(activeTabId).webview.loadURL(navUrl);
+        tabs.get(activeTabId).url = navUrl; // atualiza referência da URL da aba
+    }
+});
+
+// Para links _blank / window.open, abre nova aba
+webview.addEventListener('new-window', (e) => {
+    const newUrl = resolveSpecialUrl(e.url);
+    openTab(newUrl); // sempre nova aba
+    e.preventDefault();
+});
+
+
+    
+
+// Aplica posição especial a partir da segunda aba
+    if (tabCount > 1) {
+        webview.style.position = 'absolute';
+        webview.style.top = '70px';
+        webview.style.borderRadius = '0 0 0 0'; // ajuste o valor como quiser
+        webview.style.left = '250px';
+        webview.style.overflow = 'hidden';
+
+        webview.style.width = `calc(100% - 250px)`;
+        webview.style.height = `calc(100% - 70px)`;
+
+        
+        
+    } else {
+        webview.style.position = 'absolute';
+        webview.style.top = '0';
+        webview.style.left = '0';
+        webview.style.width = '100%';
+        webview.style.height = '100%';
+    }
+
+    // Nova aba fica visível, mas não esconde a primeira
+    if (tabCount === 1) webview.classList.add('active'); // primeira aba ativa
+    else webview.classList.add('overlay'); // abas sobrepostas
+
+    // Esconde outros webviews
+    // Esconde outros webviews, mas mantém a primeira aba visível
+document.querySelectorAll('webview').forEach((w, index) => {
+    if (w !== webview && index !== 0) w.classList.remove('active');
+});
+
+
+    // Armazena referência
+    tabs.set(tabId, { tab, webview, url });
+    activeTabId = tabId;
+
+    // Atualiza abas
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+}
+
+
+// Alternar aba
+function switchTab(tabId) {
+    if (!tabs.has(tabId)) return;
+
+    // Atualiza abas visuais
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tabs.get(tabId).tab.classList.add('active');
+
+    // Mostra webview correta sem esconder a primeira aba
+    document.querySelectorAll('webview').forEach((w, index) => {
+        if (index === 0) return; // mantém primeira aba visível
+        if (tabs.get(tabId).webview === w) w.classList.add('active');
+        else w.classList.remove('active');
+    });
+
+    activeTabId = tabId;
+}
+
+
+// Fechar aba
+function closeTab(tabId) {
+    if (!tabs.has(tabId)) return;
+    const { tab, webview } = tabs.get(tabId);
+    tab.remove();
+    webview.remove();
+    tabs.delete(tabId);
+
+    if (activeTabId === tabId) {
+        const remaining = Array.from(tabs.keys());
+        if (remaining.length > 0) switchTab(remaining[0]);
+        else activeTabId = null;
+    }
+}
+
+// Botões da toolbar
+
+
+const { ipcRenderer } = require('electron');
+
+document.getElementById('closeAppBtn').addEventListener('click', () => {
+    ipcRenderer.send('close-app');
+});
+
+
+document.getElementById('reloadBtn').addEventListener('click', () => {
+    if (activeTabId) tabs.get(activeTabId).webview.reload();
+});
+document.getElementById('backBtn').addEventListener('click', () => {
+    if (activeTabId && tabs.get(activeTabId).webview.canGoBack()) tabs.get(activeTabId).webview.goBack();
+});
+document.getElementById('forwardBtn').addEventListener('click', () => {
+    if (activeTabId && tabs.get(activeTabId).webview.canGoForward()) tabs.get(activeTabId).webview.goForward();
+});
+let overlayFullScreen = false;
+
+document.getElementById('toggleSizeBtn').addEventListener('click', () => {
+    overlayFullScreen = !overlayFullScreen;
+
+    document.querySelectorAll('webview.overlay').forEach(webview => {
+        if (overlayFullScreen) webview.classList.add('fullscreen');
+        else webview.classList.remove('fullscreen');
+    });
+
+    const overlayTabs = document.querySelector('.overlay-tabs');
+    if (overlayTabs) {
+        if (overlayFullScreen) {
+            overlayTabs.style.top = '0';
+            overlayTabs.style.left = '0';
+            overlayTabs.style.width = '100%';
+        } else {
+            overlayTabs.style.top = '0';
+            overlayTabs.style.left = '0';
+            overlayTabs.style.width = 'calc(100% - 250px)';
+        }
+    }
+});
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+let inFullscreen = true; // já começa em fullscreen
+
+// força a API entrar em fullscreen logo ao carregar
+window.addEventListener('load', () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.().catch(err => {
+            console.warn('Não conseguiu entrar em fullscreen automático:', err.message);
+        });
+    }
+});
+
+fullscreenBtn.addEventListener('click', () => {
+    if (inFullscreen) {
+        // sair
+        document.exitFullscreen?.().catch(err => {
+            console.warn('Erro ao sair do fullscreen:', err.message);
+        });
+        fullscreenBtn.textContent = '🖥️';
+        inFullscreen = false;
+    } else {
+        // entrar
+        document.documentElement.requestFullscreen?.().catch(err => {
+            console.warn('Erro ao entrar no fullscreen:', err.message);
+        });
+        fullscreenBtn.textContent = '🖥️';
+        inFullscreen = true;
+    }
+});
+
+
+// Abre a primeira aba automaticamente
+openTab('https://bizoonydb.github.io/PDFJS/a/login.html');
+
+</script>
+
+</body>
+</html>
