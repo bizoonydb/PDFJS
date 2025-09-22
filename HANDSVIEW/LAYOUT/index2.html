@@ -289,8 +289,8 @@ hr {
 
 #btnExportar {
   position: fixed;       /* fixo na tela */
-  top: 10px;             /* distância do topo */
-  left: 50%;             /* centraliza horizontalmente */
+  top: 0px;             /* distância do topo */
+  margin-left: 430px;             /* centraliza horizontalmente */
   transform: translateX(-50%); /* ajusta para centralizar de verdade */
   
   padding: 10px 20px;
@@ -330,15 +330,256 @@ input.color-picker-btn:hover {
     box-shadow: 0 6px 12px rgba(0,0,0,0.3);
 }
 
+#btnAbrirModal {
+    padding: 10px 20px;
+    margin-left: 230px;
+    background-color: #cc00ff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+#btnAbrirModal:hover {
+    background-color: #45a049;
+}
 
-  
+/* Overlay */
+#overlay {
+    position: fixed;
+    top:0; left:0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 999;
+}
+
+/* Modal */
+#modalNets {
+    position: fixed;
+    top: 70px; 
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    min-width: 400px;
+    color: #0097a7;
+    max-width: 600px;
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Conteúdo do modal */
+#modalNetsContent {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Cada linha de net */
+.net-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Quadrado colorido */
+.net-color {
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
+    border: 1px solid #000;
+}
+
+/* Inputs */
+#modalNetsContent input {
+    flex: 1;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+/* Botões do modal */
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.modal-buttons button {
+    padding: 5px 15px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* --- Botões dentro do modal --- */
+.modal-btn {
+    padding: 8px 16px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+#btnSalvarModal {
+    background-color: #4CAF50;
+    color: #fff;
+}
+#btnSalvarModal:hover {
+    background-color: #45a049;
+}
+#btnFecharModal {
+    background-color: #f44336;
+    color: #fff;
+}
+#btnFecharModal:hover {
+    background-color: #d32f2f;
+}
+
+/* Botão no topo e centralizado */
+#btnRenomearPDF {
+    position: fixed;
+    top: 0px;
+    margin-left: 555px;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #00b7ff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    transition: background 0.3s;
+}
+#btnRenomearPDF:hover {
+    background-color: #45a049;
+}
+
+/* Modal que cobre toda a tela */
+#titleModal {
+    display: none; /* inicialmente oculto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5); /* fundo semitransparente para bloquear canvas */
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* acima do canvas e botão */
+}
+
+/* Conteúdo do modal */
+.modalContent {
+    background-color: yellow; /* fundo amarelo */
+    border: 3px solid black;  /* borda preta */
+    padding: 30px 50px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 24px; /* letra maior */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+/* Input do título */
+#pdfTitleInput {
+    width: 100%;
+    padding: 10px;
+    font-size: 20px;
+    margin: 15px 0;
+    border: 2px solid black;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* Botões dentro do modal */
+.modalContent .buttons button {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 18px;
+    border: 2px solid black;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.modalContent .buttons button:hover {
+    background-color: #ddd;
+}
+
+
+
+/* Container fixo para os botões na direita */
+#localButtonContainer {
+    position: fixed;
+    top: 70px;          /* 70px do topo */
+    right: 10px;        /* distância da borda direita */
+    display: flex;
+    flex-direction: column; /* botões em coluna */
+    gap: 10px;          /* espaço entre os botões */
+    z-index: 1000;      /* acima do canvas e outros elementos */
+}
+
+/* Estilo geral dos botões */
+#localButtonContainer button {
+    width: 50px;
+    height: 50px;
+    font-size: 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #5f5e5e;
+    color: #fbff00;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#localButtonContainer button:hover {
+    background-color: #333;
+    transform: scale(1.1);
+    color: #ff0000;
+}
+
   </style>
   <link type="text/css" rel="stylesheet" charset="UTF-8" href="https://www.gstatic.com/_/translate_http/_/ss/k=translate_http.tr.NJgGN_yGIWM.L.W.O/am=AAY/d=0/rs=AN8SPfrTSMIvWAFISYN4u74dPJrX0HgUsw/m=el_main_css"></head>
 <body>
   <div id="pinDisplay">
   
 </div>
+<!-- Botão para abrir modal -->
+<button id="btnRenomearPDF">TITULO</button>
 
+<!-- Modal -->
+<div id="titleModal" style="
+    display:none;
+    position:fixed;
+    top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.5);
+    justify-content:center;
+    align-items:center;
+">
+    <div style="
+        background:#fff;
+        padding:20px;
+        border-radius:10px;
+        width:300px;
+        text-align:center;
+    ">
+        <h3>Digite o título do PDF</h3>
+        <input type="text" id="pdfTitleInput" style="width:90%; padding:5px; margin-bottom:10px;" />
+        <br>
+        <button id="confirmTitleBtn">Confirmar</button>
+        <button id="cancelTitleBtn">Cancelar</button>
+    </div>
+</div>
 <body>
   <div id="voltageDisplay"></div>
 <div id="componentInfo">
@@ -347,7 +588,7 @@ input.color-picker-btn:hover {
     <button id="openModalBtn">🔍COMP/ INTERLIGADO</button>
 </div>
 
-<input type="color" id="netColorPicker" class="color-picker-btn" value="#ff0000"> este botao , o de exportar ja tenho
+<input type="color" id="netColorPicker" class="color-picker-btn" value="#ff0000"> 
 <!-- Modal -->
 <div id="componentModal" class="modal">
   <div class="modal-content">
@@ -374,8 +615,24 @@ input.color-picker-btn:hover {
 
   <button id="btnExportar">Exportar PDF</button>
 
+<div id="localButtonContainer">
+    <button id="btnLoadLocal">📂</button>
+</div>
+<input type="file" id="localFileInput" style="display:none;" accept=".bvr,.jpg,.jpeg,.png">
 
+<!-- Botão externo para abrir o modal -->
+<button id="btnAbrirModal">RE/ MALHA</button>
 
+<!-- Overlay e Modal -->
+<div id="overlay"></div>
+<div id="modalNets">
+    <h2>Editar Nomes das Nets</h2>
+    <div id="modalNetsContent"></div>
+    <div class="modal-buttons">
+        <button id="btnSalvarModal">Salvar</button>
+        <button id="btnFecharModal">Fechar</button>
+    </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -383,26 +640,76 @@ input.color-picker-btn:hover {
 
 
    <script>
-   function preload() {
-    // Carrega a imagem de fundo
-    bgImage = loadImage("https://bizoonydb.github.io/PDFJS/build/SM/Picsart_25-09-04_17-30-50-570.jpg");
+     function preload() {
+      bgImage = loadImage("https://bizoonydb.github.io/PDFJS/build/DRONE/Picsart_25-09-18_11-28-49-180.jpg"); // BORDA OUTLINE
+       // Obtenha parâmetros de URL
+       let params = getURLParams();
+       // Se o parâmetro fileLink existir, decodifique-o; caso contrário, use um valor padrão
+       let fileURL = params.fileLink ? decodeURIComponent(params.fileLink) : 'https://bizoonydb.github.io/PDFJS/build/DRONE/Air3S-PP004417.06 PCB layer.bvr';
+       // Faça upload do arquivo usando o URL decodificado
+       fileContent = loadStrings(fileURL);
 
-    // Obtém parâmetros da URL
-    let params = getURLParams();
-    let fileURL = params.fileLink 
-        ? decodeURIComponent(params.fileLink) 
-        : 'https://bizoonydb.github.io/PDFJS/build/SM/SM-A107.bvr';
-
-   fileContent = loadStrings(fileURL);
-}
+   }
    
   </script>
+
+  <script>
+    let fileURL;     // global
+
+
+const btnLoadLocal = document.getElementById('btnLoadLocal');
+const localFileInput = document.getElementById('localFileInput');
+
+btnLoadLocal.addEventListener('click', () => {
+    localFileInput.click();
+});
+
+localFileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const fileType = file.name.split('.').pop().toLowerCase();
+    const localURL = URL.createObjectURL(file);
+
+    if (fileType === 'bvr') {
+    // Limpar o BVR antigo
+    outlinePoints = [];
+    parts = [];
+    meshes = [];
+    fileContent = null;
+
+    // Atualizar fileURL e carregar novo arquivo
+    fileURL = localURL;
+    loadStrings(fileURL, data => {
+        fileContent = data;
+        console.log("BVR local carregado:", fileContent);
+
+        // Reprocessar e redesenhar
+        parseFile();             // Atualiza outlinePoints, parts, etc.
+        calcularTransformacion(); 
+        renderBuffer();          // Desenha no canvas
+        redraw();                // Se estiver usando noLoop()
+    });
+}
+ else if (['jpg','jpeg','png'].includes(fileType)) {
+        loadImage(localURL, img => {
+            bgImage = img;
+            console.log("Imagem local carregada:", bgImage);
+            redraw(); // redesenha o canvas p5.js
+        });
+    } else {
+        alert("Tipo de arquivo não suportado!");
+    }
+});
+
+
+</script>
    
   
   
   <!-- O canvas é criado automaticamente no corpo por meio de p5.js -->
   
   
-  <script src="SCRIPT4.js"></script>
+  <script src="SCRIPT3.js"></script>
 </body>
 </html>
