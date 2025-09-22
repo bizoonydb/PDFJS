@@ -45,9 +45,105 @@ function setup() {
     buffer = createGraphics(width, height); // buffer do canvas
 
     // Só processa após carregar o arquivo
-    parseFile();            // fileContent já foi carregado no preload
+   parseFile();            // fileContent já foi carregado no preload
     calcularTransformacion();
-    renderBuffer();
+    renderBuffer(); 
+
+
+
+
+    
+const modal = document.getElementById("modalNets");
+const overlay = document.getElementById("overlay");
+const btnAbrir = document.getElementById("btnAbrirModal");
+const btnSalvar = document.getElementById("btnSalvarModal");
+const btnFechar = document.getElementById("btnFecharModal");
+const modalContent = document.getElementById("modalNetsContent");
+
+function abrirModal() {
+    modalContent.innerHTML = "";
+
+    const seenColors = new Set();
+
+    selectedNets.forEach((netObj, index) => {
+        const colorKey = (netObj.color || [255,0,0]).join(",");
+        if (seenColors.has(colorKey)) return; // pula cores repetidas
+        seenColors.add(colorKey);
+
+        const row = document.createElement("div");
+        row.classList.add("net-row");
+
+        const colorBox = document.createElement("div");
+        colorBox.classList.add("net-color");
+        const [r,g,b] = netObj.color || [255,0,0];
+        colorBox.style.backgroundColor = `rgb(${r},${g},${b})`;
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = netObj.net;
+        input.dataset.index = index;
+
+        row.appendChild(colorBox);
+        row.appendChild(input);
+        modalContent.appendChild(row);
+    });
+
+    modal.style.display = "flex";
+    overlay.style.display = "block";
+}
+
+function fecharModal() {
+    modal.style.display = "none";
+    overlay.style.display = "none";
+}
+
+btnAbrir.addEventListener("click", abrirModal);
+btnFechar.addEventListener("click", fecharModal);
+overlay.addEventListener("click", fecharModal);
+
+btnSalvar.addEventListener("click", () => {
+    const inputs = modalContent.querySelectorAll("input");
+    inputs.forEach(input => {
+        const idx = input.dataset.index;
+        selectedNets[idx].net = input.value;
+    });
+    console.log("Nets atualizadas:", selectedNets);
+    fecharModal();
+});
+
+
+
+
+
+
+const btnRenomear = document.getElementById("btnRenomearPDF");
+const titleModal = document.getElementById("titleModal");
+const pdfTitleInput = document.getElementById("pdfTitleInput");
+const confirmBtn = document.getElementById("confirmTitleBtn");
+const cancelBtn = document.getElementById("cancelTitleBtn");
+
+let pdfTitle = "Layout Eletrônico"; // título padrão
+
+// Abre modal
+btnRenomear.addEventListener("click", () => {
+    pdfTitleInput.value = pdfTitle; // preenche com valor atual
+    titleModal.style.display = "flex";
+});
+
+// Confirma título
+confirmBtn.addEventListener("click", () => {
+    pdfTitle = pdfTitleInput.value || "Layout Eletrônico";
+    titleModal.style.display = "none";
+});
+
+// Cancela modal
+cancelBtn.addEventListener("click", () => {
+    titleModal.style.display = "none";
+});
+
+
+
+
 
 
 
@@ -115,6 +211,68 @@ document.getElementById("btnExportar").addEventListener("click", () => {
 
         // --- Cria PDF ---
         const pdf = new jsPDF({ unit: 'px', format: [pageWidth, pageHeight], orientation: 'landscape' });
+         // --- Logo acima do título ---
+const logoImg = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgZlNe2A7MY8TOyZ9siR_7OWDLjTvJWxLLUw&s"; // ou sua base64
+const logoWidth = 60;   // largura da logo
+const logoHeight = 60;  // altura da logo
+const logoX = (pageWidth - logoWidth) / 2; // centralizado horizontalmente
+const logoY = 20; // distância do topo da página
+
+pdf.addImage(logoImg, 'PNG', logoX, logoY, logoWidth, logoHeight);
+        // --- Configurações do título ---
+const mainTitle = pdfTitle || "Layout Eletrônico"; // título definido pelo modal
+const subTitle = "DIGITAL BOARD, ESQUEMAS DIGITALIZADOS";
+const footerText = "+55(33)98444-4376 - DIGITAL BOARD";
+
+// --- Parâmetros do título ---
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(50); // tamanho grande do título
+const paddingX = 20; // padding horizontal do fundo
+const paddingY = 20; // padding vertical do fundo
+
+// Calcula largura do texto para a caixa de fundo
+const titleWidth = pdf.getTextWidth(mainTitle);
+const titleHeight = 50; // altura da caixa do fundo
+
+// Define posição (centralizado horizontalmente, um pouco abaixo do topo)
+const titleX = (pageWidth - titleWidth - paddingX * 2) / 2;
+const titleY = 80; // posição do topo da caixa
+
+// Desenha fundo amarelo com bordas arredondadas
+pdf.setFillColor(255, 255, 0); // amarelo
+pdf.setDrawColor(0, 0, 0);     // borda preta
+pdf.setLineWidth(2);
+pdf.roundedRect(titleX, titleY, titleWidth + paddingX * 2, titleHeight, 10, 10, 'FD');
+
+// Texto do título centralizado
+pdf.setTextColor(0, 0, 0);
+pdf.text(mainTitle, pageWidth / 2, titleY + titleHeight / 2, { align: "center", baseline: "middle" });
+
+// --- Subtítulo abaixo do título ---
+pdf.setFontSize(20);
+pdf.setFont("helvetica", "normal");
+pdf.text(subTitle, pageWidth / 2, titleY + titleHeight + 10, { align: "center", baseline: "middle" });
+// --- Rodapé ---
+pdf.setFontSize(12);
+pdf.setFont("helvetica", "normal");
+
+// Define posição centralizada para o texto e imagem
+const footerY = pageHeight - 20;
+const iconSize = 22; // tamanho do ícone
+const text = " +55(33)98444-4376 - DIGITAL BOARD";
+
+// Calcula largura do texto
+const textWidth = pdf.getTextWidth(text);
+const startX = (pageWidth - (iconSize + 5 + textWidth)) / 2; // 5px de espaçamento
+const whatsappIcon = "https://static.vecteezy.com/system/resources/previews/018/930/564/non_2x/whatsapp-logo-whatsapp-icon-whatsapp-transparent-free-png.png"; // ou base64
+
+// Desenha ícone WhatsApp
+pdf.addImage(whatsappIcon, 'PNG', startX, footerY - iconSize + 2, iconSize, iconSize);
+
+// Ajusta Y do texto para alinhar verticalmente com o ícone
+const textY = footerY - iconSize / 4; // subindo um pouco para centralizar
+pdf.text(text, startX + iconSize + 5, textY, { align: "left", baseline: "middle" });
+
 
         // --- Imagem de fundo invertida, se existir ---
         if (bgImage) {
@@ -323,6 +481,33 @@ if (selectedNets && selectedNets.length > 0) {
                 });
             }
         }
+        
+// --- Marca d'água ---
+const watermarkText = "DIGITAL BOARD";
+const fontSize = 12;          // tamanho pequeno
+const angle = -30;            // ângulo em graus
+const spacingX = 150;         // espaçamento horizontal
+const spacingY = 100;         // espaçamento vertical
+
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(fontSize);
+
+// Define opacidade (0 = invisível, 1 = totalmente opaco)
+pdf.setGState(new pdf.GState({ opacity: 0.2})); // 10% visível
+
+for (let x = -pageWidth; x < pageWidth * 2; x += spacingX) {
+    for (let y = -pageHeight; y < pageHeight * 2; y += spacingY) {
+        pdf.text(watermarkText, x, y, {
+            align: "left",
+            baseline: "top",
+            angle: angle
+        });
+    }
+}
+
+// Volta à opacidade normal para outros elementos
+pdf.setGState(new pdf.GState({ opacity: 1 }));
+
 
         // --- Nomes dos componentes por cima de tudo ---
 parts.forEach(part => {
@@ -395,6 +580,7 @@ parts.forEach(part => {
 
     fillComponentDatalist();
     setupSearchListener();
+    
 
 }
 
@@ -410,6 +596,16 @@ parts.forEach(part => {
     translate(width / 2, height / 2);
     rotate(rotationAngle);
     translate(-width / 2, -height / 2);
+
+       if (!outlinePoints || outlinePoints.length === 0) return;
+
+    // Loop seguro
+    for (let i = 0; i < outlinePoints.length; i++) {
+        let p = outlinePoints[i];
+        if (!p) continue; // pula elementos indefinidos
+        ellipse(p.x, p.y, 5, 5);
+    }
+
   
     if (displayMode === "all") {
       bottomOffset = computeBottomOffset();
@@ -1776,9 +1972,3 @@ function keyPressed() {
     }
     return false; // Evita que p5.js bloquee la entrada
 }
-
-
-
-
-
-
