@@ -466,11 +466,61 @@ Object.defineProperty(exports, "__esModule", ({
         this.pdfDocumentProperties = new _webPdf_document_properties.PDFDocumentProperties(appConfig.documentProperties, this.overlayManager, eventBus, l10n, () => this._docFilename);
       }
       if (appConfig.secondaryToolbar?.cursorHandToolButton) {
-        this.pdfCursorTools = new _webPdf_cursor_tools.PDFCursorTools({
-          container,
-          eventBus,
-          cursorToolOnLoad: 1   //1    //cursor tools dominik dmk ativa handtools maozinha ativa o graab , ativa a maozinha
-        });
+       const viewer = document.getElementById('viewer');
+const container = document.getElementById('viewerContainer');
+
+let isDragging = false;
+let startX = 0;
+let startY = 0;
+let scrollLeft = 0;
+let scrollTop = 0;
+
+// Ativa mão parada por padrão
+viewer.classList.add('grab-to-pan-grab');
+
+container.addEventListener('mousedown', (e) => {
+  if (e.button !== 0) return; // só botão esquerdo
+
+  // Só arrasta se Hand Tool estiver ativo
+  if (!viewer.classList.contains('grab-to-pan-grab')) return;
+
+  // Permite arrastar mesmo clicando em textLayer, mas evita seleção de texto
+  isDragging = true;
+  viewer.classList.add('grab-to-pan-grabbing');
+  viewer.classList.remove('grab-to-pan-grab');
+
+  startX = e.pageX - container.offsetLeft;
+  startY = e.pageY - container.offsetTop;
+  scrollLeft = container.scrollLeft;
+  scrollTop = container.scrollTop;
+
+  container.style.userSelect = 'none';
+});
+
+container.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+
+  const x = e.pageX - container.offsetLeft;
+  const y = e.pageY - container.offsetTop;
+  const walkX = x - startX;
+  const walkY = y - startY;
+
+  container.scrollLeft = scrollLeft - walkX;
+  container.scrollTop = scrollTop - walkY;
+});
+
+window.addEventListener('mouseup', () => {
+  if (!isDragging) return;
+  isDragging = false;
+
+  viewer.classList.remove('grab-to-pan-grabbing');
+  viewer.classList.add('grab-to-pan-grab');
+
+  container.style.userSelect = 'text';
+});
+
+
+
       }
       
       
@@ -2477,7 +2527,7 @@ Object.defineProperty(exports, "__esModule", ({
   exports.DEFAULT_SCALE_DELTA = DEFAULT_SCALE_DELTA;
   const MIN_SCALE = 0.1;
   exports.MIN_SCALE = MIN_SCALE;
-  const MAX_SCALE = 40.0;   //ori 10.0 escala de zoom
+  const MAX_SCALE = 30.0;   //ori 10.0 zoom maximo
   exports.MAX_SCALE = MAX_SCALE;
   const UNKNOWN_SCALE = 0;
   exports.UNKNOWN_SCALE = UNKNOWN_SCALE;
@@ -3075,7 +3125,7 @@ Object.defineProperty(exports, "__esModule", ({
       kind: OptionKind.VIEWER
     },
     maxCanvasPixels: {           // propieda de pixel maximos para renderizar   aqui aumenta el renderizado a 8k
-      value: 102100016,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao
+      value: 100000000,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao/reder/zoom
       kind: OptionKind.VIEWER
     },
     forcePageColors: {
@@ -4489,6 +4539,7 @@ Object.defineProperty(exports, "__esModule", ({
     }
   }
   exports.GrabToPan = GrabToPan;
+  
   
   /***/ }),
   /* 15 */
@@ -7927,7 +7978,7 @@ Object.defineProperty(exports, "__esModule", ({
           });
           this._thumbnails.push(thumbnail);
         }
-        this._thumbnails[0]?.setPdfPage(firstPdfPage);
+        this._thumbnails[1]?.setPdfPage(firstPdfPage);
         const thumbnailView = this._thumbnails[this._currentPageNumber - 1];
         thumbnailView.div.classList.add(THUMBNAIL_SELECTED_CLASS);
       }).catch(reason => {
@@ -13853,15 +13904,31 @@ Object.defineProperty(exports, "__esModule", ({
   
   /******/ })()
   ;
-  //# sourceMappingURL=viewer.js.map
+  
 // Adiciona classe dark-mode se houver mais de 1 página
 PDFViewerApplication.initializedPromise.then(() => {
   const app = PDFViewerApplication;
 
   app.eventBus.on('documentloaded', () => {
     const totalPages = app.pdfDocument.numPages;
-    if (totalPages > 1) {
+    if (totalPages > 99999) {
       document.body.classList.add('dark-mode');
     }
   });
+});
+const viewer = document.getElementById('viewer');
+
+// Inicializa com cursor normal
+viewer.classList.remove('grab-to-pan-grabbing');
+
+// Ao pressionar botão esquerdo do mouse
+viewer.addEventListener('mousedown', (e) => {
+  if (e.button === 0) { // só botão esquerdo
+    viewer.classList.add('grab-to-pan-grabbing');
+  }
+});
+
+// Ao soltar o mouse em qualquer lugar
+window.addEventListener('mouseup', () => {
+  viewer.classList.remove('grab-to-pan-grabbing');
 });
