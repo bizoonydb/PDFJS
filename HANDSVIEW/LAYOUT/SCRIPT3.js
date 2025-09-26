@@ -2417,7 +2417,7 @@ function compressExpandedNets() {
 
 
 function keyPressed() {
-    if (key === '1' || key === '1') {
+    if (key === '!' || key === '!') {
         // Regras CARGAMENTO USB
         marcarNetsPorNome([
             { termo: "vbus", cor: [255, 0, 0] },
@@ -2466,7 +2466,7 @@ function keyPressed() {
         return false;
     }
 
-    if (key === '2' || key === '2') {
+    if (key === '@' || key === '@') {
         // BACKLIGHT
         marcarNetsPorNome([
             { termo: "LEDK", cor: [255, 255, 0] },
@@ -2480,14 +2480,14 @@ function keyPressed() {
         return false;
     }
 
-    if (key === '0' || key === '0') {
+    if (key === '+' || key === '+') {
         compressExpandedNets();
         
         return false;
     }
 
     //BATERIA FPC
-    if (key === '3' || key === '3') {
+    if (key === '#' || key === '#') {
         marcarNetsPorNome([
             { termo: "AAAAAA", cor: [0, 255, 255]},
             { termo: "vbaterry_sr", cor: [133, 0, 0] },
@@ -2505,12 +2505,12 @@ function keyPressed() {
     }
 
 
-    if (key === '4' || key === '4') {
+    if (key === '$' || key === '$') {
         marcarNetsPorNome([{ termo: "SPK", cor: [0, 255, 255] }]);
         return false;
     }
 
-    if (key === '5' || key === '5') {
+    if (key === '%' || key === '%') {
         marcarNetsPorNome([{ termo: "cam", cor: [255, 0, 255] }]);
         return false;
     }
@@ -2908,7 +2908,7 @@ function exportarNetSelecionadaPDF() {
 
     const pageWidth = 297 * 3.78;  // A4 landscape
     const pageHeight = 210 * 3.78;
-    const margin = 20;
+    const margin = 80;
 
     const pdf = new jsPDF({ unit: 'px', format: [pageWidth, pageHeight], orientation: 'landscape' });
 
@@ -3012,8 +3012,8 @@ for(let c=0; c<cols; c++){
 
 }
 
-  // 5️⃣ Modal para informações
-   let modal = document.createElement("div");
+// 5️⃣ Modal para informações
+let modal = document.createElement("div");
 modal.style.position = "fixed";
 modal.style.top = "50%";
 modal.style.left = "50%";
@@ -3024,6 +3024,7 @@ modal.style.border = "2px solid #ff0000"; // destaque
 modal.style.padding = "20px";
 modal.style.borderRadius = "10px";
 modal.style.zIndex = "1000"; // acima do overlay
+
 const overlay = document.createElement("div");
 overlay.style.position = "fixed";
 overlay.style.top = "0";
@@ -3032,41 +3033,54 @@ overlay.style.width = "100%";
 overlay.style.height = "100%";
 overlay.style.background = "rgba(0, 0, 0, 0.7)"; // fundo escuro semi-transparente
 overlay.style.zIndex = "999"; // atrás do modal
-document.body.appendChild(overlay);
-    modal.innerHTML = `
-        <h3>Informações do esquemático</h3>
-        <label>Data: <input type="date" id="infoData"></label><br><br>
-        <label>Modelo: <input type="text" id="infoModelo"></label><br><br>
-        <label>Setor: <input type="text" id="infoSetor"></label><br><br>
-        <label>Obs: <input type="text" id="infoObs"></label><br><br>
-        <button id="confirmPdfInfo">Gerar PDF</button>
-        <button id="cancelPdfInfo">Cancelar</button>
-    `;
-    document.body.appendChild(modal);
 
-    // --- Fechar modal ---
+document.body.appendChild(overlay);
+
+modal.innerHTML = `
+    <h3>INFORMATIONS OF SCHEMATC</h3>
+    <label>TITLE: <input type="text" id="infoTitulo" placeholder="NAME COMP"></label><br><br>
+    <label>DATE: <input type="date" id="infoData"></label><br><br>
+    <label>MODEL: <input type="text" id="infoModelo"></label><br><br>
+    <label>SECTOR: <input type="text" id="infoSetor"></label><br><br>
+    <label>OBS: <input type="text" id="infoObs"></label><br><br>
+    <button id="confirmPdfInfo">GO PDF</button>
+    <button id="cancelPdfInfo">CANCEL</button>
+`;
+document.body.appendChild(modal);
+
+// --- Fechar modal ---
 document.getElementById("cancelPdfInfo").addEventListener("click", () => {
     document.body.removeChild(modal);
     document.body.removeChild(overlay);
 });
 
-    document.getElementById("confirmPdfInfo").addEventListener("click", () => {
-        const pdfInfo = {
-            data: document.getElementById("infoData").value || new Date().toLocaleDateString(),
-            modelo: document.getElementById("infoModelo").value || "Modelo XYZ",
-            setor: document.getElementById("infoSetor").value || "Eletrônica",
-            obs: document.getElementById("infoObs").value || ""
-        };
-        document.body.removeChild(modal);
-         document.body.removeChild(overlay);
+document.getElementById("confirmPdfInfo").addEventListener("click", () => {
+    const pdfInfo = {
+        titulo: document.getElementById("infoTitulo").value || "UNDEFINED",
+        data: document.getElementById("infoData").value || new Date().toLocaleDateString(),
+        modelo: document.getElementById("infoModelo").value || "UNDEFINED",
+        setor: document.getElementById("infoSetor").value || "UNDEFINED",
+        obs: document.getElementById("infoObs").value || "(CONFIDENTIAL)"
+    };
+    document.body.removeChild(modal);
+    document.body.removeChild(overlay);
 
-        // 6️⃣ Desenha retângulo Digital Board
-        const infoWidth = 150, infoHeight = 80;
-        const infoX = pageWidth - infoWidth - borderMargin;
-        const infoY = pageHeight - infoHeight - borderMargin;
+    // 6️⃣ Desenha retângulo Digital Board
+    const infoWidth = 150, infoHeight = 90;
+    const infoX = pageWidth - infoWidth - borderMargin;
+    const infoY = pageHeight - infoHeight - borderMargin;
 
+    // --- 🔹 TITULO ENCIMA
+    const marginRight = 80; // margem direita
+   
+    const titleX = pageWidth - marginRight;
+    const titleY = 60; // posição Y no topo
 
+    pdf.setFontSize(26);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(pdfInfo.titulo, titleX, titleY, { align: "right" });
 
+  
         
        // --- Rodapé ---
 pdf.setFontSize(12);
@@ -3098,11 +3112,11 @@ pdf.addImage(whatsappIcon, 'PNG', startX, footerY - iconSize + 2, iconSize, icon
 const textY = footerY - iconSize / 4; // subindo um pouco para centralizar
 pdf.text(text, startX + iconSize + 5, textY, { align: "left", baseline: "middle" });
 // --- Marca d'água ---
-const watermarkText = "DIGITAL BOARD";
+const watermarkText = ["DIGITAL BOARD", "CONFIDENTIAL"];
 const fontSize = 12;          // tamanho pequeno
 const angle = -30;            // ângulo em graus
-const spacingX = 150;         // espaçamento horizontal
-const spacingY = 100;         // espaçamento vertical
+const spacingX = 200;         // espaçamento horizontal
+const spacingY = 150;         // espaçamento vertical
 
 pdf.setFont("helvetica", "bold");
 pdf.setFontSize(fontSize);
@@ -3123,34 +3137,39 @@ for (let x = -pageWidth; x < pageWidth * 2; x += spacingX) {
 // Volta à opacidade normal para outros elementos
 pdf.setGState(new pdf.GState({ opacity: 1 }));
 
-        pdf.setLineWidth(0.5);
-        pdf.setDrawColor(0,0,0);
-        pdf.setFillColor(245,245,245);
-        pdf.rect(infoX, infoY, infoWidth, infoHeight, 'FD');
+ // Borda externa grossa
+pdf.setLineWidth(2.0);
+pdf.setDrawColor(0,0,0);
+pdf.setFillColor(245,245,245);
+pdf.rect(infoX, infoY, infoWidth, infoHeight, 'FD');
 
-        pdf.setFontSize(12);
-        pdf.setFont("helvetica","bold");
-        pdf.text("DIGITAL BOARD", infoX + infoWidth/2, infoY + 6, {align:"center", baseline:"top"});
+// Texto título
+pdf.setFontSize(12);
+pdf.setFont("helvetica","bold");
+pdf.text("DIGITAL BOARD- SCHEMATIC", infoX + infoWidth/2, infoY + 6, {align:"center", baseline:"top"});
 
-        pdf.setFontSize(10);
-        pdf.setFont("helvetica","normal");
+// Fonte normal
+pdf.setFontSize(8);
+pdf.setFont("helvetica","normal");
 
-        const fields = [
-            {label: "Data", value: pdfInfo.data},
-            {label: "Modelo", value: pdfInfo.modelo},
-            {label: "Setor", value: pdfInfo.setor},
-            {label: "Obs", value: pdfInfo.obs}
-        ];
+const fields = [
+  {label: "DATE", value: pdfInfo.data},
+  {label: "MODEL", value: pdfInfo.modelo},
+  {label: "SECTOR", value: pdfInfo.setor},
+  {label: "OBS", value: pdfInfo.obs}
+];
 
-        const fieldHeight = (infoHeight - 20)/fields.length;
+// 🔹 Retângulos para cada campo
+pdf.setLineWidth(0.3); // linha bem fina
+const fieldHeight = (infoHeight - 20)/fields.length;
+
 fields.forEach((f,i)=>{
     const yPos = infoY + 20 + i*fieldHeight;
     pdf.rect(infoX+5, yPos, infoWidth-10, fieldHeight-5); // retângulo do campo
-
-    pdf.setFont("helvetica","normal"); 
     pdf.setFontSize(10); 
-   pdf.text(`${f.label}: ${f.value}`, infoX + 8, yPos + 2, {baseline: "top"});
+    pdf.text(`${f.label}: ${f.value}`, infoX + 8, yPos + 2, {baseline: "top"});
 });
+
 
 
     // --- 4️⃣ Preenche netPinsMap com coordenadas escaladas ---
@@ -4053,96 +4072,118 @@ pdf.text(pinName, bodyScaled.x + offsetX, bodyScaled.y + offsetY,
 
 
 
-        // --- Desenho normal de outline ---
-        if (part.outline && part.outline.length >= 2) {
-            pdf.setDrawColor(0,0,0);
-            pdf.setLineWidth(0.5 * scale);
-            for (let i = 0; i < part.outline.length; i += 2) {
-                const x1 = part.origin.x + part.outline[i];
-                const y1 = part.origin.y + part.outline[i+1];
-                const j = (i+2 < part.outline.length) ? i+2 : 0;
-                const k = (i+3 < part.outline.length) ? i+3 : 1;
-                const x2 = part.origin.x + part.outline[j];
-                const y2 = part.origin.y + part.outline[k];
-                const p1 = scaleCoord(x1, y1);
-                const p2 = scaleCoord(x2, y2);
-                pdf.line(p1.x, p1.y, p2.x, p2.y);
-            }
+    // --- Desenho do componente ---
+if (part.outline && part.outline.length >= 2) {
+    pdf.setDrawColor(0,0,0);
+    pdf.setLineWidth(0.5 * scale);
+    for (let i = 0; i < part.outline.length; i += 2) {
+        const x1 = part.origin.x + part.outline[i];
+        const y1 = part.origin.y + part.outline[i+1];
+        const j = (i+2 < part.outline.length) ? i+2 : 0;
+        const k = (i+3 < part.outline.length) ? i+3 : 1;
+        const x2 = part.origin.x + part.outline[j];
+        const y2 = part.origin.y + part.outline[k];
+        const p1 = scaleCoord(x1, y1);
+        const p2 = scaleCoord(x2, y2);
+        pdf.line(p1.x, p1.y, p2.x, p2.y);
+    }
+}
+
+// --- Desenho dos pinos ---
+part.pins.forEach(pin => {
+    let fill = [255,255,255], stroke = [0,0,0];
+
+    if ((pin.net||"").toUpperCase().includes("GND")) fill = [180,180,180], stroke = [80,80,80];
+    else if ((pin.net||"").toUpperCase().includes("NC")) fill = [150,150,255], stroke = [0,0,0];
+
+    const isSelected = selectedNets.some(sel => (pin.net||"").toUpperCase() === sel.net.toUpperCase());
+    if (isSelected) fill = [255,255,255];
+
+    pdf.setFillColor(...fill);
+    pdf.setDrawColor(...stroke);
+    pdf.setLineWidth(0.5 * scale);
+
+    let center;
+    if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
+        const points = [];
+        for (let i=0; i<pin.outlineRelative.length; i+=2) {
+            const px = part.origin.x + pin.x + pin.outlineRelative[i];
+            const py = part.origin.y + pin.y + pin.outlineRelative[i+1];
+            points.push(scaleCoord(px, py));
         }
-        if(part.name && part.outline && part.outline.length >= 4){
-    // Calcula o bounding box do componente
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    for(let i=0;i<part.outline.length;i+=2){
-        const px = part.origin.x + part.outline[i];
-        const py = part.origin.y + part.outline[i+1];
-        if(px < minX) minX = px;
-        if(py < minY) minY = py;
-        if(px > maxX) maxX = px;
-        if(py > maxY) maxY = py;
+        pdf.lines(points.map((p,i)=>[points[(i+1)%points.length].x - p.x, points[(i+1)%points.length].y - p.y]), points[0].x, points[0].y, [1,1], 'FD');
+        const sumX = points.reduce((a,p)=>a+p.x,0)/points.length;
+        const sumY = points.reduce((a,p)=>a+p.y,0)/points.length;
+        center = {x:sumX, y:sumY};
+    } else {
+        center = scaleCoord(part.origin.x + pin.x, part.origin.y + pin.y);
+        pdf.circle(center.x, center.y, (pin.radius||2)*scale, 'FD');
     }
 
-    // Posição do texto: ligeiramente acima ou à direita dependendo da orientação
-    const width = maxX - minX;
-    const height = maxY - minY;
-    let textX = (minX + maxX)/2;
-    let textY = (minY + maxY)/2;
+    // --- Nome do pino acima do pino ---
+    if (pin.name) {
+        pdf.setFontSize(6 * scale);
+        pdf.setTextColor(55,55,255);
+        const offsetY = 4 * scale;
+        pdf.text(pin.name, center.x, center.y - offsetY, {
+            align: "center",
+            baseline: "bottom"
+        });
+    }
+});
 
-    const offset = 5; // em coordenadas do desenho, será escalado
-    if(width < height){ // vertical, nome à direita
-        textX = maxX + offset;
-        textY = (minY + maxY)/2;
-    } else { // horizontal, nome acima
+// --- Nome do componente (agora vem por cima de tudo) ---
+if (part.name) {
+    let textX, textY;
+
+    if (part.outline && part.outline.length >= 4) {
+        // Com outline → calcula bounding box
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        for (let i=0; i<part.outline.length; i+=2) {
+            const px = part.origin.x + part.outline[i];
+            const py = part.origin.y + part.outline[i+1];
+            if (px < minX) minX = px;
+            if (py < minY) minY = py;
+            if (px > maxX) maxX = px;
+            if (py > maxY) maxY = py;
+        }
+
+        const width = maxX - minX;
+        const height = maxY - minY;
         textX = (minX + maxX)/2;
-        textY = maxY + offset;
+        textY = (minY + maxY)/2;
+
+        const offset = 5;
+        if (width < height) {
+            textX = maxX + offset;
+            textY = (minY + maxY)/2;
+        } else {
+            textX = (minX + maxX)/2;
+            textY = maxY + offset;
+        }
+    } else if (part.pins && part.pins.length > 0) {
+        // Sem outline → pega posição do primeiro pino
+        textX = part.origin.x + part.pins[0].x;
+        textY = part.origin.y + part.pins[0].y - 5 * scale; // sobe acima do pino
+    } else {
+        // fallback
+        textX = part.origin.x;
+        textY = part.origin.y;
     }
 
-    // Converte para coordenadas do PDF
     const pos = scaleCoord(textX, textY);
 
-    // Define tamanho da fonte proporcional à escala
-    pdf.setFontSize(20*scale);
+    // 🔹 Ajusta tamanho da fonte dependendo do número de pinos
+    let fontSize = 20 * scale;
+    if (part.pins && part.pins.length === 1) {
+        fontSize = 8 * scale; // menor para 1 pino
+    }
+
+    pdf.setFontSize(fontSize);
     pdf.setTextColor(55,55,255);
     pdf.text(part.name, pos.x, pos.y, {align:"center", baseline:"middle"});
 }
 
-        // --- Desenho normal de pinos ---
-        part.pins.forEach(pin => {
-            let fill=[255,255,255], stroke=[0,0,0];
-            if((pin.net||"").toUpperCase().includes("GND")) fill=[180,180,180], stroke=[80,80,80];
-            else if((pin.net||"").toUpperCase().includes("NC")) fill=[150,150,255], stroke=[0,0,0];
-
-            const isSelected = selectedNets.some(sel => (pin.net||"").toUpperCase()===sel.net.toUpperCase());
-            if(isSelected) fill=[255,255,255];
-
-            pdf.setFillColor(...fill);
-            pdf.setDrawColor(...stroke);
-            pdf.setLineWidth(0.5*scale);
-
-            let center;
-            if(pin.outlineRelative && pin.outlineRelative.length>=4){
-                const points = [];
-                for(let i=0;i<pin.outlineRelative.length;i+=2){
-                    const px = part.origin.x + pin.x + pin.outlineRelative[i];
-                    const py = part.origin.y + pin.y + pin.outlineRelative[i+1];
-                    points.push(scaleCoord(px, py));
-                }
-                pdf.lines(points.map((p,i)=>[points[(i+1)%points.length].x - p.x, points[(i+1)%points.length].y - p.y]), points[0].x, points[0].y, [1,1], 'FD');
-                const sumX = points.reduce((a,p)=>a+p.x,0)/points.length;
-                const sumY = points.reduce((a,p)=>a+p.y,0)/points.length;
-                center = {x:sumX, y:sumY};
-            } else {
-                center = scaleCoord(part.origin.x + pin.x, part.origin.y + pin.y);
-                pdf.circle(center.x, center.y, (pin.radius||2)*scale, 'FD');
-            }
-
-            if(pin.name){
-                pdf.setFontSize(6*scale);
-                pdf.setTextColor(55,55,255);
-                pdf.text(pin.name, center.x, center.y, {align:"center", baseline:"middle"});
-            }
-            
-            
-        });
            
  
 });
