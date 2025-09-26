@@ -518,8 +518,8 @@ input.color-picker-btn:hover {
 /* Container fixo para os botões na direita */
 #localButtonContainer {
     position: fixed;
-    top: 70px;          /* 70px do topo */
-    right: 10px;        /* distância da borda direita */
+    top: 0px;          /* 70px do topo */
+    left: 858px;        /* distância da borda direita */
     display: flex;
     flex-direction: column; /* botões em coluna */
     gap: 10px;          /* espaço entre os botões */
@@ -529,7 +529,7 @@ input.color-picker-btn:hover {
 /* Estilo geral dos botões */
 #localButtonContainer button {
     width: 50px;
-    height: 50px;
+    height: 38px;
     font-size: 12px;
     border: none;
     border-radius: 6px;
@@ -548,7 +548,28 @@ input.color-picker-btn:hover {
     color: #ff0000;
 }
 
+#A2 {
+  position: fixed;       /* fixo na tela */
+  top: 0px;             /* distância do topo */
+  margin-left: 800px;             /* centraliza horizontalmente */
+  transform: translateX(-50%); /* ajusta para centralizar de verdade */
+  
+  padding: 10px 20px;
+  background-color: #6a4caf;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+
+
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link type="text/css" rel="stylesheet" charset="UTF-8" href="https://www.gstatic.com/_/translate_http/_/ss/k=translate_http.tr.NJgGN_yGIWM.L.W.O/am=AAY/d=0/rs=AN8SPfrTSMIvWAFISYN4u74dPJrX0HgUsw/m=el_main_css"></head>
 <body>
   <div id="pinDisplay">
@@ -613,7 +634,8 @@ input.color-picker-btn:hover {
     <button id="flipButton">🔁<br>VIRAR</button>
   </div>
 
-  <button id="btnExportar">Exportar PDF</button>
+  <button id="btnExportar">HARDWARE </button>
+  <button id="A2">LAYOUT</button>
 
 <div id="localButtonContainer">
     <button id="btnLoadLocal">📂</button>
@@ -633,6 +655,7 @@ input.color-picker-btn:hover {
         <button id="btnFecharModal">Fechar</button>
     </div>
 </div>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
