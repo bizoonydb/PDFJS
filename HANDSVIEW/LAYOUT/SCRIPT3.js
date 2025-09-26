@@ -45,14 +45,19 @@ function setup() {
     buffer = createGraphics(width, height); // buffer do canvas
 
     // Só processa após carregar o arquivo
-   parseFile();            // fileContent já foi carregado no preload
+    parseFile();            // fileContent já foi carregado no preload
     calcularTransformacion();
-    renderBuffer(); 
+    renderBuffer();
 
 
 
 
-    
+
+
+
+
+
+
 const modal = document.getElementById("modalNets");
 const overlay = document.getElementById("overlay");
 const btnAbrir = document.getElementById("btnAbrirModal");
@@ -146,9 +151,7 @@ cancelBtn.addEventListener("click", () => {
 
 
 
-
-
-document.getElementById("btnExportar").addEventListener("click", () => {
+document.getElementById("A2").addEventListener("click", () => {
     try {
         const { jsPDF } = window.jspdf;
 
@@ -156,6 +159,7 @@ document.getElementById("btnExportar").addEventListener("click", () => {
             alert("Layout não carregado!");
             return;
         }
+        
 
         // --- Limites do layout ---
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -528,6 +532,530 @@ parts.forEach(part => {
     } catch(e) {
         console.error("Erro ao gerar PDF:", e);
     }
+    
+});
+
+
+
+
+document.getElementById("btnExportar").addEventListener("click", () => {
+    try {
+        const { jsPDF } = window.jspdf;
+
+        if (!outlinePoints.length) {
+            alert("Layout não carregado!");
+            return;
+        }
+ // --- Função de cor conforme o nome do componente ---
+        function determineFillColorPDF(part) {
+            if (part.name.startsWith("CON")) {
+                return [50, 50, 50];
+                } else if (part.name.startsWith("C")) {
+                return [180, 120, 80];
+            } else if (part.name.startsWith("R")) {
+                return [50, 50, 50];
+                } else if (part.name.startsWith("TVS")) {
+                return [50, 50, 50];
+            } else if (part.name.startsWith("MIC")) {
+                return [255, 255, 150];
+            } else if (part.name.startsWith("N")) {
+                return [10, 10, 10];
+            } else if (part.name.startsWith("L")) {
+                return [30, 30, 30];
+            } else if (part.name.startsWith("ZD")) {
+                return [80, 80, 80];
+            } else if (part.name.startsWith("U") || part.name.startsWith("u")) {
+                return [10, 10, 10];
+            } else if (part.name.startsWith("S")) {
+                return [128, 128, 128];
+            } else if (part.name.startsWith("H")) {
+                return [50, 50, 50];
+            } else if (part.name.startsWith("J")) {
+                return [50, 50, 50];
+            } else if (part.name.startsWith("D")) {
+                return [80, 80, 80];
+            } else if (part.name.startsWith("Q")) {
+                return [80, 80, 80];
+            } else if (part.name.startsWith("RF")) {
+                return [255, 255, 0];
+            } else if (part.name.startsWith("ANT")) {
+                return [128, 128, 128];
+            } else if (part.name.startsWith("PA")) {
+                return [50, 50, 50];
+            } else if (part.name.startsWith("F")) {
+                return [0, 0, 255];
+            } else {
+                return [200, 200, 200]; // cor padrão
+            }
+        }
+        // --- Limites do layout ---
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+        outlinePoints.forEach(p => {
+            minX = Math.min(minX, p.x);
+            minY = Math.min(minY, p.y);
+            maxX = Math.max(maxX, p.x);
+            maxY = Math.max(maxY, p.y);
+        });
+
+        parts.forEach(part => {
+            part.pins.forEach(pin => {
+                if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
+                    for (let i = 0; i < pin.outlineRelative.length; i += 2) {
+                        let x = pin.x + pin.outlineRelative[i];
+                        let y = pin.y + pin.outlineRelative[i + 1];
+                        minX = Math.min(minX, x);
+                        minY = Math.min(minY, y);
+                        maxX = Math.max(maxX, x);
+                        maxY = Math.max(maxY, y);
+                    }
+                } else {
+                    minX = Math.min(minX, pin.x - (pin.radius || 2));
+                    minY = Math.min(minY, pin.y - (pin.radius || 2));
+                    maxX = Math.max(maxX, pin.x + (pin.radius || 2));
+                    maxY = Math.max(maxY, pin.y + (pin.radius || 2));
+                }
+            });
+        });
+
+        const contentWidth = maxX - minX;
+        const contentHeight = maxY - minY;
+
+        // --- Página A4 landscape ---
+        const pageWidth = 297 * 3.78;   // ~1122 px
+        const pageHeight = 210 * 3.78;  // ~794 px
+        const margin = 20;
+
+        // --- Escala proporcional ---
+        const scaleX = (pageWidth - 2 * margin) / contentWidth;
+        const scaleY = (pageHeight - 2 * margin) / contentHeight;
+        const scale = Math.min(scaleX, scaleY);
+
+        // --- Offsets para centralizar ---
+        const extraX = (pageWidth - contentWidth * scale) / 2 - margin;
+        const extraY = (pageHeight - contentHeight * scale) / 2 - margin;
+
+        const scaleCoord = (x, y) => ({
+            x: (x - minX) * scale + margin + extraX,
+            y: pageHeight - ((y - minY) * scale + margin + extraY)
+        });
+
+        // --- Cria PDF ---
+        const pdf = new jsPDF({ unit: 'px', format: [pageWidth, pageHeight], orientation: 'landscape' });
+        
+        // --- Logo acima do título ---
+const logoImg = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgZlNe2A7MY8TOyZ9siR_7OWDLjTvJWxLLUw&s"; // ou sua base64
+const logoWidth = 60;   // largura da logo
+const logoHeight = 60;  // altura da logo
+const logoX = (pageWidth - logoWidth) / 2; // centralizado horizontalmente
+const logoY = 20; // distância do topo da página
+
+pdf.addImage(logoImg, 'PNG', logoX, logoY, logoWidth, logoHeight);
+        // --- Configurações do título ---
+const mainTitle = pdfTitle || "Layout Eletrônico"; // título definido pelo modal
+const subTitle = "DIGITAL BOARD, ESQUEMAS DIGITALIZADOS";
+const footerText = "+55(33)98444-4376 - DIGITAL BOARD";
+
+// --- Parâmetros do título ---
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(50); // tamanho grande do título
+const paddingX = 20; // padding horizontal do fundo
+const paddingY = 20; // padding vertical do fundo
+
+// Calcula largura do texto para a caixa de fundo
+const titleWidth = pdf.getTextWidth(mainTitle);
+const titleHeight = 50; // altura da caixa do fundo
+
+// Define posição (centralizado horizontalmente, um pouco abaixo do topo)
+const titleX = (pageWidth - titleWidth - paddingX * 2) / 2;
+const titleY = 80; // posição do topo da caixa
+
+// Desenha fundo amarelo com bordas arredondadas
+pdf.setFillColor(255, 255, 0); // amarelo
+pdf.setDrawColor(0, 0, 0);     // borda preta
+pdf.setLineWidth(2);
+pdf.roundedRect(titleX, titleY, titleWidth + paddingX * 2, titleHeight, 10, 10, 'FD');
+
+// Texto do título centralizado
+pdf.setTextColor(0, 0, 0);
+pdf.text(mainTitle, pageWidth / 2, titleY + titleHeight / 2, { align: "center", baseline: "middle" });
+
+// --- Subtítulo abaixo do título ---
+pdf.setFontSize(20);
+pdf.setFont("helvetica", "normal");
+pdf.text(subTitle, pageWidth / 2, titleY + titleHeight + 10, { align: "center", baseline: "middle" });
+// --- Rodapé ---
+pdf.setFontSize(12);
+pdf.setFont("helvetica", "normal");
+
+// Define posição centralizada para o texto e imagem
+const footerY = pageHeight - 20;
+const iconSize = 22; // tamanho do ícone
+const text = " +55(33)98444-4376 - DIGITAL BOARD";
+
+// Calcula largura do texto
+const textWidth = pdf.getTextWidth(text);
+const startX = (pageWidth - (iconSize + 5 + textWidth)) / 2; // 5px de espaçamento
+const whatsappIcon = "https://static.vecteezy.com/system/resources/previews/018/930/564/non_2x/whatsapp-logo-whatsapp-icon-whatsapp-transparent-free-png.png"; // ou base64
+
+// Desenha ícone WhatsApp
+pdf.addImage(whatsappIcon, 'PNG', startX, footerY - iconSize + 2, iconSize, iconSize);
+
+// Ajusta Y do texto para alinhar verticalmente com o ícone
+const textY = footerY - iconSize / 4; // subindo um pouco para centralizar
+pdf.text(text, startX + iconSize + 5, textY, { align: "left", baseline: "middle" });
+
+
+
+        // --- Imagem de fundo invertida, se existir ---
+        if (bgImage) {
+            const tempCanvas = document.createElement("canvas");
+            tempCanvas.width = bgImage.width;
+            tempCanvas.height = bgImage.height;
+            const tempCtx = tempCanvas.getContext("2d");
+            tempCtx.drawImage(bgImage.canvas || bgImage.elt || bgImage, 0, 0);
+
+           
+
+            const imgBase64 = tempCanvas.toDataURL("image/png");
+
+            const imgWidth = contentWidth * scale;
+            const imgHeight = contentHeight * scale;
+            const imgX = margin + extraX;
+            const imgY = pageHeight - margin - imgHeight - extraY;
+            pdf.addImage(imgBase64, 'PNG', imgX, imgY, imgWidth, imgHeight);
+       }
+// --- Rodapé com nomes das nets maiores e em negrito com bordas arredondadas ---
+if (selectedNets && selectedNets.length > 0) {
+    const boxHeight = 150 * scale;   // Altura da caixa
+    const spacing = 15;              // Espaçamento entre caixas
+    const borderRadius = 15;         // Raio das bordas arredondadas
+
+    const uniqueNets = [];
+    const usedColors = [];
+    selectedNets.forEach(n => {
+        const colorKey = (n.color || [255, 0, 0]).join(",");
+        if (!usedColors.includes(colorKey)) {
+            usedColors.push(colorKey);
+            uniqueNets.push(n);
+        }
+    });
+
+    let totalWidth = 0;
+    const boxWidths = uniqueNets.map(netObj => {
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(90 * scale);   // Texto bem grande
+        const w = pdf.getTextWidth(netObj.net) + 40; // Padding horizontal maior
+        totalWidth += w;
+        return w;
+    });
+    totalWidth += spacing * (uniqueNets.length - 1);
+
+    let xOffset = (pageWidth - totalWidth) / 2;
+    const yOffset = pageHeight - boxHeight - 50; // Mais pra cima que antes
+
+    uniqueNets.forEach((netObj, i) => {
+        const color = netObj.color || [255, 0, 0];
+        pdf.setFillColor(...color);
+        pdf.setDrawColor(...color);
+        const text = netObj.net;
+        const boxWidth = boxWidths[i];
+
+        // Caixa com bordas arredondadas
+        pdf.roundedRect(xOffset, yOffset, boxWidth, boxHeight, borderRadius, borderRadius, 'F');
+
+        // Texto centralizado
+        pdf.setTextColor(0, 0, 0);
+        pdf.text(text, xOffset + boxWidth / 2, yOffset + boxHeight / 2, {
+            align: 'center',
+            baseline: 'middle'
+        });
+
+        xOffset += boxWidth + spacing;
+    });
+}
+
+
+
+
+
+
+
+
+
+
+// --- Desenha os componentes ---
+parts.forEach(part => {
+    if (part.outline && part.outline.length) {
+        const fillColor = determineFillColorPDF(part);
+        pdf.setFillColor(...fillColor);
+        pdf.setDrawColor(0, 0, 0);      // Cor da borda
+        pdf.setLineWidth(0.5 * scale);  // Largura da borda
+
+        // Calcula bounding box do componente
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        for (let i = 0; i < part.outline.length; i += 2) {
+            const x = part.origin.x + part.outline[i];
+            const y = part.origin.y + part.outline[i + 1];
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+        }
+        const topLeft = scaleCoord(minX, minY);
+        const bottomRight = scaleCoord(maxX, maxY);
+        const width = bottomRight.x - topLeft.x;
+        const height = topLeft.y - bottomRight.y; // invertido pelo PDF
+
+        // Preenche e desenha contorno do componente
+        if (part.pins.length < 3) {
+            const radius = Math.min(width, height) * 0.1; // ajuste o raio
+            pdf.roundedRect(topLeft.x, bottomRight.y, width, height, radius, radius, 'FD'); // Fill + Draw
+        } else {
+            pdf.rect(topLeft.x, bottomRight.y, width, height, 'FD'); // Fill + Draw
+        }
+    }
+});
+// --- Pinos ---
+// --- Pinos ---
+parts.forEach(part => {
+    const moreThanSixPins = part.pins.length > 6;
+    const applyYellowCopper = moreThanSixPins && (
+        part.name.startsWith("J") ||
+        part.name.startsWith("SOC") ||
+        
+        part.name.startsWith("CON")
+    );
+
+    part.pins.forEach(pin => {
+        pdf.setLineWidth(0.5 * scale);
+        const label = pin.name || "";
+
+        // Cores padrão
+        let fill = [180,180,180];
+        let stroke = [0,0,0];
+
+        // GND ou NC
+        if ((pin.net || "").toUpperCase().includes("GND")) {
+            fill = [180,180,180];
+            stroke = [80,80,80];
+        } else if ((pin.net || "").toUpperCase().includes("NC")) {
+            fill = [150,150,255];
+            stroke = [0,0,0];
+        }
+
+        // Se o componente for J, SOC ou CON e tiver mais de 6 pinos
+        if (applyYellowCopper && pin.outlineRelative && pin.outlineRelative.length >= 4) {
+            fill = [205,127,50]; // amarelo cobre
+            stroke = [0,0,0];
+        }
+
+        pdf.setFillColor(...fill);
+        pdf.setDrawColor(...stroke);
+
+        let centerX, centerY;
+
+        if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
+            const points = [];
+            for (let i = 0; i < pin.outlineRelative.length; i += 2) {
+                points.push(scaleCoord(pin.x + pin.outlineRelative[i], pin.y + pin.outlineRelative[i+1]));
+            }
+
+            let minX = Math.min(...points.map(p => p.x));
+            let minY = Math.min(...points.map(p => p.y));
+            let maxX = Math.max(...points.map(p => p.x));
+            let maxY = Math.max(...points.map(p => p.y));
+
+            const width = maxX - minX;
+            const height = maxY - minY;
+            const radius = Math.min(width, height) * 0.2;
+
+            pdf.roundedRect(minX, minY, width, height, radius, radius, 'FD');
+
+            centerX = minX + width/2;
+            centerY = minY + height/2;
+        } else {
+            const pos = scaleCoord(pin.x, pin.y);
+            const r = (pin.radius || 2) * scale;
+            pdf.circle(pos.x, pos.y, r, 'FD');
+            centerX = pos.x;
+            centerY = pos.y;
+        }
+
+        if (label) {
+            pdf.setFontSize(6 * scale);
+            pdf.setTextColor(0,0,0);
+            pdf.text(label, centerX, centerY, {align:"center", baseline:"middle"});
+        }
+    });
+});
+
+
+
+
+
+        // --- Nets selecionadas com roteamento evitando sobreposição ---
+// --- Nets selecionadas com L offset ---
+if (selectedNets && selectedNets.length > 0) {
+    const netsMap = {};
+    const offsetMap = {}; // armazena deslocamentos por coordenada
+
+    selectedNets.forEach(sel => {
+        if (!netsMap[sel.net]) netsMap[sel.net] = [];
+        netsMap[sel.net].push(sel.id);
+    });
+
+    for (let netName in netsMap) {
+        const color = selectedNets.find(n => n.net === netName)?.color || [255, 0, 0];
+        pdf.setLineWidth(1.5 * scale);
+        pdf.setDrawColor(...color);
+
+        const connectedPoints = [];
+        for (let pinId of netsMap[netName]) {
+            for (let part of parts) {
+                const groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+                for (let pin of part.pins) {
+                    const currentId = `${part.name}_${pin.name}`;
+                    if (currentId === pinId) {
+                        let centerX, centerY;
+                        if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
+                            let sumX = 0, sumY = 0, count = 0;
+                            for (let i = 0; i < pin.outlineRelative.length; i += 2) {
+                                sumX += pin.x + pin.outlineRelative[i] + groupOffset;
+                                sumY += pin.y + pin.outlineRelative[i + 1];
+                                count++;
+                            }
+                            centerX = sumX / count;
+                            centerY = sumY / count;
+                        } else {
+                            centerX = pin.x + groupOffset;
+                            centerY = pin.y;
+                        }
+                        connectedPoints.push({ pin, center: scaleCoord(centerX, centerY) });
+                    }
+                }
+            }
+        }
+
+        for (let i = 1; i < connectedPoints.length; i++) {
+    const p1 = connectedPoints[i - 1].center;
+    const p2 = connectedPoints[i].center;
+
+    const keyH = `H_${Math.round(p1.y)}`;
+    const keyV = `V_${Math.round(p1.x)}`;
+    if (!offsetMap[keyH]) offsetMap[keyH] = 0;
+    if (!offsetMap[keyV]) offsetMap[keyV] = 0;
+
+    const step = 4 * scale;
+    const offsetPerp = (offsetMap[keyH] + offsetMap[keyV]) * step;
+
+    if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
+        // horizontal primeiro
+        const midX = p2.x;
+        const midY = p1.y + offsetPerp;
+
+        // Linha do pino 1 até o ponto de saída horizontal (com offset)
+        pdf.line(p1.x, p1.y, p1.x, p1.y + offsetPerp);
+        // Linha horizontal desviado
+        pdf.line(p1.x, p1.y + offsetPerp, midX, midY);
+        // Linha vertical até o centro do pino 2
+        pdf.line(midX, midY, p2.x, p2.y);
+        // Linha do ponto de chegada até o centro do pino 2 (fecha)
+        pdf.line(p2.x, p2.y, p2.x, midY);
+    } else {
+        // vertical primeiro
+        const midX = p1.x + offsetPerp;
+        const midY = p2.y;
+
+        // Linha do pino 1 até o ponto de saída vertical (com offset)
+        pdf.line(p1.x, p1.y, p1.x + offsetPerp, p1.y);
+        // Linha vertical desviado
+        pdf.line(p1.x + offsetPerp, p1.y, midX, midY);
+        // Linha horizontal até o centro do pino 2
+        pdf.line(midX, midY, p2.x, p2.y);
+        // Linha do ponto de chegada até o centro do pino 2 (fecha)
+        pdf.line(p2.x, p2.y, midX, p2.y);
+    }
+
+    offsetMap[keyH]++;
+    offsetMap[keyV]++;
+}
+
+
+        // --- Desenha os pads ---
+        connectedPoints.forEach(({ pin, center }) => {
+            pdf.setFillColor(...color);
+            
+
+            if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
+                const points = [];
+                for (let i = 0; i < pin.outlineRelative.length; i += 2) {
+                    points.push(scaleCoord(pin.x + pin.outlineRelative[i], pin.y + pin.outlineRelative[i + 1]));
+                }
+                let minX = Math.min(...points.map(p => p.x));
+                let minY = Math.min(...points.map(p => p.y));
+                let maxX = Math.max(...points.map(p => p.x));
+                let maxY = Math.max(...points.map(p => p.y));
+                const width = maxX - minX;
+                const height = maxY - minY;
+                const radius = Math.min(width, height) * 0.2;
+                pdf.roundedRect(minX, minY, width, height, radius, radius, 'FD');
+            } else {
+                const r = (pin.radius || 2) * scale;
+                pdf.circle(center.x, center.y, r, 'FD');
+            }
+        });
+    }
+}
+
+
+// --- Marca d'água ---
+const watermarkText = "DIGITAL BOARD";
+const fontSize = 12;          // tamanho pequeno
+const angle = -30;            // ângulo em graus
+const spacingX = 150;         // espaçamento horizontal
+const spacingY = 100;         // espaçamento vertical
+
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(fontSize);
+
+// Define opacidade (0 = invisível, 1 = totalmente opaco)
+pdf.setGState(new pdf.GState({ opacity: 0.2})); // 10% visível
+
+for (let x = -pageWidth; x < pageWidth * 2; x += spacingX) {
+    for (let y = -pageHeight; y < pageHeight * 2; y += spacingY) {
+        pdf.text(watermarkText, x, y, {
+            align: "left",
+            baseline: "top",
+            angle: angle
+        });
+    }
+}
+
+// Volta à opacidade normal para outros elementos
+pdf.setGState(new pdf.GState({ opacity: 1 }));
+
+
+
+        // --- Nomes dos componentes por cima de tudo ---
+parts.forEach(part => {
+    if (part.name && part.pins.length) {
+        let sumX = 0, sumY = 0;
+        part.pins.forEach(pin => { sumX += pin.x; sumY += pin.y; });
+        const center = scaleCoord(sumX / part.pins.length, sumY / part.pins.length);
+        pdf.setFontSize(10 * scale);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text(part.name, center.x, center.y, { align: "center", baseline: "middle" });
+    }
+});
+
+        // --- Salva PDF ---
+        pdf.save("layout_completo.pdf");
+        console.log("PDF gerado com sucesso!");
+
+    } catch(e) {
+        console.error("Erro ao gerar PDF:", e);
+    }
 });
 
 
@@ -580,7 +1108,6 @@ parts.forEach(part => {
 
     fillComponentDatalist();
     setupSearchListener();
-    
 
 }
 
@@ -589,10 +1116,12 @@ parts.forEach(part => {
  let blinkInterval = 15;  // Intervalo em frames para alternar as cores (ajuste conforme necessário)
  
  function draw() {
+    
     background(0);
    
     // T1: Rotação global centrada no canvas
     push();
+    
     translate(width / 2, height / 2);
     rotate(rotationAngle);
     translate(-width / 2, -height / 2);
@@ -628,6 +1157,7 @@ parts.forEach(part => {
     // 🔽 Desenha a imagem de fundo com zoom e pan aplicados
     drawBackgroundImage();
     
+    
     function getBvrBoundingBox() {
         let xs = outlinePoints.map(p => p.x);
         let ys = outlinePoints.map(p => p.y);
@@ -635,7 +1165,7 @@ parts.forEach(part => {
         let maxX = Math.max(...xs);
         let minY = Math.min(...ys);
         let maxY = Math.max(...ys);
-       
+        
         return {
           minX,
           maxX,
@@ -754,15 +1284,15 @@ drawComponentBoundingBoxes();
 
     // -----------------------------------------
 
-    
-
+     
+      
     // Dibujar el buffer
     image(buffer, 0, 0);
     
 
     // Atualiza o estado de piscamento
 blinkState = (frameCount % blinkInterval < blinkInterval / 2) ? 255 : 0;  // Alterna entre 255 e 0 a cada intervalo
-
+ drawPartNames();
 // Desenha os pinos com efeito de piscar
 /// Desenha os pinos com efeito de piscar
 if (scaleFactor >= 0.2) {
@@ -936,9 +1466,10 @@ if (scaleFactor >= 0.2) {
 
     
     
-    drawSelectedNetConnections();
+    
+    
    
-    drawPartNames();
+    drawSelectedNetConnections();
 
     pop(); // Fin T3: Traslación y escalado
     pop(); // Fin T2: Reflejo horizontal
@@ -1437,7 +1968,9 @@ function drawBlueDot(x, y) {
 
 
 
-// ------------------ MOUSE CLICK ------------------
+
+
+// ------------------ MOUSE PRESSED ------------------
 function mousePressed() {
     let worldPos = screenToWorld(mouseX, mouseY);
     let mx = worldPos.x;
@@ -1481,18 +2014,16 @@ function handlePinClick(part, pin) {
         const colorInput = document.getElementById("netColorPicker");
         const rgb = hexToRgb(colorInput.value);
 
-        // Verifica se o pino já está selecionado
         const existingIndex = selectedNets.findIndex(p => p.id === pinId);
         if (existingIndex === -1) {
-            // Adiciona o pino à net
             selectedNets.push({ id: pinId, net: pin.net, color: rgb });
         } else {
-            // Remove apenas o pino clicado, mantendo os outros da mesma net
             selectedNets.splice(existingIndex, 1);
         }
 
-        // Atualiza todas as nets desenhadas, incluindo essa
+        // ⚡ Chamada imediata para atualizar linhas e desenhar
         actualizarRedSeleccionada();
+       
     }
 
     tooltip = { text: tooltipText, x: pin.x, y: pin.y, side: part.side };
@@ -1509,46 +2040,6 @@ function handlePinClick(part, pin) {
     updateComponentInfo(part, pin);
 }
 
-// ------------------ ATUALIZAR RED SELECIONADA ------------------
-function actualizarRedSeleccionada() {
-    netLines = [];
-
-    // Agrupa pinos por net
-    const netsMap = {};
-    selectedNets.forEach(sel => {
-        if (!netsMap[sel.net]) netsMap[sel.net] = new Set();
-        netsMap[sel.net].add(sel.id);
-    });
-
-    for (let netName in netsMap) {
-        const pinIds = Array.from(netsMap[netName]);
-        let connectedPoints = [];
-
-        for (let part of parts) {
-            let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
-
-            for (let pin of part.pins) {
-                const pinId = `${part.name}_${pin.name}`;
-                if (pin.net === netName && pinIds.includes(pinId)) {
-                    let px = pin.x + (part.side === "B" ? groupOffset : 0);
-                    let py = pin.y;
-                    connectedPoints.push({ x: px, y: py });
-                }
-            }
-        }
-
-        // Ordena e conecta todos os pinos restantes da net
-        connectedPoints.sort((a, b) => a.x - b.x || a.y - b.y);
-
-        for (let i = 1; i < connectedPoints.length; i++) {
-            const p1 = connectedPoints[i - 1];
-            const p2 = connectedPoints[i];
-            netLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p1.y, net: netName });
-            netLines.push({ x1: p2.x, y1: p1.y, x2: p2.x, y2: p2.y, net: netName });
-        }
-    }
-}
-
 // ------------------ DESENHO DAS CONEXÕES ------------------
 function drawSelectedNetConnections() {
     if (!selectedNets || selectedNets.length === 0) return;
@@ -1557,7 +2048,7 @@ function drawSelectedNetConnections() {
     strokeWeight(2);
     noFill();
 
-    // Agrupa pinos por net mantendo a ordem de clique
+    // Agrupa pinos por net
     const netsMap = {};
     selectedNets.forEach(sel => {
         if (!netsMap[sel.net]) netsMap[sel.net] = [];
@@ -1568,38 +2059,465 @@ function drawSelectedNetConnections() {
         const color = selectedNets.find(n => n.net === netName)?.color || [0, 255, 0];
         stroke(...color);
 
-        // Pega os pinos dessa net na ordem de clique
-        let connectedPoints = [];
+        const connectedPoints = [];
+
+        // Obter coordenadas de cada pino
         for (let pinId of netsMap[netName]) {
-            for (let part of parts) {
-                let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
-                for (let pin of part.pins) {
-                    const currentId = `${part.name}_${pin.name}`;
-                    if (currentId === pinId) {
-                        connectedPoints.push({
-                            pin,
-                            x: pin.x + groupOffset,
-                            y: pin.y
-                        });
-                    }
-                }
-            }
+            const [partName, pinName] = pinId.split("_");
+            const part = parts.find(p => p.name === partName);
+            if (!part) continue;
+            const pin = part.pins.find(p => p.name === pinName);
+            if (!pin) continue;
+
+            const groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+            connectedPoints.push({ x: pin.x + groupOffset, y: pin.y });
         }
 
-        // Conecta os pinos na ordem de clique
+        // Desenha linhas L entre pinos consecutivos
         for (let i = 1; i < connectedPoints.length; i++) {
             const p1 = connectedPoints[i - 1];
             const p2 = connectedPoints[i];
-            let offset = (i % 2 === 0) ? 1 : -1; // alterna deslocamento
-         drawOrthogonalLine(p1.x + offset, p1.y + offset, p2.x + offset, p2.y + offset);
+
+            if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
+                const midY = p1.y;
+                line(p1.x, p1.y, p2.x, midY);
+                line(p2.x, midY, p2.x, p2.y);
+            } else {
+                const midX = p1.x;
+                line(p1.x, p1.y, midX, p2.y);
+                line(midX, p2.y, p2.x, p2.y);
+            }
         }
 
-        // Desenha todos os pinos selecionados
+        // Pontos azuis
         connectedPoints.forEach(p => drawBlueDot(p.x, p.y, 4));
     }
 
     pop();
 }
+function expandNetByPassThroughOnlyMarked(cor) {
+    const alreadySelected = new Set(selectedNets.map(sel => sel.id));
+    const alreadyExpandedParts = new Set();
+    let queue = [];
+
+    // Inicializa a fila apenas com os pinos já selecionados (marcados pelas palavras-chave e cor)
+    for (let sel of selectedNets) {
+        if (sel.color.toString() !== cor.toString()) continue; // só expande para a cor atual
+        const [partName, pinName] = sel.id.split("_");
+        const part = parts.find(p => p.name === partName);
+        if (!part) continue;
+        const pin = part.pins.find(p => p.name === pinName);
+        if (!pin) continue;
+        queue.push({ part, pin, fromNet: pin.net });
+    }
+
+    while (queue.length > 0) {
+        const { part, pin, fromNet } = queue.shift();
+
+        // Só propaga para componentes de 2 pinos
+        if (part.pins.length !== 2) continue;
+
+        const netsInPart = Array.from(new Set(part.pins.map(p => p.net).filter(Boolean)));
+        if (netsInPart.length !== 2) continue;
+
+        const partKey = part.name + "_" + part.pins.map(p => p.net).join("_");
+        if (alreadyExpandedParts.has(partKey)) continue;
+        alreadyExpandedParts.add(partKey);
+
+        // Só propaga se algum pino do componente já está marcado
+        const algumMarcado = part.pins.some(p => alreadySelected.has(`${part.name}_${p.name}`));
+        if (!algumMarcado) continue;
+
+        // Descobre a outra net
+        const otherNet = netsInPart.find(n => n !== fromNet);
+
+        // NÃO marca se a outra net for GND
+        if (!otherNet || otherNet.trim().toUpperCase() === "GND") continue;
+
+        // Marca apenas o outro pino deste componente, com a mesma cor
+        let marcouNovo = false;
+        for (let otherPin of part.pins) {
+            if (otherPin.net === otherNet) {
+                const pinId = `${part.name}_${otherPin.name}`;
+                if (!alreadySelected.has(pinId)) {
+    selectedNets.push({ id: pinId, net: otherNet, color: cor });
+    alreadySelected.add(pinId);
+
+    // ⚡ Desenhar imediatamente a linha conectando o novo pino
+      markAndDrawFullNet(otherNet, cor);
+      expandNetWithTwoPadComponents(pin.net, cor);
+}
+            }
+        }
+
+        // Se marcou novo pino, continua expansão para outros componentes de 2 pinos conectados à nova net
+        if (marcouNovo) {
+            for (let nextPart of parts) {
+                if (nextPart.pins.length !== 2) continue;
+                const nextNets = Array.from(new Set(nextPart.pins.map(p => p.net).filter(Boolean)));
+                if (nextNets.length !== 2) continue;
+
+                // Só adiciona se algum pino desse componente tem a outra net
+                if (nextPart.pins.some(p => p.net === otherNet)) {
+                    const nextPartKey = nextPart.name + "_" + nextPart.pins.map(p => p.net).join("_");
+                    if (!alreadyExpandedParts.has(nextPartKey)) {
+                        for (let nextPin of nextPart.pins) {
+                            if (nextPin.net === otherNet) {
+                                queue.push({ part: nextPart, pin: nextPin, fromNet: otherNet });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Atualiza todas as nets apenas **uma vez no final**
+    actualizarRedSeleccionada();
+    
+    
+}
+function expandNetWithTwoPadComponents(netName, color, maxHops = 5) {
+    const visitedNets = new Set(); 
+    const queue = [netName];
+
+    while (queue.length > 0) {
+        const currentNet = queue.shift();
+        if (visitedNets.has(currentNet)) continue;
+        visitedNets.add(currentNet);
+
+        // Marca e desenha toda a net atual
+        markAndDrawFullNet(currentNet, color);
+
+        // Agora verifica todos os componentes dessa net
+        for (let part of parts) {
+            if (part.pins.length !== 2) continue; // só 2 pads
+            const netsInPart = Array.from(new Set(part.pins.map(p => p.net).filter(Boolean)));
+            if (netsInPart.length !== 2) continue; // precisa ter 2 nets distintas
+
+            // Esse componente está ligado à net atual?
+            if (!netsInPart.includes(currentNet)) continue;
+
+            // Descobre a outra net
+            const otherNet = netsInPart.find(n => n !== currentNet);
+            if (!otherNet) continue;
+
+            // Ignora nets inválidas
+            if (["GND", "NC"].includes(otherNet.toUpperCase())) continue;
+
+            // Se ainda não visitamos essa outra net, adiciona na fila
+            if (!visitedNets.has(otherNet)) {
+                queue.push(otherNet);
+            }
+        }
+    }
+}
+
+
+function markAndDrawFullNet(netName, color) {
+    if (!netName) return;
+
+    // Procura todos os pinos de todos os componentes dessa net
+    for (let part of parts) {
+        const groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+
+        for (let pin of part.pins) {
+            if (pin.net === netName) {
+                const pinId = `${part.name}_${pin.name}`;
+
+                // Adiciona a selectedNets se ainda não estiver
+                if (!selectedNets.some(p => p.id === pinId)) {
+                    selectedNets.push({ id: pinId, net: netName, color: color });
+                }
+            }
+        }
+    }
+
+    // Desenha toda a net
+    const connectedPins = selectedNets
+        .filter(p => p.net === netName)
+        .map(p => {
+            const [partName, pinName] = p.id.split("_");
+            const part = parts.find(pt => pt.name === partName);
+            if (!part) return null;
+            const pin = part.pins.find(pt => pt.name === pinName);
+            if (!pin) return null;
+            const offset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+            return { x: pin.x + offset, y: pin.y };
+        })
+        .filter(Boolean);
+
+    if (connectedPins.length <= 1) return;
+
+    stroke(...(selectedNets.find(p => p.net === netName)?.color || [0, 255, 0]));
+    strokeWeight(2);
+
+    // linhas L
+    for (let i = 1; i < connectedPins.length; i++) {
+        const p1 = connectedPins[i - 1];
+        const p2 = connectedPins[i];
+        if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
+            const midY = p1.y;
+            line(p1.x, p1.y, p2.x, midY);
+            line(p2.x, midY, p2.x, p2.y);
+        } else {
+            const midX = p1.x;
+            line(p1.x, p1.y, midX, p2.y);
+            line(midX, p2.y, p2.x, p2.y);
+        }
+    }
+
+    // pontos azuis
+    connectedPins.forEach(p => drawBlueDot(p.x, p.y, 4));
+}
+
+
+
+// ------------------ ATUALIZAR RED SELECIONADA ------------------
+function actualizarRedSeleccionada(ordenarPorProximidade = false) {
+    netLines = []; // limpa as linhas antigas
+
+    const netsMap = {};
+    selectedNets.forEach(sel => {
+        if (!netsMap[sel.net]) netsMap[sel.net] = [];
+        netsMap[sel.net].push(sel.id);
+    });
+
+    for (let netName in netsMap) {
+        const pinIds = netsMap[netName];
+        let connectedPoints = [];
+
+        // coleta coordenadas de todos os pinos selecionados
+        for (let sel of pinIds) {
+            const [partName, pinName] = sel.split("_");
+            const part = parts.find(p => p.name === partName);
+            if (!part) continue;
+            const pin = part.pins.find(p => p.name === pinName);
+            if (!pin) continue;
+            const groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+            connectedPoints.push({ x: pin.x + groupOffset, y: pin.y });
+        }
+
+        if (connectedPoints.length <= 1) continue;
+
+        if (ordenarPorProximidade) {
+            connectedPoints.sort((a, b) => a.x - b.x || a.y - b.y);
+        }
+
+        // cria linhas L
+        for (let i = 1; i < connectedPoints.length; i++) {
+            const p1 = connectedPoints[i - 1];
+            const p2 = connectedPoints[i];
+            if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
+                const midY = p1.y;
+                netLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: midY, net: netName });
+                netLines.push({ x1: p2.x, y1: midY, x2: p2.x, y2: p2.y, net: netName });
+            } else {
+                const midX = p1.x;
+                netLines.push({ x1: p1.x, y1: p1.y, x2: midX, y2: p2.y, net: netName });
+                netLines.push({ x1: midX, y1: p2.y, x2: p2.x, y2: p2.y, net: netName });
+            }
+        }
+    }
+}
+
+
+
+let originalPins = []; // armazena os pinos iniciais com id, net e cor
+
+function marcarNetsPorNome(regras, ordenarPorProximidade = false) {
+    const regrasLower = regras.map(r => ({ termo: r.termo.toLowerCase(), cor: r.cor }));
+
+    if (Array.isArray(selectedNets)) selectedNets.length = 0;
+
+    for (let part of parts) {
+        for (let pin of part.pins) {
+            if (!pin.net) continue;
+            const netName = String(pin.net).toLowerCase();
+            const pinId = `${part.name}_${pin.name}`;
+            for (let r of regrasLower) {
+                if (netName.includes(r.termo)) {
+                    if (!selectedNets.some(p => p.id === pinId)) {
+                        selectedNets.push({ id: pinId, net: pin.net, color: r.cor });
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    // Salva os pinos originais
+    originalPins = selectedNets.map(p => ({ ...p }));
+
+    // Expande para cada cor das regras
+    for (let r of regrasLower) {
+        expandNetByPassThroughOnlyMarked(r.cor);
+    }
+
+    // Ordenar por proximidade se necessário
+    if (ordenarPorProximidade) {
+        const netsMap = {};
+        selectedNets.forEach(sel => {
+            if (!netsMap[sel.net]) netsMap[sel.net] = [];
+            netsMap[sel.net].push(sel);
+        });
+        selectedNets = [];
+        for (let netName in netsMap) {
+            let pinsWithCoord = netsMap[netName].map(sel => {
+                let found = null;
+                for (let part of parts) {
+                    for (let pin of part.pins) {
+                        if (`${part.name}_${pin.name}` === sel.id) {
+                            found = { sel, x: pin.x, y: pin.y };
+                            break;
+                        }
+                    }
+                    if (found) break;
+                }
+                return found;
+            }).filter(Boolean);
+            pinsWithCoord.sort((a, b) => a.x - b.x || a.y - b.y);
+            pinsWithCoord.forEach(obj => selectedNets.push(obj.sel));
+        }
+    }
+}// ------------------ REMOVE COMPLETAMENTE EXPANSÕES PELA COR, sem bagunçar outras nets ------------------
+function compressExpandedNets() {
+    if (!originalPins || originalPins.length === 0) return;
+    if (!selectedNets || selectedNets.length === 0) return;
+
+    // Conta pinos por cor
+    let colorCount = {};
+    selectedNets.forEach(p => {
+        const key = (p.color || []).join(",");
+        colorCount[key] = (colorCount[key] || 0) + 1;
+    });
+
+    if (Object.keys(colorCount).length === 0) return;
+
+    // Cor mais carregada
+    let maxColor = Object.keys(colorCount).reduce((a, b) =>
+        colorCount[a] > colorCount[b] ? a : b
+    );
+
+    // Pinos originais dessa cor
+    const originalOfColor = originalPins.filter(p => (p.color || []).join(",") === maxColor);
+
+    // Remove apenas os pinos extras dessa cor
+    selectedNets = selectedNets.filter(p => {
+        const pColor = (p.color || []).join(",");
+        if (pColor !== maxColor) return true;                 // Mantém outras cores
+        return originalOfColor.some(orig => orig.id === p.id); // Mantém apenas os originais
+    });
+
+    // ⚠️ Removei o sort! Agora a ordem das outras nets não é alterada
+}
+
+
+
+
+
+function keyPressed() {
+    if (key === '1' || key === '1') {
+        // Regras CARGAMENTO USB
+        marcarNetsPorNome([
+            { termo: "vbus", cor: [255, 0, 0] },
+            { termo: "vcharge", cor: [255, 0, 0] },
+            
+             { termo: "v_charge", cor: [255, 0, 0] },
+            
+            { termo: "v_bus", cor: [255, 0, 0] },        
+            { termo: "usb_dm", cor: [255, 255, 0] },
+             { termo: "ap_dm", cor: [255, 255, 0] },
+             { termo: "ap_dn", cor: [255, 255, 0] },
+             { termo: "ap_d_m", cor: [255, 255, 0] },
+             { termo: "ap_d_n", cor: [255, 255, 0] },
+             { termo: "usb_dn", cor: [255, 255, 0] },
+             { termo: "usb_d_m", cor: [255, 255, 0] }, 
+              { termo: "usb_d_n", cor: [255, 255, 0] }, 
+               { termo: "_d_n", cor: [255, 255, 0] },
+                { termo: "_d_m", cor: [255, 255, 0] },
+                
+                
+               { termo: "usb_d_p", cor: [0, 255, 0] },
+                
+                { termo: "_d_p", cor: [0, 255, 0] }, 
+                { termo: "sns_p", cor: [0, 255, 0] }, 
+                 { termo: "sns_m", cor: [255, 255, 0] },
+                 { termo: "sns_n", cor: [255, 255, 0] },
+                 { termo: "sns_dp", cor: [0, 255, 0] }, 
+                 { termo: "sns_dm", cor: [255, 255, 0] },
+            { termo: "usb_dp", cor: [0, 255, 0] },
+             { termo: "ap_dp", cor: [0, 255, 0] }, 
+             { termo: "ap_d_p", cor: [0, 255, 0] },    
+            { termo: "usb_id", cor: [0, 0, 255] }, 
+            
+            { termo: "cc1", cor: [0, 155, 255] },
+            
+           
+             
+            { termo: "hs_dp", cor: [0, 255, 0] },
+             { termo: "hs_dm", cor: [255, 255, 0] },
+             
+             { termo: "bs+", cor: [0, 155, 255] },
+             { termo: "bs-", cor: [0, 155, 155] },
+              
+            { termo: "cc2", cor: [155, 0, 255] }      
+        ], true);
+        return false;
+    }
+
+    if (key === '2' || key === '2') {
+        // BACKLIGHT
+        marcarNetsPorNome([
+            { termo: "LEDK", cor: [255, 255, 0] },
+            { termo: "LED_K", cor: [255, 255, 0] }, 
+            { termo: "LEDA", cor: [0, 150, 255] },
+            { termo: "cabc", cor: [250, 150, 0] },
+            { termo: "cab_c", cor: [250, 150, 0] }, 
+            { termo: "LED_A", cor: [0, 150, 255] },
+            { termo: "N", cor: [0, 150, 255] }
+        ]);
+        return false;
+    }
+
+    if (key === '0' || key === '0') {
+        compressExpandedNets();
+        
+        return false;
+    }
+
+    //BATERIA FPC
+    if (key === '3' || key === '3') {
+        marcarNetsPorNome([
+            { termo: "AAAAAA", cor: [0, 255, 255]},
+            { termo: "vbaterry_sr", cor: [133, 0, 0] },
+ { termo: "bat_id", cor: [0, 155, 255] },
+ { termo: "batid", cor: [0, 155, 255] },
+  { termo: "bat_id2", cor: [0, 155, 155] },
+    { termo: "bat_id1", cor: [0, 155, 155] },
+ { termo: "baton", cor: [0, 155, 255] },
+ { termo: "bat_thm", cor: [255, 155, 0] },
+{ termo: "batt_th", cor: [255, 155, 0] },
+ { termo: "therm", cor: [255, 155, 0] },
+        { termo: "cc2", cor: [155, 0, 255] }      
+        ], true);
+        return false;
+    }
+
+
+    if (key === '4' || key === '4') {
+        marcarNetsPorNome([{ termo: "SPK", cor: [0, 255, 255] }]);
+        return false;
+    }
+
+    if (key === '5' || key === '5') {
+        marcarNetsPorNome([{ termo: "cam", cor: [255, 0, 255] }]);
+        return false;
+    }
+}
+
+
+
 
 
 
@@ -1946,6 +2864,7 @@ function moveToNextPinInNet() {
             displayMode === "all" && nextItem.partSide === "B" ? bottomOffset : 0;
         selectedPin = nextItem.pin;
         actualizarRedSeleccionada();
+        drawSelectedNetConnections();
 
         tooltip = {
             text: `Parte: ${nextItem.partName}\nNet: ${nextItem.pin.net}`,
@@ -1965,18 +2884,6 @@ function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
     renderBuffer(); // Vuelve a dibujar el contenido después del ajuste
 }
-
-function keyPressed() {
-    if (document.activeElement.tagName === "INPUT") {
-        return; // Permite escribir en el input
-    }
-    return false; // Evita que p5.js bloquee la entrada
-}
-
-
-
-
-
 
 
 
@@ -2063,6 +2970,189 @@ function exportarNetSelecionadaPDF() {
         y: pageHeight - (y*scale + extraY)
     });
 
+const borderMargin = 15; // distância da borda da página
+const pageTopLeft = { x: borderMargin, y: borderMargin };
+const pageBottomRight = { x: pageWidth - borderMargin, y: pageHeight - borderMargin };
+
+// --- Desenha retângulo da borda ---
+pdf.setLineWidth(2);
+pdf.setDrawColor(0,0,0);
+pdf.rect(pageTopLeft.x, pageTopLeft.y, pageBottomRight.x - pageTopLeft.x, pageBottomRight.y - pageTopLeft.y);
+
+// --- Letras na lateral esquerda da borda com risquinho ---
+const rows = 10; // letras A-J
+const rowHeight = (pageBottomRight.y - pageTopLeft.y)/rows;
+const tickLength = 5;
+
+pdf.setFontSize(10);
+pdf.setTextColor(0,0,0);
+
+for(let r=0; r<rows; r++){
+    const letter = String.fromCharCode(65+r);
+    const y = pageTopLeft.y + r*rowHeight + rowHeight/2;
+
+    // letra
+    pdf.text(letter, pageTopLeft.x - 5, y, {align:"right", baseline:"middle"});
+    // risquinho horizontal
+    pdf.line(pageTopLeft.x, y, pageTopLeft.x + tickLength, y);
+}
+
+// --- Números na parte superior da borda com risquinho ---
+const cols = 10; // números 1-10
+const colWidth = (pageBottomRight.x - pageTopLeft.x)/cols;
+
+for(let c=0; c<cols; c++){
+    const num = (c+1).toString();
+    const x = pageTopLeft.x + c*colWidth + colWidth/2;
+
+    // número
+    pdf.text(num, x, pageTopLeft.y - 5, {align:"center", baseline:"bottom"});
+    // risquinho vertical
+    pdf.line(x, pageTopLeft.y, x, pageTopLeft.y + tickLength);
+
+}
+
+  // 5️⃣ Modal para informações
+   let modal = document.createElement("div");
+modal.style.position = "fixed";
+modal.style.top = "50%";
+modal.style.left = "50%";
+modal.style.transform = "translate(-50%, -50%)";
+modal.style.background = "#2c2c2c"; // tema escuro
+modal.style.color = "#ffffff"; // texto claro
+modal.style.border = "2px solid #ff0000"; // destaque
+modal.style.padding = "20px";
+modal.style.borderRadius = "10px";
+modal.style.zIndex = "1000"; // acima do overlay
+const overlay = document.createElement("div");
+overlay.style.position = "fixed";
+overlay.style.top = "0";
+overlay.style.left = "0";
+overlay.style.width = "100%";
+overlay.style.height = "100%";
+overlay.style.background = "rgba(0, 0, 0, 0.7)"; // fundo escuro semi-transparente
+overlay.style.zIndex = "999"; // atrás do modal
+document.body.appendChild(overlay);
+    modal.innerHTML = `
+        <h3>Informações do esquemático</h3>
+        <label>Data: <input type="date" id="infoData"></label><br><br>
+        <label>Modelo: <input type="text" id="infoModelo"></label><br><br>
+        <label>Setor: <input type="text" id="infoSetor"></label><br><br>
+        <label>Obs: <input type="text" id="infoObs"></label><br><br>
+        <button id="confirmPdfInfo">Gerar PDF</button>
+        <button id="cancelPdfInfo">Cancelar</button>
+    `;
+    document.body.appendChild(modal);
+
+    // --- Fechar modal ---
+document.getElementById("cancelPdfInfo").addEventListener("click", () => {
+    document.body.removeChild(modal);
+    document.body.removeChild(overlay);
+});
+
+    document.getElementById("confirmPdfInfo").addEventListener("click", () => {
+        const pdfInfo = {
+            data: document.getElementById("infoData").value || new Date().toLocaleDateString(),
+            modelo: document.getElementById("infoModelo").value || "Modelo XYZ",
+            setor: document.getElementById("infoSetor").value || "Eletrônica",
+            obs: document.getElementById("infoObs").value || ""
+        };
+        document.body.removeChild(modal);
+         document.body.removeChild(overlay);
+
+        // 6️⃣ Desenha retângulo Digital Board
+        const infoWidth = 150, infoHeight = 80;
+        const infoX = pageWidth - infoWidth - borderMargin;
+        const infoY = pageHeight - infoHeight - borderMargin;
+
+
+
+        
+       // --- Rodapé ---
+pdf.setFontSize(12);
+pdf.setFont("helvetica", "normal");
+
+const footerY = pageHeight -2;
+const iconSize = 22; // tamanho do ícone
+const text = "+55(33)98444-4376 - DIGITAL BOARD";
+
+// Calcula largura do texto
+const textWidth = pdf.getTextWidth(text);
+
+// Espaçamento entre ícone e texto
+const spacing = 5;
+
+// Calcula posição inicial do ícone para centralizar tudo
+
+const offsetX = 450; // quanto quer mover para a direita
+const startX = (pageWidth - (iconSize + spacing + textWidth)) / 2 + offsetX;
+
+
+// Desenha ícone WhatsApp (pode ser URL ou base64)
+const whatsappIcon = "https://static.vecteezy.com/system/resources/previews/018/930/564/non_2x/whatsapp-logo-whatsapp-icon-whatsapp-transparent-free-png.png";
+pdf.addImage(whatsappIcon, 'PNG', startX, footerY - iconSize + 2, iconSize, iconSize);
+
+
+
+// Ajusta Y do texto para alinhar verticalmente com o ícone
+const textY = footerY - iconSize / 4; // subindo um pouco para centralizar
+pdf.text(text, startX + iconSize + 5, textY, { align: "left", baseline: "middle" });
+// --- Marca d'água ---
+const watermarkText = "DIGITAL BOARD";
+const fontSize = 12;          // tamanho pequeno
+const angle = -30;            // ângulo em graus
+const spacingX = 150;         // espaçamento horizontal
+const spacingY = 100;         // espaçamento vertical
+
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(fontSize);
+
+// Define opacidade (0 = invisível, 1 = totalmente opaco)
+pdf.setGState(new pdf.GState({ opacity: 0.2})); // 10% visível
+
+for (let x = -pageWidth; x < pageWidth * 2; x += spacingX) {
+    for (let y = -pageHeight; y < pageHeight * 2; y += spacingY) {
+        pdf.text(watermarkText, x, y, {
+            align: "left",
+            baseline: "top",
+            angle: angle
+        });
+    }
+}
+
+// Volta à opacidade normal para outros elementos
+pdf.setGState(new pdf.GState({ opacity: 1 }));
+
+        pdf.setLineWidth(0.5);
+        pdf.setDrawColor(0,0,0);
+        pdf.setFillColor(245,245,245);
+        pdf.rect(infoX, infoY, infoWidth, infoHeight, 'FD');
+
+        pdf.setFontSize(12);
+        pdf.setFont("helvetica","bold");
+        pdf.text("DIGITAL BOARD", infoX + infoWidth/2, infoY + 6, {align:"center", baseline:"top"});
+
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica","normal");
+
+        const fields = [
+            {label: "Data", value: pdfInfo.data},
+            {label: "Modelo", value: pdfInfo.modelo},
+            {label: "Setor", value: pdfInfo.setor},
+            {label: "Obs", value: pdfInfo.obs}
+        ];
+
+        const fieldHeight = (infoHeight - 20)/fields.length;
+fields.forEach((f,i)=>{
+    const yPos = infoY + 20 + i*fieldHeight;
+    pdf.rect(infoX+5, yPos, infoWidth-10, fieldHeight-5); // retângulo do campo
+
+    pdf.setFont("helvetica","normal"); 
+    pdf.setFontSize(10); 
+   pdf.text(`${f.label}: ${f.value}`, infoX + 8, yPos + 2, {baseline: "top"});
+});
+
+
     // --- 4️⃣ Preenche netPinsMap com coordenadas escaladas ---
     parts.forEach(part => {
         part.pins.forEach(pin => {
@@ -2076,6 +3166,14 @@ function exportarNetSelecionadaPDF() {
             }
         });
     });
+
+
+
+
+
+
+    
+
 
     // --- 5️⃣ Desenha todos os componentes e pinos ---
     allNetComponents.forEach(part => {
@@ -2228,9 +3326,9 @@ if (["D","LED","TVS"].some(prefix => nameUpper.startsWith(prefix)) && part.pins.
     const perpY = ux;
 
     // comprimentos padrão
-    const triLen = 12*scale;      // comprimento triângulo
-    const triHeight = 6*scale;    // altura triângulo
-    const gap = 2*scale;          // espaçamento barra ↔ linha
+    const triLen = 10*scale;      // comprimento triângulo
+    const triHeight = 8*scale;    // altura triângulo
+    const gap = 1*scale;          // espaçamento barra ↔ linha
 
     // ponto inicial do triângulo (lado anodo)
     const triBaseX = p1.x + ux*((len - triLen)/2);
@@ -3051,6 +4149,10 @@ pdf.text(pinName, bodyScaled.x + offsetX, bodyScaled.y + offsetY,
 
 
 
+
+
+    // ======================= FUNÇÕES BASE =======================
+
 // Função para verificar se a linha entre p0 e p1 cruza algum componente
 function intersectsComponent(p0, p1, partsArray) {
     for (const part of partsArray) {
@@ -3066,9 +4168,7 @@ function intersectsComponent(p0, p1, partsArray) {
     return false;
 }
 
-
-// --- 6️⃣ Desenha linhas em L para cada net e bolinhas em cada pino ---
-let netIndex = 0;
+// --- Array com bordas dos componentes ---
 const partsArray = parts.map(part => ({
     left: part.left,
     right: part.right,
@@ -3081,29 +4181,32 @@ const drawnTextPositions = [];
 const minDist = 80*scale; // distância mínima entre textos
 
 // Função para criar rota em L sem passar pelos componentes
-function routeLine(p0, p1, partsArray){
-    let points = [];
-    points.push(p0);
+// Função para criar rota sem diagonais, só faz L se precisar
+function routeLine(p0, p1, partsArray) {
+    // Primeiro tenta linha reta horizontal
+    let straightHorizontal = { start: p0, end: { x: p1.x, y: p0.y } };
+    if (!intersectsComponent(p0, p1, partsArray) &&
+        (p0.x === p1.x || p0.y === p1.y)) {
+        // já é reta (horizontal ou vertical)
+        return [p0, p1];
+    }
 
+    // Se não for reta, tenta L
     let mid;
-    if(Math.abs(p1.x - p0.x) > Math.abs(p1.y - p0.y)){
-        mid = {x: p1.x, y: p0.y}; // horizontal primeiro
+    if (Math.abs(p1.x - p0.x) > Math.abs(p1.y - p0.y)) {
+        mid = { x: p1.x, y: p0.y }; // horizontal primeiro
     } else {
-        mid = {x: p0.x, y: p1.y}; // vertical primeiro
+        mid = { x: p0.x, y: p1.y }; // vertical primeiro
     }
 
-    if(intersectsComponent(p0, mid, partsArray)){
-        if(mid.x === p1.x){
-            mid = {x: p1.x, y: p0.y};
-        } else {
-            mid = {x: p0.x, y: p1.y};
-        }
+    if (intersectsComponent(p0, mid, partsArray) || intersectsComponent(mid, p1, partsArray)) {
+        // tenta a outra ordem (caso o primeiro mid cruze componente)
+        mid = { x: mid.x === p1.x ? p0.x : p1.x, y: mid.y === p0.y ? p1.y : p0.y };
     }
 
-    points.push(mid);
-    points.push(p1);
-    return points;
+    return [p0, mid, p1];
 }
+
 // Função para gerar cor escura aleatória
 function randomDarkColor() {
     return [
@@ -3116,12 +4219,149 @@ function randomDarkColor() {
 // Array para cores de cada net (para painel)
 const netColors = {};
 
-// Desenha as nets
+
+// ======================= NOVAS FUNÇÕES PARA EVITAR SOBREPOSIÇÃO (SEM DIAGONAIS) =======================
+
+// registro global dos segmentos já desenhados (por X ou Y)
+const drawnSegments = []; // { isVertical, keyCoord, rangeStart, rangeEnd, count }
+
+// Registra o segmento e retorna offset apropriado (dx para vertical, dy para horizontal)
+function registerAndGetOffset(start, end, isVertical) {
+    const tol = 1 * scale;
+    const keyCoord = isVertical ? start.x : start.y;
+    const rangeStart = isVertical ? Math.min(start.y, end.y) : Math.min(start.x, end.x);
+    const rangeEnd = isVertical ? Math.max(start.y, end.y) : Math.max(start.x, end.x);
+    const offsetStep = 10 * scale; // 10px (ajuste se quiser)
+
+    // procura entry existente (mesmo X/Y dentro de tol e com overlap no intervalo)
+    for (const entry of drawnSegments) {
+        if (entry.isVertical !== isVertical) continue;
+        if (Math.abs(entry.keyCoord - keyCoord) > tol) continue;
+        if (rangeEnd < entry.rangeStart - tol || rangeStart > entry.rangeEnd + tol) continue;
+
+        // entry encontrada: ocorrência será entry.count+1
+        const occurrence = entry.count + 1;
+        // mapear ocorrência => offset (0, +1, -1, +2, -2, ...)
+        const mag = Math.ceil((occurrence - 1) / 2);
+        const sign = (occurrence % 2 === 0) ? 1 : -1; // 2->+, 3->-, 4->+, ...
+        const offsetVal = (occurrence === 1) ? 0 : sign * mag * offsetStep;
+
+        // atualiza limites e contador
+        entry.rangeStart = Math.min(entry.rangeStart, rangeStart);
+        entry.rangeEnd = Math.max(entry.rangeEnd, rangeEnd);
+        entry.count = occurrence;
+
+        return isVertical ? { dx: offsetVal, dy: 0, entry } : { dx: 0, dy: offsetVal, entry };
+    }
+
+    // não existe: cria nova entry (primeira ocorrência => offset 0)
+    const newEntry = { isVertical, keyCoord, rangeStart, rangeEnd, count: 1 };
+    drawnSegments.push(newEntry);
+    return { dx: 0, dy: 0, entry: newEntry };
+}
+
+// calcula offsets para todos os segmentos de uma rota (route = array de pontos)
+function computeOffsetsForRoute(route) {
+    const offsets = [];
+    for (let j = 1; j < route.length; j++) {
+        const s0 = route[j - 1], s1 = route[j];
+        const isVertical = Math.abs(s0.x - s1.x) < Math.abs(s0.y - s1.y);
+        const off = registerAndGetOffset(s0, s1, isVertical);
+        offsets.push({
+            isVertical,
+            dx: off.dx || 0,
+            dy: off.dy || 0,
+            start: { x: s0.x, y: s0.y },
+            end: { x: s1.x, y: s1.y }
+        });
+    }
+    return offsets;
+}
+
+/*
+ Desenha rota garantindo:
+ - segmentos permanecem estritamente horizontais ou verticais (sem diagonais)
+ - cantos ficam conectados (compute junctions)
+ - conectores em L (horizontal+vertical) ligam pinos reais às linhas deslocadas
+*/
+function drawRouteWithOffsets(route, offsets, pinStart, pinEnd) {
+    const segCount = offsets.length;
+    if (segCount === 0) return;
+
+    // --- Calcula junctions entre segmentos ---
+    const junctions = [];
+    for (let i = 0; i < segCount - 1; i++) {
+        const a = offsets[i], b = offsets[i + 1];
+        const verticalSeg = a.isVertical ? a : b;
+        const horizontalSeg = a.isVertical ? b : a;
+        const verticalX = verticalSeg.start.x + verticalSeg.dx;
+        const horizontalY = horizontalSeg.start.y + horizontalSeg.dy;
+        junctions.push({ x: verticalX, y: horizontalY });
+    }
+
+    // --- Conector do pinStart ---
+    const firstSeg = offsets[0];
+    const firstStart = route[0];
+    if (pinStart) {
+        if (firstSeg.isVertical) {
+            pdf.line(pinStart.x, pinStart.y, firstStart.x + firstSeg.dx, pinStart.y);
+            pdf.line(firstStart.x + firstSeg.dx, pinStart.y, firstStart.x + firstSeg.dx, firstStart.y);
+        } else {
+            pdf.line(pinStart.x, pinStart.y, pinStart.x, firstStart.y + firstSeg.dy);
+            pdf.line(pinStart.x, firstStart.y + firstSeg.dy, firstStart.x, firstStart.y + firstSeg.dy);
+        }
+    }
+
+    // --- Desenha todos os segmentos ---
+    for (let i = 0; i < segCount; i++) {
+        const seg = offsets[i];
+        let start, end;
+        if (i === 0) start = firstStart; 
+        else start = junctions[i - 1];
+
+        if (i === segCount - 1) end = route[route.length - 1];
+        else end = junctions[i];
+
+        if (seg.isVertical) {
+            const x = seg.start.x + seg.dx;
+            pdf.line(x, start.y, x, end.y);
+        } else {
+            const y = seg.start.y + seg.dy;
+            pdf.line(start.x, y, end.x, y);
+        }
+    }
+
+    // --- Conector do pinEnd ---
+    const lastSeg = offsets[segCount - 1];
+    const lastEnd = route[route.length - 1];
+    if (pinEnd) {
+        if (lastSeg.isVertical) {
+            const x = lastSeg.start.x + lastSeg.dx;
+            pdf.line(pinEnd.x, pinEnd.y, x, pinEnd.y);
+            pdf.line(x, pinEnd.y, x, lastEnd.y);
+        } else {
+            const y = lastSeg.start.y + lastSeg.dy;
+            pdf.line(pinEnd.x, pinEnd.y, pinEnd.x, y);
+            pdf.line(pinEnd.x, y, lastEnd.x, y);
+        }
+    }
+
+    // --- Bolinhas nos pinos ---
+    if (pinStart) pdf.circle(pinStart.x, pinStart.y, 1.5 * scale, 'FD');
+    if (pinEnd) pdf.circle(pinEnd.x, pinEnd.y, 1.5 * scale, 'FD');
+}
+
+
+
+// ======================= DESENHO DAS NETS (USANDO A NOVA LÓGICA) =======================
+
+let netIndex = 0;
+
 for(const netName in netPinsMap){
     const netPins = netPinsMap[netName];
     if(netPins.length < 2) continue;
 
-    // Ordena pinos pelo mais próximo
+    // Ordena pinos pelo mais próximo (sua heurística original)
     const remaining = netPins.slice();
     const path = [];
     remaining.sort((a,b) => a.center.x**2 + a.center.y**2 - (b.center.x**2 + b.center.y**2));
@@ -3143,7 +4383,6 @@ for(const netName in netPinsMap){
         path.push(current);
     }
 
-    // Cor aleatória para a net
     // Cor aleatória escura
     const color = randomDarkColor();
     netColors[netName] = color;
@@ -3151,27 +4390,18 @@ for(const netName in netPinsMap){
     pdf.setLineWidth(1*scale);
     pdf.setDrawColor(...color);
     pdf.setFillColor(...color);
-    // Desenha linhas em L
+
+    // Desenha linhas em L usando a nova lógica (cada par consecutivo de pinos)
     for(let i=1;i<path.length;i++){
         const p0 = path[i-1].center;
         const p1 = path[i].center;
-        const route = routeLine(p0, p1, partsArray);
+        const route = routeLine(p0, p1, partsArray); // geralmente [p0, mid, p1]
 
-        for(let j=1;j<route.length;j++){
-            let start = route[j-1];
-            let end = route[j];
+        // calcula offsets (registra sobreposição globalmente)
+        const offsets = computeOffsetsForRoute(route);
 
-            let offset = 0;
-            if(intersectsComponent(start,end,partsArray)){
-                offset = (j % 2 === 0 ? 1 : -1) * scale * 5;
-            }
-
-            pdf.line(start.x + offset, start.y + offset, end.x + offset, end.y + offset);
-        }
-
-        // bolinhas nos pinos
-        pdf.circle(p0.x, p0.y, 1.5*scale, 'FD');
-        pdf.circle(p1.x, p1.y, 1.5*scale, 'FD');
+        // desenha rota completa sem diagonais
+        drawRouteWithOffsets(route, offsets, {x: p0.x, y: p0.y}, {x: p1.x, y: p1.y});
     }
 
     // 🔹 Desenha o nome da net apenas se não tiver texto próximo
@@ -3212,6 +4442,10 @@ for(const netName in netPinsMap){
 
     netIndex++;
 }
+
+
+
+
 // --- Painel com cores das nets (maior) ---
 pdf.setFontSize(21*scale); // 3x maior que antes
 const panelX = 10*scale;
@@ -3244,8 +4478,10 @@ for(const netName in netColors){
 
 
     pdf.save("nets_selecionadas.pdf");
-}
 
+}); // fecha document.getElementById("confirmPdfInfo").addEventListener
+
+} 
 
 
 
@@ -3289,10 +4525,10 @@ function drawComponentName(part, scaleCoord, pdf, scale){
 
 // Botão para exportar net selecionada
 const btnExportarNet = document.createElement("button");
-btnExportarNet.textContent = "📐 Exportar Net Selecionada";
+btnExportarNet.textContent = "📐SCHEMATC";
 btnExportarNet.style.position = "fixed";
-btnExportarNet.style.top = "130px";
-btnExportarNet.style.left = "430px";
+btnExportarNet.style.top = "0px";
+btnExportarNet.style.left = "610px";
 btnExportarNet.style.padding = "10px 20px";
 btnExportarNet.style.backgroundColor = "#673AB7";
 btnExportarNet.style.color = "#fff";
