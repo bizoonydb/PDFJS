@@ -100,7 +100,7 @@
   }
   
   .textLayer ::selection {
-    background: blue;
+    background: rgba(0, 0, 255, 0.479);
     background: AccentColor;
   }
   
@@ -2793,24 +2793,8 @@
     margin-top: 10px;
   }
   
-  .grab-to-pan-grab {
-    cursor: grab !important;
-  }
-  .grab-to-pan-grab
-    *:not(input):not(textarea):not(button):not(select):not(:link) {
-    cursor: inherit !important;
-  }
-  .grab-to-pan-grab:active,
-  .grab-to-pan-grabbing {
-    cursor: grabbing !important;
-    position: fixed;
-    background: rgba(0, 0, 0, 0);
-    display: block;
-    inset: 0;
-    overflow: hidden;
-    z-index: 50000; /* should be higher than anything else in PDF.js! */
-  }
-  
+
+
   @page {
     margin: 0;
   }
@@ -2930,4 +2914,24 @@
     }
   }
   
-  
+/* Estado normal do viewer */
+
+/* Durante o arrasto (mãozinha) */
+/* cursor sempre mãozinha */
+#viewer,
+#viewerContainer,
+#viewer.grab-to-pan-grab,
+#viewer.grab-to-pan-grabbing {
+  cursor: grab !important;   /* mão parada */
+}
+
+/* durante o arrasto, mantém a mão */
+#viewer.grab-to-pan-grabbing {
+  cursor: grabbing !important; /* mão agarrando */
+}
+
+/* permite selecionar/copiar texto mesmo com cursor mãozinha */
+.textLayer,
+.annotationLayer {
+  user-select: text !important;
+}
