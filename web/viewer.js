@@ -3125,7 +3125,7 @@ window.addEventListener('mouseup', () => {
       kind: OptionKind.VIEWER
     },
     maxCanvasPixels: {           // propieda de pixel maximos para renderizar   aqui aumenta el renderizado a 8k
-      value: 100000000,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao/reder/zoom
+      value: 50000000,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao/reder/zoom
       kind: OptionKind.VIEWER
     },
     forcePageColors: {
