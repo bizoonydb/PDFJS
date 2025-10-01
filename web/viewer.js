@@ -3073,7 +3073,7 @@ window.addEventListener('mouseup', () => {
       kind: OptionKind.VIEWER + OptionKind.PREFERENCE
     },
     defaultZoomDelay: {
-      value: 550,    //500 dominik  aparentemente mejora la movilidad el zoom y el renderizado mas fluido estando 55000 zoom em milesegundos
+      value: 500,    //500 dominik  aparentemente mejora la movilidad el zoom y el renderizado mas fluido estando 55000 zoom em milesegundos
       kind: OptionKind.VIEWER + OptionKind.PREFERENCE
     },
     defaultZoomValue: {
@@ -3125,7 +3125,7 @@ window.addEventListener('mouseup', () => {
       kind: OptionKind.VIEWER
     },
     maxCanvasPixels: {           // propieda de pixel maximos para renderizar   aqui aumenta el renderizado a 8k
-      value: 50000000,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao/reder/zoom
+      value: 50050000,            // multiplicare por 2 para ver como renderiza dominik ojo /valor da renderizaçao/reder/zoom
       kind: OptionKind.VIEWER
     },
     forcePageColors: {
@@ -10067,7 +10067,7 @@ window.addEventListener('mouseup', () => {
         div.setAttribute("aria-label", msg);
       });
       this.div = div;
-      this.#setDimensions();
+      this.#setDimensions(); 
       container?.append(div);
       if (this._isStandalone) {
         container?.style.setProperty("--scale-factor", this.scale * _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS);
