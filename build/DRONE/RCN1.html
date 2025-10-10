@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gerenciador IN/OUT</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: sans-serif;
+      background: #ffffff;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    #topInfo {
+      position: absolute;
+      top: 40px;
+      left: 50%;
+       border: #000 solid 2px;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0px;
+      z-index: 4;
+    }
+
+    .infoBox {
+        
+      padding: 10px 16px;
+      border-radius: 0px;
+      font-weight: bold;
+      font-size: 30px;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    #deviceName {
+       
+      background: rgb(238, 215, 10);
+      color: rgb(0, 0, 0);
+    }
+
+    #sectorName {
+      background: rgb(255, 255, 255);
+      color: rgb(0, 0, 0);
+      font-style: italic;
+      
+      border: 3px solid rgba(231, 235, 12, 0.973);
+    }
+
+    #fileManager {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 200px;
+      max-height: 300px;
+      background: rgba(0, 0, 0, 0.596);
+      color: rgb(255, 238, 0);
+      border-radius: 8px;
+      overflow-y: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      padding: 10px;
+      z-index: 3;
+    }
+
+    #fileManager h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      text-align: center;
+      border-bottom: 1px solid #444;
+      padding-bottom: 5px;
+    }
+
+    .fileItem {
+      cursor: pointer;
+      padding: 6px;
+      margin-bottom: 5px;
+      background: #222;
+      border-radius: 4px;
+      transition: background 0.2s;
+      user-select: none;
+    }
+
+    .fileItem:hover {
+      background: #444;
+    }
+
+    .fileItem.selected {
+      background: rgb(255, 238, 0);
+      color: black;
+      font-weight: bold;
+    }
+
+    #watermarkContainer {
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 180px);
+      grid-auto-rows: 130px;
+      gap: 0;
+      opacity: 0.09;
+    }
+
+    .watermarkText {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ffffff;
+      transform: rotate(-15deg);
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="topInfo">
+  <div class="infoBox" id="deviceName">DJI RC-N1</div>
+  <div class="infoBox" id="sectorName"> </div>
+</div>
+</div>
+
+<div id="watermarkContainer"></div>
+
+<iframe id="viewer" src=""></iframe>
+
+<div id="fileManager">
+  <h3>SETORES</h3>
+  <div class="fileItem" data-filename="RC-N1-VOLT.json" data-description="IN OUT VOLTAGE" onclick="loadFile(this)">IN OUT VOLTAGE</div>
+  
+</div>
+
+<script>
+  const viewer = document.getElementById("viewer");
+  const fileItems = document.querySelectorAll(".fileItem");
+  const sectorName = document.getElementById("sectorName");
+
+  function loadFile(element) {
+    const fileName = element.getAttribute("data-filename");
+    const description = element.getAttribute("data-description");
+
+    const jsonURL = "https://bizoonydb.github.io/PDFJS/build/SM/" + fileName;
+    const viewerURL = "https://bizoonydb.github.io/PDFJS/HANDSVIEW/INOUT/VIEW.html?file=" + encodeURIComponent(jsonURL);
+    viewer.src = viewerURL;
+
+    sectorName.textContent = description;
+
+    fileItems.forEach(item => item.classList.remove("selected"));
+    element.classList.add("selected");
+  }
+
+  window.onload = () => {
+    const firstItem = fileItems[0];
+    if (firstItem) {
+      loadFile(firstItem);
+    }
+
+    const watermarkContainer = document.getElementById('watermarkContainer');
+    const count = Math.ceil(window.innerWidth / 120) * Math.ceil(window.innerHeight / 40);
+
+    for (let i = 0; i < count; i++) {
+      const wm = document.createElement('div');
+      wm.className = 'watermarkText';
+      wm.textContent = 'DIGITAL BOARD';
+      watermarkContainer.appendChild(wm);
+    }
+  };
+</script>
+
+</body>
+</html>
