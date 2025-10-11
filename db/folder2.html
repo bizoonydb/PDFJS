@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Gerador de Estrutura de Pastas com PDF Viewer</title>
+<title>Gerador de SEstrutura de Pastas com PDF Viewer</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     :root {
@@ -378,18 +378,24 @@ function closeTab(tab) {
     }
 
     function clearAll() {
-        if(confirm("Tem certeza que deseja limpar toda a estrutura?")) {
-            structure = [];
-            currentFolder = null;
-            tabs = [];
-            document.getElementById('pdf-viewer').src = '';
-            localStorage.removeItem('structure');
-            localStorage.removeItem('baseURL');
-            renderPreview();
-            renderTabs();
-            document.getElementById('generatedCode').value = '';
-        }
+    if (confirm("Tem certeza que deseja limpar toda a estrutura e o código gerado?")) {
+        // Zera variáveis
+        structure = [];
+        currentFolder = null;
+
+        // Remove do localStorage
+        localStorage.removeItem('structure');
+
+        // Limpa o campo de código gerado
+        document.getElementById('generatedCode').value = '';
+
+        // Atualiza a visualização
+        renderPreview();
+
+        alert("Código e estrutura limpos com sucesso!");
     }
+}
+
 
     updateCode();
 </script>
