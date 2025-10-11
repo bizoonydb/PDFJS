@@ -2,403 +2,456 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Gerador de SEstrutura de Pastas com PDF Viewer</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<title>Editorpdf db</title>
 <style>
-    :root {
-        --bg-color: #1e1e1e;       /* fundo escuro */
-        --sidebar-bg: #2c2c2c;     /* fundo sidebar */
-        --text-color: #f5f5f5;     /* texto claro */
-        --highlight-color: #ffc107; /* amarelo */
-        --preview-bg: #252525;     /* fundo preview */
-        --tab-bg: #333;            /* fundo tabs */
-        --tab-active-bg: #1e1e1e;  /* tab ativa */
-        --tab-border: #ffc107;     /* borda/linha da tab */
-        --textarea-bg: #2c2c2c;    /* fundo textarea */
-        --textarea-text: #f5f5f5;  /* texto textarea */
-        --button-bg: #ffc107;      /* botão amarelo */
-        --button-text: #1e1e1e;    /* texto botão escuro */
-    }
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  color: #ffd900;
+  display: flex;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
 
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        height: 100vh;
-        display: flex;
-        background: var(--bg-color);
-        color: var(--text-color);
-    }
+#editor {
+  width: 250px; /* largura fixa do editor */
+  background: #444141;
+  padding: 20px;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
 
-    .sidebar {
-        width: 300px;
-        background: var(--sidebar-bg);
-        padding: 20px;
-        box-sizing: border-box;
-        overflow-y: auto;
-        border-right: 1px solid var(--highlight-color);
-    }
+h2 {
+  text-align: center;
+}
 
-    .sidebar input[type="text"] {
-        width: 100%;
-        padding: 5px;
-        margin: 5px 0 10px 0;
-        box-sizing: border-box;
-        background: #3a3a3a;
-        border: 1px solid var(--highlight-color);
-        color: var(--text-color);
-    }
+input, button {
+  padding: 8px;
+  border-radius: 5px;
+  margin: 5px 0;
+  border: 1px solid #ff0000;
+}
 
-    .sidebar button {
-        width: 100%;
-        padding: 5px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        background: var(--button-bg);
-        color: var(--button-text);
-        border: none;
-        font-weight: bold;
-    }
+#titulo, #subtitulo {
+  display: inline-block;
+  padding: 10px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+  outline: none;
+}
 
-    .right {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
+#titulo {
+  background: yellow;
+  color: black;
+}
 
-    .top-right {
-        flex: 1;
-        display: flex;
-        overflow: hidden;
-    }
+#subtitulo {
+  background: black;
+  color: yellow;
+  border: 2px solid yellow;
+  margin-left: 0px; /* colado no título */
+}
 
-    #preview {
-        width: 20%;
-        overflow-y: auto;
-        border-right: 1px solid var(--highlight-color);
-        padding: 10px;
-        background: var(--preview-bg);
-    }
+#malhas {
+  margin-top: 10px;
+  text-align: center;
+}
 
-    #preview details summary {
-        color: #fd0000;
-        cursor: pointer;
-           font-size: 20px;
-    }
+.malha {
+  display: inline-block;
+  padding: 6px 14px;
+  margin: 4px;
+  color: white;
+  border-radius: 6px;
+  font-weight: bold;
+}
 
-    #preview a {
-        display: block;
-        margin-left: 35px;
-        text-decoration: none;
-        font-size: 20px;
-        color: #00fd0d;
-        cursor: pointer;
-    }
+#pdfViewer {
+  flex: 1; /* ocupa o restante da tela */
+  border: none;
+}
 
-    #preview a i {
-        margin-right: 5px;
-        color: var(--highlight-color);
-    }
+.malha {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  margin: 4px;
+  color: white;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+}
 
-    #tabs-container {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        background: var(--bg-color);
-    }
+.malha.editing {
+  background: #333 !important;
+}
 
-    #tabs {
-        display: flex;
-        background: var(--tab-bg);
-        padding: 5px;
-        overflow-x: auto;
-        border-bottom: 1px solid var(--tab-border);
-    }
+.malha input[type="text"] {
+  width: 60px;
+  margin-right: 5px;
+  border-radius: 4px;
+  border: none;
+  padding: 2px 4px;
+}
 
-    #tabs .tab {
-        padding: 5px 10px;
-        margin-right: 5px;
-        background: #444;
-        border-radius: 3px 3px 0 0;
-        cursor: pointer;
-        position: relative;
-        color: var(--text-color);
-    }
+.malha input[type="color"] {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  
+  border: none;
+  cursor: pointer;
+}
+#download {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+#addMalha {
+  background-color: #2898a7;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
 
-    #tabs .tab.active {
-        background: #fdcf00;
-        color: #2c2c2c;
-        border-bottom: 1px solid var(--bg-color);
-    }
+#toggleLogo {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ff9800; /* cor inicial ativo */
+  color: #000;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: background 0.3s, color 0.3s;
+  z-index: 9999;
+}
 
-    #tabs .tab .close {
-        position: absolute;
-        top: 0;
-        right: 2px;
-        font-weight: bold;
-        cursor: pointer;
-        color: var(--highlight-color);
-    }
+#toggleLogo.active {
+  background-color: #ff9800;
+  color: #000;
+}
 
-    #pdf-viewer {
-        flex: 1;
-        width: 100%;
-        border: none;
-        background: var(--bg-color);
-    }
+#toggleLogo.inactive {
+  background-color: #444141;
+  color: #ffd900;
+}
 
-    #generatedCodeContainer {
-        height: 200px;
-        border-top: 1px solid var(--highlight-color);
-        padding: 10px;
-        box-sizing: border-box;
-        background: #222;
-    }
 
-    textarea {
-        width: 100%;
-        height: 70%;
-        font-family: monospace;
-        font-size: 14px;
-        margin-bottom: 5px;
-        box-sizing: border-box;
-        background: #000000;
-        color: #00fd0d;
-        border: 1px solid var(--highlight-color);
-        resize: none;
-    }
-
-    #generatedCodeContainer button {
-        padding: 5px 10px;
-        margin-right: 10px;
-        cursor: pointer;
-        background: var(--button-bg);
-        color: var(--button-text);
-        border: none;
-        font-weight: bold;
-    }
-
-    /* Scrollbars */
-    .sidebar::-webkit-scrollbar,
-    #preview::-webkit-scrollbar,
-    #tabs-container::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .sidebar::-webkit-scrollbar-thumb,
-    #preview::-webkit-scrollbar-thumb,
-    #tabs-container::-webkit-scrollbar-thumb {
-        background: var(--highlight-color);
-        border-radius: 4px;
-    }
 </style>
-
-
 </head>
 <body>
+<button id="toggleLogo" class="active">ADICIONAR LOGO</button>
 
-<div class="sidebar">
-    <h2>Gerador de Estrutura</h2>
-    <input type="text" id="baseURL" placeholder="URL base (ex: https://bizoonydb.github.io/db/)">
 
-    <h3>Adicionar Pasta</h3>
-    <input type="text" id="folderName" placeholder="Nome da pasta">
-    <button onclick="addFolder()">Adicionar Pasta</button>
+<div id="editor">
+  <h2>🧩 DIGITAL BOARD</h2>
+  <input type="file" id="file" accept="application/pdf"><br>
 
-    <h3>Adicionar Arquivo</h3>
-    <input type="text" id="fileName" placeholder="Nome do arquivo (ex: ARQUIVO.PDF)">
-    <input type="text" id="fileDisplayName" placeholder="Nome que aparece no link">
-    <button onclick="addFile()">Adicionar Arquivo</button>
+  <div contenteditable="true" id="titulo">DIGITAL BOARD   </div>
+  <div contenteditable="true" id="subtitulo">SCHEMATC</div>
+
+  <div id="malhas"></div>
+  <input type="text" id="nomeMalha" placeholder="Nome da malha">
+  <input type="color" id="corMalha" value="#007bff">
+  <button id="addMalha">ADD MALHA</button>
+  <button id="download">DONWLOAD</button>
+  
 </div>
+<div id="malhas"></div>
 
-<div class="right">
-    <div class="top-right">
-        <div id="preview"></div>
-        <div id="tabs-container">
-    <div id="tabs"></div>
-    <div id="pdf-viewer-container" style="flex: 1; position: relative;"></div>
-</div>
+<iframe id="pdfViewer" src="https://mozilla.github.io/pdf.js/web/viewer.html?file="></iframe>
 
-    </div>
-
-    <div id="generatedCodeContainer">
-        <textarea id="generatedCode" readonly></textarea>
-        <div>
-            <button onclick="copyCode()">Copiar Código</button>
-            <button onclick="clearAll()">Limpar Tudo</button>
-        </div>
-    </div>
-</div>
-
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 <script>
-    let structure = JSON.parse(localStorage.getItem('structure')) || [];
-    let currentFolder = structure.length ? structure[structure.length - 1] : null;
+const { PDFDocument, rgb, StandardFonts } = PDFLib;
+let originalPdfBytes = null;
+let malhas = [];
 
-    const savedBaseURL = localStorage.getItem('baseURL');
-    if(savedBaseURL) document.getElementById('baseURL').value = savedBaseURL;
+const iframe = document.getElementById('pdfViewer');
 
-    function updateCode() {
-        const baseURL = document.getElementById('baseURL').value.trim();
-        localStorage.setItem('structure', JSON.stringify(structure));
-        localStorage.setItem('baseURL', baseURL);
+document.getElementById('file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  originalPdfBytes = await file.arrayBuffer();
 
-        // Gerar código HTML
-        let html = '';
-        structure.forEach(folder => {
-            html += `<details class="folder">\n`;
-            html += `  <summary><i class="fa-regular fa-folder icon-outline"></i> ${folder.name}</summary>\n`;
-            folder.files.forEach(file => {
-                html += `  <a href="#" data-url="${baseURL}${file.fileName}" class="file"><i class="far fa-file-pdf"></i> ${file.displayName}</a>\n`;
-            });
-            html += `</details>\n\n`;
-        });
-        document.getElementById('generatedCode').value = html;
+  // carrega PDF no iframe
+  const url = URL.createObjectURL(file);
+  iframe.src = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(url)}`;
+});
 
-        renderPreview();
-    }
+document.getElementById('addMalha').addEventListener('click', () => {
+  const nome = document.getElementById('nomeMalha').value.trim();
+  const cor = document.getElementById('corMalha').value;
+  if (!nome) return;
+  malhas.push({ nome, cor });
+  atualizarMalhas();
+  document.getElementById('nomeMalha').value = '';
+});
 
-    function renderPreview() {
-        const preview = document.getElementById('preview');
-        preview.innerHTML = '';
-        const baseURL = document.getElementById('baseURL').value.trim();
-
-        structure.forEach(folder => {
-            const details = document.createElement('details');
-            details.className = 'folder';
-            const summary = document.createElement('summary');
-            summary.innerHTML = `<i class="fa-regular fa-folder icon-outline"></i> ${folder.name}`;
-            details.appendChild(summary);
-
-            folder.files.forEach(file => {
-                const a = document.createElement('a');
-                a.innerHTML = `<i class="far fa-file-pdf"></i> ${file.displayName}`;
-                a.href = "#";
-                a.addEventListener('click', () => openPDF(file.fileName));
-                details.appendChild(a);
-            });
-
-            preview.appendChild(details);
-        });
-    }
-
-    function addFolder() {
-        const folderName = document.getElementById('folderName').value.trim();
-        if(!folderName) return alert("Digite o nome da pasta!");
-        const folder = {name: folderName, files: []};
-        structure.push(folder);
-        currentFolder = folder;
-        updateCode();
-    }
-
-    function addFile() {
-        const fileName = document.getElementById('fileName').value.trim();
-        const displayName = document.getElementById('fileDisplayName').value.trim();
-        const baseURL = document.getElementById('baseURL').value.trim();
-        if(!fileName || !displayName || !baseURL) return alert("Preencha todos os campos!");
-        if(!currentFolder) return alert("Adicione ou selecione uma pasta primeiro!");
-
-        currentFolder.files.push({fileName, displayName});
-        document.getElementById('fileName').value = '';
-        document.getElementById('fileDisplayName').value = '';
-        updateCode();
-    }
-
-    // Tabs PDF
-   let tabs = [];
-
-function openPDF(fileName) {
-    const baseURL = document.getElementById('baseURL').value.trim();
-    const url = `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(baseURL + fileName)}`;
-
-    let tab = tabs.find(t => t.url === url);
-    if (!tab) {
-        // Criar iframe separado
-        const iframe = document.createElement('iframe');
-        iframe.src = url;
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = 'none';
-        iframe.style.display = 'none'; // inicialmente escondido
-        document.getElementById('pdf-viewer-container').appendChild(iframe);
-
-        tab = { url, title: fileName, iframe, active: false };
-        tabs.push(tab);
-    }
-    setActiveTab(tab);
-    renderTabs();
+function atualizarMalhas() {
+  const div = document.getElementById('malhas');
+  div.innerHTML = '';
+  malhas.forEach(m => {
+    const el = document.createElement('div');
+    el.className = 'malha';
+    el.style.background = m.cor;
+    el.textContent = m.nome;
+    div.appendChild(el);
+  });
 }
+let adicionarLogo = true; // começa ativado
 
-function setActiveTab(tab) {
-    // Esconder todos os iframes
-    tabs.forEach(t => t.iframe.style.display = 'none');
+document.getElementById('toggleLogo').addEventListener('click', () => {
+  adicionarLogo = !adicionarLogo;
+  const btn = document.getElementById('toggleLogo');
+  btn.classList.toggle('active', adicionarLogo);
+  btn.classList.toggle('inactive', !adicionarLogo);
+});
+document.getElementById('download').addEventListener('click', async () => {
+  if (!originalPdfBytes) { alert("Carregue um PDF"); return; }
 
-    // Mostrar o iframe da aba ativa
-    tab.iframe.style.display = 'block';
+  const titulo = document.getElementById('titulo').innerText;
+  const subtitulo = document.getElementById('subtitulo').innerText;
 
-    // Marcar aba ativa
-    tabs.forEach(t => t.active = false);
-    tab.active = true;
-}
+  const pdfDoc = await PDFDocument.load(originalPdfBytes);
+  const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const pages = pdfDoc.getPages();
 
-function renderTabs() {
-    const tabsDiv = document.getElementById('tabs');
-    tabsDiv.innerHTML = '';
-    tabs.forEach(tab => {
-        const tabEl = document.createElement('div');
-        tabEl.className = 'tab' + (tab.active ? ' active' : '');
-        tabEl.innerHTML = `${tab.title} <span class="close">&times;</span>`;
-        tabEl.addEventListener('click', () => setActiveTab(tab));
-        tabEl.querySelector('.close').addEventListener('click', (e) => {
-            e.stopPropagation();
-            closeTab(tab);
-        });
-        tabsDiv.appendChild(tabEl);
+// --- ADICIONAR LOGO SE ATIVADO ---
+if (adicionarLogo) {
+  const logoUrl = "https://bizoonydb.github.io/PDFJS/db/logontransparente.png";
+  const logoImageBytes = await fetch(logoUrl).then(res => res.arrayBuffer());
+  const logoImage = await pdfDoc.embedPng(logoImageBytes);
+
+  const pages = pdfDoc.getPages();
+  pages.forEach((page) => {
+    const pageWidth = page.getWidth();
+    const pageHeight = page.getHeight();
+
+    // Tamanho menor da logo
+    const scale = 0.1;
+    const logoDims = logoImage.scale(scale);
+
+    // Altura ajustada para baixar as logos
+    const offsetY = 50; // valor em pixels para descer as logos
+
+    // Primeira logo: centro da metade esquerda
+    const logoX1 = (pageWidth / 4) - (logoDims.width / 2);
+    const logoY1 = (pageHeight / 2) - (logoDims.height / 2) - offsetY;
+
+    // Segunda logo: centro da metade direita
+    const logoX2 = (3 * pageWidth / 4) - (logoDims.width / 2);
+    const logoY2 = logoY1; // mesma altura
+
+    page.drawImage(logoImage, {
+      x: logoX1,
+      y: logoY1,
+      width: logoDims.width,
+      height: logoDims.height,
     });
+
+    page.drawImage(logoImage, {
+      x: logoX2,
+      y: logoY2,
+      width: logoDims.width,
+      height: logoDims.height,
+    });
+  });
 }
 
-function closeTab(tab) {
-    const index = tabs.indexOf(tab);
-    if (index > -1) {
-        tab.iframe.remove(); // Remove iframe
-        tabs.splice(index, 1);
+// --- MARCAR CANTOS EM L ---
+const cornerLength = 40; // aumentei o tamanho das linhas
+const lineWidth = 8; // mais espessa
+const lineColor = rgb(1, 1, 0); // amarelo escuro forte
+
+pages.forEach((page) => {
+  const pageWidth = page.getWidth();
+  const pageHeight = page.getHeight();
+
+  // Canto superior esquerdo
+  page.drawRectangle({ x: 0, y: pageHeight - lineWidth, width: cornerLength, height: lineWidth, color: lineColor });
+  page.drawRectangle({ x: 0, y: pageHeight - cornerLength, width: lineWidth, height: cornerLength, color: lineColor });
+
+  // Canto superior direito
+  page.drawRectangle({ x: pageWidth - cornerLength, y: pageHeight - lineWidth, width: cornerLength, height: lineWidth, color: lineColor });
+  page.drawRectangle({ x: pageWidth - lineWidth, y: pageHeight - cornerLength, width: lineWidth, height: cornerLength, color: lineColor });
+
+  // Canto inferior esquerdo
+  page.drawRectangle({ x: 0, y: 0, width: cornerLength, height: lineWidth, color: lineColor });
+  page.drawRectangle({ x: 0, y: 0, width: lineWidth, height: cornerLength, color: lineColor });
+
+  // Canto inferior direito
+  page.drawRectangle({ x: pageWidth - cornerLength, y: 0, width: cornerLength, height: lineWidth, color: lineColor });
+  page.drawRectangle({ x: pageWidth - lineWidth, y: 0, width: lineWidth, height: cornerLength, color: lineColor });
+});
+
+
+  // --- TÍTULO, SUBTÍTULO, MARCA D'ÁGUA, RODAPÉ E MALHAS ---
+  pages.forEach((page) => {
+    const pageWidth = page.getWidth();
+    const pageHeight = page.getHeight();
+
+    // TÍTULO
+    const titleSize = 40, subTitleSize = 30, paddingX = 10, paddingY = 6, radius = 8;
+    const titleWidth = font.widthOfTextAtSize(titulo, titleSize);
+    const subTitleWidth = font.widthOfTextAtSize(subtitulo, subTitleSize);
+    let startX = (pageWidth - (titleWidth + subTitleWidth)) / 2;
+    const topY = pageHeight - 40 - titleSize - paddingY;
+
+    page.drawRectangle({
+      x: startX - paddingX,
+      y: topY,
+      width: titleWidth + 2*paddingX,
+      height: titleSize + 2*paddingY,
+      color: rgb(1,1,0),
+      borderColor: rgb(0,0,0),
+      borderWidth: 1,
+      borderRadius: radius,
+    });
+    page.drawText(titulo, {
+      x: startX,
+      y: topY + paddingY,
+      size: titleSize,
+      font,
+      color: rgb(0,0,0)
+    });
+
+    // SUBTÍTULO
+    const subYOffset = (titleSize + 2*paddingY - (subTitleSize + 2*paddingY)) / 2;
+    startX += titleWidth;
+    page.drawRectangle({
+      x: startX - paddingX,
+      y: topY + subYOffset,
+      width: subTitleWidth + 2*paddingX,
+      height: subTitleSize + 2*paddingY,
+      color: rgb(0,0,0),
+      borderColor: rgb(1,1,0),
+      borderWidth: 1,
+      borderRadius: radius
+    });
+    page.drawText(subtitulo, {
+      x: startX,
+      y: topY + subYOffset + paddingY,
+      size: subTitleSize,
+      font,
+      color: rgb(1,1,0)
+    });
+
+    // MARCA D'ÁGUA
+    const watermarkText = "DIGITAL BOARD";
+    const wmFontSize = 15, wmOpacity = 0.2, wmSpacingX = 300, wmSpacingY = 130, wmAngle = -40;
+    for (let x = 0; x < pageWidth; x += wmSpacingX) {
+      for (let y = 0; y < pageHeight; y += wmSpacingY) {
+        page.drawText(watermarkText, {
+          x, y, size: wmFontSize, font,
+          color: rgb(0,0,0),
+          rotate: { type: 'degrees', angle: wmAngle },
+          opacity: wmOpacity
+        });
+      }
     }
 
-    if (tab.active && tabs.length) setActiveTab(tabs[0]);
-    renderTabs();
+    // RODAPÉ
+    const footerText = "WHATSAPP/TELEGRAM +55 (33) 98444-4376";
+    const footerFontSize = 12;
+    const footerX = (pageWidth - font.widthOfTextAtSize(footerText, footerFontSize)) / 2;
+    page.drawText(footerText, { x: footerX, y: 10, size: footerFontSize, font, color: rgb(0,0,0) });
+
+    // MALHAS
+    if(malhas.length > 0){
+      const malhaFontSize = 20, malhaHeight = 30, spacing = 15, radiusMalha = 50;
+      let totalWidth = 0;
+      const malhaWidths = malhas.map(m => { const w = font.widthOfTextAtSize(m.nome, malhaFontSize)+30; totalWidth+=w; return w; });
+      totalWidth += spacing*(malhas.length-1);
+      let startX = (pageWidth - totalWidth)/2, y = 50;
+
+      malhas.forEach((m,i)=>{
+        const w = malhaWidths[i];
+        const cor = hexToRgb(m.cor);
+        page.drawRectangle({ x:startX, y, width:w, height:malhaHeight, color:rgb(cor.r/255,cor.g/255,cor.b/255), borderRadius:radiusMalha });
+        const textW = font.widthOfTextAtSize(m.nome, malhaFontSize);
+        page.drawText(m.nome, { x: startX+(w-textW)/2, y: y + (malhaHeight-malhaFontSize)/2, size: malhaFontSize, font, color: rgb(1,1,1) });
+        startX += w + spacing;
+      });
+    }
+  });
+
+  // SALVAR PDF
+  const pdfBytes = await pdfDoc.save();
+  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "pdf_editado.pdf";
+  link.click();
+});
+
+
+function hexToRgb(hex){
+  const bigint = parseInt(hex.slice(1),16);
+  return { r:(bigint>>16)&255, g:(bigint>>8)&255, b:bigint&255 };
+}
+function atualizarMalhas() {
+  const div = document.getElementById('malhas');
+  div.innerHTML = '';
+  malhas.forEach((m, index) => {
+    const el = document.createElement('div');
+    el.className = 'malha';
+    el.style.background = m.cor;
+    el.textContent = m.nome;
+
+    el.addEventListener('click', () => {
+      if (el.classList.contains('editing')) return; // já em edição
+      el.classList.add('editing');
+      el.innerHTML = '';
+
+      // input para nome
+      const inputNome = document.createElement('input');
+      inputNome.type = 'text';
+      inputNome.value = m.nome;
+      el.appendChild(inputNome);
+
+      // input para cor
+      const inputCor = document.createElement('input');
+      inputCor.type = 'color';
+      inputCor.value = m.cor;
+      el.appendChild(inputCor);
+
+      // botão salvar
+      const btnSalvar = document.createElement('button');
+      btnSalvar.textContent = 'OK';
+      btnSalvar.style.marginLeft = '5px';
+      btnSalvar.addEventListener('click', () => {
+        m.nome = inputNome.value.trim() || m.nome;
+        m.cor = inputCor.value;
+        atualizarMalhas();
+      });
+      el.appendChild(btnSalvar);
+    });
+
+    div.appendChild(el);
+  });
 }
 
 
-    function copyCode() {
-        const code = document.getElementById('generatedCode');
-        code.select();
-        code.setSelectionRange(0, 99999);
-        document.execCommand("copy");
-        alert("Código copiado para a área de transferência!");
-    }
 
-    function clearAll() {
-    if (confirm("Tem certeza que deseja limpar toda a estrutura e o código gerado?")) {
-        // Zera variáveis
-        structure = [];
-        currentFolder = null;
-
-        // Remove do localStorage
-        localStorage.removeItem('structure');
-
-        // Limpa o campo de código gerado
-        document.getElementById('generatedCode').value = '';
-
-        // Atualiza a visualização
-        renderPreview();
-
-        alert("Código e estrutura limpos com sucesso!");
-    }
-}
-
-
-    updateCode();
 </script>
 
 </body>
 </html>
+
+
+
+
+
