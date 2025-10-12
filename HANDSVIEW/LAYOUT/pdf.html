@@ -188,7 +188,7 @@ document.getElementById('file').addEventListener('change', async (e) => {
 
   // carrega PDF no iframe
   const url = URL.createObjectURL(file);
-  iframe.src = `viewer.html?file=${encodeURIComponent(url)}`;
+  iframe.src = `https://bizoonydb.github.io/sumatrapdfdb/viewer.html?file=${encodeURIComponent(url)}`;
 });
 
 document.getElementById('addMalha').addEventListener('click', () => {
