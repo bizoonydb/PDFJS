@@ -1,6 +1,74 @@
 <!DOCTYPE html>
 <html dir="ltr" mozdisallowselectionprint>
+<style>
+    .fa-copy {
+    font-size: 18px;   /* Ajusta o tamanho do ícone */
+    color: #000000;       /* Define a cor do ícone */
+    margin: 0;         /* Remove qualquer margem indesejada */
+    padding: 0;        /* Remove qualquer preenchimento extra */
+}
 
+#cop {
+    position: fixed;
+    top: 5px;
+    right: 3px;
+    width: 35px;
+    margin-right: 180px;
+    height: 25px;
+    background-color: #808080;
+    border-radius: 5px;
+    border: 2px solid #000000;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, border-color 0.2s;
+    padding: 0;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+/* Ajuste do ícone */
+#cop i {
+    font-size: 20px;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+}
+
+/* Efeito de hover */
+#cop:hover {
+    background-color: #aaaaaa;
+    border-color: #666666;
+}
+
+/* Efeito de foco */
+#cop:focus {
+    outline: none;
+    background-color: #aaaaaa;
+    border-color: #666666;
+}
+
+.custom-context-menu {
+        position: absolute;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        padding: 8px 0;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        min-width: 150px;
+    }
+    .custom-context-menu div {
+        padding: 8px 16px;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+    }
+    .custom-context-menu div:hover {
+        background-color: #007bff;
+        color: #fff;
+    }
+</style>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -953,6 +1021,96 @@
         });
     });
 </script>
+<script>
+    // Forçar seleção de texto e liberar o contexto
+    document.addEventListener("DOMContentLoaded", () => {
+        document.body.style.userSelect = "text";
+        document.oncontextmenu = null;
+        document.body.addEventListener("contextmenu", showContextMenu);
+    });
+  
+    function showContextMenu(event) {
+        event.preventDefault();
+        
+        hideContextMenu();
+  
+        const selectedText = window.getSelection().toString().trim();
+        const menu = document.createElement("div");
+        menu.classList.add("custom-context-menu");
+        menu.style.top = `${event.clientY}px`;
+        menu.style.left = `${event.clientX}px`;
+  
+        menu.innerHTML = `
+            <div>Copiar</div>
+            <div>Colar</div>
+        `;
+  
+        menu.children[0].addEventListener("click", () => {
+            if (selectedText) {
+                navigator.clipboard.writeText(selectedText).then(() => {
+                    hideContextMenu();
+                });
+            }
+        });
+  
+        menu.children[1].addEventListener("click", () => {
+            navigator.clipboard.readText().then((text) => {
+                // A linha abaixo direciona o texto colado para o campo de entrada
+                const inputField = document.getElementById("findInput");
+                if (inputField) {
+                    inputField.value = text;
+                }
+                hideContextMenu();
+            });
+        });
+  
+        document.body.appendChild(menu);
+  
+        // Fechar ao clicar fora
+        setTimeout(() => {
+            document.addEventListener("click", hideContextMenu, { once: true });
+        }, 10);
+    }
+  
+    function hideContextMenu() {
+        const menu = document.querySelector(".custom-context-menu");
+        if (menu) menu.remove();
+    }
+  </script>
+  <script>
+     const button = document.getElementById("toggleDarkMode");
+    const body = document.body;
 
+    button.addEventListener("click", () => {
+      body.classList.toggle("dark-mode");
+    });
+  document.getElementById('cop').addEventListener('click', () => {
+    const selectedText = window.getSelection().toString();
+    if (selectedText) {
+        navigator.clipboard.writeText(selectedText).then(() => {
+            const alertBox = document.createElement('div');
+            alertBox.textContent = 'Texto copiado!';
+            alertBox.style.position = 'fixed';
+            alertBox.style.top = '50%';
+            alertBox.style.left = '50%';
+            alertBox.style.transform = 'translate(-50%, -50%)';
+            alertBox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            alertBox.style.color = '#fff';
+            alertBox.style.padding = '15px 30px';
+            alertBox.style.borderRadius = '5px';
+            alertBox.style.zIndex = '9999';
+            alertBox.style.boxShadow = '0 2px 15px rgba(0, 0, 0, 0.5)';
+            document.body.appendChild(alertBox);
+            setTimeout(() => {
+                alertBox.remove();
+            }, 3000);
+        }).catch(err => {
+            console.error('Erro ao copiar texto:', err);
+        });
+    }
+});
+
+
+</script>
 
 </html>
