@@ -152,7 +152,7 @@ function openTab(fileUrl, type) {
   
   // Verificação dos tipos de arquivo
   if (type === 'pdf') {
-    iframe.src = `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(fileUrl)}`;
+    iframe.src = `https://bizoonydb.github.io/sumatrapdfdb/viewer.html?file=${encodeURIComponent(fileUrl)}`;
   } else if (type === 'bvr') {
     iframe.src = `https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=${encodeURIComponent(fileUrl)}`;
   } else if (type === 'db' || type === 'hs') {
