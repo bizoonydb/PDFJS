@@ -147,8 +147,13 @@ function centerCanvas() {
 }
 
 function setup() {
-    createCanvas(windowWidth, windowHeight);
+    createCanvas(windowWidth - 200, windowHeight);
     frameRate(18); // Limita la velocidad de fotogramas a 20 FPS
+  // Desloca o canvas 250px para a direita
+    canvas = document.querySelector('canvas');
+    canvas.style.position = 'absolute';
+    canvas.style.left = '200px';
+    canvas.style.top = '0px';
 
     // Simulamos una carga con setTimeout (puedes reemplazar con tu lógica)
     setTimeout(() => {
@@ -288,7 +293,7 @@ function drawBackgroundImage() {
 }
 
 function draw() {
-    background(0); // Pone el fondo blanco en cada frame.
+    background(30); // Pone el fondo blanco en cada frame.
 
     if (isLoading) { // Si está cargando, muestra mensaje de carga animado.
 
@@ -332,14 +337,42 @@ function draw() {
             // Hacer algo cada 200ms independientemente del frameRate
         }, 200);
 
+// 💾 Salva o contexto antes de desenhar os dois lados
+drawingContext.save();
+
+// ---- Lado "T" (Top) ----
+drawOutline(outlinePoints, 0);
+
+// ---- Lado "B" (Bottom) ----
+if (!allInTop) {
+    let offsetXBottom = (displayMode === "all") ? bottomOffset : 0;
+    drawOutline(outlinePoints, offsetXBottom);
+} else {
+    let offsetXTop = outlineWidth * (2 + 0.02);
+    drawOutline(outlinePoints, 0, true, offsetXTop);
+}
+
+// 🔄 Restaura o contexto depois de desenhar os dois lados
+drawingContext.restore();
+
+// 🔲 Desenha os componentes (sem sombra)
+drawComponentBoundingBoxes();
+
+
+// ---- Função drawOutline (sem save/restore interno) ----
 function drawOutline(points, offsetX = 0, flipX = false, mirrorAxis = 0) {
     let drawing = false;
 
-    // 🟨 Define a cor da linha e a espessura
-    stroke('yellow');//cor da borda
-    strokeWeight(5);
-    fill(0, 0, 0, 50); // cor da placa
+    // Configura a sombra antes de desenhar a forma
+    drawingContext.shadowColor = 'rgba(0, 0, 0)';  // sombra suave
+    drawingContext.shadowBlur = 13;
+    drawingContext.shadowOffsetX = 15;
+    drawingContext.shadowOffsetY = 25;
 
+    // Cor da borda e preenchimento
+    stroke('#615f5fff');
+    strokeWeight(8);
+    fill(10, 10, 10); // cor da placa
 
     for (let i = 0; i < points.length - 1; i++) {
         let current = points[i];
@@ -367,22 +400,6 @@ function drawOutline(points, offsetX = 0, flipX = false, mirrorAxis = 0) {
         endShape(CLOSE);
     }
 }
-
-
-        // ---- Uso de la función factorizada ----
-
-        // Lado "T" (Top)
-        drawOutline(outlinePoints, 0);
-
-        // Lado "B" (Bottom), si no está todo en top
-        if (!allInTop) {
-            let offsetXBottom = (displayMode === "all") ? bottomOffset : 0;
-            drawOutline(outlinePoints, offsetXBottom);
-        } else {
-            let offsetXTop = outlineWidth * (2 + 0.02);
-            drawOutline(outlinePoints, 0, true, offsetXTop);
-        }
- drawComponentBoundingBoxes(); // Dibuja los cuadros de los componentes.
 
 
         /////////// pines ///////////////////
@@ -481,8 +498,8 @@ if (selectedPin === pin) {
 
             } else if (pin.net === "NC") {
                 strokeWeight(1 / scaleFactor);
-                stroke(255, 255, 0);
-                noFill(); // Não preenchido
+                stroke(100);
+                 fill(30); // Amarelo queimado - lado bottom
 
           
             } else if (pin.side === "B") {
@@ -526,30 +543,39 @@ if (pin.outline && pin.outline.length) {
 
 
 
-        if (showNetConnections) {
-            drawSelectedNetConnections(); // Dibuja las conexiones entre pines de la misma red.
-        }
-        //drawBackgroundImage();   imagen fondo
-       
-        drawPartNames(); // Dibuja los nombres de las partes.
-        drawPinNumbers();
-        checkPinsOutsideTopOutline();
+       if (showNetConnections) {
+    drawSelectedNetConnections(); // Dibuja las conexiones entre pines de la misma red.
+}
+//drawBackgroundImage();   imagen fondo
 
-        pop(); // Fin T3: Revierte traslación y escala.
-        pop(); // Fin T2: Revierte reflejo.
-        pop(); // Fin T1: Revierte rotación.
+drawPartNames(); // Dibuja los nombres de las partes.
+drawPinNumbers();
+checkPinsOutsideTopOutline();
 
-        push();
-        textAlign(CENTER, CENTER);
-        textSize(80); // Tamaño fijo, puedes ajustar según tu canvas
-        textFont('sans-serif'); // Usa una fuente más clara y estable
-        fill(255, 255, 255, 40); // Un poco más opaco para que sea legible
-        textStyle(BOLD);
-        text("DIGITAL BOARD", width / 2, height / 2);
-        pop();
+// 👉 TEXTO DENTRO DO MESMO CONTEXTO DO BVR
+push();
+scale(1, -1); // corrige a inversão vertical
+textAlign(CENTER, CENTER);
+textSize(80);
+textFont('sans-serif');
+fill(255, 255, 255, 40);
+textStyle(BOLD);
+
+// Como 0,0 é o centro do BVR, deslocamos 50px para a direita
+let textX = 2700;    // deslocamento horizontal
+let textY = 100;   // distância abaixo do centro
+
+text("DIGITAL BOARD  +55 (33) 9 8444-4376", textX, textY);
+pop();
+
+pop(); // Fin T3
+pop(); // Fin T2
+pop(); // Fin T1
+
+drawTooltip(); // sem transformações
 
 
-        drawTooltip(); // Dibuja tooltip sin transformaciones.
+
     }
 
 }
@@ -1302,77 +1328,26 @@ if (part.name.startsWith("CN")) {
     // 🔸 conector
     strokeWeight(2 / scaleFactor);
     fill(50, 50, 50, 90);  
-    stroke(150, 150, 150);    // Borda cinza
- } else if (part.name.startsWith("L")) {
-    
-    strokeWeight(2 / scaleFactor);
-    fill(100, 100, 100); 
-    stroke(150, 150, 150);    
- } else if (part.name.startsWith("MIC")) {
-    
-    strokeWeight(2 / scaleFactor);
-    fill(255, 255, 0, 100); 
-    stroke(150, 150, 150);    
-
-} else if (part.name.startsWith("U")) {
-    
-    strokeWeight(2 / scaleFactor);
-    fill(70, 70, 70); 
-    stroke(150, 150, 150);  
-    } else if (part.name.startsWith("J")) {
-    
-    strokeWeight(2 / scaleFactor);
-    fill(70, 70, 70, 100); 
-    stroke(150, 150, 150);  
-    } else if (part.name.startsWith("SOC")) {
-    
-    strokeWeight(2 / scaleFactor);
-    fill(70, 70, 70, 100); 
-    stroke(150, 150, 150);  
-    } else if (part.name.startsWith("SIM")) {
-    // 🔹 CI (Circuito Integrado)
-    strokeWeight(2 / scaleFactor);
-    fill(70, 70, 70, 100); 
-    stroke(150, 150, 150);  
-    } else if (part.name.startsWith("CON")) {
-    // 🔹 CI (Circuito Integrado)
-    strokeWeight(2 / scaleFactor);
-    fill(70, 70, 70, 100); 
-    stroke(150, 150, 150);  
-} else if (part.name.startsWith("L")) {
-    // 🔹 CI (Circuito Integrado)
-    strokeWeight(2 / scaleFactor);
-    fill(70, 70, 70, 100); 
-    stroke(150, 150, 150); 
-    
-    
-} else if (part.name.startsWith("F")) {
-    // 🔹 CI (Circuito Integrado)
-    strokeWeight(2 / scaleFactor);
-    fill(0, 0, 255, 150); 
-    stroke(150, 150, 150);  
-
-} else if (part.name.startsWith("C")) {
-    // 🔸 Conectores
-       strokeWeight(2 / scaleFactor);
-    fill(255, 255, 120, 90);  // Amarelo claro, semi-transparente
-    stroke(160, 160, 160);    // Borda cinza
+     stroke(80);    // Borda cinza
 
 } else {
-    strokeWeight(2 / scaleFactor)
+    strokeWeight(3 / scaleFactor)
     // 🔘 Outros componentes
     noFill();
-    stroke(150, 150, 150);    // Borda cinza
+    stroke(80);    // Borda cinza
 }
 
 
-        // Dibujamos el rectángulo real en coordenadas mundo
-        rect(
-            minX + groupOffset,
-            minY,
-            maxX - minX,
-            maxY - minY
-        );
+       let padding = 2; // 2px de espaçamento
+let borderRadius = 2; // raio de arredondamento
+
+rect(
+    minX + groupOffset - padding,          // x: recua para a esquerda
+    minY - padding,                        // y: recua para cima
+    (maxX - minX) + padding * 2,           // width: aumenta para direita
+    (maxY - minY) + padding * 2,           // height: aumenta para baixo
+    borderRadius                            // raio de arredondamento
+);
     }
 }
 
@@ -1398,8 +1373,8 @@ function drawPartNames() {
             let requiredZoom = 1.5; // Zoom por defecto
 
             if (firstChar === "J" || firstChar === "U" || firstTwoChars === "CN" || firstTwoChars === "SI" || firstTwoChars === "SO" || firstTwoChars === "HD" || firstTwoChars === "LE") {
-                requiredZoom = 0.1;
-            } else if (firstChar === "R") {
+                requiredZoom = 0.5;
+            } else if (firstChar === "R"|| firstChar === "C"|| firstChar === "L"  ) {
                 requiredZoom = 1.0;
             }
 
