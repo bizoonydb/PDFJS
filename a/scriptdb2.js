@@ -200,7 +200,7 @@ document.addEventListener('click', function(event) {
 const modalbci = document.getElementById('modalbci');
 const inputCodigo = document.getElementById('codigoInput');
 const btnConfirmar = document.getElementById('confirmarBtn');
-const codigoCorreto = "DBED18751";
+const codigoCorreto = "DBED18752";
 const chaveLocalStorage = "bci_ativado";
 
 let destino = "";
