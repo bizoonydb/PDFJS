@@ -32,33 +32,32 @@ document.addEventListener('click', function(event) {
   const target = event.target.closest('a');
   if (!target) return;
 
-  const link = target.dataset.url || target.href;
+  const link = target.dataset.url;
   if (!link) return;
 
-  event.preventDefault();      
-  event.stopPropagation();     
+  event.preventDefault();
+  event.stopImmediatePropagation(); // evita download forçado
 
   if (link.endsWith('.pdf')) {
     window.open(
       `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(link)}`,
       '_blank'
     );
-  } else if (link.endsWith('.bvr')) {
+  } 
+  else if (link.endsWith('.bvr')) {
     window.open(
       `https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=${encodeURIComponent(link)}`,
       '_blank'
     );
-  } else if (link.endsWith('.pcb')) {
+  }
+  else if (link.endsWith('.pcb')) {
     window.open(
       `https://pcb.tallerosoft.com/digital/ui.html?file=${encodeURIComponent(link)}`,
       '_blank'
     );
-  } else if (link.endsWith('_db') || link.endsWith('_hs')) {
-    window.open(link, '_blank');
-  } else {
-    window.location.href = link;
   }
 });
+
 
 
 
