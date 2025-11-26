@@ -8894,19 +8894,21 @@
 
 <details class="AQUI ESCREVE FOLDERR">
 <summary><i class="fa-regular fa-folder icon-outline"></i> BACKUP</summary> 
-  <a href="#" data-url="https://pcb.tallerosoft.com/digital/ui.html?file=https%3A%2F%2Fbizoonydb.github.io%2Fnew%2Fpcb%2FPOCO%2520X3Pro-351J20SM0A%2520PCB%2520layer.pcb" class="file"><i class="far fa-file-pdf"></i>teste</a>
-  <a href="#" data-url="https://bizoonydb.github.io/new/pcb/POCO%20X3Pro-351J20SM0A%20PCB%20layer.pcb_" class="file"><i class="far fa-file-pdf"></i>AAA</a>
-<details class="folder">
-  <a href="#" 
-   
-   data-url="https://pcb.tallerosoft.com/digital/ui.html?file=https://bizoonydb.github.io/new/pcb/POCO%20X3Pro-351J20SM0A%20PCB%20layer.pcb_" 
+  <a href="javascript:void(0)"
+   data-url="https://pcb.tallerosoft.com/digital/ui.html?file=https://bizoonydb.github.io/new/pcb/Air2S-PP002283.pcb"
    class="file">
-   <i class="far fa-file-pdf"></i> BBB
+   <i class="far fa-file-code"></i> MULTLAYER air2s
+</a>
+<details class="folder">
+ <a href="javascript:void(0)"
+   data-url="https://pcb.tallerosoft.com/digital/ui.html?file=https://bizoonydb.github.io/new/pcb/DJI 4P IMU-P02073.05 PCB layer.pcb"
+   class="file">
+   <i class="far fa-file-code"></i> MULTLAYER 4p
 </a>
 <a href="javascript:void(0)"
    data-url="https://pcb.tallerosoft.com/digital/ui.html?file=https://bizoonydb.github.io/new/pcb/POCO%20X3Pro-351J20SM0A%20PCB%20layer.pcb"
    class="file">
-   <i class="far fa-file-pdf"></i> CC
+   <i class="far fa-file-code"></i> MULTLAYER poco
 </a>
 
          <summary><i class="fa-regular fa-folder icon-outline"></i> ADMIN</summary>
@@ -9030,34 +9032,7 @@
 
     <!-- Resultados da busca -->
     <div id="resultado"></div>
-<script>
-document.addEventListener("click", function(e) {
-  const el = e.target.closest("a[data-url]");
-  if (!el) return;
 
-  const url = el.dataset.url;
-  if (!url) return;
-
-  // Para Electron nunca capturar o .pcb real
-  if (url.endsWith(".pcb_")) {
-
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-
-    // Corrige o link antes de abrir
-    const pcbUrl = url.replace(/\.pcb_$/i, ".pcb");
-
-    const viewer = 
-      "https://pcb.tallerosoft.com/digital/ui.html?file=" + encodeURIComponent(pcbUrl);
-
-    // Abre SEM tocar no arquivo .pcb diretamente
-    window.open(viewer, "_blank");
-
-    return false;
-  }
-});
-</script>
 
 <script src="scriptdb2.js"></script>
 
