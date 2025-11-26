@@ -63,13 +63,18 @@ document.addEventListener('click', function(event) {
     return;
   }
 
-  if (clean.endsWith('.pcb')) {
-    window.open(
-      "https://pcb.tallerosoft.com/digital/ui.html?file=" + encodeURIComponent(link),
-      "_blank"
-    );
-    return;
-  }
+ if (clean.endsWith('.pcb')) {
+  const viewerUrl =
+    "https://pcb.tallerosoft.com/digital/ui.html?file=" + encodeURIComponent(link);
+
+  // Abrir o viewer SEM tocar na URL .pcb diretamente
+  setTimeout(() => {
+    window.location.href = viewerUrl;
+  }, 0);
+
+  return;
+}
+
 
   // fallback
   window.location.href = link;
