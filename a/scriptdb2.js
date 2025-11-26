@@ -47,39 +47,40 @@ document.addEventListener('click', function(event) {
   const link = a.dataset.url;
   const clean = link.split('?')[0].split('#')[0];
 
-  if (clean.endsWith('.pdf')) {
-    window.open(
-      "https://bizoonydb.github.io/PDFJS/web/viewer.html?file=" + encodeURIComponent(link),
-      "_blank"
-    );
-    return;
-  }
+  if (link.endsWith('.pdf')) {
 
-  if (clean.endsWith('.bvr')) {
-    window.open(
-      "https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=" + encodeURIComponent(link),
-      "_blank"
-    );
-    return;
-  }
+  window.open(
+    `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(link)}`,
+    '_blank'
+  );
 
-if (clean.endsWith('.pcb')) {
+} else if (link.endsWith('.bvr')) {
 
-  // Remove .pcb temporariamente para evitar bloqueio do Electron
-  let safeUrl = link.replace(/\.pcb$/i, ".pcb_");
+  window.open(
+    `https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=${encodeURIComponent(link)}`,
+    '_blank'
+  );
 
-  // Viewer recebe a versão segura
-  const viewerUrl =
-    "https://pcb.tallerosoft.com/digital/ui.html?file=" + encodeURIComponent(safeUrl);
+} else if (link.endsWith('.pcb')) {
 
-  window.location.href = viewerUrl;
-  return;
+  // 🔥 Evita download no Electron
+  const safeUrl = link.replace(/\.pcb$/i, ".pcb_");
+
+  window.open(
+    `https://pcb.tallerosoft.com/digital/ui.html?file=${encodeURIComponent(safeUrl)}`,
+    '_blank'
+  );
+
+} else if (link.endsWith('_db') || link.endsWith('_hs')) {
+
+  window.open(link, '_blank');
+
+} else {
+
+  window.location.href = link;
+
 }
 
-
-
-  // fallback
-  window.location.href = link;
 });
 
 
