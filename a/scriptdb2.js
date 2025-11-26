@@ -1,6 +1,14 @@
 
   
-     
+     mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
+  const fileName = item.getFilename().toLowerCase();
+
+  if (fileName.endsWith('.pcb')) {
+    console.log("Bloqueado download de .pcb:", fileName);
+    event.preventDefault(); // Cancela o download
+  }
+});
+
         function openInFirstTab(url) {
     // Pega a primeira aba armazenada no map de tabs
     const firstTabId = Array.from(tabs.keys())[0]; 
