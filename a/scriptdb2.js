@@ -63,17 +63,19 @@ document.addEventListener('click', function(event) {
     return;
   }
 
- if (clean.endsWith('.pcb')) {
+if (clean.endsWith('.pcb')) {
+
+  // Remove .pcb temporariamente para evitar bloqueio do Electron
+  let safeUrl = link.replace(/\.pcb$/i, ".pcb_");
+
+  // Viewer recebe a versão segura
   const viewerUrl =
-    "https://pcb.tallerosoft.com/digital/ui.html?file=" + encodeURIComponent(link);
+    "https://pcb.tallerosoft.com/digital/ui.html?file=" + encodeURIComponent(safeUrl);
 
-  // Abrir o viewer SEM tocar na URL .pcb diretamente
-  setTimeout(() => {
-    window.location.href = viewerUrl;
-  }, 0);
-
+  window.location.href = viewerUrl;
   return;
 }
+
 
 
   // fallback
