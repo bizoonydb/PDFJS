@@ -35,10 +35,9 @@ document.addEventListener('click', function(event) {
   const link = target.dataset.url || target.href;
   if (!link) return;
 
-  event.preventDefault();      // impede o comportamento padrão
-  event.stopPropagation();     // evita propagação que poderia abrir duas vezes
+  event.preventDefault();      
+  event.stopPropagation();     
 
-  // Links especiais abrem nos seus leitores/visualizadores em nova aba
   if (link.endsWith('.pdf')) {
     window.open(
       `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(link)}`,
@@ -49,13 +48,18 @@ document.addEventListener('click', function(event) {
       `https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=${encodeURIComponent(link)}`,
       '_blank'
     );
+  } else if (link.endsWith('.pcb')) {
+    window.open(
+      `https://pcb.tallerosoft.com/digital/ui.html?file=${encodeURIComponent(link)}`,
+      '_blank'
+    );
   } else if (link.endsWith('_db') || link.endsWith('_hs')) {
     window.open(link, '_blank');
   } else {
-    // Links normais abrem na mesma aba
     window.location.href = link;
   }
 });
+
 
 
 
