@@ -29,34 +29,44 @@ function closeAlert() {
   document.getElementById('dbAlert').style.display = 'none';//FECHAR ALERT
 }
 document.addEventListener('click', function(event) {
-  const target = event.target.closest('a');
-  if (!target) return;
-
-  const link = target.dataset.url;
-  if (!link) return;
+  const a = event.target.closest('a[data-url]');
+  if (!a) return;
 
   event.preventDefault();
-  event.stopImmediatePropagation(); // evita download forçado
+  event.stopPropagation();
+  event.stopImmediatePropagation();
 
-  if (link.endsWith('.pdf')) {
+  const link = a.dataset.url;
+  const clean = link.split('?')[0].split('#')[0];
+
+  if (clean.endsWith('.pdf')) {
     window.open(
-      `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(link)}`,
-      '_blank'
+      "https://bizoonydb.github.io/PDFJS/web/viewer.html?file=" + encodeURIComponent(link),
+      "_blank"
     );
-  } 
-  else if (link.endsWith('.bvr')) {
-    window.open(
-      `https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=${encodeURIComponent(link)}`,
-      '_blank'
-    );
+    return;
   }
-  else if (link.endsWith('.pcb')) {
+
+  if (clean.endsWith('.bvr')) {
     window.open(
-      `https://pcb.tallerosoft.com/digital/ui.html?file=${encodeURIComponent(link)}`,
-      '_blank'
+      "https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=" + encodeURIComponent(link),
+      "_blank"
     );
+    return;
   }
+
+  if (clean.endsWith('.pcb')) {
+    window.open(
+      "https://pcb.tallerosoft.com/digital/ui.html?file=" + encodeURIComponent(link),
+      "_blank"
+    );
+    return;
+  }
+
+  // fallback
+  window.location.href = link;
 });
+
 
 
 
