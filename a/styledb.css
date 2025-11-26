@@ -233,6 +233,31 @@ header {
             border-radius: 2%;
             padding: 1px;
         }
+        .file-code2 {
+            display: block;
+            
+            color: #006eff!important;
+           
+            margin-left: 25px;
+        }
+
+        
+        .file-code2:hover {
+            color: #00ff37!important;
+     
+            border: 1px solid #ffe600;
+            text-decoration: none;
+            position: relative;
+        }
+        
+    
+        .file-code2 i {
+           
+            color: #00aeff !important;
+            
+            border-radius: 2%;
+            padding: 1px;
+        }
         
         .file-image {
             display: block;
