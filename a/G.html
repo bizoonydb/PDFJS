@@ -9030,6 +9030,34 @@
 
     <!-- Resultados da busca -->
     <div id="resultado"></div>
+<script>
+document.addEventListener("click", function(e) {
+  const el = e.target.closest("a[data-url]");
+  if (!el) return;
+
+  const url = el.dataset.url;
+  if (!url) return;
+
+  // Para Electron nunca capturar o .pcb real
+  if (url.endsWith(".pcb_")) {
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    // Corrige o link antes de abrir
+    const pcbUrl = url.replace(/\.pcb_$/i, ".pcb");
+
+    const viewer = 
+      "https://pcb.tallerosoft.com/digital/ui.html?file=" + encodeURIComponent(pcbUrl);
+
+    // Abre SEM tocar no arquivo .pcb diretamente
+    window.open(viewer, "_blank");
+
+    return false;
+  }
+});
+</script>
 
 <script src="scriptdb2.js"></script>
 
