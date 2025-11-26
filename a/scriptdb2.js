@@ -47,7 +47,7 @@ document.addEventListener('click', function(event) {
   const link = a.dataset.url;
   const clean = link.split('?')[0].split('#')[0];
 
-  if (link.endsWith('.pdf')) {
+ if (link.endsWith('.pdf')) {
 
   window.open(
     `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(link)}`,
@@ -61,13 +61,13 @@ document.addEventListener('click', function(event) {
     '_blank'
   );
 
-} else if (link.endsWith('.pcb')) {
+} else if (link.endsWith('.pcb_')) {
 
-  // 🔥 Evita download no Electron
-  const safeUrl = link.replace(/\.pcb$/i, ".pcb_");
+  // 🔥 Aqui trocamos pcb_ → pcb ANTES de abrir
+  const realLink = link.replace(/\.pcb_$/i, ".pcb");
 
   window.open(
-    `https://pcb.tallerosoft.com/digital/ui.html?file=${encodeURIComponent(safeUrl)}`,
+    `https://pcb.tallerosoft.com/digital/ui.html?file=${encodeURIComponent(realLink)}`,
     '_blank'
   );
 
@@ -80,6 +80,7 @@ document.addEventListener('click', function(event) {
   window.location.href = link;
 
 }
+
 
 });
 
