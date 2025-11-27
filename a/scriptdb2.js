@@ -1,17 +1,4 @@
-document.addEventListener("click", function (e) {
-  const link = e.target.closest('a.file-code2');
-  if (!link) return;
 
-  e.preventDefault();
-  e.stopPropagation();
-
-  const url = link.dataset.url;
-  if (!url) return;
-
-  window.open(url, "_blank");
-}, true); // <-- fase capture garante prioridade
-
-  
      
         function openInFirstTab(url) {
     // Pega a primeira aba armazenada no map de tabs
