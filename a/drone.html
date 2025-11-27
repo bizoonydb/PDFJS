@@ -1,10 +1,13 @@
+
+
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DRONE</title>
+    <title>MENU5.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -14,6 +17,78 @@
   <link rel="stylesheet" href="styledb.css">
 
 </head>
+<style>
+/* ---------- ESTILO DO MODAL ----------- */
+.modalbci {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.918);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999999; /* SEMPRE ACIMA DE TUDO */
+}
+
+.modalbci-content {
+    background: #292929;
+    color: #ffe606;
+    width: 420px;
+    padding: 20px;
+    border-radius: 14px;
+    text-align: center;
+    border: 2px solid #fbff00;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.699);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Animação suave */
+@keyframes fadeIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Inputs e botões */
+.modalbci input {
+    width: 90%;
+    padding: 10px;
+    margin-top: 10px;
+    color: #00ff00;
+    font-size: 16px;
+    border: 2px solid #fbff00;
+    border-radius: 6px;
+}
+.modalbci button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #0077ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+}
+.modalbci button:hover {
+    background: #005fcc;
+}
+
+/* -------- MENSAGENS -------- */
+.msg {
+    margin-top: 12px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.msg-erro {
+    color: #d60000;
+}
+
+.msg-ok {
+    color: #00a000;
+}
+</style>
 <body>
     <header>
         <h1 class="text-2xl font-bold">-----</h1><!-- CABEÇALHO -->
@@ -58,13 +133,8 @@
         <!-- Barra de pesquisa -->
         <input type="text" id="search" placeholder="⏳    PESQUISAR   ☁..↩">
         <hr style="border: 1px solid #fbff00; margin: 10px 0;"> <!-- Linha de separação -->
-        EXTRA
-        <details class="folder">
-            <summary><i class="fa-regular fa-folder icon-outline"></i> PDF EXTRA🟢</summary>
-            BREVE
-        </details>
-
-    </details>
+  
+        
     <details class="folder">
       <summary><i class="fa-regular fa-folder icon-outline"></i> DATASHEET🟢</summary>
            <a href="#" data-url="https://bizoonydb.github.io/PDFJS/db/datasheet-drones/ACT8846.pdf" class="file"><i class="far fa-file-pdf"></i> ACT8846</a>
@@ -95,7 +165,7 @@
   <a href="#" data-url="https://bizoonydb.github.io/PDFJS/build/air2_cpu_mem_db" class="file-code"><i class="far fa-file-code"></i> CPU MEM BITMAP</a>
   <a href="#" data-url="https://bizoonydb.github.io/PDFJS/build/cpu nc_db" class="file-code"><i class="far fa-file-code"></i> CPU PADS </a>
  <a href="javascript:void(0)"
-   data-url="https://bizoonydb.github.io/new/pcb/DJI Air2 PP002106.01 PCB layer.pcb"
+   data-url="https://pcb.tallerosoft.com/digital/ui.html?file=https://bizoonydb.github.io/new/pcb/DJI Air2 PP002106.01 PCB layer.pcb"
    class="file-code2">
    <i class="far fa-file-code"></i> Air2 PP002106.01 
 </a>
@@ -174,11 +244,6 @@
    class="file-code2">
    <i class="far fa-file-code"></i> MULTLAYER 
 </a>      
-<a href="https://pcb.tallerosoft.com/digital/ui.html?file=https://bizoonydb.github.io/new/pcb/Mavic2 PCB layer.pcb"
-   target="_blank"
-   class="file-code2">
-   <i class="far fa-file-code"></i> MULTLAYER 2
-</a>
 
 </details>
 <details>
@@ -300,8 +365,120 @@
              
 
 </details>
+
+
+
 <hr style="border: 1px solid #fbff00; margin: 10px 0;"> <!-- Linha de separação -->
-<p style="color: #ffc400; margin: 5px 0;">RC- </p>
+<p style="color: #ffc400; margin: 5px 0;">AGRAS </p>
+<details class="folder">
+  <summary><i class="fa-regular fa-folder icon-outline"></i> D6000I</summary>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/BLOCK_DIAGRAM.pdf" class="file"><i class="far fa-file"></i> BLOCK DIAGRAM</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/CODE_ERROR.pdf" class="file"><i class="far fa-file"></i> CODE ERROR</a>
+</details>
+
+<details class="folder">
+  <summary><i class="fa-regular fa-folder icon-outline"></i> D9000I GENERATOR</summary>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/D9000I-L.pdf" class="file"><i class="far fa-file"></i> DIAGRAM</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Generator_Operation_Safety_Guidelines.pdf" class="file"><i class="far fa-file"></i> GUIDE</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/GERATOR_OPETION_D9000I.pdf" class="file"><i class="far fa-file"></i> GERATOR OPTION</a>
+</details>
+
+<details class="folder">
+  <summary><i class="fa-regular fa-folder icon-outline"></i> D12000i</summary>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/DJI_D12000I_DIAGRAM_BLOCK.pdf" class="file"><i class="far fa-file"></i> BLOCK DIAGRAM</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/DJI_D12000I-GUIDE.pdf" class="file"><i class="far fa-file"></i> GUIDE</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/DJI_D12000I-INFO.pdf" class="file"><i class="far fa-file"></i> INFO</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/EFI_ERROR_CODE.pdf" class="file"><i class="far fa-file"></i> ERRO CODE</a>
+</details>
+
+<details class="folder">
+  <summary><i class="fa-regular fa-folder icon-outline"></i> DJI - MG</summary>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Manual_work.pdf" class="file"><i class="far fa-file"></i> MANUAL WORK</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Recommended_Maintenance_Cycle.pdf" class="file"><i class="far fa-file"></i> MANUTENTION CICLE</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Troubleshooting_Guide_.pdf" class="file"><i class="far fa-file"></i> TROBLESHOTING</a>
+</details>
+
+<details class="folder">
+  <summary><i class="fa-regular fa-folder icon-outline"></i> MG  -  SERIE</summary>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Disassembling_and_ASSEMBLING_THE_MG1P.pdf" class="file"><i class="far fa-file"></i> MG-1P</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Introduction_to.pdf" class="file"><i class="far fa-file"></i> INTRODUCTION TO REPAIR</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/MG-1P_Damage.pdf" class="file"><i class="far fa-file"></i> MG-1P DAMAGE</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/MG-1S_Damage_Assessment.pdf" class="file"><i class="far fa-file"></i> MG-1S DAMAGE</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/MG-1P_FUNTIONAL.pdf" class="file"><i class="far fa-file"></i> MG-1P FUNTIONAL</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/MG-1SSAD.pdf" class="file"><i class="far fa-file"></i> MG-1S FUNTIONAL</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/MG-1S各模块.pdf" class="file"><i class="far fa-file"></i> MG-1S</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Troubleshooting_Guide.pdf" class="file"><i class="far fa-file"></i> Troubleshooting</a>
+</details>
+
+<details class="folder">
+  <summary><i class="fa-regular fa-folder icon-outline"></i> T10</summary>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Agras_T10_REPAIR_(2).pdf" class="file"><i class="far fa-file"></i> REPAIR 1</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Agras_T10_REPAIR.pdf" class="file"><i class="far fa-file"></i> REPAIR 2</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Spreading_System_3.0.pdf" class="file"><i class="far fa-file"></i> SPREADING SYSTEM</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T10_Drone_Recommended_Maintenance.pdf" class="file"><i class="far fa-file"></i> REPAIR 3</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Troubleshooting_Agras_Drones,_Edition_#4.pdf" class="file"><i class="far fa-file"></i> TROBLESHOOTING</a>
+</details>
+
+<details class="folder">
+  <summary><i class="fa-regular fa-folder icon-outline"></i> T16</summary>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/2019_Troubleshooting_Guide_2.pdf" class="file"><i class="far fa-file"></i> TROBLESHOOT 1</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/2019_Troubleshooting_Guide_for_DJI_Agras_Products.pdf" class="file"><i class="far fa-file"></i> TROBLESHOOT 2</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/pdf_part_9_191425434_231000704.pdf" class="file"><i class="far fa-file"></i> PDF T16</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T16_Dealer_Repair_Training.pdf" class="file"><i class="far fa-file"></i> DEALER REPAIR</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T16_Pre-Flight_and_Post-Flight_Check_&_Flight_Test.pdf" class="file"><i class="far fa-file"></i> CHECK FLIGHT</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T16_Repair_Guide.pdf" class="file"><i class="far fa-file"></i> REPAIOR GUIDE 1</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T16_Repair_Guide2.pdf" class="file"><i class="far fa-file"></i> REPAIR GUIDE 2</a>
+</details>
+
+<details class="folder">
+  <summary><i class="fa-regular fa-folder icon-outline"></i> T20</summary>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/4-Channel_Battery_Charger.pdf" class="file"><i class="far fa-file"></i> BATTERY CHARGER</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Agras_T20_Repair_Training.pdf" class="file"><i class="far fa-file"></i> REPAIR 1</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Product_Issue_Troubleshooting.pdf" class="file"><i class="far fa-file"></i> TROBLE 1</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Spreading_System_Repair_Training.pdf" class="file"><i class="far fa-file"></i> REPAIR 2</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T_Series_Spreading_System.pdf" class="file"><i class="far fa-file"></i> REPAIR 3</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T16_Remote_Controller_Training.pdf" class="file"><i class="far fa-file"></i> REMOTE CONTROL</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T20_Controller_Repair_Training.pdf" class="file"><i class="far fa-file"></i> CONTROL REPAIR</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T20_Controller_Repair_Training2.pdf" class="file"><i class="far fa-file"></i> CONTROL REPAIR 2</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T20_Repair_Guide.pdf" class="file"><i class="far fa-file"></i> REPAIR GUIDE</a>
+  
+</details>
+
+<details class="folder">
+  <summary><i class="fa-regular fa-folder icon-outline"></i> T30</summary>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/(T30_Battery_&_Charger)_.pdf" class="file"><i class="far fa-file"></i> BATERRY CHARGER</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/(T30_Battery_&_Charger).pdf" class="file"><i class="far fa-file"></i> BATERRY CHARGER 2</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T30_Assembly_and_Disassembly.pdf" class="file"><i class="far fa-file"></i> ASSEMBLY AND DISASSEMBLY</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T30_Drone_Recommended_Maintenance.pdf" class="file"><i class="far fa-file"></i> REPAIR 1</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T30_Module_Introduction.pdf" class="file"><i class="far fa-file"></i> MODULE INTRODUTION</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T30_REPAIR_2.pdf" class="file"><i class="far fa-file"></i> REPAIR 2</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T30_REPAIR.pdf" class="file"><i class="far fa-file"></i> REPAIR 3</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T30_The_Introduction_of.pdf" class="file"><i class="far fa-file"></i> INTRODUCTION MAINTENCE</a>
+</details>
+
+<details class="folder">
+  <summary><i class="fa-regular fa-folder icon-outline"></i> T40 E T20P</summary>
+ <details>
+<summary><i class="fa-regular fa-folder icon-outline"></i>REMOTE CONTROL</summary>
+<a href="#" data-url="https://bizoonydb.github.io/PDFJS/build/DRONE/RC%20PLUS%20IMAGE .pdf" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
+<a href="#" data-url="https://bizoonydb.github.io/new/pda/DJI_RCPlusRepair_Training.pdf" class="file"><i class="far fa-file"></i> RC PLUS REPAIR</a>
+<a href="#" data-url="https://bizoonydb.github.io/PDFJS/build/DRONE/RC%20Plus-PP001927.07%20PCB%20layer.bvr" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
+<a href="#" data-url="https://bizoonydb.github.io/PDFJS/build/DRONE/layout_completo%20(14).pdf" class="file"><i class="far fa-file-pdf"></i> LAYOUT</a>
+<a href="#" data-url="https://bizoonydb.github.io/PDFJS/build/DRONE/layout_completo%20(6).pdf" class="file"><i class="far fa-file-pdf"></i> INPUT USB-C</a>
+<a href="#" data-url="https://bizoonydb.github.io/PDFJS/build/DRONE/layout_completo%20(33).pdf" class="file"><i class="far fa-file-pdf"></i> SD CARD</a>
+<a href="#" data-url="https://bizoonydb.github.io/PDFJS/build/DRONE/layout_completo%20(11).pdf" class="file"><i class="far fa-file-pdf"></i> NC PAD</a>
+             
+
+</details>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T40_&_T20P_SpreadingSystemRepair_Training.pdf" class="file"><i class="far fa-file"></i> SPREADING SYSTEM</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/T40_&T20PRepair_Training.pdf" class="file"><i class="far fa-file"></i> REPAIR 1</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Troubleshooting_Agras_Drones_2022_(2).pdf" class="file"><i class="far fa-file"></i> TROBLE AGRAS 1</a>
+  <a href="#" data-url="https://bizoonydb.github.io/new/pda/Troubleshooting_Agras_Drones_2022.pdf" class="file"><i class="far fa-file"></i> TROBLE AGRAS 2</a>
+</details>
+
+
+<hr style="border: 1px solid #fbff00; margin: 10px 0;"> <!-- Linha de separação -->
+<p style="color: #ffc400; margin: 5px 0;">RC- REMOTE CONTROL </p>
 <details>
 <summary><i class="fa-regular fa-folder icon-outline"></i> DJI RC-N1</summary>
 
@@ -314,7 +491,7 @@
 <details>
 <summary><i class="fa-regular fa-folder icon-outline"></i>DJI RC PLUS</summary>
 <a href="#" data-url="https://bizoonydb.github.io/PDFJS/build/DRONE/RC%20PLUS%20IMAGE .pdf" class="file"><i class="far fa-file-pdf"></i> IMAGE REF</a>
-
+<a href="#" data-url="https://bizoonydb.github.io/new/pda/DJI_RCPlusRepair_Training.pdf" class="file"><i class="far fa-file"></i> RC PLUS REPAIR</a>
 <a href="#" data-url="https://bizoonydb.github.io/PDFJS/build/DRONE/RC%20Plus-PP001927.07%20PCB%20layer.bvr" class="file-code"><i class="far fa-file-code"></i>BITMAP</a>
 <a href="#" data-url="https://bizoonydb.github.io/PDFJS/build/DRONE/layout_completo%20(14).pdf" class="file"><i class="far fa-file-pdf"></i> LAYOUT</a>
 <a href="#" data-url="https://bizoonydb.github.io/PDFJS/build/DRONE/layout_completo%20(6).pdf" class="file"><i class="far fa-file-pdf"></i> INPUT USB-C</a>
@@ -416,22 +593,30 @@
 
      
    
-<!-- Modal VALIDAÇAO DRONE,,,, -->
-    <div class="modalbci" id="modalbci">
-        <div class="modalbci-content" id="modalbciContent">
-          <h2>CONTEUDO EXCLUSIVO PARA CONTAS PREMIUM</h2><br>
+<!-- Modal de validação premium -->
+<div class="modalbci" id="modalbci">
+    <div class="modalbci-content">
+         <h2>CONTEUDO EXCLUSIVO PARA CONTAS PREMIUM</h2><br>
           <h4>ATENÇÃO</h4><br> O CONTEUDO É EXCLUSIVO PARA CONTAS PREMIUM<br>DIGITE O CÓDIGO ABAIXO PARA ACESSAR O CONTEUDO</p><br>
 
           <br>
           <h5>SE NÃO TEM UMA CONTA PREMIUM, ADQUIRA UMA ATRAVES DO NOSSO WHATSAPP +55 (33)98444-4376</h5>
           <br><hr><br>
           <h3>COLE SEU CODIGO PREMIUM: </h3>
-          <input type="password" id="codigoInput" placeholder="Código de ativação">
-          <button id="confirmarBtn">Confirmar</button>
-        </div>
+
+        <input type="password" id="codigoInput" placeholder="Código premium"><button id="mostrarCodigoBtn" style="margin-top:5px;">Mostrar</button>
+
+
+        <button id="confirmarBtn">Confirmar</button>
+
+        <p id="mensagem" class="msg"></p>
+
+        <br>
+        <p>Não tem uma conta premium?<br>
+        Whatsapp: <b>+55 (33) 98444-4376</b>
+        </p>
     </div>
-
-
+</div>
 
 
     <!-- AREA COM IMAGEM -->
@@ -459,6 +644,63 @@
 
     <!-- Resultados da busca -->
     <div id="resultado"></div>
+<script>
+/* ----------- VARIÁVEIS ----------- */
+const modalbci = document.getElementById('modalbci');
+const inputCodigo = document.getElementById('codigoInput');
+const btnConfirmar = document.getElementById('confirmarBtn');
+const mensagem = document.getElementById('mensagem');
+const btnMostrar = document.getElementById('mostrarCodigoBtn');
+
+const codigoCorreto = "DBED18751";
+const chaveLocalStorage = "bci_ativado";
+
+/* ----------- TRANSFORMAR EM MAIÚSCULO ----------- */
+inputCodigo.addEventListener("input", () => {
+    inputCodigo.value = inputCodigo.value.toUpperCase();
+});
+
+/* ----------- MOSTRAR / OCULTAR CÓDIGO ----------- */
+btnMostrar.addEventListener("click", () => {
+    if (inputCodigo.type === "password") {
+        inputCodigo.type = "text";
+        btnMostrar.textContent = "Ocultar";
+    } else {
+        inputCodigo.type = "password";
+        btnMostrar.textContent = "Mostrar";
+    }
+});
+
+/* ----------- VERIFICA AO CARREGAR ----------- */
+window.addEventListener("load", () => {
+    const ativado = localStorage.getItem(chaveLocalStorage);
+    if (ativado === "true") {
+        modalbci.style.display = "none";
+    }
+});
+
+/* ----------- BOTÃO DE CONFIRMAÇÃO ----------- */
+btnConfirmar.addEventListener("click", () => {
+
+    const codigoDigitado = inputCodigo.value.trim();
+
+    if (codigoDigitado === codigoCorreto) {
+
+        localStorage.setItem(chaveLocalStorage, "true");
+
+        mensagem.textContent = "ACESSO LIBERADO!";
+        mensagem.className = "msg msg-ok";
+
+        setTimeout(() => {
+            modalbci.style.display = "none";
+        }, 1000);
+
+    } else {
+        mensagem.textContent = "❌ CÓDIGO INCORRETO!";
+        mensagem.className = "msg msg-erro";
+    }
+});
+</script>
 
 <script src="scriptdb2.js"></script>
 
