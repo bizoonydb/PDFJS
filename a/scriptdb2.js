@@ -1,3 +1,17 @@
+document.addEventListener("click", function (e) {
+  const link = e.target.closest("a.file-code2");
+  if (!link) return;
+
+  e.stopImmediatePropagation(); // PARA absolutamente todos os outros listeners
+  e.preventDefault();
+
+  const url = link.dataset.url || link.href;
+  if (!url) return;
+
+  // força nova guia
+  window.open(url, "_blank");
+
+}, true);  // CAPTURE para rodar ANTES de qualquer outro listener
 
      
         function openInFirstTab(url) {
