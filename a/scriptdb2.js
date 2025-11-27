@@ -1,14 +1,6 @@
 
   
-     mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
-  const fileName = item.getFilename().toLowerCase();
-
-  if (fileName.endsWith('.pcb')) {
-    console.log("Bloqueado download de .pcb:", fileName);
-    event.preventDefault(); // Cancela o download
-  }
-});
-
+     
         function openInFirstTab(url) {
     // Pega a primeira aba armazenada no map de tabs
     const firstTabId = Array.from(tabs.keys())[0]; 
@@ -37,55 +29,33 @@ function closeAlert() {
   document.getElementById('dbAlert').style.display = 'none';//FECHAR ALERT
 }
 document.addEventListener('click', function(event) {
-  const a = event.target.closest('a[data-url]');
-  if (!a) return;
+  const target = event.target.closest('a');
+  if (!target) return;
 
-  event.preventDefault();
-  event.stopPropagation();
-  event.stopImmediatePropagation();
+  const link = target.dataset.url || target.href;
+  if (!link) return;
 
-  const link = a.dataset.url;
-  const clean = link.split('?')[0].split('#')[0];
+  event.preventDefault();      // impede o comportamento padrão
+  event.stopPropagation();     // evita propagação que poderia abrir duas vezes
 
- if (link.endsWith('.pdf')) {
-
-  window.open(
-    `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(link)}`,
-    '_blank'
-  );
-
-} else if (link.endsWith('.bvr')) {
-
-  window.open(
-    `https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=${encodeURIComponent(link)}`,
-    '_blank'
-  );
-
-} else if (link.endsWith('.pcb_')) {
-
-  // 🔥 Aqui trocamos pcb_ → pcb ANTES de abrir
-  const realLink = link.replace(/\.pcb_$/i, ".pcb");
-
-  window.open(
-    `https://pcb.tallerosoft.com/digital/ui.html?file=${encodeURIComponent(realLink)}`,
-    '_blank'
-  );
-
-} else if (link.endsWith('_db') || link.endsWith('_hs')) {
-
-  window.open(link, '_blank');
-
-} else {
-
-  window.location.href = link;
-
-}
-
-
+  // Links especiais abrem nos seus leitores/visualizadores em nova aba
+  if (link.endsWith('.pdf')) {
+    window.open(
+      `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(link)}`,
+      '_blank'
+    );
+  } else if (link.endsWith('.bvr')) {
+    window.open(
+      `https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=${encodeURIComponent(link)}`,
+      '_blank'
+    );
+  } else if (link.endsWith('_db') || link.endsWith('_hs')) {
+    window.open(link, '_blank');
+  } else {
+    // Links normais abrem na mesma aba
+    window.location.href = link;
+  }
 });
-
-
-
 
 
 
