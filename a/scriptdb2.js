@@ -1,17 +1,29 @@
-document.addEventListener("click", function (e) {
-  const link = e.target.closest("a.file-code2");
+document.addEventListener('click', function (event) {
+  const a = event.target.closest('a');
+  if (!a) return;
+
+  const link = a.dataset.url;
   if (!link) return;
 
-  e.stopImmediatePropagation(); // PARA absolutamente todos os outros listeners
-  e.preventDefault();
+  // Evita carregamento na página principal
+  event.preventDefault();
+  event.stopImmediatePropagation();
 
-  const url = link.dataset.url || link.href;
-  if (!url) return;
+  console.log("Abrindo link:", link);
 
-  // força nova guia
-  window.open(url, "_blank");
+  // Abre tudo em nova janela SEM exceções
+  try {
+    const novaJanela = window.open(link, "_blank");
 
-}, true);  // CAPTURE para rodar ANTES de qualquer outro listener
+    // Segurança: Electron às vezes bloqueia window.open
+    if (!novaJanela) {
+      console.warn("window.open bloqueado, forçando redirecionamento");
+      window.location.assign(link);
+    }
+  } catch (e) {
+    console.error("Erro ao abrir nova janela:", e);
+  }
+});
 
      
         function openInFirstTab(url) {
