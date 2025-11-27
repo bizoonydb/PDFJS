@@ -1,31 +1,14 @@
-document.addEventListener('click', function (event) {
-  const a = event.target.closest('a');
-  if (!a) return;
 
-  const link = a.dataset.url;
-  if (!link) return;
+  
+     mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
+  const fileName = item.getFilename().toLowerCase();
 
-  // Evita carregamento na página principal
-  event.preventDefault();
-  event.stopImmediatePropagation();
-
-  console.log("Abrindo link:", link);
-
-  // Abre tudo em nova janela SEM exceções
-  try {
-    const novaJanela = window.open(link, "_blank");
-
-    // Segurança: Electron às vezes bloqueia window.open
-    if (!novaJanela) {
-      console.warn("window.open bloqueado, forçando redirecionamento");
-      window.location.assign(link);
-    }
-  } catch (e) {
-    console.error("Erro ao abrir nova janela:", e);
+  if (fileName.endsWith('.pcb')) {
+    console.log("Bloqueado download de .pcb:", fileName);
+    event.preventDefault(); // Cancela o download
   }
 });
 
-     
         function openInFirstTab(url) {
     // Pega a primeira aba armazenada no map de tabs
     const firstTabId = Array.from(tabs.keys())[0]; 
@@ -54,16 +37,17 @@ function closeAlert() {
   document.getElementById('dbAlert').style.display = 'none';//FECHAR ALERT
 }
 document.addEventListener('click', function(event) {
-  const target = event.target.closest('a');
-  if (!target) return;
+  const a = event.target.closest('a[data-url]');
+  if (!a) return;
 
-  const link = target.dataset.url || target.href;
-  if (!link) return;
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
 
-  event.preventDefault();      
-  event.stopPropagation();     
+  const link = a.dataset.url;
+  const clean = link.split('?')[0].split('#')[0];
 
-  if (link.endsWith('.pdf')) {
+ if (link.endsWith('.pdf')) {
 
   window.open(
     `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(link)}`,
@@ -96,7 +80,12 @@ document.addEventListener('click', function(event) {
   window.location.href = link;
 
 }
+
+
 });
+
+
+
 
 
 
