@@ -21,56 +21,41 @@
       let tabCount = 0;
       const iframes = new Map();
       
-      const tabs = new Map();
-
+      const tabs = document.getElementById('tabs');
     
 
 
 function closeAlert() {
   document.getElementById('dbAlert').style.display = 'none';//FECHAR ALERT
 }
-document.addEventListener('click', function (event) {
-  const a = event.target.closest('a');
-  if (!a) return;
+document.addEventListener('click', function(event) {
+  const target = event.target.closest('a');
+  if (!target) return;
 
-  const link = a.dataset.url || a.getAttribute('href');
+  const link = target.dataset.url || target.href;
   if (!link) return;
 
-  // Se for link especial (PDF, BVR, DB, HS), nós interceptamos
-  if (
-    link.endsWith('.pdf') ||
-    link.endsWith('.bvr') ||
-    link.endsWith('_db') ||
-    link.endsWith('_hs')
-  ) {
-    event.preventDefault();
+  event.preventDefault();      // impede o comportamento padrão
+  event.stopPropagation();     // evita propagação que poderia abrir duas vezes
 
-    if (link.endsWith('.pdf')) {
-      window.open(
-        `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(link)}`,
-        '_blank'
-      );
-      return;
-    }
-
-    if (link.endsWith('.bvr')) {
-      window.open(
-        `https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=${encodeURIComponent(link)}`,
-        '_blank'
-      );
-      return;
-    }
-
-    // Links _db e _hs só abrem direto
+  // Links especiais abrem nos seus leitores/visualizadores em nova aba
+  if (link.endsWith('.pdf')) {
+    window.open(
+      `https://bizoonydb.github.io/PDFJS/web/viewer.html?file=${encodeURIComponent(link)}`,
+      '_blank'
+    );
+  } else if (link.endsWith('.bvr')) {
+    window.open(
+      `https://bizoonydb.github.io/PDFJS/HANDSVIEW/index.html?fileLink=${encodeURIComponent(link)}`,
+      '_blank'
+    );
+  } else if (link.endsWith('_db') || link.endsWith('_hs')) {
     window.open(link, '_blank');
-    return;
+  } else {
+    // Links normais abrem na mesma aba
+    window.location.href = link;
   }
-
-  // Para links NORMAIS em Electron:
-  // NÃO usar stopPropagation e NÃO redirecionar com location.href
-  // Apenas deixa seguir normalmente.
-}, false);
-
+});
 
 
 
@@ -225,8 +210,7 @@ linksBci.forEach(link => {
   link.addEventListener("click", function (e) {
     // Impede que o navegador siga o href imediatamente
     e.preventDefault();
-    e.stopPropagation();
-
+    e.stopImmediatePropagation();
 
     destino = this.href; // pega o href direto do link
 
