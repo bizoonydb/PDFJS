@@ -1,6 +1,185 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<meta charset="UTF-8">
+<title>Feliz Natal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* REMOVE SCROLL */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ================= NEVE ================= */
+#neve-natal-overlay {
+    position: fixed;
+    top: 0;
+    left: 290px;
+    width: calc(100vw - 250px);
+    height: 100vh;
+    pointer-events: none;
+    z-index: 2147483647;
+    overflow: hidden;
+    transform: translateZ(999999px);
+    isolation: isolate;
+}
+
+.neve-floco {
+    position: absolute;
+    top: -10px;
+    color: white;
+    font-size: 12px;
+    opacity: 0.9;
+    user-select: none;
+    animation-name: neve-cair, neve-balanco;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite;
+}
+
+@keyframes neve-cair {
+    from { transform: translateY(0); }
+    to   { transform: translateY(110vh); }
+}
+
+@keyframes neve-balanco {
+    0% { margin-left: 0; }
+    50% { margin-left: 20px; }
+    100% { margin-left: 0; }
+}
+
+/* ================= PISCA-PISCA ================= */
+#pisca-pisca {
+    position: fixed;
+    top: 45px;
+    left: 270px;
+    width: calc(100vw - 250px);
+    height: 56px;
+    display: flex;
+    justify-content: space-evenly; /* OCUPA TODO O TOPO */
+    align-items: center;
+    pointer-events: none;
+    z-index: 2147483646;
+}
+
+.luz {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    animation: piscar 1.4s infinite alternate;
+}
+
+.luz:nth-child(odd) {
+    animation-delay: 0.7s;
+}
+
+@keyframes piscar {
+    from { opacity: 0.3; }
+    to   { opacity: 1; }
+}
+
+/* CORES */
+.vermelho { background: red; box-shadow: 0 0 10px red; }
+.verde    { background: lime; box-shadow: 0 0 10px lime; }
+.azul     { background: dodgerblue; box-shadow: 0 0 10px dodgerblue; }
+.amarelo  { background: gold; box-shadow: 0 0 10px gold; }
+
+/* ================= ÁRVORE ================= */
+#arvore-natal {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    font-size: 90px;
+    pointer-events: none;
+    z-index: 2147483646;
+    animation: balancar-arvore 3s ease-in-out infinite;
+}
+
+@keyframes balancar-arvore {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(2deg); }
+    100% { transform: rotate(0deg); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- CONTEÚDO EXEMPLO -->
+<div style="height:200vh; background:#111; color:white; padding:40px;">
+    <h1>Meu Site</h1>
+    <p>Pisca-pisca ocupa todo o topo 🎄</p>
+</div>
+
+<!-- PISCA PISCA -->
+<div id="pisca-pisca">
+    <!-- quantidade grande para preencher toda a largura -->
+    <div class="luz vermelho"></div>
+    <div class="luz verde"></div>
+    <div class="luz azul"></div>
+    <div class="luz amarelo"></div>
+    <div class="luz vermelho"></div>
+    <div class="luz verde"></div>
+    <div class="luz azul"></div>
+    <div class="luz amarelo"></div>
+    <div class="luz vermelho"></div>
+    <div class="luz verde"></div>
+    <div class="luz azul"></div>
+    <div class="luz amarelo"></div>
+    <div class="luz vermelho"></div>
+    <div class="luz verde"></div>
+    <div class="luz azul"></div>
+    <div class="luz amarelo"></div>
+    <div class="luz vermelho"></div>
+    <div class="luz verde"></div>
+    <div class="luz azul"></div>
+    <div class="luz amarelo"></div>
+</div>
+
+<!-- NEVE -->
+<div id="neve-natal-overlay"></div>
+
+<!-- ÁRVORE -->
+<div id="arvore-natal">🎄</div>
+
+<script>
+/* NEVE */
+(function () {
+    const TOTAL = 120;
+    const overlay = document.getElementById("neve-natal-overlay");
+
+    for (let i = 0; i < TOTAL; i++) {
+        const floco = document.createElement("div");
+        floco.className = "neve-floco";
+        floco.textContent = "❄";
+
+        const size = Math.random() * 10 + 8;
+        const fall = Math.random() * 10 + 8;
+        const delay = Math.random() * -20;
+        const left = Math.random() * 100;
+
+        floco.style.left = left + "vw";
+        floco.style.fontSize = size + "px";
+        floco.style.animationDuration = fall + "s, " + (fall / 2) + "s";
+        floco.style.animationDelay = delay + "s";
+
+        overlay.appendChild(floco);
+    }
+})();
+</script>
+
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
@@ -458,7 +637,7 @@ input[type="button"]:hover {
             </form>
         </div>
         <div class="side-image">
-            <img src="https://bizoonydb.github.io/PDFJS/db/Picsart_25-09-13_03-55-36-209.jpg" alt="Side Image"><!--imagem baner principal -->
+            <img src="https://bizoonydb.github.io/PDFJS/db/login-natal.jpg" alt="Side Image"><!--imagem baner principal -->
         </div>
     </div>
     
@@ -988,7 +1167,3 @@ function Cadastro() {
 
 </body>
 </html>
-
-
-
-
