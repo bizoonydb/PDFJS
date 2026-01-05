@@ -10404,3 +10404,147 @@
 
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relógio Analógico</title>
+
+<style>
+/* CONTAINER FIXO */
+#clock-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 160px;
+    text-align: center;
+    z-index: 9999999;
+    font-family: Arial, sans-serif;
+    color: #eeff00;
+}
+
+/* RELÓGIO ANALÓGICO */
+.clock {
+    width: 100px;
+    height: 100px;
+    border: 4px solid #eeff07;
+    border-radius: 50%;
+    position: relative;
+    margin: 0 auto 8px;
+    background: radial-gradient(circle, #111 60%, #000);
+}
+
+/* CENTRO */
+.clock::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background: red;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 10;
+}
+
+/* PONTEIROS */
+.hand {
+    position: absolute;
+    width: 50%;
+    height: 2px;
+    background: #fffb00;
+    top: 50%;
+    left: 50%;
+    transform-origin: left center;
+    transform: rotate(90deg);
+}
+
+.hour {
+    width: 35%;
+     background: rgb(255, 238, 0);
+    height: 4px;
+}
+
+.minute {
+    width: 45%;
+    height: 3px;
+    background: rgb(255, 238, 0);
+}
+
+.second {
+    background: red;
+    height: 2px;
+}
+
+/* HORA DIGITAL */
+#digital-time {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+/* DATA */
+#date {
+    font-size: 13px;
+    opacity: 0.9;
+}
+</style>
+</head>
+
+<body>
+
+<div id="clock-container">
+    <div class="clock">
+        <div class="hand hour" id="hour"></div>
+        <div class="hand minute" id="minute"></div>
+        <div class="hand second" id="second"></div>
+    </div>
+
+    <div id="digital-time"></div>
+    <div id="date"></div>
+</div>
+
+<script>
+function updateClock() {
+    const now = new Date();
+
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+
+    // Ponteiros
+    const hourDeg = (hours % 12) * 30 + minutes * 0.5;
+    const minuteDeg = minutes * 6;
+    const secondDeg = seconds * 6;
+
+    document.getElementById("hour").style.transform =
+        `rotate(${hourDeg}deg)`;
+    document.getElementById("minute").style.transform =
+        `rotate(${minuteDeg}deg)`;
+    document.getElementById("second").style.transform =
+        `rotate(${secondDeg}deg)`;
+
+    // Hora digital
+    document.getElementById("digital-time").textContent =
+        now.toLocaleTimeString("pt-BR");
+
+    // Data
+    document.getElementById("date").textContent =
+        now.toLocaleDateString("pt-BR", {
+            weekday: "short",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        });
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+
+</body>
+</html>
+
