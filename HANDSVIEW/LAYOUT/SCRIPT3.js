@@ -5,6 +5,7 @@ let canvasWidth, canvasHeight;
 let fileContent;
 let selectedNets = []; // aqui vamos guardar as nets clicadas
 let dataLoaded = false;
+let hideNetLines = false; // quando true, não desenha as linhas entre pads (apenas pads marcados)
 let outlinePoints = [];
 let flipHorizontal = true; // Estado del reflejo
 // Variables para transformación global
@@ -86,7 +87,9 @@ function abrirModal() {
         const input = document.createElement("input");
         input.type = "text";
         input.value = netObj.net;
-        input.dataset.index = index;
+        // armazenar a cor original para atualizar todas as entradas com esta cor
+        input.dataset.color = colorKey;
+        input.dataset.net = netObj.net;
 
         row.appendChild(colorBox);
         row.appendChild(input);
@@ -109,12 +112,33 @@ overlay.addEventListener("click", fecharModal);
 btnSalvar.addEventListener("click", () => {
     const inputs = modalContent.querySelectorAll("input");
     inputs.forEach(input => {
-        const idx = input.dataset.index;
-        selectedNets[idx].net = input.value;
+        const newNet = input.value;
+        const colorKey = input.dataset.color;
+        // atualizar todas as entradas selecionadas que possuem a mesma cor
+        selectedNets.forEach(sel => {
+            if ((sel.color || []).join(",") === colorKey) {
+                sel.net = newNet;
+                // Atualiza também o objeto pin correspondente dentro de `parts`,
+                // usando o sel.id (formato 'Part_Pin') para localizar o pino real.
+                if (sel.id && typeof sel.id === 'string') {
+                    const [partName, pinName] = sel.id.split("_");
+                    const part = parts.find(p => p.name === partName);
+                    if (part && part.pins) {
+                        const pinObj = part.pins.find(pp => pp.name === pinName || pp.number === pinName);
+                        if (pinObj) {
+                            pinObj.net = newNet;
+                        }
+                    }
+                }
+            }
+        });
     });
+    // atualizar linhas/visual
+    actualizarRedSeleccionada();
     console.log("Nets atualizadas:", selectedNets);
     fecharModal();
 });
+
 
 
 
@@ -212,9 +236,82 @@ document.getElementById("A2").addEventListener("click", () => {
             x: (x - minX) * scale + margin + extraX,
             y: pageHeight - ((y - minY) * scale + margin + extraY)
         });
+        
 
         // --- Cria PDF ---
         const pdf = new jsPDF({ unit: 'px', format: [pageWidth, pageHeight], orientation: 'landscape' });
+// --- Define limites da borda com margem ---
+const pageTopLeft = {
+    x: margin,
+    y: margin
+};
+
+const pageBottomRight = {
+    x: pageWidth - margin,
+    y: pageHeight - margin
+};
+
+// --- Desenha retângulo da borda ---
+pdf.setLineWidth(4);
+pdf.setDrawColor(0, 0, 0);
+pdf.rect(
+    pageTopLeft.x,
+    pageTopLeft.y,
+    pageBottomRight.x - pageTopLeft.x,
+    pageBottomRight.y - pageTopLeft.y
+);
+
+// --- Letras na lateral esquerda (A–J) ---
+const rows = 20; // A-J
+const rowHeight = (pageBottomRight.y - pageTopLeft.y) / rows;
+const tickLength = 8;
+
+pdf.setFontSize(10);
+pdf.setTextColor(0, 0, 0);
+
+for (let r = 0; r < rows; r++) {
+    const letter = String.fromCharCode(65 + r);
+    const y = pageTopLeft.y + r * rowHeight + rowHeight / 2;
+
+    // letra
+    pdf.text(letter, pageTopLeft.x - 6, y, {
+        align: "right",
+        baseline: "middle"
+    });
+
+    // risquinho
+    pdf.line(
+        pageTopLeft.x,
+        y,
+        pageTopLeft.x + tickLength,
+        y
+    );
+}
+
+// --- Números na parte superior (1–10) ---
+const cols = 20;
+const colWidth = (pageBottomRight.x - pageTopLeft.x) / cols;
+
+for (let c = 0; c < cols; c++) {
+    const num = (c + 1).toString();
+    const x = pageTopLeft.x + c * colWidth + colWidth / 2;
+
+    // número
+    pdf.text(num, x, pageTopLeft.y - 6, {
+        align: "center",
+        baseline: "bottom"
+    });
+
+    // risquinho
+    pdf.line(
+        x,
+        pageTopLeft.y,
+        x,
+        pageTopLeft.y + tickLength
+    );
+}
+
+        
          // --- Logo acima do título ---
 const logoImg = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgZlNe2A7MY8TOyZ9siR_7OWDLjTvJWxLLUw&s"; // ou sua base64
 const logoWidth = 60;   // largura da logo
@@ -308,7 +405,7 @@ if (selectedNets && selectedNets.length > 0) {
     const spacing = 15;              // Espaçamento entre caixas
     const borderRadius = 15;         // Raio das bordas arredondadas
 
-    const uniqueNets = [];
+    let uniqueNets = [];
     const usedColors = [];
     selectedNets.forEach(n => {
         const colorKey = (n.color || [255, 0, 0]).join(",");
@@ -317,6 +414,9 @@ if (selectedNets && selectedNets.length > 0) {
             uniqueNets.push(n);
         }
     });
+
+    // Remover nets cujo nome começa com "Net" (case-insensitive)
+    uniqueNets = uniqueNets.filter(n => !(typeof n.net === 'string' && n.net.toLowerCase().startsWith('net')));
 
     let totalWidth = 0;
     const boxWidths = uniqueNets.map(netObj => {
@@ -408,11 +508,7 @@ if (selectedNets && selectedNets.length > 0) {
                     centerX=pos.x; centerY=pos.y;
                 }
 
-                if(label){
-                    pdf.setFontSize(6*scale);
-                    pdf.setTextColor(0,0,0);
-                    pdf.text(label, centerX, centerY, {align:"center", baseline:"middle"});
-                }
+               
             });
         });
 
@@ -425,9 +521,11 @@ if (selectedNets && selectedNets.length > 0) {
             });
 
             for (let netName in netsMap) {
-                const color = selectedNets.find(n => n.net === netName)?.color || [255, 0, 0];
-                pdf.setLineWidth(1.5 * scale);
-                pdf.setDrawColor(...color);
+                        // Pular nets cujo nome começa com "Net"
+                        if (typeof netName === 'string' && netName.toLowerCase().startsWith('net')) continue;
+                        const color = selectedNets.find(n => n.net === netName)?.color || [255, 0, 0];
+                        pdf.setLineWidth(1.5 * scale);
+                        pdf.setDrawColor(...color);
 
                 let connectedPoints = [];
                 for (let pinId of netsMap[netName]) {
@@ -459,12 +557,14 @@ if (selectedNets && selectedNets.length > 0) {
                 for (let i = 1; i < connectedPoints.length; i++) {
                     const p1 = connectedPoints[i-1].center;
                     const p2 = connectedPoints[i].center;
-                    if (Math.abs(p2.x-p1.x) > Math.abs(p2.y-p1.y)) {
-                        pdf.line(p1.x,p1.y,p2.x,p1.y);
-                        pdf.line(p2.x,p1.y,p2.x,p2.y);
-                    } else {
-                        pdf.line(p1.x,p1.y,p1.x,p2.y);
-                        pdf.line(p1.x,p2.y,p2.x,p2.y);
+                    if (!hideNetLines) {
+                        if (Math.abs(p2.x-p1.x) > Math.abs(p2.y-p1.y)) {
+                            pdf.line(p1.x,p1.y,p2.x,p1.y);
+                            pdf.line(p2.x,p1.y,p2.x,p2.y);
+                        } else {
+                            pdf.line(p1.x,p1.y,p1.x,p2.y);
+                            pdf.line(p1.x,p2.y,p2.x,p2.y);
+                        }
                     }
                 }
 
@@ -559,7 +659,7 @@ document.getElementById("btnExportar").addEventListener("click", () => {
             } else if (part.name.startsWith("MIC")) {
                 return [255, 255, 150];
             } else if (part.name.startsWith("N")) {
-                return [10, 10, 10];
+                return [50, 50, 50];
             } else if (part.name.startsWith("L")) {
                 return [30, 30, 30];
             } else if (part.name.startsWith("ZD")) {
@@ -622,8 +722,8 @@ document.getElementById("btnExportar").addEventListener("click", () => {
         const contentHeight = maxY - minY;
 
         // --- Página A4 landscape ---
-        const pageWidth = 297 * 3.78;   // ~1122 px
-        const pageHeight = 210 * 3.78;  // ~794 px
+        const pageWidth = 397 * 3.78;   // ~1122 px
+        const pageHeight = 410 * 3.78;  // ~794 px
         const margin = 20;
 
         // --- Escala proporcional ---
@@ -731,7 +831,7 @@ if (selectedNets && selectedNets.length > 0) {
     const spacing = 15;              // Espaçamento entre caixas
     const borderRadius = 15;         // Raio das bordas arredondadas
 
-    const uniqueNets = [];
+    let uniqueNets = [];
     const usedColors = [];
     selectedNets.forEach(n => {
         const colorKey = (n.color || [255, 0, 0]).join(",");
@@ -740,6 +840,9 @@ if (selectedNets && selectedNets.length > 0) {
             uniqueNets.push(n);
         }
     });
+
+    // Remover nets cujo nome começa com "Net" (case-insensitive)
+    uniqueNets = uniqueNets.filter(n => !(typeof n.net === 'string' && n.net.toLowerCase().startsWith('net')));
 
     let totalWidth = 0;
     const boxWidths = uniqueNets.map(netObj => {
@@ -882,11 +985,7 @@ parts.forEach(part => {
             centerY = pos.y;
         }
 
-        if (label) {
-            pdf.setFontSize(6 * scale);
-            pdf.setTextColor(0,0,0);
-            pdf.text(label, centerX, centerY, {align:"center", baseline:"middle"});
-        }
+       
     });
 });
 
@@ -938,48 +1037,50 @@ if (selectedNets && selectedNets.length > 0) {
         }
 
         for (let i = 1; i < connectedPoints.length; i++) {
-    const p1 = connectedPoints[i - 1].center;
-    const p2 = connectedPoints[i].center;
+            const p1 = connectedPoints[i - 1].center;
+            const p2 = connectedPoints[i].center;
 
-    const keyH = `H_${Math.round(p1.y)}`;
-    const keyV = `V_${Math.round(p1.x)}`;
-    if (!offsetMap[keyH]) offsetMap[keyH] = 0;
-    if (!offsetMap[keyV]) offsetMap[keyV] = 0;
+            const keyH = `H_${Math.round(p1.y)}`;
+            const keyV = `V_${Math.round(p1.x)}`;
+            if (!offsetMap[keyH]) offsetMap[keyH] = 0;
+            if (!offsetMap[keyV]) offsetMap[keyV] = 0;
 
-    const step = 4 * scale;
-    const offsetPerp = (offsetMap[keyH] + offsetMap[keyV]) * step;
+            const step = 4 * scale;
+            const offsetPerp = (offsetMap[keyH] + offsetMap[keyV]) * step;
 
-    if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
-        // horizontal primeiro
-        const midX = p2.x;
-        const midY = p1.y + offsetPerp;
+            if (!hideNetLines) {
+                if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
+                    // horizontal primeiro
+                    const midX = p2.x;
+                    const midY = p1.y + offsetPerp;
 
-        // Linha do pino 1 até o ponto de saída horizontal (com offset)
-        pdf.line(p1.x, p1.y, p1.x, p1.y + offsetPerp);
-        // Linha horizontal desviado
-        pdf.line(p1.x, p1.y + offsetPerp, midX, midY);
-        // Linha vertical até o centro do pino 2
-        pdf.line(midX, midY, p2.x, p2.y);
-        // Linha do ponto de chegada até o centro do pino 2 (fecha)
-        pdf.line(p2.x, p2.y, p2.x, midY);
-    } else {
-        // vertical primeiro
-        const midX = p1.x + offsetPerp;
-        const midY = p2.y;
+                    // Linha do pino 1 até o ponto de saída horizontal (com offset)
+                    pdf.line(p1.x, p1.y, p1.x, p1.y + offsetPerp);
+                    // Linha horizontal desviado
+                    pdf.line(p1.x, p1.y + offsetPerp, midX, midY);
+                    // Linha vertical até o centro do pino 2
+                    pdf.line(midX, midY, p2.x, p2.y);
+                    // Linha do ponto de chegada até o centro do pino 2 (fecha)
+                    pdf.line(p2.x, p2.y, p2.x, midY);
+                } else {
+                    // vertical primeiro
+                    const midX = p1.x + offsetPerp;
+                    const midY = p2.y;
 
-        // Linha do pino 1 até o ponto de saída vertical (com offset)
-        pdf.line(p1.x, p1.y, p1.x + offsetPerp, p1.y);
-        // Linha vertical desviado
-        pdf.line(p1.x + offsetPerp, p1.y, midX, midY);
-        // Linha horizontal até o centro do pino 2
-        pdf.line(midX, midY, p2.x, p2.y);
-        // Linha do ponto de chegada até o centro do pino 2 (fecha)
-        pdf.line(p2.x, p2.y, midX, p2.y);
-    }
+                    // Linha do pino 1 até o ponto de saída vertical (com offset)
+                    pdf.line(p1.x, p1.y, p1.x + offsetPerp, p1.y);
+                    // Linha vertical desviado
+                    pdf.line(p1.x + offsetPerp, p1.y, midX, midY);
+                    // Linha horizontal até o centro do pino 2
+                    pdf.line(midX, midY, p2.x, p2.y);
+                    // Linha do ponto de chegada até o centro do pino 2 (fecha)
+                    pdf.line(p2.x, p2.y, midX, p2.y);
+                }
+            }
 
-    offsetMap[keyH]++;
-    offsetMap[keyV]++;
-}
+            offsetMap[keyH]++;
+            offsetMap[keyV]++;
+        }
 
 
         // --- Desenha os pads ---
@@ -1004,8 +1105,12 @@ if (selectedNets && selectedNets.length > 0) {
                 const r = (pin.radius || 2) * scale;
                 pdf.circle(center.x, center.y, r, 'FD');
             }
+
+            
         });
+        
     }
+    
 }
 
 
@@ -1995,7 +2100,12 @@ function mousePressed() {
             }
 
             if (hit) {
-                handlePinClick(part, pin);
+                // Se a tecla 'x' estiver pressionada, marca todos os pinos da mesma net
+                if (typeof keyIsDown === 'function' && keyIsDown(88)) { // 88 = 'X'
+                    markAllPinsOfNet(part, pin);
+                } else {
+                    handlePinClick(part, pin);
+                }
                 return false; // bloqueia pan do canvas
             }
         }
@@ -2040,6 +2150,42 @@ function handlePinClick(part, pin) {
     updateComponentInfo(part, pin);
 }
 
+// Marca todos os pinos que pertencem à mesma net do pino clicado
+function markAllPinsOfNet(clickedPart, clickedPin) {
+    const netName = clickedPin.net;
+    if (!netName) return;
+
+    const colorInput = document.getElementById("netColorPicker");
+    const rgb = hexToRgb((colorInput && colorInput.value) ? colorInput.value : '#ff0000');
+    // Se já existir qualquer seleção desta net, removemos todas (toggle off)
+    const alreadySelected = selectedNets.some(s => s.net === netName);
+    if (alreadySelected) {
+        selectedNets = selectedNets.filter(s => s.net !== netName);
+        selectedPin = clickedPin;
+        actualizarRedSeleccionada();
+        tooltip = { text: `COMP: ${clickedPart.name} / MALHA: ${netName} (desmarcada)`, x: clickedPin.x, y: clickedPin.y, side: clickedPart.side };
+        updateComponentInfo(clickedPart, clickedPin);
+        return;
+    }
+
+    // Caso contrário, marca todos os pinos desta net
+    for (let p of parts) {
+        for (let pn of p.pins) {
+            if (pn.net === netName && pn.net?.toString().toUpperCase() !== 'GND' && pn.net?.toString().toUpperCase() !== 'NC') {
+                const id = `${p.name}_${pn.name}`;
+                if (!selectedNets.some(s => s.id === id)) {
+                    selectedNets.push({ id: id, net: pn.net, color: rgb });
+                }
+            }
+        }
+    }
+
+    selectedPin = clickedPin;
+    actualizarRedSeleccionada();
+    tooltip = { text: `COMP: ${clickedPart.name} / MALHA: ${netName}`, x: clickedPin.x, y: clickedPin.y, side: clickedPart.side };
+    updateComponentInfo(clickedPart, clickedPin);
+}
+
 // ------------------ DESENHO DAS CONEXÕES ------------------
 function drawSelectedNetConnections() {
     if (!selectedNets || selectedNets.length === 0) return;
@@ -2074,23 +2220,26 @@ function drawSelectedNetConnections() {
         }
 
         // Desenha linhas L entre pinos consecutivos
-        for (let i = 1; i < connectedPoints.length; i++) {
-            const p1 = connectedPoints[i - 1];
-            const p2 = connectedPoints[i];
+            // Desenha linhas L entre pinos consecutivos (se permitidas)
+            if (!hideNetLines) {
+                for (let i = 1; i < connectedPoints.length; i++) {
+                    const p1 = connectedPoints[i - 1];
+                    const p2 = connectedPoints[i];
 
-            if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
-                const midY = p1.y;
-                line(p1.x, p1.y, p2.x, midY);
-                line(p2.x, midY, p2.x, p2.y);
-            } else {
-                const midX = p1.x;
-                line(p1.x, p1.y, midX, p2.y);
-                line(midX, p2.y, p2.x, p2.y);
+                    if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
+                        const midY = p1.y;
+                        line(p1.x, p1.y, p2.x, midY);
+                        line(p2.x, midY, p2.x, p2.y);
+                    } else {
+                        const midX = p1.x;
+                        line(p1.x, p1.y, midX, p2.y);
+                        line(midX, p2.y, p2.x, p2.y);
+                    }
+                }
             }
-        }
 
-        // Pontos azuis
-        connectedPoints.forEach(p => drawBlueDot(p.x, p.y, 4));
+            // Pontos azuis (sempre desenhar para manter pads marcados)
+            connectedPoints.forEach(p => drawBlueDot(p.x, p.y, 4));
     }
 
     pop();
@@ -2252,22 +2401,24 @@ function markAndDrawFullNet(netName, color) {
     stroke(...(selectedNets.find(p => p.net === netName)?.color || [0, 255, 0]));
     strokeWeight(2);
 
-    // linhas L
-    for (let i = 1; i < connectedPins.length; i++) {
-        const p1 = connectedPins[i - 1];
-        const p2 = connectedPins[i];
-        if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
-            const midY = p1.y;
-            line(p1.x, p1.y, p2.x, midY);
-            line(p2.x, midY, p2.x, p2.y);
-        } else {
-            const midX = p1.x;
-            line(p1.x, p1.y, midX, p2.y);
-            line(midX, p2.y, p2.x, p2.y);
+    // linhas L (desenha apenas se linhas estiverem habilitadas)
+    if (!hideNetLines) {
+        for (let i = 1; i < connectedPins.length; i++) {
+            const p1 = connectedPins[i - 1];
+            const p2 = connectedPins[i];
+            if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
+                const midY = p1.y;
+                line(p1.x, p1.y, p2.x, midY);
+                line(p2.x, midY, p2.x, p2.y);
+            } else {
+                const midX = p1.x;
+                line(p1.x, p1.y, midX, p2.y);
+                line(midX, p2.y, p2.x, p2.y);
+            }
         }
     }
 
-    // pontos azuis
+    // pontos azuis (sempre desenhar para manter pads marcados)
     connectedPins.forEach(p => drawBlueDot(p.x, p.y, 4));
 }
 
@@ -2512,6 +2663,14 @@ function keyPressed() {
 
     if (key === '%' || key === '%') {
         marcarNetsPorNome([{ termo: "cam", cor: [255, 0, 255] }]);
+        return false;
+    }
+
+    // Toggle linhas de conexão entre pads
+    if (key === 'z' || key === 'Z') {
+        hideNetLines = !hideNetLines;
+        // Força atualização da visualização
+        actualizarRedSeleccionada();
         return false;
     }
 }
@@ -4329,6 +4488,9 @@ function drawRouteWithOffsets(route, offsets, pinStart, pinEnd) {
     const segCount = offsets.length;
     if (segCount === 0) return;
 
+    // Se as linhas estão ocultas, não desenha rotas no PDF
+    if (typeof hideNetLines !== 'undefined' && hideNetLines) return;
+
     // --- Calcula junctions entre segmentos ---
     const junctions = [];
     for (let i = 0; i < segCount - 1; i++) {
@@ -4431,18 +4593,29 @@ for(const netName in netPinsMap){
     pdf.setLineWidth(1*scale);
     pdf.setDrawColor(...color);
     pdf.setFillColor(...color);
+    // Se hideNetLines estiver ativo, NÃO desenha as rotas — apenas marca os pads
+    if (hideNetLines) {
+        const sel = selectedNets.find(s => s.net && s.net.toString().toUpperCase() === netName);
+        const useColor = sel ? sel.color : color;
+        pdf.setFillColor(...useColor);
+        pdf.setDrawColor(...useColor);
+        for (let item of path) {
+            const c = item.center;
+            pdf.circle(c.x, c.y, 1.5 * scale, 'FD');
+        }
+    } else {
+        // Desenha linhas em L usando a nova lógica (cada par consecutivo de pinos)
+        for(let i=1;i<path.length;i++){
+            const p0 = path[i-1].center;
+            const p1 = path[i].center;
+            const route = routeLine(p0, p1, partsArray); // geralmente [p0, mid, p1]
 
-    // Desenha linhas em L usando a nova lógica (cada par consecutivo de pinos)
-    for(let i=1;i<path.length;i++){
-        const p0 = path[i-1].center;
-        const p1 = path[i].center;
-        const route = routeLine(p0, p1, partsArray); // geralmente [p0, mid, p1]
+            // calcula offsets (registra sobreposição globalmente)
+            const offsets = computeOffsetsForRoute(route);
 
-        // calcula offsets (registra sobreposição globalmente)
-        const offsets = computeOffsetsForRoute(route);
-
-        // desenha rota completa sem diagonais
-        drawRouteWithOffsets(route, offsets, {x: p0.x, y: p0.y}, {x: p1.x, y: p1.y});
+            // desenha rota completa sem diagonais
+            drawRouteWithOffsets(route, offsets, {x: p0.x, y: p0.y}, {x: p1.x, y: p1.y});
+        }
     }
 
     // 🔹 Desenha o nome da net apenas se não tiver texto próximo
@@ -4491,24 +4664,25 @@ for(const netName in netPinsMap){
 pdf.setFontSize(21*scale); // 3x maior que antes
 const panelX = 10*scale;
 let panelY = 30*scale; // topo 3x mais distante
+if (!hideNetLines) {
+    for(const netName in netColors){
+        if(netName.toUpperCase().startsWith("NET")) continue; // ignora nomes que começam com "NET"
 
-for(const netName in netColors){
-    if(netName.toUpperCase().startsWith("NET")) continue; // ignora nomes que começam com "NET"
+        const color = netColors[netName];
 
-    const color = netColors[netName];
+        // Desenha o fundo colorido com borda preta
+        pdf.setFillColor(...color);
+        pdf.setDrawColor(0,0,0); // borda preta
+        const textWidth = pdf.getTextWidth(netName) + 8*scale; // margem maior
+        const rectHeight = 24*scale; // 3x maior que antes
+        pdf.rect(panelX, panelY - 18*scale, textWidth, rectHeight, 'FD'); // F=fill, D=draw
 
-    // Desenha o fundo colorido com borda preta
-    pdf.setFillColor(...color);
-    pdf.setDrawColor(0,0,0); // borda preta
-    const textWidth = pdf.getTextWidth(netName) + 8*scale; // margem maior
-    const rectHeight = 24*scale; // 3x maior que antes
-    pdf.rect(panelX, panelY - 18*scale, textWidth, rectHeight, 'FD'); // F=fill, D=draw
+        // Escreve o nome em branco no centro do retângulo
+        pdf.setTextColor(255,255,255);
+        pdf.text(netName, panelX + 4*scale, panelY); 
 
-    // Escreve o nome em branco no centro do retângulo
-    pdf.setTextColor(255,255,255);
-    pdf.text(netName, panelX + 4*scale, panelY); 
-
-    panelY += rectHeight + 6*scale; // próximo item, com espaçamento maior
+        panelY += rectHeight + 6*scale; // próximo item, com espaçamento maior
+    }
 }
 
 
@@ -4578,6 +4752,3 @@ btnExportarNet.style.borderRadius = "6px";
 btnExportarNet.style.cursor = "pointer";
 btnExportarNet.onclick = exportarNetSelecionadaPDF;
 document.body.appendChild(btnExportarNet);
-
-
-
