@@ -45,19 +45,14 @@ function setup() {
     buffer = createGraphics(width, height); // buffer do canvas
 
     // Só processa após carregar o arquivo
-    parseFile();            // fileContent já foi carregado no preload
+   parseFile();            // fileContent já foi carregado no preload
     calcularTransformacion();
-    renderBuffer();
+    renderBuffer(); 
 
 
 
 
-
-
-
-
-
-
+    
 const modal = document.getElementById("modalNets");
 const overlay = document.getElementById("overlay");
 const btnAbrir = document.getElementById("btnAbrirModal");
@@ -111,6 +106,16 @@ btnSalvar.addEventListener("click", () => {
     inputs.forEach(input => {
         const idx = input.dataset.index;
         selectedNets[idx].net = input.value;
+        // Atualiza também o pin correspondente dentro de parts
+        const sel = selectedNets[idx];
+        if (sel && sel.id && typeof sel.id === 'string') {
+            const [partName, pinName] = sel.id.split("_");
+            const part = parts.find(p => p.name === partName);
+            if (part && part.pins) {
+                const pinObj = part.pins.find(pp => pp.name === pinName || pp.number === pinName);
+                if (pinObj) pinObj.net = input.value;
+            }
+        }
     });
     console.log("Nets atualizadas:", selectedNets);
     fecharModal();
@@ -161,48 +166,7 @@ document.getElementById("btnExportar").addEventListener("click", () => {
             alert("Layout não carregado!");
             return;
         }
- // --- Função de cor conforme o nome do componente ---
-        function determineFillColorPDF(part) {
-            if (part.name.startsWith("CON")) {
-                return [50, 50, 50];
-                } else if (part.name.startsWith("C")) {
-                return [180, 120, 80];
-            } else if (part.name.startsWith("R")) {
-                return [50, 50, 50];
-                } else if (part.name.startsWith("TVS")) {
-                return [50, 50, 50];
-            } else if (part.name.startsWith("MIC")) {
-                return [255, 255, 150];
-            } else if (part.name.startsWith("N")) {
-                return [10, 10, 10];
-            } else if (part.name.startsWith("L")) {
-                return [30, 30, 30];
-            } else if (part.name.startsWith("ZD")) {
-                return [80, 80, 80];
-            } else if (part.name.startsWith("U") || part.name.startsWith("u")) {
-                return [10, 10, 10];
-            } else if (part.name.startsWith("S")) {
-                return [128, 128, 128];
-            } else if (part.name.startsWith("H")) {
-                return [50, 50, 50];
-            } else if (part.name.startsWith("J")) {
-                return [50, 50, 50];
-            } else if (part.name.startsWith("D")) {
-                return [80, 80, 80];
-            } else if (part.name.startsWith("Q")) {
-                return [80, 80, 80];
-            } else if (part.name.startsWith("RF")) {
-                return [255, 255, 0];
-            } else if (part.name.startsWith("ANT")) {
-                return [128, 128, 128];
-            } else if (part.name.startsWith("PA")) {
-                return [50, 50, 50];
-            } else if (part.name.startsWith("F")) {
-                return [0, 0, 255];
-            } else {
-                return [200, 200, 200]; // cor padrão
-            }
-        }
+
         // --- Limites do layout ---
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
@@ -257,8 +221,7 @@ document.getElementById("btnExportar").addEventListener("click", () => {
 
         // --- Cria PDF ---
         const pdf = new jsPDF({ unit: 'px', format: [pageWidth, pageHeight], orientation: 'landscape' });
-        
-        // --- Logo acima do título ---
+         // --- Logo acima do título ---
 const logoImg = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgZlNe2A7MY8TOyZ9siR_7OWDLjTvJWxLLUw&s"; // ou sua base64
 const logoWidth = 60;   // largura da logo
 const logoHeight = 60;  // altura da logo
@@ -321,7 +284,6 @@ const textY = footerY - iconSize / 4; // subindo um pouco para centralizar
 pdf.text(text, startX + iconSize + 5, textY, { align: "left", baseline: "middle" });
 
 
-
         // --- Imagem de fundo invertida, se existir ---
         if (bgImage) {
             const tempCanvas = document.createElement("canvas");
@@ -330,8 +292,14 @@ pdf.text(text, startX + iconSize + 5, textY, { align: "left", baseline: "middle"
             const tempCtx = tempCanvas.getContext("2d");
             tempCtx.drawImage(bgImage.canvas || bgImage.elt || bgImage, 0, 0);
 
-           
-
+            const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+            const data = imgData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = 255 - data[i];
+                data[i + 1] = 255 - data[i + 1];
+                data[i + 2] = 255 - data[i + 2];
+            }
+            tempCtx.putImageData(imgData, 0, 0);
             const imgBase64 = tempCanvas.toDataURL("image/png");
 
             const imgWidth = contentWidth * scale;
@@ -339,7 +307,7 @@ pdf.text(text, startX + iconSize + 5, textY, { align: "left", baseline: "middle"
             const imgX = margin + extraX;
             const imgY = pageHeight - margin - imgHeight - extraY;
             pdf.addImage(imgBase64, 'PNG', imgX, imgY, imgWidth, imgHeight);
-       }
+        }
 // --- Rodapé com nomes das nets maiores e em negrito com bordas arredondadas ---
 if (selectedNets && selectedNets.length > 0) {
     const boxHeight = 150 * scale;   // Altura da caixa
@@ -390,240 +358,142 @@ if (selectedNets && selectedNets.length > 0) {
     });
 }
 
+     
 
-
-
-
-
-
-
-
-
-// --- Desenha os componentes ---
-parts.forEach(part => {
-    if (part.outline && part.outline.length) {
-        const fillColor = determineFillColorPDF(part);
-        pdf.setFillColor(...fillColor);
-        pdf.setDrawColor(0, 0, 0);      // Cor da borda
-        pdf.setLineWidth(0.5 * scale);  // Largura da borda
-
-        // Calcula bounding box do componente
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        for (let i = 0; i < part.outline.length; i += 2) {
-            const x = part.origin.x + part.outline[i];
-            const y = part.origin.y + part.outline[i + 1];
-            minX = Math.min(minX, x);
-            minY = Math.min(minY, y);
-            maxX = Math.max(maxX, x);
-            maxY = Math.max(maxY, y);
-        }
-        const topLeft = scaleCoord(minX, minY);
-        const bottomRight = scaleCoord(maxX, maxY);
-        const width = bottomRight.x - topLeft.x;
-        const height = topLeft.y - bottomRight.y; // invertido pelo PDF
-
-        // Preenche e desenha contorno do componente
-        if (part.pins.length < 3) {
-            const radius = Math.min(width, height) * 0.1; // ajuste o raio
-            pdf.roundedRect(topLeft.x, bottomRight.y, width, height, radius, radius, 'FD'); // Fill + Draw
-        } else {
-            pdf.rect(topLeft.x, bottomRight.y, width, height, 'FD'); // Fill + Draw
-        }
-    }
-});
-// --- Pinos ---
-// --- Pinos ---
-parts.forEach(part => {
-    const moreThanSixPins = part.pins.length > 6;
-    const applyYellowCopper = moreThanSixPins && (
-        part.name.startsWith("J") ||
-        part.name.startsWith("SOC") ||
-        
-        part.name.startsWith("CON")
-    );
-
-    part.pins.forEach(pin => {
-        pdf.setLineWidth(0.5 * scale);
-        const label = pin.name || "";
-
-        // Cores padrão
-        let fill = [180,180,180];
-        let stroke = [0,0,0];
-
-        // GND ou NC
-        if ((pin.net || "").toUpperCase().includes("GND")) {
-            fill = [180,180,180];
-            stroke = [80,80,80];
-        } else if ((pin.net || "").toUpperCase().includes("NC")) {
-            fill = [150,150,255];
-            stroke = [0,0,0];
-        }
-
-        // Se o componente for J, SOC ou CON e tiver mais de 6 pinos
-        if (applyYellowCopper && pin.outlineRelative && pin.outlineRelative.length >= 4) {
-            fill = [205,127,50]; // amarelo cobre
-            stroke = [0,0,0];
-        }
-
-        pdf.setFillColor(...fill);
-        pdf.setDrawColor(...stroke);
-
-        let centerX, centerY;
-
-        if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
-            const points = [];
-            for (let i = 0; i < pin.outlineRelative.length; i += 2) {
-                points.push(scaleCoord(pin.x + pin.outlineRelative[i], pin.y + pin.outlineRelative[i+1]));
-            }
-
-            let minX = Math.min(...points.map(p => p.x));
-            let minY = Math.min(...points.map(p => p.y));
-            let maxX = Math.max(...points.map(p => p.x));
-            let maxY = Math.max(...points.map(p => p.y));
-
-            const width = maxX - minX;
-            const height = maxY - minY;
-            const radius = Math.min(width, height) * 0.2;
-
-            pdf.roundedRect(minX, minY, width, height, radius, radius, 'FD');
-
-            centerX = minX + width/2;
-            centerY = minY + height/2;
-        } else {
-            const pos = scaleCoord(pin.x, pin.y);
-            const r = (pin.radius || 2) * scale;
-            pdf.circle(pos.x, pos.y, r, 'FD');
-            centerX = pos.x;
-            centerY = pos.y;
-        }
-
-        if (label) {
-            pdf.setFontSize(6 * scale);
-            pdf.setTextColor(0,0,0);
-            pdf.text(label, centerX, centerY, {align:"center", baseline:"middle"});
-        }
-    });
-});
-
-
-
-
-
-        // --- Nets selecionadas com roteamento evitando sobreposição ---
-// --- Nets selecionadas com L offset ---
-if (selectedNets && selectedNets.length > 0) {
-    const netsMap = {};
-    const offsetMap = {}; // armazena deslocamentos por coordenada
-
-    selectedNets.forEach(sel => {
-        if (!netsMap[sel.net]) netsMap[sel.net] = [];
-        netsMap[sel.net].push(sel.id);
-    });
-
-    for (let netName in netsMap) {
-        const color = selectedNets.find(n => n.net === netName)?.color || [255, 0, 0];
-        pdf.setLineWidth(1.5 * scale);
-        pdf.setDrawColor(...color);
-
-        const connectedPoints = [];
-        for (let pinId of netsMap[netName]) {
-            for (let part of parts) {
-                const groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
-                for (let pin of part.pins) {
-                    const currentId = `${part.name}_${pin.name}`;
-                    if (currentId === pinId) {
-                        let centerX, centerY;
-                        if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
-                            let sumX = 0, sumY = 0, count = 0;
-                            for (let i = 0; i < pin.outlineRelative.length; i += 2) {
-                                sumX += pin.x + pin.outlineRelative[i] + groupOffset;
-                                sumY += pin.y + pin.outlineRelative[i + 1];
-                                count++;
-                            }
-                            centerX = sumX / count;
-                            centerY = sumY / count;
-                        } else {
-                            centerX = pin.x + groupOffset;
-                            centerY = pin.y;
-                        }
-                        connectedPoints.push({ pin, center: scaleCoord(centerX, centerY) });
+        // --- Componentes ---
+        parts.forEach(part => {
+            if (part.outline && part.outline.length) {
+                pdf.setDrawColor(0, 0, 0);
+                pdf.setLineWidth(0.5 * scale);
+                const n = part.outline.length;
+                for (let i = 0; i < n; i += 2) {
+                    const x1 = part.origin.x + part.outline[i];
+                    const y1 = part.origin.y + part.outline[i + 1];
+                    const j = (i + 2 < n) ? i + 2 : 0;
+                    const k = (i + 3 < n) ? i + 3 : 1;
+                    const x2 = part.origin.x + part.outline[j];
+                    const y2 = part.origin.y + part.outline[k];
+                    if (x1 === x2 || y1 === y2) {
+                        const p1 = scaleCoord(x1, y1);
+                        const p2 = scaleCoord(x2, y2);
+                        pdf.line(p1.x, p1.y, p2.x, p2.y);
                     }
                 }
             }
-        }
 
-        for (let i = 1; i < connectedPoints.length; i++) {
-    const p1 = connectedPoints[i - 1].center;
-    const p2 = connectedPoints[i].center;
-
-    const keyH = `H_${Math.round(p1.y)}`;
-    const keyV = `V_${Math.round(p1.x)}`;
-    if (!offsetMap[keyH]) offsetMap[keyH] = 0;
-    if (!offsetMap[keyV]) offsetMap[keyV] = 0;
-
-    const step = 4 * scale;
-    const offsetPerp = (offsetMap[keyH] + offsetMap[keyV]) * step;
-
-    if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
-        // horizontal primeiro
-        const midX = p2.x;
-        const midY = p1.y + offsetPerp;
-
-        // Linha do pino 1 até o ponto de saída horizontal (com offset)
-        pdf.line(p1.x, p1.y, p1.x, p1.y + offsetPerp);
-        // Linha horizontal desviado
-        pdf.line(p1.x, p1.y + offsetPerp, midX, midY);
-        // Linha vertical até o centro do pino 2
-        pdf.line(midX, midY, p2.x, p2.y);
-        // Linha do ponto de chegada até o centro do pino 2 (fecha)
-        pdf.line(p2.x, p2.y, p2.x, midY);
-    } else {
-        // vertical primeiro
-        const midX = p1.x + offsetPerp;
-        const midY = p2.y;
-
-        // Linha do pino 1 até o ponto de saída vertical (com offset)
-        pdf.line(p1.x, p1.y, p1.x + offsetPerp, p1.y);
-        // Linha vertical desviado
-        pdf.line(p1.x + offsetPerp, p1.y, midX, midY);
-        // Linha horizontal até o centro do pino 2
-        pdf.line(midX, midY, p2.x, p2.y);
-        // Linha do ponto de chegada até o centro do pino 2 (fecha)
-        pdf.line(p2.x, p2.y, midX, p2.y);
-    }
-
-    offsetMap[keyH]++;
-    offsetMap[keyV]++;
-}
-
-
-        // --- Desenha os pads ---
-        connectedPoints.forEach(({ pin, center }) => {
-            pdf.setFillColor(...color);
-            
-
-            if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
-                const points = [];
-                for (let i = 0; i < pin.outlineRelative.length; i += 2) {
-                    points.push(scaleCoord(pin.x + pin.outlineRelative[i], pin.y + pin.outlineRelative[i + 1]));
-                }
-                let minX = Math.min(...points.map(p => p.x));
-                let minY = Math.min(...points.map(p => p.y));
-                let maxX = Math.max(...points.map(p => p.x));
-                let maxY = Math.max(...points.map(p => p.y));
-                const width = maxX - minX;
-                const height = maxY - minY;
-                const radius = Math.min(width, height) * 0.2;
-                pdf.roundedRect(minX, minY, width, height, radius, radius, 'FD');
-            } else {
-                const r = (pin.radius || 2) * scale;
-                pdf.circle(center.x, center.y, r, 'FD');
-            }
+           
         });
-    }
-}
 
+        // --- Pinos ---
+        parts.forEach(part => {
+            part.pins.forEach(pin => {
+                pdf.setLineWidth(0.5 * scale);
+                const label = pin.name || "";
+                let fill = [255, 200, 100], stroke = [0, 0, 0];
+                if ((pin.net || "").toUpperCase().includes("GND")) fill = [180,180,180], stroke = [80,80,80];
+                else if ((pin.net || "").toUpperCase().includes("NC")) fill = [150,150,255], stroke = [0,0,0];
 
+                pdf.setFillColor(...fill);
+                pdf.setDrawColor(...stroke);
+
+                let centerX, centerY;
+                if (pin.outlineRelative && pin.outlineRelative.length >=4){
+                    const points=[];
+                    for(let i=0;i<pin.outlineRelative.length;i+=2){
+                        points.push(scaleCoord(pin.x+pin.outlineRelative[i], pin.y+pin.outlineRelative[i+1]));
+                    }
+                    centerX=(points[0].x+points[2].x)/2;
+                    centerY=(points[0].y+points[1].y)/2;
+                    pdf.lines(
+                        points.map((p,i)=>[points[(i+1)%points.length].x-p.x, points[(i+1)%points.length].y-p.y]), 
+                        points[0].x, points[0].y, [1,1],'FD'
+                    );
+                } else {
+                    const pos=scaleCoord(pin.x,pin.y);
+                    pdf.circle(pos.x,pos.y,(pin.radius || 2)*scale,'FD');
+                    centerX=pos.x; centerY=pos.y;
+                }
+
+                if(label){
+                    pdf.setFontSize(6*scale);
+                    pdf.setTextColor(0,0,0);
+                    pdf.text(label, centerX, centerY, {align:"center", baseline:"middle"});
+                }
+            });
+        });
+
+        // --- Nets selecionadas ---
+        if (selectedNets && selectedNets.length > 0) {
+            const netsMap = {};
+            selectedNets.forEach(sel => {
+                if (!netsMap[sel.net]) netsMap[sel.net] = [];
+                netsMap[sel.net].push(sel.id);
+            });
+
+            for (let netName in netsMap) {
+                const color = selectedNets.find(n => n.net === netName)?.color || [255, 0, 0];
+                pdf.setLineWidth(1.5 * scale);
+                pdf.setDrawColor(...color);
+
+                let connectedPoints = [];
+                for (let pinId of netsMap[netName]) {
+                    for (let part of parts) {
+                        const groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+                        for (let pin of part.pins) {
+                            const currentId = `${part.name}_${pin.name}`;
+                            if (currentId === pinId) {
+                                let centerX, centerY;
+                                if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
+                                    let sumX=0,sumY=0,count=0;
+                                    for(let i=0;i<pin.outlineRelative.length;i+=2){
+                                        sumX += pin.x + pin.outlineRelative[i] + groupOffset;
+                                        sumY += pin.y + pin.outlineRelative[i+1];
+                                        count++;
+                                    }
+                                    centerX = sumX / count;
+                                    centerY = sumY / count;
+                                } else {
+                                    centerX = pin.x + groupOffset;
+                                    centerY = pin.y;
+                                }
+                                connectedPoints.push({ pin, center: scaleCoord(centerX, centerY) });
+                            }
+                        }
+                    }
+                }
+
+                if (!hideNetLines) {
+                for (let i = 1; i < connectedPoints.length; i++) {
+                    const p1 = connectedPoints[i-1].center;
+                    const p2 = connectedPoints[i].center;
+                    if (Math.abs(p2.x-p1.x) > Math.abs(p2.y-p1.y)) {
+                        pdf.line(p1.x,p1.y,p2.x,p1.y);
+                        pdf.line(p2.x,p1.y,p2.x,p2.y);
+                    } else {
+                        pdf.line(p1.x,p1.y,p1.x,p2.y);
+                        pdf.line(p1.x,p2.y,p2.x,p2.y);
+                    }
+                }
+                }
+
+                connectedPoints.forEach(({pin, center}) => {
+                    pdf.setFillColor(...color);
+                    if(pin.outlineRelative && pin.outlineRelative.length>=4){
+                        const points=[];
+                        for(let i=0;i<pin.outlineRelative.length;i+=2){
+                            points.push(scaleCoord(pin.x+pin.outlineRelative[i], pin.y+pin.outlineRelative[i+1]));
+                        }
+                        pdf.lines(points.map((p,i)=>[
+                            points[(i+1)%points.length].x-p.x,
+                            points[(i+1)%points.length].y-p.y
+                        ]), points[0].x, points[0].y, [1,1],'FD');
+                    } else {
+                        pdf.circle(center.x, center.y, (pin.radius || 2) * scale,'FD');
+                    }
+                });
+            }
+        }
+        
 // --- Marca d'água ---
 const watermarkText = "DIGITAL BOARD";
 const fontSize = 12;          // tamanho pequeno
@@ -649,7 +519,6 @@ for (let x = -pageWidth; x < pageWidth * 2; x += spacingX) {
 
 // Volta à opacidade normal para outros elementos
 pdf.setGState(new pdf.GState({ opacity: 1 }));
-
 
 
         // --- Nomes dos componentes por cima de tudo ---
@@ -723,6 +592,7 @@ parts.forEach(part => {
 
     fillComponentDatalist();
     setupSearchListener();
+    
 
 }
 
@@ -731,12 +601,10 @@ parts.forEach(part => {
  let blinkInterval = 15;  // Intervalo em frames para alternar as cores (ajuste conforme necessário)
  
  function draw() {
-    
-    background(255);
+    background(0);
    
     // T1: Rotação global centrada no canvas
     push();
-    
     translate(width / 2, height / 2);
     rotate(rotationAngle);
     translate(-width / 2, -height / 2);
@@ -772,7 +640,6 @@ parts.forEach(part => {
     // 🔽 Desenha a imagem de fundo com zoom e pan aplicados
     drawBackgroundImage();
     
-    
     function getBvrBoundingBox() {
         let xs = outlinePoints.map(p => p.x);
         let ys = outlinePoints.map(p => p.y);
@@ -780,7 +647,7 @@ parts.forEach(part => {
         let maxX = Math.max(...xs);
         let minY = Math.min(...ys);
         let maxY = Math.max(...ys);
-        console.log("BBox:", { minX, maxX, minY, maxY, width: maxX - minX, height: maxY - minY });
+       
         return {
           minX,
           maxX,
@@ -899,15 +766,15 @@ drawComponentBoundingBoxes();
 
     // -----------------------------------------
 
-     
-      
+    
+
     // Dibujar el buffer
     image(buffer, 0, 0);
     
 
     // Atualiza o estado de piscamento
 blinkState = (frameCount % blinkInterval < blinkInterval / 2) ? 255 : 0;  // Alterna entre 255 e 0 a cada intervalo
- drawPartNames();
+
 // Desenha os pinos com efeito de piscar
 /// Desenha os pinos com efeito de piscar
 if (scaleFactor >= 0.2) {
@@ -1081,10 +948,9 @@ if (scaleFactor >= 0.2) {
 
     
     
-    
-    
-   
     drawSelectedNetConnections();
+   
+    drawPartNames();
 
     pop(); // Fin T3: Traslación y escalado
     pop(); // Fin T2: Reflejo horizontal
@@ -1583,9 +1449,7 @@ function drawBlueDot(x, y) {
 
 
 
-
-
-// ------------------ MOUSE PRESSED ------------------
+// ------------------ MOUSE CLICK ------------------
 function mousePressed() {
     let worldPos = screenToWorld(mouseX, mouseY);
     let mx = worldPos.x;
@@ -1629,16 +1493,18 @@ function handlePinClick(part, pin) {
         const colorInput = document.getElementById("netColorPicker");
         const rgb = hexToRgb(colorInput.value);
 
+        // Verifica se o pino já está selecionado
         const existingIndex = selectedNets.findIndex(p => p.id === pinId);
         if (existingIndex === -1) {
+            // Adiciona o pino à net
             selectedNets.push({ id: pinId, net: pin.net, color: rgb });
         } else {
+            // Remove apenas o pino clicado, mantendo os outros da mesma net
             selectedNets.splice(existingIndex, 1);
         }
 
-        // ⚡ Chamada imediata para atualizar linhas e desenhar
+        // Atualiza todas as nets desenhadas, incluindo essa
         actualizarRedSeleccionada();
-       
     }
 
     tooltip = { text: tooltipText, x: pin.x, y: pin.y, side: part.side };
@@ -1655,6 +1521,46 @@ function handlePinClick(part, pin) {
     updateComponentInfo(part, pin);
 }
 
+// ------------------ ATUALIZAR RED SELECIONADA ------------------
+function actualizarRedSeleccionada() {
+    netLines = [];
+
+    // Agrupa pinos por net
+    const netsMap = {};
+    selectedNets.forEach(sel => {
+        if (!netsMap[sel.net]) netsMap[sel.net] = new Set();
+        netsMap[sel.net].add(sel.id);
+    });
+
+    for (let netName in netsMap) {
+        const pinIds = Array.from(netsMap[netName]);
+        let connectedPoints = [];
+
+        for (let part of parts) {
+            let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+
+            for (let pin of part.pins) {
+                const pinId = `${part.name}_${pin.name}`;
+                if (pin.net === netName && pinIds.includes(pinId)) {
+                    let px = pin.x + (part.side === "B" ? groupOffset : 0);
+                    let py = pin.y;
+                    connectedPoints.push({ x: px, y: py });
+                }
+            }
+        }
+
+        // Ordena e conecta todos os pinos restantes da net
+        connectedPoints.sort((a, b) => a.x - b.x || a.y - b.y);
+
+        for (let i = 1; i < connectedPoints.length; i++) {
+            const p1 = connectedPoints[i - 1];
+            const p2 = connectedPoints[i];
+            netLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p1.y, net: netName });
+            netLines.push({ x1: p2.x, y1: p1.y, x2: p2.x, y2: p2.y, net: netName });
+        }
+    }
+}
+
 // ------------------ DESENHO DAS CONEXÕES ------------------
 function drawSelectedNetConnections() {
     if (!selectedNets || selectedNets.length === 0) return;
@@ -1663,7 +1569,7 @@ function drawSelectedNetConnections() {
     strokeWeight(2);
     noFill();
 
-    // Agrupa pinos por net
+    // Agrupa pinos por net mantendo a ordem de clique
     const netsMap = {};
     selectedNets.forEach(sel => {
         if (!netsMap[sel.net]) netsMap[sel.net] = [];
@@ -1674,464 +1580,38 @@ function drawSelectedNetConnections() {
         const color = selectedNets.find(n => n.net === netName)?.color || [0, 255, 0];
         stroke(...color);
 
-        const connectedPoints = [];
-
-        // Obter coordenadas de cada pino
+        // Pega os pinos dessa net na ordem de clique
+        let connectedPoints = [];
         for (let pinId of netsMap[netName]) {
-            const [partName, pinName] = pinId.split("_");
-            const part = parts.find(p => p.name === partName);
-            if (!part) continue;
-            const pin = part.pins.find(p => p.name === pinName);
-            if (!pin) continue;
-
-            const groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
-            connectedPoints.push({ x: pin.x + groupOffset, y: pin.y });
-        }
-
-        // Desenha linhas L entre pinos consecutivos
-        for (let i = 1; i < connectedPoints.length; i++) {
-            const p1 = connectedPoints[i - 1];
-            const p2 = connectedPoints[i];
-
-            if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
-                const midY = p1.y;
-                line(p1.x, p1.y, p2.x, midY);
-                line(p2.x, midY, p2.x, p2.y);
-            } else {
-                const midX = p1.x;
-                line(p1.x, p1.y, midX, p2.y);
-                line(midX, p2.y, p2.x, p2.y);
+            for (let part of parts) {
+                let groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
+                for (let pin of part.pins) {
+                    const currentId = `${part.name}_${pin.name}`;
+                    if (currentId === pinId) {
+                        connectedPoints.push({
+                            pin,
+                            x: pin.x + groupOffset,
+                            y: pin.y
+                        });
+                    }
+                }
             }
         }
 
-        // Pontos azuis
+        // Conecta os pinos na ordem de clique
+        for (let i = 1; i < connectedPoints.length; i++) {
+            const p1 = connectedPoints[i - 1];
+            const p2 = connectedPoints[i];
+            let offset = (i % 2 === 0) ? 1 : -1; // alterna deslocamento
+         drawOrthogonalLine(p1.x + offset, p1.y + offset, p2.x + offset, p2.y + offset);
+        }
+
+        // Desenha todos os pinos selecionados
         connectedPoints.forEach(p => drawBlueDot(p.x, p.y, 4));
     }
 
     pop();
 }
-function expandNetByPassThroughOnlyMarked(cor) {
-    const alreadySelected = new Set(selectedNets.map(sel => sel.id));
-    const alreadyExpandedParts = new Set();
-    let queue = [];
-
-    // Inicializa a fila apenas com os pinos já selecionados (marcados pelas palavras-chave e cor)
-    for (let sel of selectedNets) {
-        if (sel.color.toString() !== cor.toString()) continue; // só expande para a cor atual
-        const [partName, pinName] = sel.id.split("_");
-        const part = parts.find(p => p.name === partName);
-        if (!part) continue;
-        const pin = part.pins.find(p => p.name === pinName);
-        if (!pin) continue;
-        queue.push({ part, pin, fromNet: pin.net });
-    }
-
-    while (queue.length > 0) {
-        const { part, pin, fromNet } = queue.shift();
-
-        // Só propaga para componentes de 2 pinos
-        if (part.pins.length !== 2) continue;
-
-        const netsInPart = Array.from(new Set(part.pins.map(p => p.net).filter(Boolean)));
-        if (netsInPart.length !== 2) continue;
-
-        const partKey = part.name + "_" + part.pins.map(p => p.net).join("_");
-        if (alreadyExpandedParts.has(partKey)) continue;
-        alreadyExpandedParts.add(partKey);
-
-        // Só propaga se algum pino do componente já está marcado
-        const algumMarcado = part.pins.some(p => alreadySelected.has(`${part.name}_${p.name}`));
-        if (!algumMarcado) continue;
-
-        // Descobre a outra net
-        const otherNet = netsInPart.find(n => n !== fromNet);
-
-        // NÃO marca se a outra net for GND
-        if (!otherNet || otherNet.trim().toUpperCase() === "GND") continue;
-
-        // Marca apenas o outro pino deste componente, com a mesma cor
-        let marcouNovo = false;
-        for (let otherPin of part.pins) {
-            if (otherPin.net === otherNet) {
-                const pinId = `${part.name}_${otherPin.name}`;
-                if (!alreadySelected.has(pinId)) {
-    selectedNets.push({ id: pinId, net: otherNet, color: cor });
-    alreadySelected.add(pinId);
-
-    // ⚡ Desenhar imediatamente a linha conectando o novo pino
-      markAndDrawFullNet(otherNet, cor);
-      expandNetWithTwoPadComponents(pin.net, cor);
-}
-            }
-        }
-
-        // Se marcou novo pino, continua expansão para outros componentes de 2 pinos conectados à nova net
-        if (marcouNovo) {
-            for (let nextPart of parts) {
-                if (nextPart.pins.length !== 2) continue;
-                const nextNets = Array.from(new Set(nextPart.pins.map(p => p.net).filter(Boolean)));
-                if (nextNets.length !== 2) continue;
-
-                // Só adiciona se algum pino desse componente tem a outra net
-                if (nextPart.pins.some(p => p.net === otherNet)) {
-                    const nextPartKey = nextPart.name + "_" + nextPart.pins.map(p => p.net).join("_");
-                    if (!alreadyExpandedParts.has(nextPartKey)) {
-                        for (let nextPin of nextPart.pins) {
-                            if (nextPin.net === otherNet) {
-                                queue.push({ part: nextPart, pin: nextPin, fromNet: otherNet });
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Atualiza todas as nets apenas **uma vez no final**
-    actualizarRedSeleccionada();
-    
-    
-}
-function expandNetWithTwoPadComponents(netName, color, maxHops = 5) {
-    const visitedNets = new Set(); 
-    const queue = [netName];
-
-    while (queue.length > 0) {
-        const currentNet = queue.shift();
-        if (visitedNets.has(currentNet)) continue;
-        visitedNets.add(currentNet);
-
-        // Marca e desenha toda a net atual
-        markAndDrawFullNet(currentNet, color);
-
-        // Agora verifica todos os componentes dessa net
-        for (let part of parts) {
-            if (part.pins.length !== 2) continue; // só 2 pads
-            const netsInPart = Array.from(new Set(part.pins.map(p => p.net).filter(Boolean)));
-            if (netsInPart.length !== 2) continue; // precisa ter 2 nets distintas
-
-            // Esse componente está ligado à net atual?
-            if (!netsInPart.includes(currentNet)) continue;
-
-            // Descobre a outra net
-            const otherNet = netsInPart.find(n => n !== currentNet);
-            if (!otherNet) continue;
-
-            // Ignora nets inválidas
-            if (["GND", "NC"].includes(otherNet.toUpperCase())) continue;
-
-            // Se ainda não visitamos essa outra net, adiciona na fila
-            if (!visitedNets.has(otherNet)) {
-                queue.push(otherNet);
-            }
-        }
-    }
-}
-
-
-function markAndDrawFullNet(netName, color) {
-    if (!netName) return;
-
-    // Procura todos os pinos de todos os componentes dessa net
-    for (let part of parts) {
-        const groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
-
-        for (let pin of part.pins) {
-            if (pin.net === netName) {
-                const pinId = `${part.name}_${pin.name}`;
-
-                // Adiciona a selectedNets se ainda não estiver
-                if (!selectedNets.some(p => p.id === pinId)) {
-                    selectedNets.push({ id: pinId, net: netName, color: color });
-                }
-            }
-        }
-    }
-
-    // Desenha toda a net
-    const connectedPins = selectedNets
-        .filter(p => p.net === netName)
-        .map(p => {
-            const [partName, pinName] = p.id.split("_");
-            const part = parts.find(pt => pt.name === partName);
-            if (!part) return null;
-            const pin = part.pins.find(pt => pt.name === pinName);
-            if (!pin) return null;
-            const offset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
-            return { x: pin.x + offset, y: pin.y };
-        })
-        .filter(Boolean);
-
-    if (connectedPins.length <= 1) return;
-
-    stroke(...(selectedNets.find(p => p.net === netName)?.color || [0, 255, 0]));
-    strokeWeight(2);
-
-    // linhas L
-    for (let i = 1; i < connectedPins.length; i++) {
-        const p1 = connectedPins[i - 1];
-        const p2 = connectedPins[i];
-        if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
-            const midY = p1.y;
-            line(p1.x, p1.y, p2.x, midY);
-            line(p2.x, midY, p2.x, p2.y);
-        } else {
-            const midX = p1.x;
-            line(p1.x, p1.y, midX, p2.y);
-            line(midX, p2.y, p2.x, p2.y);
-        }
-    }
-
-    // pontos azuis
-    connectedPins.forEach(p => drawBlueDot(p.x, p.y, 4));
-}
-
-
-
-// ------------------ ATUALIZAR RED SELECIONADA ------------------
-function actualizarRedSeleccionada(ordenarPorProximidade = false) {
-    netLines = []; // limpa as linhas antigas
-
-    const netsMap = {};
-    selectedNets.forEach(sel => {
-        if (!netsMap[sel.net]) netsMap[sel.net] = [];
-        netsMap[sel.net].push(sel.id);
-    });
-
-    for (let netName in netsMap) {
-        const pinIds = netsMap[netName];
-        let connectedPoints = [];
-
-        // coleta coordenadas de todos os pinos selecionados
-        for (let sel of pinIds) {
-            const [partName, pinName] = sel.split("_");
-            const part = parts.find(p => p.name === partName);
-            if (!part) continue;
-            const pin = part.pins.find(p => p.name === pinName);
-            if (!pin) continue;
-            const groupOffset = (displayMode === "all" && part.side === "B") ? bottomOffset : 0;
-            connectedPoints.push({ x: pin.x + groupOffset, y: pin.y });
-        }
-
-        if (connectedPoints.length <= 1) continue;
-
-        if (ordenarPorProximidade) {
-            connectedPoints.sort((a, b) => a.x - b.x || a.y - b.y);
-        }
-
-        // cria linhas L
-        for (let i = 1; i < connectedPoints.length; i++) {
-            const p1 = connectedPoints[i - 1];
-            const p2 = connectedPoints[i];
-            if (Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y)) {
-                const midY = p1.y;
-                netLines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: midY, net: netName });
-                netLines.push({ x1: p2.x, y1: midY, x2: p2.x, y2: p2.y, net: netName });
-            } else {
-                const midX = p1.x;
-                netLines.push({ x1: p1.x, y1: p1.y, x2: midX, y2: p2.y, net: netName });
-                netLines.push({ x1: midX, y1: p2.y, x2: p2.x, y2: p2.y, net: netName });
-            }
-        }
-    }
-}
-
-
-
-let originalPins = []; // armazena os pinos iniciais com id, net e cor
-
-function marcarNetsPorNome(regras, ordenarPorProximidade = false) {
-    const regrasLower = regras.map(r => ({ termo: r.termo.toLowerCase(), cor: r.cor }));
-
-    if (Array.isArray(selectedNets)) selectedNets.length = 0;
-
-    for (let part of parts) {
-        for (let pin of part.pins) {
-            if (!pin.net) continue;
-            const netName = String(pin.net).toLowerCase();
-            const pinId = `${part.name}_${pin.name}`;
-            for (let r of regrasLower) {
-                if (netName.includes(r.termo)) {
-                    if (!selectedNets.some(p => p.id === pinId)) {
-                        selectedNets.push({ id: pinId, net: pin.net, color: r.cor });
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
-    // Salva os pinos originais
-    originalPins = selectedNets.map(p => ({ ...p }));
-
-    // Expande para cada cor das regras
-    for (let r of regrasLower) {
-        expandNetByPassThroughOnlyMarked(r.cor);
-    }
-
-    // Ordenar por proximidade se necessário
-    if (ordenarPorProximidade) {
-        const netsMap = {};
-        selectedNets.forEach(sel => {
-            if (!netsMap[sel.net]) netsMap[sel.net] = [];
-            netsMap[sel.net].push(sel);
-        });
-        selectedNets = [];
-        for (let netName in netsMap) {
-            let pinsWithCoord = netsMap[netName].map(sel => {
-                let found = null;
-                for (let part of parts) {
-                    for (let pin of part.pins) {
-                        if (`${part.name}_${pin.name}` === sel.id) {
-                            found = { sel, x: pin.x, y: pin.y };
-                            break;
-                        }
-                    }
-                    if (found) break;
-                }
-                return found;
-            }).filter(Boolean);
-            pinsWithCoord.sort((a, b) => a.x - b.x || a.y - b.y);
-            pinsWithCoord.forEach(obj => selectedNets.push(obj.sel));
-        }
-    }
-}// ------------------ REMOVE COMPLETAMENTE EXPANSÕES PELA COR, sem bagunçar outras nets ------------------
-function compressExpandedNets() {
-    if (!originalPins || originalPins.length === 0) return;
-    if (!selectedNets || selectedNets.length === 0) return;
-
-    // Conta pinos por cor
-    let colorCount = {};
-    selectedNets.forEach(p => {
-        const key = (p.color || []).join(",");
-        colorCount[key] = (colorCount[key] || 0) + 1;
-    });
-
-    if (Object.keys(colorCount).length === 0) return;
-
-    // Cor mais carregada
-    let maxColor = Object.keys(colorCount).reduce((a, b) =>
-        colorCount[a] > colorCount[b] ? a : b
-    );
-
-    // Pinos originais dessa cor
-    const originalOfColor = originalPins.filter(p => (p.color || []).join(",") === maxColor);
-
-    // Remove apenas os pinos extras dessa cor
-    selectedNets = selectedNets.filter(p => {
-        const pColor = (p.color || []).join(",");
-        if (pColor !== maxColor) return true;                 // Mantém outras cores
-        return originalOfColor.some(orig => orig.id === p.id); // Mantém apenas os originais
-    });
-
-    // ⚠️ Removei o sort! Agora a ordem das outras nets não é alterada
-}
-
-
-
-
-
-function keyPressed() {
-    if (key === '1' || key === '1') {
-        // Regras CARGAMENTO USB
-        marcarNetsPorNome([
-            { termo: "vbus", cor: [255, 0, 0] },
-            { termo: "vcharge", cor: [255, 0, 0] },
-            
-             { termo: "v_charge", cor: [255, 0, 0] },
-            
-            { termo: "v_bus", cor: [255, 0, 0] },        
-            { termo: "usb_dm", cor: [255, 255, 0] },
-             { termo: "ap_dm", cor: [255, 255, 0] },
-             { termo: "ap_dn", cor: [255, 255, 0] },
-             { termo: "ap_d_m", cor: [255, 255, 0] },
-             { termo: "ap_d_n", cor: [255, 255, 0] },
-             { termo: "usb_dn", cor: [255, 255, 0] },
-             { termo: "usb_d_m", cor: [255, 255, 0] }, 
-              { termo: "usb_d_n", cor: [255, 255, 0] }, 
-               { termo: "_d_n", cor: [255, 255, 0] },
-                { termo: "_d_m", cor: [255, 255, 0] },
-                
-                
-               { termo: "usb_d_p", cor: [0, 255, 0] },
-                
-                { termo: "_d_p", cor: [0, 255, 0] }, 
-                { termo: "sns_p", cor: [0, 255, 0] }, 
-                 { termo: "sns_m", cor: [255, 255, 0] },
-                 { termo: "sns_n", cor: [255, 255, 0] },
-                 { termo: "sns_dp", cor: [0, 255, 0] }, 
-                 { termo: "sns_dm", cor: [255, 255, 0] },
-            { termo: "usb_dp", cor: [0, 255, 0] },
-             { termo: "ap_dp", cor: [0, 255, 0] }, 
-             { termo: "ap_d_p", cor: [0, 255, 0] },    
-            { termo: "usb_id", cor: [0, 0, 255] }, 
-            
-            { termo: "cc1", cor: [0, 155, 255] },
-            
-           
-             
-            { termo: "hs_dp", cor: [0, 255, 0] },
-             { termo: "hs_dm", cor: [255, 255, 0] },
-             
-             { termo: "bs+", cor: [0, 155, 255] },
-             { termo: "bs-", cor: [0, 155, 155] },
-              
-            { termo: "cc2", cor: [155, 0, 255] }      
-        ], true);
-        return false;
-    }
-
-    if (key === '2' || key === '2') {
-        // BACKLIGHT
-        marcarNetsPorNome([
-            { termo: "LEDK", cor: [255, 255, 0] },
-            { termo: "LED_K", cor: [255, 255, 0] }, 
-            { termo: "LEDA", cor: [0, 150, 255] },
-            { termo: "cabc", cor: [250, 150, 0] },
-            { termo: "cab_c", cor: [250, 150, 0] }, 
-            { termo: "LED_A", cor: [0, 150, 255] }
-        ]);
-        return false;
-    }
-
-    if (key === '0' || key === '0') {
-        compressExpandedNets();
-        
-        return false;
-    }
-
-    //BATERIA FPC
-    if (key === '3' || key === '3') {
-        marcarNetsPorNome([
-            { termo: "AAAAAA", cor: [0, 255, 255]},
-            { termo: "vbaterry_sr", cor: [133, 0, 0] },
- { termo: "bat_id", cor: [0, 155, 255] },
- { termo: "batid", cor: [0, 155, 255] },
-  { termo: "bat_id2", cor: [0, 155, 155] },
-    { termo: "bat_id1", cor: [0, 155, 155] },
- { termo: "baton", cor: [0, 155, 255] },
- { termo: "bat_thm", cor: [255, 155, 0] },
-{ termo: "batt_th", cor: [255, 155, 0] },
- { termo: "therm", cor: [255, 155, 0] },
-        { termo: "cc2", cor: [155, 0, 255] }      
-        ], true);
-        return false;
-    }
-
-
-    if (key === '4' || key === '4') {
-        marcarNetsPorNome([{ termo: "SPK", cor: [0, 255, 255] }]);
-        return false;
-    }
-
-    if (key === '5' || key === '5') {
-        marcarNetsPorNome([{ termo: "cam", cor: [255, 0, 255] }]);
-        return false;
-    }
-}
-
-
-
 
 
 
@@ -2478,7 +1958,6 @@ function moveToNextPinInNet() {
             displayMode === "all" && nextItem.partSide === "B" ? bottomOffset : 0;
         selectedPin = nextItem.pin;
         actualizarRedSeleccionada();
-        drawSelectedNetConnections();
 
         tooltip = {
             text: `Parte: ${nextItem.partName}\nNet: ${nextItem.pin.net}`,
@@ -2499,10 +1978,1714 @@ function windowResized() {
     renderBuffer(); // Vuelve a dibujar el contenido después del ajuste
 }
 
+function keyPressed() {
+    if (document.activeElement.tagName === "INPUT") {
+        return; // Permite escribir en el input
+    }
+    return false; // Evita que p5.js bloquee la entrada
+}
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+function exportarNetSelecionadaPDF() {
+    if (!selectedNets || selectedNets.length === 0) {
+        alert("Nenhuma net selecionada!");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    if (!outlinePoints || !outlinePoints.length) {
+        alert("Layout não carregado!");
+        return;
+    }
+
+    const pageWidth = 297 * 3.78;  // A4 landscape
+    const pageHeight = 210 * 3.78;
+    const margin = 80;
+
+    const pdf = new jsPDF({ unit: 'px', format: [pageWidth, pageHeight], orientation: 'landscape' });
+
+    // --- 1️⃣ Reúne todos os componentes e pinos de todas as nets selecionadas ---
+    const allNetComponents = [];
+      const drawnComponents = new Set(); // para evitar duplicação
+    const netPinsMap = {}; // netName -> lista de pinos escalados
+    selectedNets.forEach(sel => netPinsMap[sel.net.toUpperCase()] = []);
+
+    parts.forEach(part => {
+        let partHasNet = false;
+        part.pins.forEach(pin => {
+            const pinNet = (pin.net || "").toUpperCase();
+            if (netPinsMap.hasOwnProperty(pinNet)) {
+                partHasNet = true;
+            }
+        });
+        if (partHasNet && !allNetComponents.includes(part)) allNetComponents.push(part);
+    });
+
+    if (allNetComponents.length === 0) return;
+
+    // --- 2️⃣ Calcula bounding box de todos os pinos e outlines ---
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    allNetComponents.forEach(part => {
+            if(drawnComponents.has(part.name)) return; // pula duplicados
+        part.pins.forEach(pin => {
+            const px = part.origin.x + pin.x;
+            const py = part.origin.y + pin.y;
+            minX = Math.min(minX, px);
+            minY = Math.min(minY, py);
+            maxX = Math.max(maxX, px);
+            maxY = Math.max(maxY, py);
+        });
+        if (part.outline) {
+            for (let i = 0; i < part.outline.length; i += 2) {
+                const px = part.origin.x + part.outline[i];
+                const py = part.origin.y + part.outline[i + 1];
+                minX = Math.min(minX, px);
+                minY = Math.min(minY, py);
+                maxX = Math.max(maxX, px);
+                maxY = Math.max(maxY, py);
+            }
+        }
+    });
+
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+
+    // --- 3️⃣ Calcula escala máxima para caber no PDF ---
+    const scale = Math.min((pageWidth - 2*margin)/contentWidth, (pageHeight - 2*margin)/contentHeight);
+
+    // Centraliza todo o conteúdo
+    const extraX = (pageWidth - contentWidth*scale)/2 - minX*scale;
+    const extraY = (pageHeight - contentHeight*scale)/2 - minY*scale;
+
+    const scaleCoord = (x, y) => ({
+        x: x*scale + extraX,
+        y: pageHeight - (y*scale + extraY)
+    });
+
+const borderMargin = 15; // distância da borda da página
+const pageTopLeft = { x: borderMargin, y: borderMargin };
+const pageBottomRight = { x: pageWidth - borderMargin, y: pageHeight - borderMargin };
+
+// --- Desenha retângulo da borda ---
+pdf.setLineWidth(2);
+pdf.setDrawColor(0,0,0);
+pdf.rect(pageTopLeft.x, pageTopLeft.y, pageBottomRight.x - pageTopLeft.x, pageBottomRight.y - pageTopLeft.y);
+
+// --- Letras na lateral esquerda da borda com risquinho ---
+const rows = 10; // letras A-J
+const rowHeight = (pageBottomRight.y - pageTopLeft.y)/rows;
+const tickLength = 5;
+
+pdf.setFontSize(10);
+pdf.setTextColor(0,0,0);
+
+for(let r=0; r<rows; r++){
+    const letter = String.fromCharCode(65+r);
+    const y = pageTopLeft.y + r*rowHeight + rowHeight/2;
+
+    // letra
+    pdf.text(letter, pageTopLeft.x - 5, y, {align:"right", baseline:"middle"});
+    // risquinho horizontal
+    pdf.line(pageTopLeft.x, y, pageTopLeft.x + tickLength, y);
+}
+
+// --- Números na parte superior da borda com risquinho ---
+const cols = 10; // números 1-10
+const colWidth = (pageBottomRight.x - pageTopLeft.x)/cols;
+
+for(let c=0; c<cols; c++){
+    const num = (c+1).toString();
+    const x = pageTopLeft.x + c*colWidth + colWidth/2;
+
+    // número
+    pdf.text(num, x, pageTopLeft.y - 5, {align:"center", baseline:"bottom"});
+    // risquinho vertical
+    pdf.line(x, pageTopLeft.y, x, pageTopLeft.y + tickLength);
+
+}
+
+// 5️⃣ Modal para informações
+let modal = document.createElement("div");
+modal.style.position = "fixed";
+modal.style.top = "50%";
+modal.style.left = "50%";
+modal.style.transform = "translate(-50%, -50%)";
+modal.style.background = "#2c2c2c"; // tema escuro
+modal.style.color = "#ffffff"; // texto claro
+modal.style.border = "2px solid #ff0000"; // destaque
+modal.style.padding = "20px";
+modal.style.borderRadius = "10px";
+modal.style.zIndex = "1000"; // acima do overlay
+
+const overlay = document.createElement("div");
+overlay.style.position = "fixed";
+overlay.style.top = "0";
+overlay.style.left = "0";
+overlay.style.width = "100%";
+overlay.style.height = "100%";
+overlay.style.background = "rgba(0, 0, 0, 0.7)"; // fundo escuro semi-transparente
+overlay.style.zIndex = "999"; // atrás do modal
+
+document.body.appendChild(overlay);
+
+modal.innerHTML = `
+    <h3>INFORMATIONS OF SCHEMATC</h3>
+    <label>TITLE: <input type="text" id="infoTitulo" placeholder="NAME COMP"></label><br><br>
+    <label>DATE: <input type="date" id="infoData"></label><br><br>
+    <label>MODEL: <input type="text" id="infoModelo"></label><br><br>
+    <label>SECTOR: <input type="text" id="infoSetor"></label><br><br>
+    <label>OBS: <input type="text" id="infoObs"></label><br><br>
+    <button id="confirmPdfInfo">GO PDF</button>
+    <button id="cancelPdfInfo">CANCEL</button>
+`;
+document.body.appendChild(modal);
+
+// --- Fechar modal ---
+document.getElementById("cancelPdfInfo").addEventListener("click", () => {
+    document.body.removeChild(modal);
+    document.body.removeChild(overlay);
+});
+
+document.getElementById("confirmPdfInfo").addEventListener("click", () => {
+    const pdfInfo = {
+        titulo: document.getElementById("infoTitulo").value || "UNDEFINED",
+        data: document.getElementById("infoData").value || new Date().toLocaleDateString(),
+        modelo: document.getElementById("infoModelo").value || "UNDEFINED",
+        setor: document.getElementById("infoSetor").value || "UNDEFINED",
+        obs: document.getElementById("infoObs").value || "(CONFIDENTIAL)"
+    };
+    document.body.removeChild(modal);
+    document.body.removeChild(overlay);
+
+    // 6️⃣ Desenha retângulo Digital Board
+    const infoWidth = 150, infoHeight = 90;
+    const infoX = pageWidth - infoWidth - borderMargin;
+    const infoY = pageHeight - infoHeight - borderMargin;
+
+    // --- 🔹 TITULO ENCIMA
+    const marginRight = 80; // margem direita
+   
+    const titleX = pageWidth - marginRight;
+    const titleY = 60; // posição Y no topo
+
+    pdf.setFontSize(26);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(pdfInfo.titulo, titleX, titleY, { align: "right" });
+
+  
+        
+       // --- Rodapé ---
+pdf.setFontSize(12);
+pdf.setFont("helvetica", "normal");
+
+const footerY = pageHeight -2;
+const iconSize = 22; // tamanho do ícone
+const text = "+55(33)98444-4376 - DIGITAL BOARD";
+
+// Calcula largura do texto
+const textWidth = pdf.getTextWidth(text);
+
+// Espaçamento entre ícone e texto
+const spacing = 5;
+
+// Calcula posição inicial do ícone para centralizar tudo
+
+const offsetX = 450; // quanto quer mover para a direita
+const startX = (pageWidth - (iconSize + spacing + textWidth)) / 2 + offsetX;
+
+
+// Desenha ícone WhatsApp (pode ser URL ou base64)
+const whatsappIcon = "https://static.vecteezy.com/system/resources/previews/018/930/564/non_2x/whatsapp-logo-whatsapp-icon-whatsapp-transparent-free-png.png";
+pdf.addImage(whatsappIcon, 'PNG', startX, footerY - iconSize + 2, iconSize, iconSize);
+
+
+
+// Ajusta Y do texto para alinhar verticalmente com o ícone
+const textY = footerY - iconSize / 4; // subindo um pouco para centralizar
+pdf.text(text, startX + iconSize + 5, textY, { align: "left", baseline: "middle" });
+// --- Marca d'água ---
+const watermarkText = ["DIGITAL BOARD", "CONFIDENTIAL"];
+const fontSize = 12;          // tamanho pequeno
+const angle = -30;            // ângulo em graus
+const spacingX = 200;         // espaçamento horizontal
+const spacingY = 150;         // espaçamento vertical
+
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(fontSize);
+
+// Define opacidade (0 = invisível, 1 = totalmente opaco)
+pdf.setGState(new pdf.GState({ opacity: 0.2})); // 10% visível
+
+for (let x = -pageWidth; x < pageWidth * 2; x += spacingX) {
+    for (let y = -pageHeight; y < pageHeight * 2; y += spacingY) {
+        pdf.text(watermarkText, x, y, {
+            align: "left",
+            baseline: "top",
+            angle: angle
+        });
+    }
+}
+
+// Volta à opacidade normal para outros elementos
+pdf.setGState(new pdf.GState({ opacity: 1 }));
+
+ // Borda externa grossa
+pdf.setLineWidth(2.0);
+pdf.setDrawColor(0,0,0);
+pdf.setFillColor(245,245,245);
+pdf.rect(infoX, infoY, infoWidth, infoHeight, 'FD');
+
+// Texto título
+pdf.setFontSize(12);
+pdf.setFont("helvetica","bold");
+pdf.text("DIGITAL BOARD- SCHEMATIC", infoX + infoWidth/2, infoY + 6, {align:"center", baseline:"top"});
+
+// Fonte normal
+pdf.setFontSize(8);
+pdf.setFont("helvetica","normal");
+
+const fields = [
+  {label: "DATE", value: pdfInfo.data},
+  {label: "MODEL", value: pdfInfo.modelo},
+  {label: "SECTOR", value: pdfInfo.setor},
+  {label: "OBS", value: pdfInfo.obs}
+];
+
+// 🔹 Retângulos para cada campo
+pdf.setLineWidth(0.3); // linha bem fina
+const fieldHeight = (infoHeight - 20)/fields.length;
+
+fields.forEach((f,i)=>{
+    const yPos = infoY + 20 + i*fieldHeight;
+    pdf.rect(infoX+5, yPos, infoWidth-10, fieldHeight-5); // retângulo do campo
+    pdf.setFontSize(10); 
+    pdf.text(`${f.label}: ${f.value}`, infoX + 8, yPos + 2, {baseline: "top"});
+});
+
+
+
+    // --- 4️⃣ Preenche netPinsMap com coordenadas escaladas ---
+    parts.forEach(part => {
+        part.pins.forEach(pin => {
+            const pinNet = (pin.net || "").toUpperCase();
+            if (netPinsMap.hasOwnProperty(pinNet)) {
+                netPinsMap[pinNet].push({
+                    pin,
+                    part,
+                    center: scaleCoord(part.origin.x + pin.x, part.origin.y + pin.y)
+                });
+            }
+        });
+    });
+
+
+
+
+
+
+    
+
+
+    // --- 5️⃣ Desenha todos os componentes e pinos ---
+    allNetComponents.forEach(part => {
+        const firstLetter = (part.name || "").charAt(0).toUpperCase();
+const nameUpper = (part.name || "").toUpperCase();
+if (["RE","R"].some(prefix => nameUpper.startsWith(prefix)) && part.pins.length === 2) {
+    pdf.setDrawColor(0,0,0);
+    pdf.setLineWidth(0.5*scale);
+
+    const x1 = part.origin.x + part.pins[0].x;
+    const y1 = part.origin.y + part.pins[0].y;
+    const x2 = part.origin.x + part.pins[1].x;
+    const y2 = part.origin.y + part.pins[1].y;
+
+    const p1 = scaleCoord(x1, y1);
+    const p2 = scaleCoord(x2, y2);
+
+    const segments = 5; // reduzimos os segmentos para não ficar espremido
+    const totalLength = Math.sqrt((p2.x - p1.x)**2 + (p2.y - p1.y)**2);
+    const offsetFromPin = Math.min(20*scale, totalLength*0.2); // aumenta o espaço antes do zig-zag
+
+    const dxTotal = (p2.x - p1.x);
+    const dyTotal = (p2.y - p1.y);
+
+    // ponto inicial do zig-zag
+    const startX = p1.x + (dxTotal/totalLength)*offsetFromPin;
+    const startY = p1.y + (dyTotal/totalLength)*offsetFromPin;
+
+    // ponto final do zig-zag
+    const endX = p2.x - (dxTotal/totalLength)*offsetFromPin;
+    const endY = p2.y - (dyTotal/totalLength)*offsetFromPin;
+
+    const dx = (endX - startX)/segments;
+    const dy = (endY - startY)/segments;
+
+    let points = [];
+    for(let i=0;i<=segments;i++){
+        const offset = (i%2===0 ? 1 : -1) * 4 * scale; // altura do zig-zag aumentada
+        const px = startX + dx*i - dy * offset / Math.sqrt(dx*dx + dy*dy);
+        const py = startY + dy*i + dx * offset / Math.sqrt(dx*dx + dy*dy);
+        points.push({x:px, y:py});
+    }
+
+    // linhas do pino até o início do zig-zag
+    pdf.line(p1.x, p1.y, points[0].x, points[0].y);
+    // zig-zag
+    for(let i=1;i<points.length;i++){
+        pdf.line(points[i-1].x, points[i-1].y, points[i].x, points[i].y);
+    }
+    // linha do fim do zig-zag até o pino
+    pdf.line(points[points.length-1].x, points[points.length-1].y, p2.x, p2.y);
+
+    // bolinhas nos pinos
+    pdf.circle(p1.x, p1.y, 0.8*scale,'FD');
+    pdf.circle(p2.x, p2.y, 0.8*scale,'FD');
+
+       // 🔹 Desenha ícone de GND nos pinos que têm net "GND"
+// 🔹 Desenha ícone de GND (3 riscos) nos pinos que têm net "GND"
+part.pins.forEach((pin, idx) => {
+    if(pin.net && pin.net.toUpperCase() === "GND") {
+        const px = part.origin.x + pin.x;
+        const py = part.origin.y + pin.y;
+        const p = scaleCoord(px, py);
+
+        const tickLength = 5*scale; // comprimento do traço de conexão
+        const base = 4*scale;        // comprimento do maior risco
+        const spacing = 1.5*scale;   // espaçamento entre os riscos
+
+        // outro pino do resistor
+        const otherPin = part.pins[1 - idx];
+        const otherX = part.origin.x + otherPin.x;
+        const otherY = part.origin.y + otherPin.y;
+        const otherP = scaleCoord(otherX, otherY);
+
+        // vetor do pino GND -> outro pino (invertido para fora)
+        let dx = otherP.x - p.x;
+        let dy = otherP.y - p.y;
+        const len = Math.sqrt(dx*dx + dy*dy);
+        const ux = dx/len;
+        const uy = dy/len;
+
+        // ponto inicial do GND (para fora do resistor)
+        const gndX = p.x - ux*tickLength;
+        const gndY = p.y - uy*tickLength;
+
+        // vetor perpendicular unitário (para os riscos)
+        const perpX = -uy;
+        const perpY = ux;
+
+        // desenha 3 riscos, do maior para o menor, afastando perpendicularmente
+        const sizes = [base, base*0.66, base*0.33];
+        sizes.forEach((s, i) => {
+            // deslocamento ao longo do vetor do resistor, para fora
+            const offset = i * spacing;
+            const startX = gndX - perpX * (s/2) - ux * offset;
+            const startY = gndY - perpY * (s/2) - uy * offset;
+            const endX = gndX + perpX * (s/2) - ux * offset;
+            const endY = gndY + perpY * (s/2) - uy * offset;
+
+            pdf.line(startX, startY, endX, endY);
+        });
+
+        // linha conectando pino ao primeiro risco
+        pdf.line(p.x, p.y, gndX, gndY);
+    }
+});
+
+
+
+      drawComponentName(part, scaleCoord, pdf, scale);
+        return; // pula o desenho normal
+}
+
+if (["D","LED","TVS"].some(prefix => nameUpper.startsWith(prefix)) && part.pins.length === 2) {
+    pdf.setDrawColor(0,0,0);
+    pdf.setLineWidth(0.5*scale);
+
+    // --- determinar quem é anodo e catodo ---
+    let anodoPin = part.pins[0];
+    let catodoPin = part.pins[1];
+
+    // se um dos pinos tiver net GND ele vira catodo
+    if ((part.pins[0].net && part.pins[0].net.toUpperCase()==="GND") &&
+        !(part.pins[1].net && part.pins[1].net.toUpperCase()==="GND")) {
+        // pino 0 é GND → inverter
+        catodoPin = part.pins[0];
+        anodoPin = part.pins[1];
+    } else if ((part.pins[1].net && part.pins[1].net.toUpperCase()==="GND") &&
+        !(part.pins[0].net && part.pins[0].net.toUpperCase()==="GND")) {
+        // pino1 já é GND → ok
+        anodoPin = part.pins[0];
+        catodoPin = part.pins[1];
+    }
+
+    // --- coords absolutos dos dois pinos ---
+    const x1 = part.origin.x + anodoPin.x;
+    const y1 = part.origin.y + anodoPin.y;
+    const x2 = part.origin.x + catodoPin.x;
+    const y2 = part.origin.y + catodoPin.y;
+
+    const p1 = scaleCoord(x1, y1); // anodo
+    const p2 = scaleCoord(x2, y2); // catodo
+
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const ux = dx / len;
+    const uy = dy / len;
+    const perpX = -uy;
+    const perpY = ux;
+
+    // comprimentos padrão
+    const triLen = 10*scale;      // comprimento triângulo
+    const triHeight = 8*scale;    // altura triângulo
+    const gap = 1*scale;          // espaçamento barra ↔ linha
+
+    // ponto inicial do triângulo (lado anodo)
+    const triBaseX = p1.x + ux*((len - triLen)/2);
+    const triBaseY = p1.y + uy*((len - triLen)/2);
+
+    // ponta do triângulo (lado catodo)
+    const triTipX = triBaseX + ux*triLen;
+    const triTipY = triBaseY + uy*triLen;
+
+    // vértices superior e inferior do triângulo
+    const vTop = {
+        x: triBaseX + perpX*triHeight/2,
+        y: triBaseY + perpY*triHeight/2
+    };
+    const vBottom = {
+        x: triBaseX - perpX*triHeight/2,
+        y: triBaseY - perpY*triHeight/2
+    };
+    const vTip = {x: triTipX, y: triTipY};
+
+    // barra catodo logo após a ponta
+    const barTopX = vTip.x + ux*gap + perpX*triHeight/2;
+    const barTopY = vTip.y + uy*gap + perpY*triHeight/2;
+    const barBottomX = vTip.x + ux*gap - perpX*triHeight/2;
+    const barBottomY = vTip.y + uy*gap - perpY*triHeight/2;
+
+    // 🔹 Desenhar linha do anodo até a base do triângulo
+    pdf.line(p1.x, p1.y, triBaseX, triBaseY);
+
+    // 🔹 Triângulo (ponta para catodo)
+    pdf.line(vTop.x, vTop.y, vBottom.x, vBottom.y);
+    pdf.line(vTop.x, vTop.y, vTip.x, vTip.y);
+    pdf.line(vBottom.x, vBottom.y, vTip.x, vTip.y);
+
+    // 🔹 Barra catodo
+    pdf.setLineWidth(0.7*scale);
+    pdf.line(barTopX, barTopY, barBottomX, barBottomY);
+
+    // 🔹 Linha do catodo até o pino catodo
+    const afterBarX = vTip.x + ux*(gap + 0.5*scale);
+    const afterBarY = vTip.y + uy*(gap + 0.5*scale);
+    pdf.line(afterBarX, afterBarY, p2.x, p2.y);
+
+    // bolinhas nos pinos
+    pdf.circle(p1.x, p1.y, 0.8*scale,'FD');
+    pdf.circle(p2.x, p2.y, 0.8*scale,'FD');
+
+    // 🔹 GND no pino catodo (se tiver GND)
+    part.pins.forEach((pin, idx) => {
+        if(pin.net && pin.net.toUpperCase() === "GND") {
+            const px = part.origin.x + pin.x;
+            const py = part.origin.y + pin.y;
+            const p = scaleCoord(px, py);
+
+            const tickLength = 5*scale;
+            const base = 4*scale;
+            const spacing = 1.5*scale;
+
+            const otherPin = (pin===anodoPin)?catodoPin:anodoPin;
+            const otherX = part.origin.x + otherPin.x;
+            const otherY = part.origin.y + otherPin.y;
+            const otherP = scaleCoord(otherX, otherY);
+
+            let dx = otherP.x - p.x;
+            let dy = otherP.y - p.y;
+            const len = Math.sqrt(dx*dx + dy*dy);
+            const ux = dx/len;
+            const uy = dy/len;
+
+            const gndX = p.x - ux*tickLength;
+            const gndY = p.y - uy*tickLength;
+
+            const perpX = -uy;
+            const perpY = ux;
+
+            const sizes = [base, base*0.66, base*0.33];
+            sizes.forEach((s, i) => {
+                const offset = i * spacing;
+                const startX = gndX - perpX*(s/2) - ux*offset;
+                const startY = gndY - perpY*(s/2) - uy*offset;
+                const endX = gndX + perpX*(s/2) - ux*offset;
+                const endY = gndY + perpY*(s/2) - uy*offset;
+                pdf.line(startX, startY, endX, endY);
+            });
+            pdf.line(p.x, p.y, gndX, gndY);
+        }
+    });
+
+    drawComponentName(part, scaleCoord, pdf, scale);
+    return; // pula o desenho normal
+}
+
+
+
+
+
+
+if (["L","PL","B"].some(prefix => nameUpper.startsWith(prefix)) && part.pins.length === 2) {
+    pdf.setDrawColor(0,0,0);
+    pdf.setLineWidth(0.5*scale);
+
+    const x1 = part.origin.x + part.pins[0].x;
+    const y1 = part.origin.y + part.pins[0].y;
+    const x2 = part.origin.x + part.pins[1].x;
+    const y2 = part.origin.y + part.pins[1].y;
+
+    const p1 = scaleCoord(x1, y1);
+    const p2 = scaleCoord(x2, y2);
+
+    const turns = 3;          // número de voltas
+    const pointsPerTurn = 10; // pontos por volta
+    const amplitude = 10*scale; // altura das curvas
+
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const length = Math.sqrt(dx*dx + dy*dy);
+    const ux = dx / length;
+    const uy = dy / length;
+
+    // vetor perpendicular
+    const perpX = -uy;
+    const perpY = ux;
+
+    let points = [];
+    const totalPoints = turns * pointsPerTurn;
+
+    for(let i=0;i<=totalPoints;i++){
+        const t = i / totalPoints;
+        const baseX = p1.x + dx*t;
+        const baseY = p1.y + dy*t;
+        // curva apenas para cima usando valor absoluto do seno
+        const angle = (i / pointsPerTurn) * Math.PI; // meia volta
+        const offset = Math.abs(Math.sin(angle)) * amplitude;
+        points.push({x: baseX + perpX*offset, y: baseY + perpY*offset});
+    }
+
+    for(let i=1;i<points.length;i++){
+        pdf.line(points[i-1].x, points[i-1].y, points[i].x, points[i].y);
+    }
+
+    // bolinhas nos pinos
+    pdf.circle(p1.x, p1.y, 0.8*scale,'FD');
+    pdf.circle(p2.x, p2.y, 0.8*scale,'FD');
+
+    // 🔹 Desenha ícone de GND (3 riscos) nos pinos que têm net "GND"
+part.pins.forEach((pin, idx) => {
+    if(pin.net && pin.net.toUpperCase() === "GND") {
+        const px = part.origin.x + pin.x;
+        const py = part.origin.y + pin.y;
+        const p = scaleCoord(px, py);
+
+        const tickLength = 5*scale; // comprimento do traço de conexão
+        const base = 4*scale;        // comprimento do maior risco
+        const spacing = 1.5*scale;   // espaçamento entre os riscos
+
+        // outro pino do resistor
+        const otherPin = part.pins[1 - idx];
+        const otherX = part.origin.x + otherPin.x;
+        const otherY = part.origin.y + otherPin.y;
+        const otherP = scaleCoord(otherX, otherY);
+
+        // vetor do pino GND -> outro pino (invertido para fora)
+        let dx = otherP.x - p.x;
+        let dy = otherP.y - p.y;
+        const len = Math.sqrt(dx*dx + dy*dy);
+        const ux = dx/len;
+        const uy = dy/len;
+
+        // ponto inicial do GND (para fora do resistor)
+        const gndX = p.x - ux*tickLength;
+        const gndY = p.y - uy*tickLength;
+
+        // vetor perpendicular unitário (para os riscos)
+        const perpX = -uy;
+        const perpY = ux;
+
+        // desenha 3 riscos, do maior para o menor, afastando perpendicularmente
+        const sizes = [base, base*0.66, base*0.33];
+        sizes.forEach((s, i) => {
+            // deslocamento ao longo do vetor do resistor, para fora
+            const offset = i * spacing;
+            const startX = gndX - perpX * (s/2) - ux * offset;
+            const startY = gndY - perpY * (s/2) - uy * offset;
+            const endX = gndX + perpX * (s/2) - ux * offset;
+            const endY = gndY + perpY * (s/2) - uy * offset;
+
+            pdf.line(startX, startY, endX, endY);
+        });
+
+        // linha conectando pino ao primeiro risco
+        pdf.line(p.x, p.y, gndX, gndY);
+    }
+});
+
+
+      drawComponentName(part, scaleCoord, pdf, scale);
+        return; // pula o desenho normal
+}
+
+
+
+if(firstLetter === "C" && part.pins.length === 2){
+    pdf.setDrawColor(0,0,0);
+    pdf.setLineWidth(0.5*scale);
+
+    const x1 = part.origin.x + part.pins[0].x;
+    const y1 = part.origin.y + part.pins[0].y;
+    const x2 = part.origin.x + part.pins[1].x;
+    const y2 = part.origin.y + part.pins[1].y;
+
+    const p1 = scaleCoord(x1, y1);
+    const p2 = scaleCoord(x2, y2);
+
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const length = Math.sqrt(dx*dx + dy*dy);
+    const ux = dx / length;
+    const uy = dy / length;
+
+    // perpendicular
+    const perpX = -uy;
+    const perpY = ux;
+
+    const plateHeight = 12*scale; // altura dos traços
+    const offset = 10*scale;      // distância dos traços do pino
+
+    // Posições dos traços verticais
+    const t1x = p1.x + ux*offset;
+    const t1y = p1.y + uy*offset;
+    const t2x = p2.x - ux*offset;
+    const t2y = p2.y - uy*offset;
+
+    // linha do pino1 até traço vertical
+    pdf.line(p1.x, p1.y, t1x, t1y);
+
+    // traços verticais (perpendiculares à linha entre os pinos)
+    pdf.line(t1x - perpX*plateHeight/2, t1y - perpY*plateHeight/2, t1x + perpX*plateHeight/2, t1y + perpY*plateHeight/2);
+    pdf.line(t2x - perpX*plateHeight/2, t2y - perpY*plateHeight/2, t2x + perpX*plateHeight/2, t2y + perpY*plateHeight/2);
+
+    // linha horizontal conectando os dois traços
+    pdf.line(t1x, t1y, t2x, t2y);
+
+    // linha do traço vertical até pino2
+    pdf.line(t2x, t2y, p2.x, p2.y);
+
+    // bolinhas nos pinos
+    pdf.circle(p1.x, p1.y, 0.8*scale,'FD');
+    pdf.circle(p2.x, p2.y, 0.8*scale,'FD');
+
+    // 🔹 Desenha ícone de GND (3 riscos) nos pinos que têm net "GND"
+part.pins.forEach((pin, idx) => {
+    if(pin.net && pin.net.toUpperCase() === "GND") {
+        const px = part.origin.x + pin.x;
+        const py = part.origin.y + pin.y;
+        const p = scaleCoord(px, py);
+
+        const tickLength = 5*scale; // comprimento do traço de conexão
+        const base = 4*scale;        // comprimento do maior risco
+        const spacing = 1.5*scale;   // espaçamento entre os riscos
+
+        // outro pino do resistor
+        const otherPin = part.pins[1 - idx];
+        const otherX = part.origin.x + otherPin.x;
+        const otherY = part.origin.y + otherPin.y;
+        const otherP = scaleCoord(otherX, otherY);
+
+        // vetor do pino GND -> outro pino (invertido para fora)
+        let dx = otherP.x - p.x;
+        let dy = otherP.y - p.y;
+        const len = Math.sqrt(dx*dx + dy*dy);
+        const ux = dx/len;
+        const uy = dy/len;
+
+        // ponto inicial do GND (para fora do resistor)
+        const gndX = p.x - ux*tickLength;
+        const gndY = p.y - uy*tickLength;
+
+        // vetor perpendicular unitário (para os riscos)
+        const perpX = -uy;
+        const perpY = ux;
+
+        // desenha 3 riscos, do maior para o menor, afastando perpendicularmente
+        const sizes = [base, base*0.66, base*0.33];
+        sizes.forEach((s, i) => {
+            // deslocamento ao longo do vetor do resistor, para fora
+            const offset = i * spacing;
+            const startX = gndX - perpX * (s/2) - ux * offset;
+            const startY = gndY - perpY * (s/2) - uy * offset;
+            const endX = gndX + perpX * (s/2) - ux * offset;
+            const endY = gndY + perpY * (s/2) - uy * offset;
+
+            pdf.line(startX, startY, endX, endY);
+        });
+
+        // linha conectando pino ao primeiro risco
+        pdf.line(p.x, p.y, gndX, gndY);
+    }
+});
+
+
+      drawComponentName(part, scaleCoord, pdf, scale);
+        return; // pula o desenho normal
+}
+
+if (["NN","N"].some(prefix => nameUpper.startsWith(prefix)) && part.pins.length === 2) {
+    pdf.setDrawColor(0,0,0);
+    pdf.setLineWidth(0.5*scale);
+
+    const x1 = part.origin.x + part.pins[0].x;
+    const y1 = part.origin.y + part.pins[0].y;
+    const x2 = part.origin.x + part.pins[1].x;
+    const y2 = part.origin.y + part.pins[1].y;
+
+    const p1 = scaleCoord(x1, y1);
+    const p2 = scaleCoord(x2, y2);
+
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const length = Math.sqrt(dx*dx + dy*dy);
+    const ux = dx / length;
+    const uy = dy / length;
+
+    // perpendicular
+    const perpX = -uy;
+    const perpY = ux;
+
+    const plateHeight = 12*scale; // altura dos traços
+    const offset = 10*scale;      // distância dos traços do pino
+
+    // Posições dos traços verticais
+    const t1x = p1.x + ux*offset;
+    const t1y = p1.y + uy*offset;
+    const t2x = p2.x - ux*offset;
+    const t2y = p2.y - uy*offset;
+
+    // linha do pino1 até traço vertical
+    pdf.line(p1.x, p1.y, t1x, t1y);
+
+    // traços verticais (perpendiculares à linha entre os pinos)
+    pdf.line(t1x - perpX*plateHeight/2, t1y - perpY*plateHeight/2, t1x + perpX*plateHeight/2, t1y + perpY*plateHeight/2);
+    pdf.line(t2x - perpX*plateHeight/2, t2y - perpY*plateHeight/2, t2x + perpX*plateHeight/2, t2y + perpY*plateHeight/2);
+
+    // linha horizontal conectando os dois traços
+    pdf.line(t1x, t1y, t2x, t2y);
+
+    // linha do traço vertical até pino2
+    pdf.line(t2x, t2y, p2.x, p2.y);
+
+    // bolinhas nos pinos
+    pdf.circle(p1.x, p1.y, 0.8*scale,'FD');
+    pdf.circle(p2.x, p2.y, 0.8*scale,'FD');
+
+    // 🔹 Desenha ícone de GND (3 riscos) nos pinos que têm net "GND"
+part.pins.forEach((pin, idx) => {
+    if(pin.net && pin.net.toUpperCase() === "GND") {
+        const px = part.origin.x + pin.x;
+        const py = part.origin.y + pin.y;
+        const p = scaleCoord(px, py);
+
+        const tickLength = 5*scale; // comprimento do traço de conexão
+        const base = 4*scale;        // comprimento do maior risco
+        const spacing = 1.5*scale;   // espaçamento entre os riscos
+
+        // outro pino do resistor
+        const otherPin = part.pins[1 - idx];
+        const otherX = part.origin.x + otherPin.x;
+        const otherY = part.origin.y + otherPin.y;
+        const otherP = scaleCoord(otherX, otherY);
+
+        // vetor do pino GND -> outro pino (invertido para fora)
+        let dx = otherP.x - p.x;
+        let dy = otherP.y - p.y;
+        const len = Math.sqrt(dx*dx + dy*dy);
+        const ux = dx/len;
+        const uy = dy/len;
+
+        // ponto inicial do GND (para fora do resistor)
+        const gndX = p.x - ux*tickLength;
+        const gndY = p.y - uy*tickLength;
+
+        // vetor perpendicular unitário (para os riscos)
+        const perpX = -uy;
+        const perpY = ux;
+
+        // desenha 3 riscos, do maior para o menor, afastando perpendicularmente
+        const sizes = [base, base*0.66, base*0.33];
+        sizes.forEach((s, i) => {
+            // deslocamento ao longo do vetor do resistor, para fora
+            const offset = i * spacing;
+            const startX = gndX - perpX * (s/2) - ux * offset;
+            const startY = gndY - perpY * (s/2) - uy * offset;
+            const endX = gndX + perpX * (s/2) - ux * offset;
+            const endY = gndY + perpY * (s/2) - uy * offset;
+
+            pdf.line(startX, startY, endX, endY);
+        });
+
+        // linha conectando pino ao primeiro risco
+        pdf.line(p.x, p.y, gndX, gndY);
+    }
+});
+
+
+     drawComponentName(part, scaleCoord, pdf, scale);
+        return; // pula o desenho normal
+}
+
+
+
+
+
+
+// --- COMPONENTES DE 3 A 13 PINOS ---
+if (part.pins.length >= 3 && part.pins.length < 13) {
+    pdf.setDrawColor(0,0,0);
+    pdf.setLineWidth(0.5 * scale);
+
+    // 1. Calcula bounding box dos pinos
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    const pinCoords = [];
+    part.pins.forEach(pin => {
+        const px = part.origin.x + pin.x;
+        const py = part.origin.y + pin.y;
+        pinCoords.push({x:px,y:py});
+        minX = Math.min(minX, px);
+        minY = Math.min(minY, py);
+        maxX = Math.max(maxX, px);
+        maxY = Math.max(maxY, py);
+    });
+
+    // Centro e dimensões
+    const centerX = (minX + maxX)/2;
+    const centerY = (minY + maxY)/2;
+    const fullWidth = maxX - minX;
+    const fullHeight = maxY - minY;
+
+    // --- Desenha corpo retangular ---
+    const bodyWidth = fullWidth * 0.7;
+    const bodyHeight = fullHeight * 1.2;
+    const left   = centerX - bodyWidth/2;
+    const right  = centerX + bodyWidth/2;
+    const top    = centerY - bodyHeight/2;
+    const bottom = centerY + bodyHeight/2;
+
+    const tl = scaleCoord(left, top);
+    const tr = scaleCoord(right, top);
+    const br = scaleCoord(right, bottom);
+    const bl = scaleCoord(left, bottom);
+
+    pdf.line(tl.x, tl.y, tr.x, tr.y);
+    pdf.line(tr.x, tr.y, br.x, br.y);
+    pdf.line(br.x, br.y, bl.x, bl.y);
+    pdf.line(bl.x, bl.y, tl.x, tl.y);
+
+    // --- Triângulo menor central apenas para 3 pinos ---
+    if(part.pins.length===3){
+        const triPts = pinCoords.map(p=>({x:p.x, y:p.y})); // pontos do triângulo
+        const triScaled = triPts.map(p => scaleCoord(p.x,p.y));
+
+        // triangulo menor centrado (ajustado para não substituir linhas)
+        const triCenter = scaleCoord(centerX, centerY);
+        const shrink = 0.3; // escala do triângulo
+        const triSmall = triScaled.map(p=>{
+            return {
+                x: triCenter.x + (p.x - triCenter.x)*shrink,
+                y: triCenter.y + (p.y - triCenter.y)*shrink
+            };
+        });
+
+        pdf.line(triSmall[0].x, triSmall[0].y, triSmall[1].x, triSmall[1].y);
+        pdf.line(triSmall[1].x, triSmall[1].y, triSmall[2].x, triSmall[2].y);
+        pdf.line(triSmall[2].x, triSmall[2].y, triSmall[0].x, triSmall[0].y);
+
+        // círculo central
+        pdf.circle(triCenter.x, triCenter.y, 10.5*scale,'D');
+    }
+
+    // --- Linhas dos pinos e GND ---
+    part.pins.forEach((pin,index)=>{
+        const px = part.origin.x + pin.x;
+        const py = part.origin.y + pin.y;
+        const pinP = scaleCoord(px, py);
+
+        let bodyP = null;
+        if(part.pins.length!==3){
+            // Retângulo: calcula ponto do corpo
+            const distLeft   = px - left;
+            const distRight  = right - px;
+            const distTop    = py - top;
+            const distBottom = bottom - py;
+            const minDist = Math.min(distLeft, distRight, distTop, distBottom);
+
+            if(minDist===distLeft){bodyP = scaleCoord(left, py);}
+            else if(minDist===distRight){bodyP = scaleCoord(right, py);}
+            else if(minDist===distTop){bodyP = scaleCoord(px, top);}
+            else{bodyP = scaleCoord(px, bottom);}
+        } else {
+            // Para 3 pinos, conecta ao triângulo central menor
+            const triCenter = scaleCoord(centerX, centerY);
+            const shrink = 0.3;
+            bodyP = {
+                x: triCenter.x + (pinP.x - triCenter.x)*shrink,
+                y: triCenter.y + (pinP.y - triCenter.y)*shrink
+            };
+        }
+
+        // Linhas em L ou diagonal para o triângulo central
+        pdf.line(bodyP.x, bodyP.y, pinP.x, pinP.y);
+
+        // Bolinha no pino
+        pdf.circle(pinP.x, pinP.y, 0.0*scale,'FD');
+
+        // 🔹 Desenha ícone de GND se o pino for GND
+        if(pin.net && pin.net.toUpperCase() === "GND") {
+            const tickLength = 5*scale;
+            const base = 4*scale;
+            const spacing = 1.5*scale;
+
+            // vetor do pino -> corpo (para projetar para fora)
+            const dx = bodyP.x - pinP.x;
+            const dy = bodyP.y - pinP.y;
+            const len = Math.sqrt(dx*dx + dy*dy);
+            const ux = dx/len;
+            const uy = dy/len;
+
+            // ponto inicial do GND (fora do corpo)
+            const gndX = pinP.x - ux*tickLength;
+            const gndY = pinP.y - uy*tickLength;
+
+            // vetor perpendicular unitário (para os riscos)
+            const perpX = -uy;
+            const perpY = ux;
+
+            // desenha 3 riscos do maior para o menor
+            const sizes = [base, base*0.66, base*0.33];
+            sizes.forEach((s, i) => {
+                const offset = i * spacing;
+                const startX = gndX - perpX * (s/2) - ux * offset;
+                const startY = gndY - perpY * (s/2) - uy * offset;
+                const endX = gndX + perpX * (s/2) - ux * offset;
+                const endY = gndY + perpY * (s/2) - uy * offset;
+                pdf.line(startX, startY, endX, endY);
+            });
+
+            // linha conectando pino ao primeiro risco
+            pdf.line(pinP.x, pinP.y, gndX, gndY);
+        }
+
+        // nome do pino
+        const pinName = pin.name || `P${index+1}`;
+        pdf.setFontSize(4.5 * scale);
+        pdf.setTextColor(55,55,255);
+        const offsetX = (pinP.x - bodyP.x) * 0.25 + 1;
+        const offsetY = (pinP.y - bodyP.y) * 0.25 + 1;
+        pdf.text(pinName, pinP.x + offsetX, pinP.y + offsetY, {align:"left", baseline:"middle"});
+    });
+
+    // 4. nome do componente no centro do corpo
+    const c = scaleCoord(centerX, centerY);
+    pdf.setFontSize(6.5 * scale);
+    pdf.setTextColor(0,0,0);
+    pdf.text(part.name || "", c.x, c.y, {align:"center", baseline:"middle"});
+
+    return; // não desenha outline normal
+}
+
+
+
+
+
+
+// --- COMPONENTES J (FPC) ---
+if (part.pins.length >= 3 && part.pins.length < 1399 && 
+    (part.name.startsWith("J") || part.name.startsWith("CON"))) {
+    pdf.setDrawColor(0,0,0);
+    pdf.setLineWidth(0.5 * scale);
+
+    // 1. Calcula bounding box dos pinos
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    const pinCoords = [];
+    part.pins.forEach(pin => {
+        const px = part.origin.x + pin.x;
+        const py = part.origin.y + pin.y;
+        pinCoords.push({x:px, y:py});
+        minX = Math.min(minX, px);
+        minY = Math.min(minY, py);
+        maxX = Math.max(maxX, px);
+        maxY = Math.max(maxY, py);
+    });
+
+    // Centro e dimensões
+    const centerX = (minX + maxX)/2;
+    const centerY = (minY + maxY)/2;
+
+    // --- Quadrado central sem shrink ---
+    const shrink = 1.0; // agora quadrado = bounding box
+    const bodyLeft = centerX - (maxX-minX)/2*shrink;
+    const bodyRight = centerX + (maxX-minX)/2*shrink;
+    const bodyTop = centerY - (maxY-minY)/2*shrink;
+    const bodyBottom = centerY + (maxY-minY)/2*shrink;
+
+    const tl = scaleCoord(bodyLeft, bodyTop);
+    const tr = scaleCoord(bodyRight, bodyTop);
+    const br = scaleCoord(bodyRight, bodyBottom);
+    const bl = scaleCoord(bodyLeft, bodyBottom);
+
+    pdf.line(tl.x, tl.y, tr.x, tr.y);
+    pdf.line(tr.x, tr.y, br.x, br.y);
+    pdf.line(br.x, br.y, bl.x, bl.y);
+    pdf.line(bl.x, bl.y, tl.x, tl.y);
+
+    // --- Linhas dos pinos (riscos) e GND ---
+    part.pins.forEach((pin,index)=>{
+        const px = part.origin.x + pin.x;
+        const py = part.origin.y + pin.y;
+        const pinP = scaleCoord(px, py);
+
+        // --- Determina borda mais próxima do quadrado ---
+       let bodyP = {x:centerX, y:centerY};
+
+// distância extra para fora
+const out = 25 * scale; // ajuste este valor p/ aumentar o quanto sai
+
+const distances = [
+    {side:'top',    absDist: Math.abs(bodyTop - py)},
+    {side:'bottom', absDist: Math.abs(bodyBottom - py)},
+    {side:'left',   absDist: Math.abs(bodyLeft - px)},
+    {side:'right',  absDist: Math.abs(bodyRight - px)}
+];
+
+const nearest = distances.reduce((prev,curr)=> curr.absDist < prev.absDist ? curr : prev, distances[0]);
+
+switch(nearest.side){
+    case 'top':
+        bodyP.x = Math.min(Math.max(px, bodyLeft), bodyRight);
+        bodyP.y = bodyTop - out; // agora para fora
+        break;
+    case 'bottom':
+        bodyP.x = Math.min(Math.max(px, bodyLeft), bodyRight);
+        bodyP.y = bodyBottom + out;
+        break;
+    case 'left':
+        bodyP.x = bodyLeft - out;
+        bodyP.y = Math.min(Math.max(py, bodyTop), bodyBottom);
+        break;
+    case 'right':
+        bodyP.x = bodyRight + out;
+        bodyP.y = Math.min(Math.max(py, bodyTop), bodyBottom);
+        break;
+}
+
+const bodyScaled = scaleCoord(bodyP.x, bodyP.y);
+
+// Linha do corpo até o pino (riscos saindo para fora)
+if(bodyScaled && pinP && !isNaN(bodyScaled.x) && !isNaN(bodyScaled.y) && !isNaN(pinP.x) && !isNaN(pinP.y)){
+    pdf.line(pinP.x, pinP.y, bodyScaled.x, bodyScaled.y);
+}
+
+        // 🔹 GND (mantém igual)
+        if(pin.net && pin.net.toUpperCase() === "GND") {
+            const tickLength = 5*scale;
+            const base = 4*scale;
+            const spacing = 1.5*scale;
+
+                  // vetor para fora do corpo
+// vetor para fora do corpo (invertido)
+let dx = pinP.x - bodyScaled.x;
+let dy = pinP.y - bodyScaled.y;
+
+let len = Math.sqrt(dx*dx + dy*dy);
+if(len>0){
+    const ux = dx/len;
+    const uy = dy/len;
+    // mais para fora do ponto externo
+    const gndX = bodyScaled.x + ux*tickLength;
+    const gndY = bodyScaled.y + uy*tickLength;
+    pdf.line(bodyScaled.x,bodyScaled.y,gndX,gndY);
+
+
+                const perpX = -uy;
+                const perpY = ux;
+
+                const sizes = [base, base*0.66, base*0.33];
+                sizes.forEach((s,i)=>{
+                    const offset = i*spacing;
+                    const startX = gndX - perpX*(s/2) - ux*offset;
+                    const startY = gndY - perpY*(s/2) - uy*offset;
+                    const endX   = gndX + perpX*(s/2) - ux*offset;
+                    const endY   = gndY + perpY*(s/2) - uy*offset;
+                    if([startX,startY,endX,endY].every(v=>!isNaN(v))){
+                        pdf.line(startX,startY,endX,endY);
+                    }
+                });
+                if(!isNaN(gndX) && !isNaN(gndY)){
+                    pdf.line(pinP.x,pinP.y,gndX,gndY);
+                }
+            }
+        }
+
+        // Nome do pino
+        const pinName = pin.name || `P${index+1}`;
+        pdf.setFontSize(4.5 * scale);
+        pdf.setTextColor(55,55,255);
+       const offsetX = (bodyScaled.x - pinP.x)*0.1; // pequeno ajuste
+const offsetY = (bodyScaled.y - pinP.y)*0.1;
+pdf.text(pinName, bodyScaled.x + offsetX, bodyScaled.y + offsetY,
+  {align:"left", baseline:"middle"});
+
+    });
+
+    // --- Nome do componente no centro ---
+    const c = scaleCoord(centerX, centerY);
+    pdf.setFontSize(20.5*scale);
+    pdf.setTextColor(0,0,0);
+    pdf.text(part.name || "", c.x, c.y, {align:"center", baseline:"middle"});
+
+    return;
+}
+
+
+
+
+
+
+    // --- Desenho do componente ---
+if (part.outline && part.outline.length >= 2) {
+    pdf.setDrawColor(0,0,0);
+    pdf.setLineWidth(0.5 * scale);
+    for (let i = 0; i < part.outline.length; i += 2) {
+        const x1 = part.origin.x + part.outline[i];
+        const y1 = part.origin.y + part.outline[i+1];
+        const j = (i+2 < part.outline.length) ? i+2 : 0;
+        const k = (i+3 < part.outline.length) ? i+3 : 1;
+        const x2 = part.origin.x + part.outline[j];
+        const y2 = part.origin.y + part.outline[k];
+        const p1 = scaleCoord(x1, y1);
+        const p2 = scaleCoord(x2, y2);
+        pdf.line(p1.x, p1.y, p2.x, p2.y);
+    }
+}
+
+// --- Desenho dos pinos ---
+part.pins.forEach(pin => {
+    let fill = [255,255,255], stroke = [0,0,0];
+
+    if ((pin.net||"").toUpperCase().includes("GND")) fill = [180,180,180], stroke = [80,80,80];
+    else if ((pin.net||"").toUpperCase().includes("NC")) fill = [150,150,255], stroke = [0,0,0];
+
+    const isSelected = selectedNets.some(sel => (pin.net||"").toUpperCase() === sel.net.toUpperCase());
+    if (isSelected) fill = [255,255,255];
+
+    pdf.setFillColor(...fill);
+    pdf.setDrawColor(...stroke);
+    pdf.setLineWidth(0.5 * scale);
+
+    let center;
+    if (pin.outlineRelative && pin.outlineRelative.length >= 4) {
+        const points = [];
+        for (let i=0; i<pin.outlineRelative.length; i+=2) {
+            const px = part.origin.x + pin.x + pin.outlineRelative[i];
+            const py = part.origin.y + pin.y + pin.outlineRelative[i+1];
+            points.push(scaleCoord(px, py));
+        }
+        pdf.lines(points.map((p,i)=>[points[(i+1)%points.length].x - p.x, points[(i+1)%points.length].y - p.y]), points[0].x, points[0].y, [1,1], 'FD');
+        const sumX = points.reduce((a,p)=>a+p.x,0)/points.length;
+        const sumY = points.reduce((a,p)=>a+p.y,0)/points.length;
+        center = {x:sumX, y:sumY};
+    } else {
+        center = scaleCoord(part.origin.x + pin.x, part.origin.y + pin.y);
+        pdf.circle(center.x, center.y, (pin.radius||2)*scale, 'FD');
+    }
+
+    // --- Nome do pino acima do pino ---
+    if (pin.name) {
+        pdf.setFontSize(6 * scale);
+        pdf.setTextColor(55,55,255);
+        const offsetY = 4 * scale;
+        pdf.text(pin.name, center.x, center.y - offsetY, {
+            align: "center",
+            baseline: "bottom"
+        });
+    }
+});
+
+// --- Nome do componente (agora vem por cima de tudo) ---
+if (part.name) {
+    let textX, textY;
+
+    if (part.outline && part.outline.length >= 4) {
+        // Com outline → calcula bounding box
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        for (let i=0; i<part.outline.length; i+=2) {
+            const px = part.origin.x + part.outline[i];
+            const py = part.origin.y + part.outline[i+1];
+            if (px < minX) minX = px;
+            if (py < minY) minY = py;
+            if (px > maxX) maxX = px;
+            if (py > maxY) maxY = py;
+        }
+
+        const width = maxX - minX;
+        const height = maxY - minY;
+        textX = (minX + maxX)/2;
+        textY = (minY + maxY)/2;
+
+        const offset = 5;
+        if (width < height) {
+            textX = maxX + offset;
+            textY = (minY + maxY)/2;
+        } else {
+            textX = (minX + maxX)/2;
+            textY = maxY + offset;
+        }
+    } else if (part.pins && part.pins.length > 0) {
+        // Sem outline → pega posição do primeiro pino
+        textX = part.origin.x + part.pins[0].x;
+        textY = part.origin.y + part.pins[0].y - 5 * scale; // sobe acima do pino
+    } else {
+        // fallback
+        textX = part.origin.x;
+        textY = part.origin.y;
+    }
+
+    const pos = scaleCoord(textX, textY);
+
+    // 🔹 Ajusta tamanho da fonte dependendo do número de pinos
+    let fontSize = 20 * scale;
+    if (part.pins && part.pins.length === 1) {
+        fontSize = 8 * scale; // menor para 1 pino
+    }
+
+    pdf.setFontSize(fontSize);
+    pdf.setTextColor(55,55,255);
+    pdf.text(part.name, pos.x, pos.y, {align:"center", baseline:"middle"});
+}
+
+           
+ 
+});
+
+
+
+
+
+    // ======================= FUNÇÕES BASE =======================
+
+// Função para verificar se a linha entre p0 e p1 cruza algum componente
+function intersectsComponent(p0, p1, partsArray) {
+    for (const part of partsArray) {
+        const left = part.left, right = part.right;
+        const top = part.top, bottom = part.bottom;
+
+        // Checa cruzamento com o retângulo do componente (simples)
+        if (Math.min(p0.x,p1.x) < right && Math.max(p0.x,p1.x) > left &&
+            Math.min(p0.y,p1.y) < bottom && Math.max(p0.y,p1.y) > top) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// --- Array com bordas dos componentes ---
+const partsArray = parts.map(part => ({
+    left: part.left,
+    right: part.right,
+    top: part.top,
+    bottom: part.bottom
+}));
+
+// Array para guardar posições de textos já desenhados
+const drawnTextPositions = [];
+const minDist = 80*scale; // distância mínima entre textos
+
+// Função para criar rota em L sem passar pelos componentes
+// Função para criar rota sem diagonais, só faz L se precisar
+function routeLine(p0, p1, partsArray) {
+    // Primeiro tenta linha reta horizontal
+    let straightHorizontal = { start: p0, end: { x: p1.x, y: p0.y } };
+    if (!intersectsComponent(p0, p1, partsArray) &&
+        (p0.x === p1.x || p0.y === p1.y)) {
+        // já é reta (horizontal ou vertical)
+        return [p0, p1];
+    }
+
+    // Se não for reta, tenta L
+    let mid;
+    if (Math.abs(p1.x - p0.x) > Math.abs(p1.y - p0.y)) {
+        mid = { x: p1.x, y: p0.y }; // horizontal primeiro
+    } else {
+        mid = { x: p0.x, y: p1.y }; // vertical primeiro
+    }
+
+    if (intersectsComponent(p0, mid, partsArray) || intersectsComponent(mid, p1, partsArray)) {
+        // tenta a outra ordem (caso o primeiro mid cruze componente)
+        mid = { x: mid.x === p1.x ? p0.x : p1.x, y: mid.y === p0.y ? p1.y : p0.y };
+    }
+
+    return [p0, mid, p1];
+}
+
+// Função para gerar cor escura aleatória
+function randomDarkColor() {
+    return [
+        Math.floor(Math.random() * 125) + 55, // 55 a 180
+        Math.floor(Math.random() * 125) + 55,
+        Math.floor(Math.random() * 125) + 55
+    ];
+}
+
+// Array para cores de cada net (para painel)
+const netColors = {};
+
+
+// ======================= NOVAS FUNÇÕES PARA EVITAR SOBREPOSIÇÃO (SEM DIAGONAIS) =======================
+
+// registro global dos segmentos já desenhados (por X ou Y)
+const drawnSegments = []; // { isVertical, keyCoord, rangeStart, rangeEnd, count }
+
+// Registra o segmento e retorna offset apropriado (dx para vertical, dy para horizontal)
+function registerAndGetOffset(start, end, isVertical) {
+    const tol = 1 * scale;
+    const keyCoord = isVertical ? start.x : start.y;
+    const rangeStart = isVertical ? Math.min(start.y, end.y) : Math.min(start.x, end.x);
+    const rangeEnd = isVertical ? Math.max(start.y, end.y) : Math.max(start.x, end.x);
+    const offsetStep = 10 * scale; // 10px (ajuste se quiser)
+
+    // procura entry existente (mesmo X/Y dentro de tol e com overlap no intervalo)
+    for (const entry of drawnSegments) {
+        if (entry.isVertical !== isVertical) continue;
+        if (Math.abs(entry.keyCoord - keyCoord) > tol) continue;
+        if (rangeEnd < entry.rangeStart - tol || rangeStart > entry.rangeEnd + tol) continue;
+
+        // entry encontrada: ocorrência será entry.count+1
+        const occurrence = entry.count + 1;
+        // mapear ocorrência => offset (0, +1, -1, +2, -2, ...)
+        const mag = Math.ceil((occurrence - 1) / 2);
+        const sign = (occurrence % 2 === 0) ? 1 : -1; // 2->+, 3->-, 4->+, ...
+        const offsetVal = (occurrence === 1) ? 0 : sign * mag * offsetStep;
+
+        // atualiza limites e contador
+        entry.rangeStart = Math.min(entry.rangeStart, rangeStart);
+        entry.rangeEnd = Math.max(entry.rangeEnd, rangeEnd);
+        entry.count = occurrence;
+
+        return isVertical ? { dx: offsetVal, dy: 0, entry } : { dx: 0, dy: offsetVal, entry };
+    }
+
+    // não existe: cria nova entry (primeira ocorrência => offset 0)
+    const newEntry = { isVertical, keyCoord, rangeStart, rangeEnd, count: 1 };
+    drawnSegments.push(newEntry);
+    return { dx: 0, dy: 0, entry: newEntry };
+}
+
+// calcula offsets para todos os segmentos de uma rota (route = array de pontos)
+function computeOffsetsForRoute(route) {
+    const offsets = [];
+    for (let j = 1; j < route.length; j++) {
+        const s0 = route[j - 1], s1 = route[j];
+        const isVertical = Math.abs(s0.x - s1.x) < Math.abs(s0.y - s1.y);
+        const off = registerAndGetOffset(s0, s1, isVertical);
+        offsets.push({
+            isVertical,
+            dx: off.dx || 0,
+            dy: off.dy || 0,
+            start: { x: s0.x, y: s0.y },
+            end: { x: s1.x, y: s1.y }
+        });
+    }
+    return offsets;
+}
+
+/*
+ Desenha rota garantindo:
+ - segmentos permanecem estritamente horizontais ou verticais (sem diagonais)
+ - cantos ficam conectados (compute junctions)
+ - conectores em L (horizontal+vertical) ligam pinos reais às linhas deslocadas
+*/
+function drawRouteWithOffsets(route, offsets, pinStart, pinEnd) {
+    const segCount = offsets.length;
+    if (segCount === 0) return;
+
+    // Se as linhas estão ocultas, não desenha rotas no PDF
+    if (typeof hideNetLines !== 'undefined' && hideNetLines) return;
+
+    // --- Calcula junctions entre segmentos ---
+    const junctions = [];
+    for (let i = 0; i < segCount - 1; i++) {
+        const a = offsets[i], b = offsets[i + 1];
+        const verticalSeg = a.isVertical ? a : b;
+        const horizontalSeg = a.isVertical ? b : a;
+        const verticalX = verticalSeg.start.x + verticalSeg.dx;
+        const horizontalY = horizontalSeg.start.y + horizontalSeg.dy;
+        junctions.push({ x: verticalX, y: horizontalY });
+    }
+
+    // --- Conector do pinStart ---
+    const firstSeg = offsets[0];
+    const firstStart = route[0];
+    if (pinStart) {
+        if (firstSeg.isVertical) {
+            pdf.line(pinStart.x, pinStart.y, firstStart.x + firstSeg.dx, pinStart.y);
+            pdf.line(firstStart.x + firstSeg.dx, pinStart.y, firstStart.x + firstSeg.dx, firstStart.y);
+        } else {
+            pdf.line(pinStart.x, pinStart.y, pinStart.x, firstStart.y + firstSeg.dy);
+            pdf.line(pinStart.x, firstStart.y + firstSeg.dy, firstStart.x, firstStart.y + firstSeg.dy);
+        }
+    }
+
+    // --- Desenha todos os segmentos ---
+    for (let i = 0; i < segCount; i++) {
+        const seg = offsets[i];
+        let start, end;
+        if (i === 0) start = firstStart; 
+        else start = junctions[i - 1];
+
+        if (i === segCount - 1) end = route[route.length - 1];
+        else end = junctions[i];
+
+        if (seg.isVertical) {
+            const x = seg.start.x + seg.dx;
+            pdf.line(x, start.y, x, end.y);
+        } else {
+            const y = seg.start.y + seg.dy;
+            pdf.line(start.x, y, end.x, y);
+        }
+    }
+
+    // --- Conector do pinEnd ---
+    const lastSeg = offsets[segCount - 1];
+    const lastEnd = route[route.length - 1];
+    if (pinEnd) {
+        if (lastSeg.isVertical) {
+            const x = lastSeg.start.x + lastSeg.dx;
+            pdf.line(pinEnd.x, pinEnd.y, x, pinEnd.y);
+            pdf.line(x, pinEnd.y, x, lastEnd.y);
+        } else {
+            const y = lastSeg.start.y + lastSeg.dy;
+            pdf.line(pinEnd.x, pinEnd.y, pinEnd.x, y);
+            pdf.line(pinEnd.x, y, lastEnd.x, y);
+        }
+    }
+
+    // --- Bolinhas nos pinos ---
+    if (pinStart) pdf.circle(pinStart.x, pinStart.y, 1.5 * scale, 'FD');
+    if (pinEnd) pdf.circle(pinEnd.x, pinEnd.y, 1.5 * scale, 'FD');
+}
+
+
+
+// ======================= DESENHO DAS NETS (USANDO A NOVA LÓGICA) =======================
+
+let netIndex = 0;
+
+for(const netName in netPinsMap){
+    const netPins = netPinsMap[netName];
+    if(netPins.length < 2) continue;
+
+    // Ordena pinos pelo mais próximo (sua heurística original)
+    const remaining = netPins.slice();
+    const path = [];
+    remaining.sort((a,b) => a.center.x**2 + a.center.y**2 - (b.center.x**2 + b.center.y**2));
+    let current = remaining.shift();
+    path.push(current);
+
+    while(remaining.length > 0){
+        let nearestIndex = 0, nearestDist = Infinity;
+        remaining.forEach((p,i)=>{
+            const dx = p.center.x - current.center.x;
+            const dy = p.center.y - current.center.y;
+            const dist = dx*dx + dy*dy;
+            if(dist < nearestDist){
+                nearestDist = dist;
+                nearestIndex = i;
+            }
+        });
+        current = remaining.splice(nearestIndex,1)[0];
+        path.push(current);
+    }
+
+    // Cor aleatória escura
+    const color = randomDarkColor();
+    netColors[netName] = color;
+
+    pdf.setLineWidth(1*scale);
+    pdf.setDrawColor(...color);
+    pdf.setFillColor(...color);
+
+    // Desenha linhas em L usando a nova lógica (cada par consecutivo de pinos)
+    for(let i=1;i<path.length;i++){
+        const p0 = path[i-1].center;
+        const p1 = path[i].center;
+        const route = routeLine(p0, p1, partsArray); // geralmente [p0, mid, p1]
+
+        // calcula offsets (registra sobreposição globalmente)
+        const offsets = computeOffsetsForRoute(route);
+
+        // desenha rota completa sem diagonais
+        drawRouteWithOffsets(route, offsets, {x: p0.x, y: p0.y}, {x: p1.x, y: p1.y});
+    }
+
+    // 🔹 Desenha o nome da net apenas se não tiver texto próximo
+    const lastPin = path[path.length-1].center;
+    const textOffsetX = 5*scale;
+    const textOffsetY = -5*scale;
+
+    let canDrawText = true;
+    for(const pos of drawnTextPositions){
+        const dx = (lastPin.x + textOffsetX) - pos.x;
+        const dy = (lastPin.y + textOffsetY) - pos.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < minDist){
+            canDrawText = false;
+            break;
+        }
+    }
+
+    if(canDrawText){
+        pdf.setTextColor(55,55,255);
+        pdf.setFontSize(8*scale);
+        pdf.text(netName, lastPin.x + textOffsetX, lastPin.y + textOffsetY);
+        drawnTextPositions.push({x: lastPin.x + textOffsetX, y: lastPin.y + textOffsetY});
+
+        // seta do texto
+        const arrowStart = {x: lastPin.x + textOffsetX - 1, y: lastPin.y + textOffsetY - 1};
+        const arrowEnd = {x: lastPin.x, y: lastPin.y};
+        const arrowSize = 2*scale;
+        const angle = Math.atan2(arrowEnd.y - arrowStart.y, arrowEnd.x - arrowStart.x);
+        const arrowLeft = {x: arrowEnd.x - arrowSize*Math.cos(angle - Math.PI/6), y: arrowEnd.y - arrowSize*Math.sin(angle - Math.PI/6)};
+        const arrowRight = {x: arrowEnd.x - arrowSize*Math.cos(angle + Math.PI/6), y: arrowEnd.y - arrowSize*Math.sin(angle + Math.PI/6)};
+        pdf.setLineWidth(0.5*scale);
+        pdf.setDrawColor(55,55,255);
+        pdf.line(arrowStart.x, arrowStart.y, arrowEnd.x, arrowEnd.y);
+        pdf.line(arrowEnd.x, arrowEnd.y, arrowLeft.x, arrowLeft.y);
+        pdf.line(arrowEnd.x, arrowEnd.y, arrowRight.x, arrowRight.y);
+    }
+
+    netIndex++;
+}
+
+
+
+
+// --- Painel com cores das nets (maior) ---
+pdf.setFontSize(21*scale); // 3x maior que antes
+const panelX = 10*scale;
+let panelY = 30*scale; // topo 3x mais distante
+
+for(const netName in netColors){
+    if(netName.toUpperCase().startsWith("NET")) continue; // ignora nomes que começam com "NET"
+
+    const color = netColors[netName];
+
+    // Desenha o fundo colorido com borda preta
+    pdf.setFillColor(...color);
+    pdf.setDrawColor(0,0,0); // borda preta
+    const textWidth = pdf.getTextWidth(netName) + 8*scale; // margem maior
+    const rectHeight = 24*scale; // 3x maior que antes
+    pdf.rect(panelX, panelY - 18*scale, textWidth, rectHeight, 'FD'); // F=fill, D=draw
+
+    // Escreve o nome em branco no centro do retângulo
+    pdf.setTextColor(255,255,255);
+    pdf.text(netName, panelX + 4*scale, panelY); 
+
+    panelY += rectHeight + 6*scale; // próximo item, com espaçamento maior
+}
+
+
+
+
+
+
+
+
+    pdf.save("nets_selecionadas.pdf");
+
+}); // fecha document.getElementById("confirmPdfInfo").addEventListener
+
+} 
+
+
+
+function drawComponentName(part, scaleCoord, pdf, scale){
+    if(!part.name || !part.outline || part.outline.length < 4) return;
+
+    // calcula bounding box da outline
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for(let i=0;i<part.outline.length;i+=2){
+        const px = part.origin.x + part.outline[i];
+        const py = part.origin.y + part.outline[i+1];
+        minX = Math.min(minX, px);
+        minY = Math.min(minY, py);
+        maxX = Math.max(maxX, px);
+        maxY = Math.max(maxY, py);
+    }
+
+    const centerX = (minX + maxX)/2;
+    const centerY = (minY + maxY)/2;
+
+    const offset = 4*scale;
+    let nameX = centerX + offset;
+    let nameY = centerY;
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+    if(width < height){ 
+        nameX = maxX + offset;
+        nameY = centerY;
+    } else {
+        nameX = centerX;
+        nameY = maxY + offset;
+    }
+
+    const pos = scaleCoord(nameX, nameY);
+    pdf.setFontSize(6.5*scale);
+    pdf.setTextColor(0,0,0);
+    pdf.text(part.name, pos.x, pos.y, {align:"center", baseline:"middle"});
+}
+
+
+// Botão para exportar net selecionada
+const btnExportarNet = document.createElement("button");
+btnExportarNet.textContent = "📐SCHEMATC";
+btnExportarNet.style.position = "fixed";
+btnExportarNet.style.top = "0px";
+btnExportarNet.style.left = "610px";
+btnExportarNet.style.padding = "10px 20px";
+btnExportarNet.style.backgroundColor = "#673AB7";
+btnExportarNet.style.color = "#fff";
+btnExportarNet.style.border = "none";
+btnExportarNet.style.borderRadius = "6px";
+btnExportarNet.style.cursor = "pointer";
+btnExportarNet.onclick = exportarNetSelecionadaPDF;
+document.body.appendChild(btnExportarNet);
 
 
 
