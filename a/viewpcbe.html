@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>PCBE-1</title>
+<title>PCBE</title>
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -2886,7 +2886,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const showVoltageBtn = document.getElementById('show-voltage-btn');
   const showDiodeBtn = document.getElementById('show-diode-btn');
   
-  if(loadJsonBtn) loadJsonBtn.addEventListener('click', () => localJsonInput.click());
+  
  
   if(centerContentBtn) centerContentBtn.addEventListener('click', centerContent);
   if(zoomInBtn) zoomInBtn.addEventListener('click', () => zoomFromCenter(1));
@@ -2904,10 +2904,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  localJsonInput.addEventListener('change', () => {
-    localJsonFile = localJsonInput.files && localJsonInput.files[0];
-    tryLoadLocalPair();
-  });
+
 
   localBundleInput.addEventListener('change', () => {
     const file = localBundleInput.files && localBundleInput.files[0];
