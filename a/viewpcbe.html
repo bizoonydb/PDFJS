@@ -2904,13 +2904,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-
-
-  localBundleInput.addEventListener('change', () => {
-    const file = localBundleInput.files && localBundleInput.files[0];
-    if(file) loadSingleFile(file);
-  });
-
  
   const params = new URLSearchParams(window.location.search);
   const fileUrl = params.get('file');
