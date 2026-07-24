@@ -1,0 +1,2937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PCBE</title>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*{
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+*::-webkit-scrollbar{display:none;width:0;height:0}
+
+html,body{
+  margin:0;padding:0;
+  width:100%;height:100%;overflow:hidden;
+  background-color:#050505;
+  background-image:
+    linear-gradient(rgba(255,214,10,0.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,214,10,0.06) 1px,transparent 1px);
+  background-size:40px 40px;
+  font-family:'Segoe UI',Roboto,sans-serif;
+}
+
+#topbar{
+  position:fixed;top:0;left:0;width:100%;
+  z-index:9999;
+  min-height:64px;
+  background:
+    linear-gradient(180deg,rgba(255,214,10,0.13),rgba(255,214,10,0.03)),
+    #060606;
+  border-bottom:1px solid rgba(255,214,10,0.42);
+  padding:10px 14px;
+  box-shadow:0 12px 36px rgba(0,0,0,0.62),0 1px 0 rgba(255,255,255,0.06) inset;
+  color:#ffe66d;
+  display:flex;align-items:center;justify-content:flex-start;gap:10px;
+  flex-wrap:wrap;
+  backdrop-filter:blur(10px);
+  overflow:hidden;
+  white-space:nowrap;
+}
+#topbar label{
+  display:flex;align-items:center;gap:8px;
+  font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;
+}
+#topbar input[type="checkbox"]{
+  width:18px;height:18px;accent-color:#ffd60a;cursor:pointer;
+}
+#topbar select, #topbar input[type="text"]{
+  height:40px;
+  padding:0 12px;font-size:13px;
+  border:1px solid rgba(255,214,10,0.34);
+  border-radius:8px;
+  background:#111;
+  color:#fff7b0;outline:none;
+  font-family:inherit;
+  box-shadow:0 1px 0 rgba(255,255,255,0.06) inset;
+}
+#topbar select option{background:#0b0b0b;color:#fff7b0}
+#topbar select:focus,#topbar input[type="text"]:focus{
+  border-color:#ffd60a;
+  box-shadow:0 0 0 3px rgba(255,214,10,0.2);
+}
+#search-input{width:168px;transition:border-color .2s,box-shadow .2s}
+#problemSelect{min-width:190px;max-width:260px}
+#pointSelect{min-width:170px;max-width:240px}
+.file-actions{display:flex;align-items:center;gap:8px;white-space:nowrap;margin-left:auto}
+.toolbar-button{
+  height:40px;
+  min-width:40px;
+  border:1px solid rgba(255,214,10,0.42);
+  border-radius:8px;
+  background:#141414;
+  color:#ffd60a;
+  font:600 13px 'Segoe UI',Roboto,sans-serif;
+  padding:0 12px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  box-shadow:0 1px 0 rgba(255,255,255,0.06) inset;
+  transition:background .18s,border-color .18s,color .18s,transform .18s;
+}
+.toolbar-button:hover{background:#ffd60a;border-color:#ffd60a;color:#050505}
+.toolbar-button.is-active{
+  background:#ffd60a;
+  border-color:#ffd60a;
+  color:#050505;
+}
+.toolbar-button:active{transform:translateY(1px)}
+.toolbar-button:disabled{opacity:.45;cursor:not-allowed}
+.toolbar-button svg,.icon-toggle svg{width:18px;height:18px;flex:0 0 auto;stroke:currentColor}
+.toolbar-button .voltage-icon .voltage-bolt{fill:#ffd60a;stroke:#ffd60a}
+.toolbar-button.is-active .voltage-icon .voltage-bolt{fill:#050505;stroke:#050505}
+.sr-file-input{display:none}
+.topbar-divider{
+  width:1px;height:32px;
+  background:rgba(255,214,10,0.28);
+  flex:0 0 auto;
+}
+.icon-toggle{
+  height:40px;
+  border:1px solid rgba(255,214,10,0.38);
+  border-radius:8px;
+  background:#101010;
+  color:#ffd60a;
+  padding:0 12px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font:700 13px 'Segoe UI',Roboto,sans-serif;
+  cursor:pointer;
+  user-select:none;
+  box-shadow:0 1px 0 rgba(255,255,255,0.06) inset;
+  transition:background .18s,border-color .18s,color .18s,transform .18s;
+}
+.icon-toggle input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.icon-toggle:hover{
+  border-color:#ffd60a;
+  background:#1c1c1c;
+}
+.icon-toggle:has(input:checked){
+  background:#ffd60a;
+  border-color:#ffd60a;
+  color:#050505;
+}
+.icon-toggle:active{transform:translateY(1px)}
+.select-group{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.select-caption{
+  width:32px;height:32px;
+  border:1px solid rgba(255,214,10,0.34);
+  border-radius:8px;
+  color:#ffd60a;
+  background:#101010;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.export-modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(0,0,0,0.58);
+  backdrop-filter:blur(3px);
+}
+.export-modal-backdrop[hidden]{display:none}
+.export-modal{
+  width:min(420px,100%);
+  border:1px solid rgba(255,214,10,0.36);
+  border-radius:8px;
+  background:#0b0b0b;
+  color:#fff7b0;
+  box-shadow:0 20px 60px rgba(0,0,0,0.48);
+  padding:18px;
+}
+.export-modal h2{
+  margin:0 0 12px;
+  font-size:18px;
+  font-weight:700;
+  line-height:1.25;
+}
+.export-name-row{
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+  border:1px solid rgba(255,214,10,0.34);
+  border-radius:6px;
+  background:#111;
+}
+.export-name-row:focus-within{
+  border-color:#ffd60a;
+  box-shadow:0 0 0 3px rgba(255,214,10,0.2);
+}
+#export-name-input{
+  min-width:0;
+  flex:1;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#fff7b0;
+  padding:10px 12px;
+  font:500 14px 'Segoe UI',Roboto,sans-serif;
+}
+.export-extension{
+  flex:0 0 auto;
+  align-self:stretch;
+  display:flex;
+  align-items:center;
+  border-left:1px solid rgba(255,214,10,0.26);
+  background:rgba(255,214,10,0.12);
+  color:#ffd60a;
+  padding:0 12px;
+  font:700 14px 'Segoe UI',Roboto,sans-serif;
+  user-select:none;
+}
+.export-modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:16px;
+}
+
+.fw-bold{font-weight:600;font-size:13px;white-space:nowrap}
+
+#svg-container{
+  width:100%;height:100%;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#component-info-bar{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:9998;
+  min-height:58px;
+  padding:8px 14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:rgba(7,7,7,0.96);
+  border-top:1px solid rgba(255,214,10,0.48);
+  box-shadow:0 -10px 28px rgba(0,0,0,0.55);
+  color:#fff7b0;
+  backdrop-filter:blur(10px);
+}
+#component-info-bar[hidden]{display:none}
+.component-info-title{
+  flex:0 0 auto;
+  color:#ffd60a;
+  font-size:13px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.component-info-fields{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.component-info-fields::-webkit-scrollbar{display:none;width:0;height:0}
+.component-info-field{
+  flex:0 0 auto;
+  min-width:92px;
+  padding:5px 9px;
+  border:1px solid rgba(255,214,10,0.24);
+  border-radius:6px;
+  background:rgba(255,214,10,0.07);
+  line-height:1.2;
+}
+.component-info-label{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:rgba(255,230,109,0.72);
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  min-height:20px;
+}
+.component-info-icon{
+  width:20px;
+  height:20px;
+  display:block;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.component-info-value{
+  display:block;
+  max-width:220px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#fff;
+  font-size:13px;
+  font-weight:600;
+}
+@media (max-width:600px){
+  #component-info-bar{align-items:flex-start;flex-direction:column;gap:5px;padding:7px 10px}
+  .component-info-fields{width:100%}
+}
+
+.highlight-net-overlay{
+  animation:fastBlink 0.8s infinite;
+  stroke:#fff;stroke-width:20;fill:#ff0000;
+}
+@keyframes fastBlink{
+  0%{opacity:1}50%{opacity:0.35}100%{opacity:1}
+}
+
+/* Zoom-gated visibility for title and R/L groups */
+.title-group.zoom-hidden,
+.rl-group.zoom-hidden {
+  display: none;
+}
+.pin-value-text{
+  paint-order:stroke;
+  stroke:#050505;
+  stroke-width:3px;
+  stroke-linejoin:round;
+  font-weight:800;
+  pointer-events:none;
+  user-select:none;
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <button type="button" class="toolbar-button" id="zoom-out-btn" title="Zoom out" aria-label="Zoom out">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"></circle><path d="M8 11h6"></path><path d="m16 16 5 5"></path>
+    </svg>
+  </button>
+
+  <button type="button" class="toolbar-button" id="zoom-in-btn" title="Zoom in" aria-label="Zoom in">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"></circle><path d="M8 11h6"></path><path d="M11 8v6"></path><path d="m16 16 5 5"></path>
+    </svg>
+  </button>
+
+  <button type="button" class="toolbar-button" id="center-content-btn" title="Center content" aria-label="Center content">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true">
+      <path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M2 12h4"></path><path d="M18 12h4"></path>
+      <circle cx="12" cy="12" r="3"></circle><path d="M7 7l2 2"></path><path d="M15 15l2 2"></path><path d="M17 7l-2 2"></path><path d="M9 15l-2 2"></path>
+    </svg>
+    <span>Center</span>
+  </button>
+
+  <button type="button" class="toolbar-button" id="show-voltage-btn" title="Show voltage values" aria-label="Show voltage values" aria-pressed="false">
+    <svg class="voltage-icon" viewBox="0 0 24 24" fill="none" stroke="#ffd60a" stroke-width="2" aria-hidden="true">
+      <path class="voltage-bolt" d="M13 2 4 14h7l-1 8 10-13h-7z"></path>
+    </svg>
+    <span>Voltage</span>
+  </button>
+
+  <button type="button" class="toolbar-button" id="show-diode-btn" title="Show diode values" aria-label="Show diode values" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true">
+      <path d="M4 12h6"></path><path d="M14 12h6"></path>
+      <path d="m10 7 5 5-5 5z"></path><path d="M15 7v10"></path>
+    </svg>
+    <span>Diode</span>
+  </button>
+
+  <label class="icon-toggle" title="Lines">
+    <input type="checkbox" id="enable-line-checkbox">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true">
+      <path d="M4 7h6"></path><path d="M14 7h6"></path><path d="M4 17h6"></path><path d="M14 17h6"></path><path d="M10 7l4 10"></path>
+    </svg>
+    <span>Lines</span>
+  </label>
+
+  <input type="text" id="search-input" placeholder="Search" autocomplete="off" spellcheck="false">
+
+</div>
+
+<div hidden>
+  <input type="checkbox" id="enable-title-checkbox">
+  <input type="checkbox" id="enable-rl-checkbox">
+  <select id="problemSelect">
+    <option value="">-- Select Issue --</option>
+  </select>
+  <select id="pointSelect">
+    <option value="">-- Solution --</option>
+  </select>
+</div>
+
+<div class="export-modal-backdrop" id="export-name-modal" hidden aria-hidden="true">
+  <div class="export-modal" role="dialog" aria-modal="true" aria-labelledby="export-name-title">
+    <h2 id="export-name-title">Nome do arquivo</h2>
+    <div class="export-name-row">
+      <input type="text" id="export-name-input" autocomplete="off" spellcheck="false">
+      <span class="export-extension">.pcbe</span>
+    </div>
+    <div class="export-modal-actions">
+      <button type="button" class="toolbar-button" id="export-name-cancel">Cancelar</button>
+      <button type="button" class="toolbar-button" id="export-name-confirm">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="svg-container">
+  <p>Loading File...</p>
+</div>
+
+<div id="component-info-bar" aria-live="polite">
+  <div class="component-info-fields" id="component-info-fields">
+    <div class="component-info-field"><span class="component-info-label">Name</span><span class="component-info-value">NIL</span></div>
+    <div class="component-info-field"><span class="component-info-label">Net Name</span><span class="component-info-value">NIL</span></div>
+    <div class="component-info-field"><span class="component-info-label" title="Voltage" aria-label="Voltage"><svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 10-13h-7z"></path></svg></span><span class="component-info-value">NIL</span></div>
+    <div class="component-info-field"><span class="component-info-label" title="Diode" aria-label="Diode"><svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h6"></path><path d="M14 12h6"></path><path d="m10 7 5 5-5 5z"></path><path d="M15 7v10"></path></svg></span><span class="component-info-value">NIL</span></div>
+    <div class="component-info-field"><span class="component-info-label" title="Ohms" aria-label="Ohms"><svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h3"></path><path d="M18 12h3"></path><path d="M6 12l2-4 3 8 3-8 3 8 1-4"></path></svg></span><span class="component-info-value">NIL</span></div>
+    <div class="component-info-field"><span class="component-info-label" title="Capacitance" aria-label="Capacitance"><svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h6"></path><path d="M14 12h6"></path><path d="M10 5v14"></path><path d="M14 5v14"></path></svg></span><span class="component-info-value">NIL</span></div>
+    <div class="component-info-field"><span class="component-info-label">Footprint</span><span class="component-info-value">NIL</span></div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const svgContainer = document.getElementById('svg-container');
+  if(!svgContainer) return;
+
+ 
+  const ZOOM_THRESHOLD = 12.0;
+
+  let scale = 1;
+  let translate = {x:0, y:0};
+  let isPanning = false;
+  let panStart = {x:0, y:0};
+  let mouseMoved = false;
+
+  const STROKE_BASE = {
+   
+    linkLine:            300,
+    
+    highlightedOverlay:    2,
+   
+    highlightNetOverlay:  20,
+  };
+  const STROKE_POWER = {
+    linkLine:            1.5, // shrinks visually as scale grows
+    highlightedOverlay:  1.0, // constant on-screen px
+    highlightNetOverlay: 1.0, // constant on-screen px
+  };
+ 
+  const STROKE_FLOOR_FRACTION = 0.02;
+
+  function computeStrokeBases(svg){
+    if(!svg) return;
+
+    const TARGET_LINE_PX        = 5;   // red connector line
+    const TARGET_HL_OVERLAY_PX  = 1.5; // green-then-red selection halo
+    const TARGET_NET_OVERLAY_PX = 3;   // blinking net-match outline
+
+    function tryCompute(){
+      let pxPerUnit = null;
+      try {
+        const rect = svg.getBoundingClientRect();
+        if(rect && rect.width > 0){
+          const vb = svg.viewBox && svg.viewBox.baseVal;
+          if(vb && vb.width > 0){
+            pxPerUnit = rect.width / vb.width;
+          } else {
+            const w = parseFloat(svg.getAttribute('width'));
+            if(isFinite(w) && w > 0) pxPerUnit = rect.width / w;
+          }
+        }
+      } catch(_){}
+
+      if(pxPerUnit && isFinite(pxPerUnit) && pxPerUnit > 0){
+        STROKE_BASE.linkLine            = TARGET_LINE_PX        / pxPerUnit;
+        STROKE_BASE.highlightedOverlay  = TARGET_HL_OVERLAY_PX  / pxPerUnit;
+        STROKE_BASE.highlightNetOverlay = TARGET_NET_OVERLAY_PX / pxPerUnit;
+      
+        try { applyZoomLineThickness(); } catch(_){}
+        return true;
+      }
+      return false;
+    }
+
+    if(!tryCompute()){
+      // Layout not ready — try again on the next frame.
+      requestAnimationFrame(tryCompute);
+    }
+  }
+  // end bitmap code - fenil 28/05/2026
+
+  function getZoomStroke(kind){
+    const base = STROKE_BASE[kind];
+    const pow  = STROKE_POWER[kind];
+    if(base === undefined) return 0;
+    const s    = Math.max(1, scale);
+    const v    = base / Math.pow(s, pow);
+    return Math.max(v, base * STROKE_FLOOR_FRACTION);
+  }
+ 
+  function applyZoomLineThickness(){
+    const svg = svgContainer.querySelector('svg');
+    if(!svg) return;
+   
+    let vbRatio = 1;
+    try {
+      const orig = window.__sbpm_svg_origViewBox;
+      const cur  = svg.viewBox && svg.viewBox.baseVal;
+      if (orig && cur && cur.width > 0 && orig.w > 0){
+        vbRatio = cur.width / orig.w;
+      }
+    } catch(_){}
+    svg.querySelectorAll('.link-line').forEach(el => {
+     
+      el.style.strokeWidth = getZoomStroke('linkLine') * vbRatio;
+    });
+  
+    svg.querySelectorAll('.highlighted-overlay:not(.chip-search-outline)').forEach(el => {
+      el.style.strokeWidth = getZoomStroke('highlightedOverlay') * vbRatio;
+    });
+    svg.querySelectorAll('.highlight-net-overlay').forEach(el => {
+      el.style.strokeWidth = getZoomStroke('highlightNetOverlay') * vbRatio;
+    });
+  }
+
+
+  function applyZoomVisibility(){
+    const svg = svgContainer.querySelector('svg');
+    if(!svg) return;
+    const titleGroup = svg.querySelector('.title-group');
+    const rlGroup    = svg.querySelector('.rl-group');
+    const hide = scale < ZOOM_THRESHOLD;
+    if(titleGroup) titleGroup.classList.toggle('zoom-hidden', hide);
+    if(rlGroup)    rlGroup.classList.toggle('zoom-hidden', hide);
+  }
+
+
+  let transformPending = false;
+  function scheduleTransform(){
+    if(transformPending) return;
+    transformPending = true;
+    requestAnimationFrame(()=>{
+      transformPending = false;
+      // start pan smoothness 28/05/2026 v2
+      svgContainer.style.transform =
+        `translate(${translate.x}px, ${translate.y}px) scale(${scale})`;
+      // end pan smoothness 28/05/2026 v2
+      svgContainer.style.transformOrigin = '0 0';
+      applyZoomVisibility();
+      // start bitmap code - fenil
+      // Refresh stroke widths every time the scale changes so the
+      // line thickness tracks the current zoom level.
+      applyZoomLineThickness();
+      // end bitmap code - fenil
+    });
+  }
+  function updateTransform(){ scheduleTransform(); }
+
+  function centerContent(){
+    const svg = svgContainer.querySelector('svg');
+    if(svg && window.__sbpm_svg_origViewBox){
+      const orig = window.__sbpm_svg_origViewBox;
+      svg.setAttribute('viewBox', `${orig.x} ${orig.y} ${orig.w} ${orig.h}`);
+    }
+    scale = 1;
+    translate.x = 0;
+    translate.y = 0;
+    updateTransform();
+    try { applyZoomLineThickness(); } catch(_){}
+  }
+
+  function zoomFromCenter(direction){
+    const rect = svgContainer.getBoundingClientRect();
+    const offsetX = rect.width / 2;
+    const offsetY = rect.height / 2;
+    const factor = direction > 0 ? 1.5 : 1 / 1.5;
+    const minScale = 1;
+    const maxScale = 160;
+    const newScale = Math.min(Math.max(scale * factor, minScale), maxScale);
+    if(newScale === scale) return;
+
+    translate.x -= offsetX * (newScale - scale) / scale;
+    translate.y -= offsetY * (newScale - scale) / scale;
+    scale = newScale;
+    updateTransform();
+  }
+
+  let wheelPending = false;
+  let wheelDeltaY = 0;
+  let wheelCX = 0, wheelCY = 0;
+  function handleWheel(e){
+    e.preventDefault();
+    wheelDeltaY += e.deltaY;
+    wheelCX = e.clientX;
+    wheelCY = e.clientY;
+    if(!wheelPending){
+      wheelPending = true;
+      requestAnimationFrame(()=>{
+        wheelPending = false;
+        const zoomFactor = 0.50;
+        const delta = wheelDeltaY > 0 ? 1 - zoomFactor : 1 + zoomFactor;
+        const wheelingOut = wheelDeltaY > 0;
+        wheelDeltaY = 0;
+
+      
+        if (wheelingOut && scale <= 1.001 && window.__sbpm_svg_origViewBox){
+          const svgEl0 = svgContainer.querySelector('svg');
+          if (svgEl0 && svgEl0.viewBox && svgEl0.viewBox.baseVal){
+            const cur  = svgEl0.viewBox.baseVal;
+            const orig = window.__sbpm_svg_origViewBox;
+            const atOrig =
+              Math.abs(cur.width  - orig.w) < 0.5 &&
+              Math.abs(cur.height - orig.h) < 0.5 &&
+              Math.abs(cur.x      - orig.x) < 0.5 &&
+              Math.abs(cur.y      - orig.y) < 0.5;
+            if (!atOrig){
+              const expand = 1 + zoomFactor; // 1.5 ×
+              let newW = cur.width  * expand;
+              let newH = cur.height * expand;
+              if (newW > orig.w){ newW = orig.w; }
+              if (newH > orig.h){ newH = orig.h; }
+              // expand around current centre
+              const cx = cur.x + cur.width  / 2;
+              const cy = cur.y + cur.height / 2;
+              let newX = cx - newW / 2;
+              let newY = cy - newH / 2;
+              if (newX < orig.x) newX = orig.x;
+              if (newY < orig.y) newY = orig.y;
+              if (newX + newW > orig.x + orig.w) newX = orig.x + orig.w - newW;
+              if (newY + newH > orig.y + orig.h) newY = orig.y + orig.h - newH;
+              svgEl0.setAttribute('viewBox', `${newX} ${newY} ${newW} ${newH}`);
+           
+              try { applyZoomLineThickness(); } catch(_){}
+              return;
+            }
+          }
+        }
+        // end zoom-out-restore 22-06-2026 v14
+
+        const proposedScale = scale * delta;
+        const minScale = 1;
+        const maxScale = 160;
+        const newScale = Math.min(Math.max(proposedScale, minScale), maxScale);
+        if(newScale === scale) return;
+
+        const rect = svgContainer.getBoundingClientRect();
+        const offsetX = wheelCX - rect.left;
+        const offsetY = wheelCY - rect.top;
+
+        translate.x -= offsetX * (newScale - scale) / scale;
+        translate.y -= offsetY * (newScale - scale) / scale;
+
+        scale = newScale;
+        updateTransform();
+      });
+    }
+  }
+
+  function handleMouseDown(e){
+    if(e.button !== 0) return;          // only left button pans
+    isPanning = true;
+    panStart = {x:e.clientX, y:e.clientY};
+    mouseMoved = false;
+  }
+  function handleMouseUp(){
+    isPanning = false;
+  }
+  function handleMouseMove(e){
+    if(!isPanning) return;
+   
+    if((e.buttons & 1) === 0){ isPanning = false; return; }
+    const dx = e.clientX - panStart.x;
+    const dy = e.clientY - panStart.y;
+    if(Math.abs(dx) > 5 || Math.abs(dy) > 5) mouseMoved = true;
+   
+    let panViaViewBox = false;
+    try {
+      const orig = window.__sbpm_svg_origViewBox;
+      if (orig){
+        const svg = svgContainer.querySelector('svg');
+        if (svg && svg.viewBox && svg.viewBox.baseVal){
+          const cur = svg.viewBox.baseVal;
+          const zoomedIn =
+            cur.width  < orig.w * 0.95 ||
+            cur.height < orig.h * 0.95;
+          if (zoomedIn){
+            const svgRect = svg.getBoundingClientRect();
+            if (svgRect.width > 0 && svgRect.height > 0){
+              // Convert screen-px delta to userspace delta via the
+              // current viewBox-to-screen ratio.
+              const dxUser = dx * (cur.width  / svgRect.width );
+              const dyUser = dy * (cur.height / svgRect.height);
+              // Dragging RIGHT (positive dx) should reveal content on
+              // the LEFT, i.e. shift the viewBox LEFT.
+              let newX = cur.x - dxUser;
+              let newY = cur.y - dyUser;
+              // Clamp so we never pan past the original viewBox.
+              if (newX < orig.x) newX = orig.x;
+              if (newY < orig.y) newY = orig.y;
+              if (newX + cur.width  > orig.x + orig.w) newX = orig.x + orig.w - cur.width;
+              if (newY + cur.height > orig.y + orig.h) newY = orig.y + orig.h - cur.height;
+              svg.setAttribute('viewBox',
+                `${newX} ${newY} ${cur.width} ${cur.height}`);
+              // Re-apply stroke widths in case viewBox-zoom ratio
+              // changed materially (it shouldn't here since only x/y
+              // changed, but cheap insurance).
+              try { applyZoomLineThickness(); } catch(_){}
+              panViaViewBox = true;
+            }
+          }
+        }
+      }
+    } catch(_){}
+    if (!panViaViewBox){
+      translate.x += dx;
+      translate.y += dy;
+      updateTransform();
+    }
+    // end drag-viewbox-pan 22-06-2026 v18
+    panStart = {x:e.clientX, y:e.clientY};
+  }
+
+  svgContainer.addEventListener('wheel', handleWheel, {passive:false});
+  svgContainer.addEventListener('mousedown', handleMouseDown);
+  window.addEventListener('mouseup',    handleMouseUp);
+  window.addEventListener('blur',       handleMouseUp);
+  window.addEventListener('mouseleave', handleMouseUp);
+  window.addEventListener('mousemove',  handleMouseMove, {passive:true});
+  // end pan smoothness 28/05/2026
+
+  /* =========================================================
+     HELPERS
+     ========================================================= */
+  function parseComponentCoordinates(componentStr){
+    if(!componentStr) return null;
+    const m = componentStr.match(/x(\d+)_y(\d+)_w(\d+)_h(\d+)/);
+    if(!m) return null;
+    return {
+      x:parseInt(m[1],10),
+      y:parseInt(m[2],10),
+      width:parseInt(m[3],10),
+      height:parseInt(m[4],10)
+    };
+  }
+  function parseTargetCoordinates(targetStr){
+    if(!targetStr) return null;
+    const tmp = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    try{
+      tmp.innerHTML = String(targetStr).trim();
+      const el = tmp.firstElementChild;
+      if(!el) return null;
+      const tag = el.tagName.toLowerCase();
+      if(tag === 'rect'){
+        return {
+          x:parseFloat(el.getAttribute('x')) || 0,
+          y:parseFloat(el.getAttribute('y')) || 0,
+          width:parseFloat(el.getAttribute('width')) || 0,
+          height:parseFloat(el.getAttribute('height')) || 0
+        };
+      }
+      if(tag === 'circle'){
+        const cx = parseFloat(el.getAttribute('cx')) || 0;
+        const cy = parseFloat(el.getAttribute('cy')) || 0;
+        const r = parseFloat(el.getAttribute('r')) || 0;
+        return {x:cx-r,y:cy-r,width:r*2,height:r*2};
+      }
+      if(tag === 'ellipse'){
+        const cx = parseFloat(el.getAttribute('cx')) || 0;
+        const cy = parseFloat(el.getAttribute('cy')) || 0;
+        const rx = parseFloat(el.getAttribute('rx')) || 0;
+        const ry = parseFloat(el.getAttribute('ry')) || 0;
+        return {x:cx-rx,y:cy-ry,width:rx*2,height:ry*2};
+      }
+    }catch(_){}
+    return null;
+  }
+  function getPinCoordinates(pin){
+    return parseComponentCoordinates(pin && (pin.component || pin.component_location))
+        || parseTargetCoordinates(pin && (pin.target || pin.target_field));
+  }
+  function generateComponentIdFromCoords(target){
+    const b = target.getBBox();
+    return `x${Math.round(b.x)}_y${Math.round(b.y)}_w${Math.round(b.width)}_h${Math.round(b.height)}`;
+  }
+  function parseComponent(str){
+    const [x,y,w,h] = str.replace("x","").replace("y","").replace("w","").replace("h","")
+                         .split("_").map(n=>parseFloat(n));
+    return {x,y,w,h};
+  }
+
+  const componentByNet = new Map();
+  const componentByKey = new Map();
+  function buildIndexes(componentData){
+    componentByNet.clear();
+    componentByKey.clear();
+    componentData.forEach(c=>{
+      componentByKey.set(c.component, c);
+      if(c.netName){
+        if(!componentByNet.has(c.netName)) componentByNet.set(c.netName, []);
+        componentByNet.get(c.netName).push(c);
+      }
+    });
+  }
+
+ 
+  const chipBboxIndex = new Map();
+  function bboxKey(x, y, w, h){
+    return Math.round(x) + '_' + Math.round(y) + '_' +
+           Math.round(w) + '_' + Math.round(h);
+  }
+
+
+  function setupComponentsText(allComponents){
+    const svg = svgContainer.querySelector('svg');
+    if(!svg || !allComponents) return;
+
+    const frag = document.createDocumentFragment();
+    const ns = "http://www.w3.org/2000/svg";
+
+    chipBboxIndex.clear();
+  
+
+    allComponents.forEach(comp=>{
+      const coords = parseComponentCoordinates(comp.component_location);
+      if(!coords) return;
+
+      
+
+      chipBboxIndex.set(bboxKey(coords.x, coords.y, coords.width, coords.height), {
+        x: coords.x, y: coords.y, w: coords.width, h: coords.height,
+        name: comp.component_name || ''
+      });
+      
+
+      const rect = document.createElementNS(ns,"rect");
+      rect.setAttribute("x",coords.x);
+      rect.setAttribute("y",coords.y);
+      rect.setAttribute("width",coords.width);
+      rect.setAttribute("height",coords.height);
+      rect.setAttribute("rx",10);
+      rect.setAttribute("stroke","white");
+      rect.setAttribute("stroke-width",2);
+      rect.setAttribute("fill","none");
+      rect.style.cursor="pointer";
+     
+      rect.classList.add('chip-outline');
+      rect.dataset.chipX = coords.x;
+      rect.dataset.chipY = coords.y;
+      rect.dataset.chipW = coords.width;
+      rect.dataset.chipH = coords.height;
+      rect.dataset.chipName = comp.component_name || '';
+     
+
+      const trim = (t,n)=> t.length>n ? t.substring(0,n-3)+"..." : t;
+      const maxChars = Math.floor(coords.width/8);
+      const txt = trim(comp.component_name||"", maxChars);
+
+      const tick = document.createElementNS(ns,"text");
+      tick.textContent = txt;
+      tick.setAttribute("fill","rgba(255, 255, 255, 0.6)");
+      tick.setAttribute("font-weight","bold");
+      tick.style.pointerEvents="none";
+      tick.style.userSelect="none";
+
+      let fontSize = Math.min(coords.width,coords.height)*0.3;
+      const estW = txt.length * fontSize * 0.6;
+      if(estW > coords.width*0.9) fontSize = (coords.width*0.9) / (txt.length*0.6);
+      tick.setAttribute("font-size", fontSize);
+
+      const cx = coords.x + coords.width/2;
+      const cy = coords.y + coords.height/2;
+      tick.setAttribute("text-anchor","middle");
+      tick.setAttribute("dominant-baseline","middle");
+      if(coords.height > coords.width){
+        tick.setAttribute("transform",`rotate(90, ${cx}, ${cy})`);
+      }
+      tick.setAttribute("x",cx);
+      tick.setAttribute("y",cy);
+
+      frag.appendChild(rect);
+      frag.appendChild(tick);
+    });
+    svg.appendChild(frag);
+  }
+
+  function highlightSelectedElement(target){
+    document.querySelectorAll('#svg-container svg *').forEach(el=>{
+      el.style.stroke='';
+      el.style.strokeWidth='';
+      el.style.fill='';
+      el.style.filter='';
+    });
+    target.style.stroke='#00bfff';
+    target.style.strokeWidth='8px';
+    target.style.filter='drop-shadow(0 0 4px #00bfff)';
+  }
+
+ 
+  function setupComponents(components){
+    window.allComponentsList = components;
+    const svg = svgContainer.querySelector('svg');
+    if(!svg) return;
+
+    // Tooltip
+    const existingTooltip = document.getElementById('comp-tooltip');
+    if(existingTooltip) existingTooltip.remove();
+
+    const tooltip = document.createElement('div');
+    tooltip.id = 'comp-tooltip';
+    Object.assign(tooltip.style,{
+      position:'absolute',padding:'10px 16px',
+      background:'rgba(23, 177, 105, 0.85)',color:'#fff',
+      pointerEvents:'none',fontSize:'14px',
+      fontFamily:"'Segoe UI', Tahoma, sans-serif",
+      lineHeight:'1.5',zIndex:1000,display:'none',
+      textAlign:'center',width:'260px',maxWidth:'420px',
+      top:'0',left:'0',
+      borderRadius:'10px',
+      boxShadow:'0 4px 12px rgba(0,0,0,0.25)'
+    });
+    document.body.appendChild(tooltip);
+
+    const tooltipCache = new Map();
+    const ns = "http://www.w3.org/2000/svg";
+
+    // Wipe any previous title group
+    let oldGroup = svg.querySelector('.title-group');
+    if(oldGroup) oldGroup.remove();
+
+    const titleGroup = document.createElementNS(ns, "g");
+    titleGroup.classList.add('title-group');
+    svg.appendChild(titleGroup);
+
+    // Batched render — same idea as old viewer
+    const BATCH = 300;
+    let idx = 0;
+
+    function renderBatch(){
+      const frag = document.createDocumentFragment();
+      const limit = Math.min(idx + BATCH, components.length);
+
+      for(; idx < limit; idx++){
+        const comp = components[idx];
+        const coords = parseComponentCoordinates(comp.component);
+        if(!coords) continue;
+
+        const {x,y,width,height} = coords;
+        const cx = x+width/2, cy = y+height/2;
+
+        const rect = document.createElementNS(ns,"rect");
+        rect.setAttribute("x",x);
+        rect.setAttribute("y",y);
+        rect.setAttribute("width",width);
+        rect.setAttribute("height",height);
+        rect.setAttribute("fill","transparent");
+        rect.setAttribute("rx",10);
+        rect.style.cursor="pointer";
+        rect.dataset.componentId = comp.component;
+        frag.appendChild(rect);
+
+        const tick = document.createElementNS(ns,"text");
+        tick.classList.add('title-element');
+        tick.setAttribute("x",cx);
+        tick.setAttribute("y",cy);
+        tick.setAttribute("fill","black");
+        tick.setAttribute("text-anchor","middle");
+        tick.setAttribute("dominant-baseline","middle");
+        tick.setAttribute("xml:space","preserve");
+        tick.style.pointerEvents="none";
+        tick.style.userSelect="none";
+
+        const lines = [comp.netName].filter(Boolean);
+        const textLength = Math.max(...lines.map(l=>l.length), 1);
+
+        let fontSize = Math.min(width,height) * 0.1;
+        const estCharW = fontSize * 0.6;
+        const estTextW = textLength * estCharW;
+        const maxW = width * 0.9;
+        if(estTextW > maxW){
+          fontSize = maxW / (textLength * 0.4);
+        }
+        tick.setAttribute("font-size", fontSize);
+
+        const lineHeight = fontSize * 1.2;
+        const startOff = -((lines.length - 1)/2) * lineHeight;
+        lines.forEach((ln,i)=>{
+          const t = document.createElementNS(ns,"tspan");
+          t.setAttribute("x",cx);
+          t.setAttribute("dy", i===0 ? startOff : lineHeight);
+          t.textContent = ln;
+          tick.appendChild(t);
+        });
+        frag.appendChild(tick);
+
+        if(!tooltipCache.has(comp.component)){
+          // start tooltip reorder 28/05/2026
+          // Build only the rows whose values are present and not the
+          // sentinel "NIL". User-requested order: Diode Value first
+          // (most clinically useful), then Footprint, then Net Name,
+          // then everything else with data.
+          const hasVal = (v) => {
+            if(v === null || v === undefined) return false;
+            const s = String(v).trim();
+            return s.length > 0 && s.toUpperCase() !== 'NIL';
+          };
+          const rows = [];
+          if(hasVal(comp.diodeValue))     rows.push(`<div><strong>Diode Value:</strong> ${comp.diodeValue}</div>`);
+          if(hasVal(comp.footprint))      rows.push(`<div><strong>Footprint:</strong> ${comp.footprint}</div>`);
+          if(hasVal(comp.netName))        rows.push(`<div><strong>Net Name:</strong> ${comp.netName}</div>`);
+          if(hasVal(comp.pinNumber))      rows.push(`<div><strong>Pin Number:</strong> ${comp.pinNumber}</div>`);
+          if(hasVal(comp.comment))        rows.push(`<div><strong>Comment:</strong> ${comp.comment}</div>`);
+          if(hasVal(comp.capacitorValue)) rows.push(`<div><strong>Capacitor Value:</strong> ${comp.capacitorValue}</div>`);
+          if(hasVal(comp.voltageValue))   rows.push(`<div><strong>Voltage Value:</strong> ${comp.voltageValue}</div>`);
+          if(hasVal(comp.ohmValue))       rows.push(`<div><strong>Ohm Value:</strong> ${comp.ohmValue}</div>`);
+          const header = `<div style="font-weight:600;margin-bottom:6px;">Component: ${comp.name||''}</div>`;
+          tooltipCache.set(comp.component, header + rows.join(''));
+          // end tooltip reorder 28/05/2026
+        }
+      }
+
+      titleGroup.appendChild(frag);
+
+      if(idx < components.length){
+        if(typeof requestIdleCallback === 'function'){
+          requestIdleCallback(renderBatch);
+        } else {
+          setTimeout(renderBatch, 0);
+        }
+      }
+    }
+    renderBatch();
+
+    // Tooltip hover
+    titleGroup.addEventListener('mousemove', e=>{
+      tooltip.style.left = (e.pageX + 10) + 'px';
+      tooltip.style.top  = (e.pageY + 10) + 'px';
+    });
+    titleGroup.addEventListener('mouseover', e=>{
+      const r = e.target.closest('rect[data-component-id]');
+      if(!r) return;
+      const html = tooltipCache.get(r.dataset.componentId);
+      if(!html) return;
+      tooltip.innerHTML = html;
+      tooltip.style.display = 'block';
+      r.addEventListener('mouseout', ()=> tooltip.style.display='none', {once:true});
+    });
+
+    // Apply zoom gate immediately
+    applyZoomVisibility();
+  }
+
+ 
+  function setupComponentsV2(componentsV2){
+    const regex = /^(R|PL|L)\d+/i;
+    const filtered = componentsV2.filter(c=>{
+      const n = (c.component_name||c.name||"").trim();
+      return regex.test(n);
+    });
+    window.allComponentsListV2 = filtered;
+
+    const svg = svgContainer.querySelector('svg');
+    if(!svg) return;
+
+    const ns = "http://www.w3.org/2000/svg";
+
+    let oldGroup = svg.querySelector('.rl-group');
+    if(oldGroup) oldGroup.remove();
+
+    const rlGroup = document.createElementNS(ns, "g");
+    rlGroup.classList.add('rl-group');
+    svg.appendChild(rlGroup);
+
+    const BATCH = 300;
+    let idx = 0;
+
+    function renderBatch(){
+      const frag = document.createDocumentFragment();
+      const limit = Math.min(idx + BATCH, filtered.length);
+
+      for(; idx < limit; idx++){
+        const c = filtered[idx];
+        const coords = parseComponentCoordinates(c.component);
+        if(!coords) continue;
+
+        const {x,y,width,height} = coords;
+        const cx = x+width/2, cy = y+height/2;
+
+        const rect = document.createElementNS(ns,"rect");
+        rect.setAttribute("x",x);
+        rect.setAttribute("y",y);
+        rect.setAttribute("width",width);
+        rect.setAttribute("height",height);
+        rect.setAttribute("fill","transparent");
+        rect.setAttribute("rx","8");
+        rect.classList.add("rl-element");
+        rect.dataset.componentIdV2 = c.component;
+        frag.appendChild(rect);
+
+        const name = (c.component_name||c.name||"").trim();
+        let displayText = "";
+        if(/^R\d+/i.test(name)){
+          displayText = c.comment || "";
+        } else {
+          displayText = c.ohmValue || "";
+        }
+        const lines = [displayText].filter(Boolean);
+
+        if(lines.length){
+          const text = document.createElementNS(ns,"text");
+          text.classList.add("title-element-v2","rl-element");
+          text.setAttribute("x",cx);
+          text.setAttribute("y",cy);
+          text.setAttribute("text-anchor","middle");
+          text.setAttribute("dominant-baseline","middle");
+          text.setAttribute("fill","#000");
+          text.setAttribute("font-weight","bold");
+          text.style.pointerEvents="none";
+
+          const longest = Math.max(...lines.map(t=>t.length),1);
+          let fontSize = Math.min(width,height) * 0.12;
+          const estW = fontSize * longest * 0.55;
+          const maxW = width * 0.9;
+          if(estW > maxW){
+            fontSize = maxW / (longest * 0.5);
+          }
+          text.setAttribute("font-size", fontSize);
+
+          const lh = fontSize * 1.2;
+          const firstOff = -((lines.length - 1) * lh) / 2;
+          lines.forEach((ln,i)=>{
+            const t = document.createElementNS(ns,"tspan");
+            t.textContent = ln;
+            t.setAttribute("x",cx);
+            t.setAttribute("dy", i===0 ? firstOff : lh);
+            text.appendChild(t);
+          });
+          frag.appendChild(text);
+        }
+      }
+
+      rlGroup.appendChild(frag);
+
+      if(idx < filtered.length){
+        if(typeof requestIdleCallback === 'function'){
+          requestIdleCallback(renderBatch);
+        } else {
+          setTimeout(renderBatch, 0);
+        }
+      }
+    }
+    renderBatch();
+
+    applyZoomVisibility();
+  }
+
+  function removePinValueLabels(kind){
+    const svg = svgContainer.querySelector('svg');
+    if(!svg) return;
+    const selector = kind ? `.pin-value-group[data-kind="${kind}"]` : '.pin-value-group';
+    svg.querySelectorAll(selector).forEach(g=>g.remove());
+  }
+
+  function setPinValueButtonState(kind, active){
+    const btn = document.getElementById(kind === 'voltage' ? 'show-voltage-btn' : 'show-diode-btn');
+    if(!btn) return;
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  }
+
+  function setupPinValueLabels(kind, components){
+    const svg = svgContainer.querySelector('svg');
+    if(!svg || !Array.isArray(components)) return;
+
+    const field = kind === 'voltage' ? 'voltageValue' : 'diodeValue';
+    const fill = kind === 'voltage' ? '#ff2b2b' : '#35ff7f';
+    const ns = "http://www.w3.org/2000/svg";
+
+    removePinValueLabels(kind);
+
+    const group = document.createElementNS(ns, 'g');
+    group.classList.add('pin-value-group');
+    group.dataset.kind = kind;
+
+    const frag = document.createDocumentFragment();
+    components.forEach(pin=>{
+      const coords = getPinCoordinates(pin);
+      if(!coords || !coords.width || !coords.height) return;
+
+      const raw = pin && pin[field];
+      if(raw === null || raw === undefined) return;
+      const value = String(raw).trim();
+      if(!value || value.toUpperCase() === 'NIL') return;
+      const cx = coords.x + coords.width / 2;
+      const cy = coords.y + coords.height / 2;
+
+      const text = document.createElementNS(ns, 'text');
+      text.classList.add('pin-value-text');
+      text.setAttribute('x', cx);
+      text.setAttribute('y', cy);
+      text.setAttribute('fill', fill);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'middle');
+      text.setAttribute('xml:space', 'preserve');
+
+      const longest = Math.max(value.length, 1);
+      let fontSize = Math.min(coords.width, coords.height) * 0.34;
+      const maxW = coords.width * 0.96;
+      const estW = longest * fontSize * 0.58;
+      if(estW > maxW) fontSize = maxW / (longest * 0.58);
+      text.setAttribute('font-size', Math.max(fontSize, 4));
+      text.textContent = value;
+
+      frag.appendChild(text);
+    });
+
+    group.appendChild(frag);
+    svg.appendChild(group);
+  }
+
+  function togglePinValueLabels(kind){
+    const components = window.currentComponentData || window.allComponentsList || [];
+    const ownBtn = document.getElementById(kind === 'voltage' ? 'show-voltage-btn' : 'show-diode-btn');
+    const otherKind = kind === 'voltage' ? 'diode' : 'voltage';
+    const isActive = ownBtn && ownBtn.classList.contains('is-active');
+
+    removePinValueLabels();
+    setPinValueButtonState('voltage', false);
+    setPinValueButtonState('diode', false);
+
+    if(!isActive){
+      setupPinValueLabels(kind, components);
+      setPinValueButtonState(kind, true);
+      setPinValueButtonState(otherKind, false);
+    }
+  }
+
+  /* =========================================================
+     LOAD SVG + JSON
+     ========================================================= */
+  let localSvgFile = null;
+  let localJsonFile = null;
+  let currentSvgContent = '';
+  let currentJsonData = null;
+
+  function normalizeSvgJsonData(jsonData){
+    let componentData = [];
+    let components = [];
+    let problems = [];
+
+    if(Array.isArray(jsonData)){
+      componentData = jsonData;
+      components = jsonData;
+    } else if(jsonData && typeof jsonData === 'object') {
+      componentData = jsonData.component_data
+                   || jsonData.componentData
+                   || (jsonData.data && (jsonData.data.component_data || jsonData.data.componentData))
+                   || [];
+
+      components = jsonData.main_components
+                || jsonData.components
+                || (jsonData.data && (jsonData.data.main_components || jsonData.data.components))
+                || [];
+
+      problems = jsonData.problems
+              || (jsonData.data && jsonData.data.problems)
+              || [];
+    }
+
+    components = components.map(c => ({
+      ...c,
+      target: c.target || c.target_field || ''
+    }));
+    componentData = componentData.map(c => ({
+      ...c,
+      target: c.target || c.target_field || ''
+    }));
+
+    if(!componentData.length && components.length) componentData = components;
+    if(!components.length && componentData.length) components = componentData;
+
+    return { componentData, components, problems };
+  }
+
+  function setExportAvailability(){
+    const btn = document.getElementById('export-bundle-btn');
+    if(btn) btn.disabled = !(currentSvgContent && currentJsonData);
+  }
+
+  async function loadSVGWithJSONData(svgTxt, jsonData){
+    const normalized = normalizeSvgJsonData(jsonData);
+    currentSvgContent = svgTxt;
+    currentJsonData = jsonData;
+    window.currentComponentData = normalized.componentData;
+    buildIndexes(normalized.componentData);
+    window.loadedProblems = normalized.problems;
+    showComponentInfoBar(normalized.componentData[0] || normalized.components[0] || {});
+    loadSVG(svgTxt, 'svg-container', normalized.componentData, normalized.components);
+    loadProblemsFromJson(normalized.problems);
+    setExportAvailability();
+  }
+
+  async function fetchAndLoadSVGWithJSON(svgUrl, jsonUrl){
+    try{
+      console.log('🔵 Fetching SVG from:', svgUrl);
+      console.log('🔵 Fetching JSON from:', jsonUrl);
+
+      const [svgRes, jsonRes] = await Promise.all([
+        fetch(svgUrl),
+        fetch(jsonUrl)
+      ]);
+      const svgTxt = await svgRes.text();
+      const jsonData = await jsonRes.json();
+
+      await loadSVGWithJSONData(svgTxt, jsonData);
+    }catch(err){
+      console.error("❌ Error loading SVG/JSON:", err);
+      svgContainer.innerHTML = `<p style="color:red;padding:20px;">Error loading SVG/JSON: ${err.message}</p>`;
+    }
+  }
+
+  async function loadSVG(svgContent, containerId, componentData, allComponents){
+    try{
+      const container = document.getElementById(containerId);
+      container.innerHTML = svgContent;
+      const svg = container.querySelector('svg');
+      if(!svg){ alert('SVG element not found.'); return; }
+
+   
+      computeStrokeBases(svg);
+    
+      const linesBox = document.getElementById('enable-line-checkbox');
+      if(linesBox && !linesBox.checked){
+        linesBox.checked = true;
+      }
+     
+
+      setupComponentsText(allComponents);
+
+      try { window.allComponentsList = allComponents || []; } catch(_){}
+    
+      try {
+        requestAnimationFrame(() => {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'sbpm:viewer-ready', viewer: 'svgjson' }, '*');
+          }
+        });
+      } catch (_) {}
+      
+      document.addEventListener('keydown', function (e) {
+        const isCopy = (e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C');
+        if (!isCopy) return;
+        let text = '';
+        try {
+          const sel = window.getSelection();
+          text = sel ? String(sel.toString() || '').trim() : '';
+        } catch (_) {}
+        if (!text) return;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).catch(()=>{});
+          }
+        } catch (_) {}
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'sbpm:copy-text', text: text }, '*');
+          }
+        } catch (_) {}
+      }, true);
+      // end clipboard bridge 28/05/2026 v2
+
+      let isDragging = false;
+      document.addEventListener('mousedown', ()=> isDragging=false);
+      document.addEventListener('mousemove', e=>{ if(e.buttons===1) isDragging=true; });
+      document.addEventListener('mouseup', ()=> setTimeout(()=>isDragging=false,0));
+
+    
+      svg.addEventListener('click', ev=>{
+        if(isDragging) return;
+        const target = ev.target;
+        if(target === svg) return;
+
+     
+        let chipHit = null;
+        if(target.classList && target.classList.contains('chip-outline')){
+          const bx = parseFloat(target.dataset.chipX);
+          const by = parseFloat(target.dataset.chipY);
+          const bw = parseFloat(target.dataset.chipW);
+          const bh = parseFloat(target.dataset.chipH);
+          if(isFinite(bx) && isFinite(by) && isFinite(bw) && isFinite(bh)){
+            chipHit = { x: bx, y: by, w: bw, h: bh, via: 'class' };
+          }
+        }
+        if(!chipHit && typeof target.getBBox === 'function'){
+          try {
+            const tb = target.getBBox();
+            const key = bboxKey(tb.x, tb.y, tb.width, tb.height);
+            const found = chipBboxIndex.get(key);
+            if(found){
+              chipHit = { x: found.x, y: found.y, w: found.w, h: found.h, via: 'bbox' };
+            }
+          } catch(_){}
+        }
+        try {
+          console.log('[BRAZILIAN] click',
+            target.tagName,
+            'class=', (target.getAttribute && target.getAttribute('class')) || '',
+            'chipHit=', chipHit && chipHit.via);
+        } catch(_){}
+        if(chipHit){
+          svg.querySelectorAll('.highlighted-overlay').forEach(el=>el.remove());
+          svg.querySelectorAll('.link-line').forEach(l=>l.remove());
+          highlightSelectedElement(target);
+          showChipPinNames(chipHit.x, chipHit.y, chipHit.w, chipHit.h);
+          // Clear the persistent net so a later Lines-checkbox
+          // toggle doesn't redraw a stale line for an earlier pin.
+          window.currentNetName = null;
+          return;
+        }
+       
+        let c = findComponentForElement(target);
+
+        
+        if(!c){
+          try {
+            console.warn(
+              '[BRAZILIAN] click → no pin found for',
+              target.tagName,
+              'cx/cy/r =', target.getAttribute && (target.getAttribute('cx')||target.getAttribute('x')),
+              target.getAttribute && (target.getAttribute('cy')||target.getAttribute('y')),
+              target.getAttribute && (target.getAttribute('r')||target.getAttribute('width'))
+            );
+          } catch(_){}
+          return;
+        }
+        svg.querySelectorAll('.highlighted-overlay').forEach(el=>el.remove());
+        svg.querySelectorAll('.link-line').forEach(l=>l.remove());
+        highlightSelectedElement(target);
+        showComponentInfoBar(c);
+        if(!_hasMeaningfulValue(c.netName)){
+          showNCLabel(c);
+          window.currentNetName = null;
+          copySubcompDataToClipboard(c);
+          return;
+        }
+        applyNetSelection(c.netName, componentData);
+       
+        
+        copySubcompDataToClipboard(c);
+       
+      });
+    
+
+     
+      function attachExclusiveCheckbox(mainId, otherId, ownGroupClass, setupFn){
+        const main = document.getElementById(mainId);
+        const other = document.getElementById(otherId);
+        if(!main || !other) return;
+        main.addEventListener("change", ()=>{
+          const s = svgContainer.querySelector("svg");
+          if(!s) return;
+          if(main.checked){
+            // remove the OTHER group entirely
+            const otherGroupClass = ownGroupClass === 'title-group' ? 'rl-group' : 'title-group';
+            const og = s.querySelector('.' + otherGroupClass);
+            if(og) og.remove();
+
+            // build OWN group fresh
+            setupFn();
+            other.checked = false;
+            other.disabled = true;
+          } else {
+            const og = s.querySelector('.' + ownGroupClass);
+            if(og) og.remove();
+            other.disabled = false;
+          }
+        });
+      }
+
+      attachExclusiveCheckbox(
+        "enable-title-checkbox",
+        "enable-rl-checkbox",
+        "title-group",
+        ()=> setupComponents(componentData)
+      );
+
+      attachExclusiveCheckbox(
+        "enable-rl-checkbox",
+        "enable-title-checkbox",
+        "rl-group",
+        ()=> setupComponentsV2(componentData)
+      );
+
+      if(document.getElementById('show-voltage-btn')?.classList.contains('is-active')){
+        setupPinValueLabels('voltage', componentData);
+      } else if(document.getElementById('show-diode-btn')?.classList.contains('is-active')){
+        setupPinValueLabels('diode', componentData);
+      }
+
+    }catch(err){
+      alert('Error loading SVG: '+err.message);
+    }
+  }
+
+  const enableLineCheckbox = document.getElementById("enable-line-checkbox");
+  window.currentNetName = null;
+
+  function applyNetSelection(netName, componentsList){
+    window.currentNetName = netName;
+    const svg = svgContainer.querySelector('svg');
+    if(!svg) return;
+
+    svg.querySelectorAll('.link-line').forEach(l=>l.remove());
+    svg.querySelectorAll('.highlighted-overlay, .highlight-net-overlay').forEach(e=>e.remove());
+
+    if(!netName) return;
+
+    if(enableLineCheckbox.checked){
+     
+      const pts = (componentByNet.get(netName)||[]).map(c => ({
+        ...c,
+        target:    c.target    || '',
+        component: c.component || ''
+      }));
+     
+      drawConnectionLine(pts);
+    } else {
+      highlightAllMatchingNet(netName);
+    }
+    
+    try { applyZoomLineThickness(); } catch(_){}
+  }
+
+  function showNCLabel(pin){
+    const svg = svgContainer.querySelector('svg');
+    const pc = parseComponent(pin && pin.component);
+    if(!svg || !pc) return;
+
+    svg.querySelectorAll('.nc-pin-label').forEach(el => el.remove());
+
+    const ns = 'http://www.w3.org/2000/svg';
+    const label = document.createElementNS(ns, 'text');
+    label.setAttribute('x', pc.x + pc.w / 2);
+    label.setAttribute('y', pc.y - Math.max(pc.h * 0.35, 2));
+    label.setAttribute('fill', '#ffd60a');
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('dominant-baseline', 'auto');
+    label.setAttribute('font-size', Math.max(Math.min(pc.w, pc.h) * 0.8, 4));
+    label.setAttribute('font-weight', '800');
+    label.style.pointerEvents = 'none';
+    label.style.userSelect = 'none';
+    label.textContent = 'NC';
+    label.classList.add('highlighted-overlay', 'nc-pin-label');
+    svg.appendChild(label);
+  }
+
+  function handleComponentClick(componentId, componentsList){
+    // Kept for any legacy callers that look up by string ID.
+    const c = componentByKey.get(componentId) || componentsList.find(x=>x.component===componentId);
+    if(!c) return;
+    applyNetSelection(c.netName, componentsList);
+  }
+
+  function findComponentForElement(el){
+    if(!el || !el.tagName) return null;
+    const tag = el.tagName.toLowerCase();
+
+    // Helper: try a component key against the pin index.
+    function lookupExact(key){
+      const c = componentByKey.get(key);
+      return c || null;
+    }
+
+    // 1) Build key(s) from the element's own SVG attributes.
+    const keys = [];
+    if(tag === 'circle'){
+      const cx = parseFloat(el.getAttribute('cx'));
+      const cy = parseFloat(el.getAttribute('cy'));
+      const r  = parseFloat(el.getAttribute('r'));
+      if(isFinite(cx) && isFinite(cy) && isFinite(r)){
+        const x = cx - r, y = cy - r, w = 2*r, h = 2*r;
+        keys.push(`x${x}_y${y}_w${w}_h${h}`);
+        keys.push(`x${Math.round(x)}_y${Math.round(y)}_w${Math.round(w)}_h${Math.round(h)}`);
+      }
+    } else if(tag === 'rect'){
+      const x = parseFloat(el.getAttribute('x'));
+      const y = parseFloat(el.getAttribute('y'));
+      const w = parseFloat(el.getAttribute('width'));
+      const h = parseFloat(el.getAttribute('height'));
+      if(isFinite(x) && isFinite(y) && isFinite(w) && isFinite(h)){
+        keys.push(`x${x}_y${y}_w${w}_h${h}`);
+        keys.push(`x${Math.round(x)}_y${Math.round(y)}_w${Math.round(w)}_h${Math.round(h)}`);
+      }
+    }
+    for(const k of keys){
+      const hit = lookupExact(k);
+      if(hit) return hit;
+    }
+
+    return null;
+  }
+ 
+  function findComponentForPoint(hx, hy){
+    if(!isFinite(hx) || !isFinite(hy)) return null;
+    let best = null, bestArea = Infinity;
+    for(const arr of componentByNet.values()){
+      for(const cand of arr){
+        const cc = parseComponent(cand.component);
+        if(!cc || !isFinite(cc.x) || !isFinite(cc.y) || !isFinite(cc.w) || !isFinite(cc.h)) continue;
+        if(cc.w <= 0 || cc.h <= 0) continue;
+        if(hx < cc.x || hx > cc.x + cc.w) continue;
+        if(hy < cc.y || hy > cc.y + cc.h) continue;
+        const area = cc.w * cc.h;
+        if(area < bestArea){ bestArea = area; best = cand; }
+      }
+    }
+    return best;
+  }
+ 
+  function showChipPinNames(cx, cy, cw, ch){
+    const svg = svgContainer.querySelector('svg');
+    if(!svg) return;
+    svg.querySelectorAll('.link-line').forEach(l => l.remove());
+    svg.querySelectorAll('.highlighted-overlay').forEach(el => el.remove());
+    svg.querySelectorAll('.highlight-net-overlay').forEach(el => el.remove());
+    svg.querySelectorAll('.chip-pin-label').forEach(el => el.remove());
+
+    const ns   = "http://www.w3.org/2000/svg";
+    const frag = document.createDocumentFragment();
+    const x2   = cx + cw;
+    const y2   = cy + ch;
+    let count  = 0;
+
+    for(const arr of componentByNet.values()){
+      for(const pin of arr){
+        const pc = parseComponent(pin.component);
+        if(!pc || !isFinite(pc.x) || !isFinite(pc.y) || !isFinite(pc.w) || !isFinite(pc.h)) continue;
+        const px = pc.x + pc.w / 2;
+        const py = pc.y + pc.h / 2;
+        // Only pins whose centre falls inside this chip's bbox.
+        if(px < cx || px > x2) continue;
+        if(py < cy || py > y2) continue;
+
+        const text = String(pin.netName || pin.footprint || '');
+        if(!text) continue;
+
+       
+        const label = document.createElementNS(ns,"text");
+        label.setAttribute("x", px);
+        label.setAttribute("y", py);
+        label.setAttribute("fill", "black");
+        label.setAttribute("text-anchor", "middle");
+        label.setAttribute("dominant-baseline", "middle");
+        label.setAttribute("xml:space", "preserve");
+        label.style.pointerEvents = "none";
+        label.style.userSelect    = "none";
+
+        // Mirror setupComponents() sizing.
+        let fontSize = Math.min(pc.w, pc.h) * 0.1;
+        const estCharW = fontSize * 0.6;
+        const estTextW = text.length * estCharW;
+        const maxW = pc.w * 0.9;
+        if(estTextW > maxW){
+          fontSize = maxW / (text.length * 0.4);
+        }
+        if(!isFinite(fontSize) || fontSize <= 0){
+          fontSize = Math.max(1, Math.min(pc.w, pc.h) * 0.08);
+        }
+        label.setAttribute("font-size", fontSize);
+        label.textContent = text;
+
+       
+        label.classList.add("highlighted-overlay");
+        label.classList.add("chip-pin-label");
+
+        frag.appendChild(label);
+        count++;
+      }
+    }
+    svg.appendChild(frag);
+    try { console.log('[BRAZILIAN] chip click → rendered', count, 'pin names'); } catch(_){}
+  }
+ 
+  function _findParentChipBboxForPin(pin){
+    const pc = parseComponent(pin && pin.component);
+    if(!pc) return null;
+    const hx = pc.x + pc.w / 2;
+    const hy = pc.y + pc.h / 2;
+    let best = null, bestArea = Infinity;
+    if(typeof chipBboxIndex !== 'undefined' && chipBboxIndex && chipBboxIndex.size){
+      for(const ch of chipBboxIndex.values()){
+        if(hx < ch.x || hx > ch.x + ch.w) continue;
+        if(hy < ch.y || hy > ch.y + ch.h) continue;
+        const a = ch.w * ch.h;
+        if(a < bestArea){ bestArea = a; best = ch; }
+      }
+    }
+    if(!best && Array.isArray(window.allComponentsList)){
+      for(const c of window.allComponentsList){
+        const loc = parseComponentCoordinates(c && c.component_location);
+        if(!loc) continue;
+        if(hx < loc.x || hx > loc.x + loc.width) continue;
+        if(hy < loc.y || hy > loc.y + loc.height) continue;
+        const a = loc.width * loc.height;
+        if(a < bestArea){
+          bestArea = a;
+          best = { x: loc.x, y: loc.y, w: loc.width, h: loc.height, name: c.component_name || '' };
+        }
+      }
+    }
+    return best;
+  }
+  function _hasMeaning2(v){
+    if(v === null || v === undefined) return false;
+    const s = String(v).trim();
+    return s.length > 0 && s.toUpperCase() !== 'NIL';
+  }
+  function showAllChipPinDataForPin(clickedPin){
+    const chip = _findParentChipBboxForPin(clickedPin);
+    if(!chip) return;
+    const svg = svgContainer.querySelector('svg');
+    if(!svg) return;
+    const cx = chip.x, cy = chip.y, x2 = chip.x + chip.w, y2 = chip.y + chip.h;
+    const ns = "http://www.w3.org/2000/svg";
+    const frag = document.createDocumentFragment();
+    // Build a set of components already labelled by the same-net
+    // drawConnectionLine pass so we don't double-paint on top of
+    // them (those pads already have the red overlay + label).
+    const sameNetSet = new Set();
+    if(clickedPin && clickedPin.netName){
+      const arr = (componentByNet.get(clickedPin.netName) || []);
+      for(const p of arr) sameNetSet.add(p.component);
+    }
+    let count = 0;
+    for(const pin of componentByKey.values()){
+      if(!pin || !pin.component) continue;
+      if(sameNetSet.has(pin.component)) continue;     // skip same-net (already labelled)
+      const pc = parseComponent(pin.component);
+      if(!pc) continue;
+      const px = pc.x + pc.w / 2;
+      const py = pc.y + pc.h / 2;
+      if(px < cx || px > x2) continue;
+      if(py < cy || py > y2) continue;
+      // start net-label-on-pad 28/05/2026 v5
+      // Match the styled rendering used by drawConnectionLine —
+      // small white badge with red diode value at the top, bold
+      // footprint in the centre, net name underneath.
+      const footprt = _hasMeaning2(pin.footprint)  ? String(pin.footprint).trim()  : '';
+      const netRaw  = _hasMeaning2(pin.netName)    ? String(pin.netName).trim()    : '';
+      if(!footprt && !netRaw) continue;
+
+      let base = Math.min(pc.w, pc.h) * 0.18;
+      const longest = Math.max(
+        footprt.length, netRaw.length, 1
+      );
+      const maxW = pc.w * 0.88;
+      const estW = longest * base * 0.55;
+      if(estW > maxW) base = maxW / (longest * 0.5);
+      if(!isFinite(base) || base <= 0) base = Math.max(1, Math.min(pc.w, pc.h) * 0.1);
+      const fpF = base * 1.0, netF = base * 1.0, gap = base * 0.08;
+      const rows = [];
+      if(footprt) rows.push({ kind:'fp',    fs: fpF,  text: footprt });
+      if(netRaw)  rows.push({ kind:'net',   fs: netF, text: netRaw });
+      let totalH = rows.reduce((a, r) => a + r.fs, 0) + gap * (rows.length - 1);
+      let yCur   = py - totalH / 2;
+      rows.forEach((r) => {
+        const rowCy = yCur + r.fs / 2;
+        const txt = document.createElementNS(ns, "text");
+        txt.setAttribute("x", px); txt.setAttribute("y", rowCy);
+        txt.setAttribute("fill", "#0a0a0a");
+        txt.setAttribute("text-anchor", "middle");
+        txt.setAttribute("dominant-baseline", "middle");
+        txt.setAttribute("font-size", r.fs);
+        txt.setAttribute("font-weight", r.kind === 'fp' ? "700" : "600");
+        txt.style.pointerEvents = "none";
+        txt.style.userSelect    = "none";
+        txt.textContent = r.text;
+        txt.classList.add("highlighted-overlay");
+        txt.classList.add("chip-data-label");
+        frag.appendChild(txt);
+        yCur += r.fs + gap;
+      });
+      count++;
+      // end net-label-on-pad 28/05/2026 v5
+    }
+    svg.appendChild(frag);
+    try { console.log('[BRAZILIAN] pin click → rendered', count, 'chip-wide pin data labels'); } catch(_){}
+  }
+  
+  function _hasMeaningfulValue(v){
+    if(v === null || v === undefined) return false;
+    const s = String(v).trim();
+    return s.length > 0 && s.toUpperCase() !== 'NIL';
+  }
+  function showComponentInfoBar(component){
+    const bar = document.getElementById('component-info-bar');
+    const fields = document.getElementById('component-info-fields');
+    if(!bar || !fields || !component) return;
+
+    const labelNames = {
+      component_name:'Name', name:'Name', component:'Location',
+      component_location:'Location', netName:'Net Name', net_name:'Net Name',
+      pinNumber:'Pin', pin_number:'Pin', voltageValue:'Voltage',
+      voltage_value:'Voltage', voltage:'Voltage', diodeValue:'Diode',
+      diode_value:'Diode', diode:'Diode', ohmValue:'Ohms',
+      ohm_value:'Ohms', ohms:'Ohms', ohm:'Ohms', capacitorValue:'Capacitance',
+      capacitor_value:'Capacitance', footprint:'Footprint', comment:'Comment',
+      target:'Target', target_field:'Target'
+    };
+    const preferred = [
+      'component_name','name','component','component_location','netName',
+      'pinNumber','voltageValue','voltage','diodeValue','diode','ohmValue',
+      'ohms','ohm','capacitorValue','capacitor_value',
+      'footprint','target'
+    ];
+    const normalizeInfoKey = key => String(key)
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g,'');
+    const hiddenInfoKeys = new Set([
+      'component', 'componentlocation', 'location', 'position',
+      'pin', 'pinnumber', 'target', 'targetfield',
+      'filename', 'svgfilename', 'svgfile', 'svgname', 'jsonfilename',
+      'fileid', 'fileidentifier', 'idfile', 'filenameid',
+      'createdat', 'creationdate', 'creationtime', 'datecreated',
+      'updatedat', 'updateddate', 'updatetime', 'dateupdated',
+      'created', 'updated', 'id', 'comment'
+    ]);
+    const keys = [...preferred, ...Object.keys(component).filter(k => !preferred.includes(k))]
+      .filter(key => !hiddenInfoKeys.has(normalizeInfoKey(key)));
+    const escapeHtml = value => String(value)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    const formatValue = value => {
+      if(Array.isArray(value) || (value && typeof value === 'object')) return JSON.stringify(value);
+      return String(value);
+    };
+    const formatLabel = key => labelNames[key] || key
+      .replace(/([a-z])([A-Z])/g,'$1 $2')
+      .replace(/[_-]+/g,' ')
+      .replace(/^./, char => char.toUpperCase());
+    const icons = {
+      voltagevalue:'<svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 10-13h-7z"></path></svg>',
+      voltage:'<svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 10-13h-7z"></path></svg>',
+      diodevalue:'<svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h6"></path><path d="M14 12h6"></path><path d="m10 7 5 5-5 5z"></path><path d="M15 7v10"></path></svg>',
+      diode:'<svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h6"></path><path d="M14 12h6"></path><path d="m10 7 5 5-5 5z"></path><path d="M15 7v10"></path></svg>',
+      ohmvalue:'<svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h3"></path><path d="M18 12h3"></path><path d="M6 12l2-4 3 8 3-8 3 8 1-4"></path></svg>',
+      ohms:'<svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h3"></path><path d="M18 12h3"></path><path d="M6 12l2-4 3 8 3-8 3 8 1-4"></path></svg>',
+      ohm:'<svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h3"></path><path d="M18 12h3"></path><path d="M6 12l2-4 3 8 3-8 3 8 1-4"></path></svg>',
+      capacitorvalue:'<svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h6"></path><path d="M14 12h6"></path><path d="M10 5v14"></path><path d="M14 5v14"></path></svg>',
+      capacitance:'<svg class="component-info-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h6"></path><path d="M14 12h6"></path><path d="M10 5v14"></path><path d="M14 5v14"></path></svg>'
+    };
+    const renderLabel = key => {
+      const icon = icons[normalizeInfoKey(key)];
+      return icon ? `<span class="component-info-label" title="${escapeHtml(formatLabel(key))}" aria-label="${escapeHtml(formatLabel(key))}">${icon}</span>` : `<span class="component-info-label">${escapeHtml(formatLabel(key))}</span>`;
+    };
+    const hasInfoValue = value => value !== null && value !== undefined && String(value).trim().length > 0;
+
+    fields.innerHTML = keys.filter(key => hasInfoValue(component[key]))
+      .map(key => `<div class="component-info-field">${renderLabel(key)}<span class="component-info-value" title="${escapeHtml(formatValue(component[key]))}">${escapeHtml(formatValue(component[key]))}</span></div>`)
+      .join('');
+    bar.hidden = false;
+  }
+  function _findParentChipNameForPin(pin){
+    const pc = parseComponent(pin && pin.component);
+    if(!pc) return '';
+    const hx = pc.x + pc.w / 2;
+    const hy = pc.y + pc.h / 2;
+    // Iterate chipBboxIndex (populated by setupComponentsText).
+    let best = null, bestArea = Infinity;
+    if(typeof chipBboxIndex !== 'undefined' && chipBboxIndex && chipBboxIndex.size){
+      for(const ch of chipBboxIndex.values()){
+        if(hx < ch.x || hx > ch.x + ch.w) continue;
+        if(hy < ch.y || hy > ch.y + ch.h) continue;
+        const a = ch.w * ch.h;
+        if(a < bestArea){ bestArea = a; best = ch; }
+      }
+    }
+    // Fallback — scan window.allComponentsList directly.
+    if(!best && Array.isArray(window.allComponentsList)){
+      for(const c of window.allComponentsList){
+        const loc = parseComponentCoordinates(c && c.component_location);
+        if(!loc) continue;
+        if(hx < loc.x || hx > loc.x + loc.width) continue;
+        if(hy < loc.y || hy > loc.y + loc.height) continue;
+        const a = loc.width * loc.height;
+        if(a < bestArea){ bestArea = a; best = { name: c.component_name || '' }; }
+      }
+    }
+    return best ? (best.name || '') : '';
+  }
+  function copySubcompDataToClipboard(pin){
+    if(!pin) {
+      try { console.warn('[BRAZILIAN-svg] copySubcompDataToClipboard called with no pin'); } catch(_){}
+      return;
+    }
+    // start subcomp-click popup 28/05/2026 v3
+    // Client wants the MAIN component (chip) name copied, not the
+    // pin's net name. Falls back through every other meaningful
+    // field so the broadcast always carries SOMETHING — silently
+    // returning on missing chip name was the cause of the "click in
+    // SVG bitmap pane doesn't search in other compare panes"
+    // complaint when chipBboxIndex hadn't populated yet.
+    let text = '';
+    const chipName = _findParentChipNameForPin(pin) || pin.name || '';
+    if(chipName)                                 text = String(chipName).trim();
+    else if(_hasMeaningfulValue(pin.netName))    text = String(pin.netName).trim();
+    else if(_hasMeaningfulValue(pin.footprint))  text = String(pin.footprint).trim();
+    else if(_hasMeaningfulValue(pin.diodeValue)) text = String(pin.diodeValue).trim();
+    else if(_hasMeaningfulValue(pin.component))  text = String(pin.component).trim();
+    if(!text){
+      try { console.warn('[BRAZILIAN-svg] no text to copy/broadcast for pin:', pin); } catch(_){}
+      return;
+    }
+    try { console.log('[BRAZILIAN-svg] resolved click text:', text, '(chipName:', chipName, ')'); } catch(_){}
+   
+    try {
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).catch(() => {});
+      }
+    } catch(_){}
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch(_){}
+      ta.remove();
+    } catch(_){}
+    try {
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({ type:'sbpm:copy-text', text: text }, '*');
+       
+        window.parent.postMessage({ type:'sbpm:compare-search', text: text }, '*');
+        try {
+          console.log('[BRAZILIAN-svg] pin click → posted copy+compare-search "%s" to parent', text);
+        } catch(_){}
+        // end compare-click-search 28/05/2026 v2
+      }
+    } catch(e){
+      try { console.warn('[BRAZILIAN-svg] postMessage to parent failed:', e); } catch(_){}
+    }
+    
+  }
+
+
+  enableLineCheckbox.addEventListener("change", ()=>{
+    if(window.currentNetName){
+      applyNetSelection(window.currentNetName, window.allComponentsList);
+    }
+  });
+
+  function highlightAllMatchingNet(netName){
+    const svg = svgContainer.querySelector('svg');
+    if(!svg) return;
+    svg.querySelectorAll('.link-line').forEach(l=>l.remove());
+    svg.querySelectorAll('.highlighted-overlay').forEach(el=>el.remove());
+    svg.querySelectorAll(".highlight-net-overlay").forEach(el=>el.remove());
+    if(!netName) return;
+
+    const list = componentByNet.get(netName) || [];
+    const frag = document.createDocumentFragment();
+
+    list.forEach(item=>{
+      const obj = parseComponent(item.component);
+      const rect = svg.querySelector(
+        `rect[x="${obj.x}"][y="${obj.y}"][width="${obj.w}"][height="${obj.h}"]`
+      );
+      const cx=obj.x+obj.w/2, cy=obj.y+obj.h/2, r=obj.w/2;
+      const circle = svg.querySelector(`circle[cx="${cx}"][cy="${cy}"][r="${r}"]`);
+      const target = rect || circle;
+      if(!target) return;
+      frag.appendChild(createOverlayForElement(target));
+    });
+    svg.appendChild(frag);
+  }
+
+  function createOverlayForElement(el){
+    const ns = "http://www.w3.org/2000/svg";
+    const tag = el.tagName.toLowerCase();
+    let o;
+    if(tag==="rect"){
+      o = document.createElementNS(ns,"rect");
+      o.setAttribute("x",el.getAttribute("x"));
+      o.setAttribute("y",el.getAttribute("y"));
+      o.setAttribute("width",el.getAttribute("width"));
+      o.setAttribute("height",el.getAttribute("height"));
+    } else if(tag==="circle"){
+      o = document.createElementNS(ns,"circle");
+      o.setAttribute("cx",el.getAttribute("cx"));
+      o.setAttribute("cy",el.getAttribute("cy"));
+      o.setAttribute("r",el.getAttribute("r"));
+    } else return null;
+    o.setAttribute("fill","rgba(255,0,0,0.20)");
+    o.setAttribute("stroke","#ff2b2b");
+    // start bitmap code - fenil
+    // Initial stroke width for the new overlay; the same value will
+    // be refreshed on every zoom step by applyZoomLineThickness().
+    // We use style.strokeWidth (not setAttribute) so it overrides the
+    // `.highlight-net-overlay { stroke-width:20 }` CSS class rule.
+    o.style.strokeWidth = getZoomStroke('highlightNetOverlay');
+    // end bitmap code - fenil
+    o.setAttribute("pointer-events","none");
+    o.classList.add("highlight-net-overlay");
+    return o;
+  }
+
+  function drawConnectionLine(points){
+    if(!points || points.length<2) return;
+    const svg = svgContainer.querySelector('svg');
+    if(!svg) return;
+
+    svg.querySelectorAll('.link-line').forEach(l=>l.remove());
+    svg.querySelectorAll('.highlighted-overlay').forEach(el=>el.remove());
+    svg.querySelectorAll(".highlight-net-overlay").forEach(el=>el.remove());
+
+    const centers = [];
+    const ns = "http://www.w3.org/2000/svg";
+    const frag = document.createDocumentFragment();
+
+   
+    const netLabelText = String(window.currentNetName || '');
+    const pinByLocation = new Map();
+    for(const p of points){
+      if(p && p.component){
+        pinByLocation.set(String(p.component).trim(), p);
+      }
+    }
+    function _hasMeaning(v){
+      if(v === null || v === undefined) return false;
+      const s = String(v).trim();
+      return s.length > 0 && s.toUpperCase() !== 'NIL';
+    }
+    function _findPinForLocation(tx, ty, tw, th){
+      // First try exact rounded key match.
+      const k = `x${Math.round(tx)}_y${Math.round(ty)}_w${Math.round(tw)}_h${Math.round(th)}`;
+      const direct = pinByLocation.get(k);
+      if(direct) return direct;
+      // Fall back to centre containment (handles fractional or
+      // string-form coords from `target` snippets).
+      const ccx = tx + tw / 2;
+      const ccy = ty + th / 2;
+      for(const p of pinByLocation.values()){
+        const c = parseComponent(p.component);
+        if(!c) continue;
+        if(ccx < c.x || ccx > c.x + c.w) continue;
+        if(ccy < c.y || ccy > c.y + c.h) continue;
+        return p;
+      }
+      return null;
+    }
+   
+    function _renderPadLabelStyled(cx, cy, w, h, pin, fallbackNet){
+      const footprt  = (pin && _hasMeaning(pin.footprint))  ? String(pin.footprint).trim()  : '';
+      const netRaw   = (pin && _hasMeaning(pin.netName))    ? String(pin.netName).trim()    : (fallbackNet || '');
+      if(!footprt && !netRaw) return;
+
+      // Font sizing — primary line (footprint) is biggest, others
+      // scale relative to it. Auto-shrink so the longest fits.
+      let base = Math.min(w, h) * 0.18;
+      const longest = Math.max(
+        (footprt? footprt.length: 0),
+        (netRaw ? netRaw.length : 0),
+        1
+      );
+      const maxW = w * 0.88;
+      const estW = longest * base * 0.55;
+      if(estW > maxW) base = maxW / (longest * 0.5);
+      if(!isFinite(base) || base <= 0) base = Math.max(1, Math.min(w, h) * 0.1);
+
+      const fpFont     = base * 1.0;
+      const netFont    = base * 1.0;
+      const gap        = base * 0.08;
+
+      // Centre the block vertically.
+      const rows = [];
+      if(footprt) rows.push({ kind:'fp',     fs: fpFont,    text: footprt });
+      if(netRaw)  rows.push({ kind:'net',    fs: netFont,   text: netRaw });
+      let totalH = rows.reduce((a, r) => a + r.fs, 0) + gap * (rows.length - 1);
+      let yCur   = cy - totalH / 2;
+
+      rows.forEach((r, i) => {
+        const rowCy = yCur + r.fs / 2;
+        const txt = document.createElementNS(ns, "text");
+        txt.setAttribute("x", cx);
+        txt.setAttribute("y", rowCy);
+        txt.setAttribute("fill", "#0a0a0a");
+        txt.setAttribute("text-anchor", "middle");
+        txt.setAttribute("dominant-baseline", "middle");
+        txt.setAttribute("font-size", r.fs);
+        txt.setAttribute("font-weight", r.kind === 'fp' ? "700" : "600");
+        txt.style.pointerEvents = "none";
+        txt.style.userSelect    = "none";
+        txt.textContent = r.text;
+        txt.classList.add("highlighted-overlay");
+        txt.classList.add("net-pin-label");
+        frag.appendChild(txt);
+        yCur += r.fs + gap;
+      });
+    }
+
+    function addPadLabel(cx, cy, w, h, tx, ty, tw, th){
+      if(![cx,cy,w,h].every(v => isFinite(v))) return;
+      const pin = _findPinForLocation(
+        isFinite(tx) ? tx : cx - w/2,
+        isFinite(ty) ? ty : cy - h/2,
+        isFinite(tw) ? tw : w,
+        isFinite(th) ? th : h
+      );
+      _renderPadLabelStyled(cx, cy, w, h, pin, netLabelText);
+    }
+   
+    function addRectNode(tx, ty, tw, th){
+      if(![tx,ty,tw,th].every(v=>isFinite(v))) return false;
+      if(tw <= 0 || th <= 0) return false;
+      centers.push({x: tx + tw/2, y: ty + th/2});
+      const ov = document.createElementNS(ns,"rect");
+      ov.setAttribute("x", tx); ov.setAttribute("y", ty);
+      ov.setAttribute("width", tw); ov.setAttribute("height", th);
+      ov.setAttribute("rx", 8);
+      ov.setAttribute("fill","rgba(255,0,0,0.6)");
+      ov.setAttribute("stroke","#ff2b2b");
+      // start bitmap code - fenil
+      ov.style.strokeWidth = getZoomStroke('highlightedOverlay');
+      // end bitmap code - fenil
+      ov.setAttribute("pointer-events","none");
+      ov.classList.add("highlighted-overlay");
+      frag.appendChild(ov);
+      // start net-label-on-pad 28/05/2026 v4
+      addPadLabel(tx + tw/2, ty + th/2, tw, th, tx, ty, tw, th);
+      // end net-label-on-pad 28/05/2026 v4
+      return true;
+    }
+    function addCircleNode(cx, cy, r){
+      if(![cx,cy,r].every(v=>isFinite(v))) return false;
+      if(r <= 0) return false;
+      centers.push({x: cx, y: cy});
+      const ov = document.createElementNS(ns,"circle");
+      ov.setAttribute("cx", cx); ov.setAttribute("cy", cy); ov.setAttribute("r", r);
+      ov.setAttribute("fill","rgba(255,0,0,0.6)");
+      ov.setAttribute("stroke","#ff2b2b");
+      // start bitmap code - fenil
+      ov.style.strokeWidth = getZoomStroke('highlightedOverlay');
+      // end bitmap code - fenil
+      ov.setAttribute("pointer-events","none");
+      ov.classList.add("highlighted-overlay");
+      frag.appendChild(ov);
+      // start net-label-on-pad 28/05/2026 v4
+      addPadLabel(cx, cy, 2*r, 2*r, cx - r, cy - r, 2*r, 2*r);
+      // end net-label-on-pad 28/05/2026 v4
+      return true;
+    }
+    // end line - component color 28/05/2026
+
+    points.forEach(p=>{
+      if(!p) return;
+    
+      let added = false;
+      if(p.target){
+        const tmp = document.createElement('div');
+        tmp.innerHTML = String(p.target).trim();
+        const el = tmp.firstChild;
+        if(el && el.tagName){
+          const tag = el.tagName.toLowerCase();
+          if(tag === 'rect'){
+            added = addRectNode(
+              parseFloat(el.getAttribute('x')),
+              parseFloat(el.getAttribute('y')),
+              parseFloat(el.getAttribute('width')),
+              parseFloat(el.getAttribute('height'))
+            );
+          } else if(tag === 'circle'){
+            added = addCircleNode(
+              parseFloat(el.getAttribute('cx')),
+              parseFloat(el.getAttribute('cy')),
+              parseFloat(el.getAttribute('r'))
+            );
+          }
+        }
+      }
+    
+      if(!added && p.component){
+        const c = parseComponent(p.component);
+        if(c){
+          const cx = c.x + c.w/2;
+          const cy = c.y + c.h/2;
+          const r  = c.w/2;
+          // Prefer a circle when the live SVG actually has one at
+          // that center (BGA-style pad), otherwise draw a rect.
+          const circleEl = svg.querySelector(
+            `circle[cx="${cx}"][cy="${cy}"][r="${r}"]`
+          );
+          if(circleEl){
+            added = addCircleNode(cx, cy, r);
+          } else {
+            added = addRectNode(c.x, c.y, c.w, c.h);
+          }
+        }
+      }
+     
+    });
+
+    if(centers.length<2){ svg.appendChild(frag); return; }
+    centers.sort((a,b)=>a.x-b.x);
+
+    const path = document.createElementNS(ns,'path');
+    let d = `M ${centers[0].x} ${centers[0].y}`;
+    let cx = centers[0].x, cy = centers[0].y;
+    for(let i=1;i<centers.length;i++){
+      const t = centers[i];
+      const mx = (cx+t.x)/2;
+      d += ` L ${mx} ${cy} L ${mx} ${t.y} L ${t.x} ${t.y}`;
+      cx=t.x; cy=t.y;
+    }
+    path.setAttribute('d',d);
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke','red');
+    // start bitmap code - fenil
+    // Initial stroke width for the red connector line; refreshed
+    // on every wheel-zoom step by applyZoomLineThickness().
+    path.style.strokeWidth = getZoomStroke('linkLine');
+    // end bitmap code - fenil
+    path.setAttribute('stroke-linecap','round');
+    path.setAttribute('stroke-opacity','0.7');
+    path.classList.add('link-line');
+    frag.appendChild(path);
+    svg.appendChild(frag);
+  }
+
+ 
+  function setupSearchSuggestions(){
+    const searchInput = document.getElementById("search-input");
+    if(!searchInput) return;
+
+    const box = document.createElement("div");
+    Object.assign(box.style,{
+      position:"absolute",
+      background:"rgba(20,20,20,0.95)",
+      border:"1px solid #555",
+      borderRadius:"8px",
+      padding:"4px 0",
+      maxHeight:"180px",
+      overflowY:"auto",
+      zIndex:"9999",
+      color:"#fff",
+      fontSize:"14px",
+      display:"none"
+    });
+    document.body.appendChild(box);
+
+    function updatePos(){
+      const r = searchInput.getBoundingClientRect();
+      box.style.left = `${r.left}px`;
+      box.style.top  = `${r.bottom + window.scrollY}px`;
+      box.style.width = `${searchInput.offsetWidth}px`;
+    }
+    updatePos();
+
+    let debounce = null;
+    function getComponentSuggestionMatches(query){
+      const q = String(query || '').trim().toLowerCase();
+      if(!q) return [];
+      const seen = new Set();
+      const matches = [];
+      const sources = [
+        window.currentComponentData,
+        window.allComponentsList,
+        window.allComponentsListV2
+      ];
+
+      sources.forEach(list=>{
+        if(!Array.isArray(list)) return;
+        list.forEach(c=>{
+          const name = String((c && (c.name || c.component_name)) || '').trim();
+          if(!name) return;
+          const key = name.toLowerCase();
+          if(!key.startsWith(q) || seen.has(key)) return;
+          seen.add(key);
+          matches.push({type:'component', value:name});
+        });
+      });
+
+      matches.sort((a,b)=>a.value.localeCompare(b.value, undefined, {numeric:true, sensitivity:'base'}));
+      return matches.slice(0, 40);
+    }
+
+    function getNetSuggestionMatches(query){
+      const q = String(query || '').trim().toLowerCase();
+      if(!q) return [];
+      const matches = [];
+      for(const net of componentByNet.keys()){
+        const value = String(net || '').trim();
+        if(value.toLowerCase().startsWith(q)){
+          matches.push({type:'net', value});
+          if(matches.length>=20) break;
+        }
+      }
+      return matches;
+    }
+
+    searchInput.addEventListener("input", ()=>{
+      clearTimeout(debounce);
+      debounce = setTimeout(()=>{
+        const q = searchInput.value.trim().toLowerCase();
+        box.innerHTML = "";
+        if(!q){ box.style.display="none"; return; }
+
+        const componentMatches = getComponentSuggestionMatches(q);
+        const matches = componentMatches.length ? componentMatches : getNetSuggestionMatches(q);
+        if(!matches.length){ box.style.display="none"; return; }
+
+        const frag = document.createDocumentFragment();
+        matches.forEach(match=>{
+          const item = document.createElement("div");
+          item.className = "suggestion-item";
+          item.dataset.value = match.value;
+          item.dataset.type = match.type;
+          item.textContent = match.value;
+          Object.assign(item.style,{
+            padding:"6px 10px",
+            cursor:"pointer",
+            borderBottom:"1px solid rgba(255,214,10,0.12)"
+          });
+          item.onmouseenter = ()=> {
+            item.style.background="#ffd60a";
+            item.style.color="#050505";
+          };
+          item.onmouseleave = ()=> item.style.background="transparent";
+          item.onmouseleave = ()=> {
+            item.style.background="transparent";
+            item.style.color="";
+          };
+          frag.appendChild(item);
+        });
+        box.appendChild(frag);
+        updatePos();
+        box.style.display="block";
+      }, 100);
+    });
+
+    box.addEventListener("click", e=>{
+      const item = e.target.closest(".suggestion-item");
+      if(!item) return;
+      const value = item.dataset.value;
+      searchInput.value = value;
+      box.style.display = "none";
+      if(typeof window.__sbpm_runSearchFromInput === 'function'){
+        window.__sbpm_runSearchFromInput();
+      } else if(item.dataset.type === 'net'){
+        window.currentNetName = value;
+        applyNetSelection(value, window.allComponentsList);
+      }
+    });
+
+    searchInput.addEventListener("blur", ()=> setTimeout(()=>box.style.display="none",150));
+    window.addEventListener("resize", updatePos);
+
+    function _showFoundBadge(found, label){
+      let badge = document.getElementById('search-status-badge');
+      if(!badge){
+        badge = document.createElement('div');
+        badge.id = 'search-status-badge';
+        Object.assign(badge.style, {
+          position:'absolute', padding:'2px 8px', borderRadius:'10px',
+          fontSize:'11px', fontWeight:'600', zIndex:'10000',
+          pointerEvents:'none', boxShadow:'0 2px 6px rgba(0,0,0,0.25)'
+        });
+        document.body.appendChild(badge);
+      }
+      const r = searchInput.getBoundingClientRect();
+      badge.style.left = (r.left) + 'px';
+      badge.style.top  = (r.bottom + window.scrollY + 4) + 'px';
+      if(found){
+        badge.textContent = label || 'found';
+        badge.style.background = '#c8efd2';
+        badge.style.color      = '#1e7e34';
+        badge.style.border     = '1px solid #1e7e34';
+      } else {
+        badge.textContent = 'not found';
+        badge.style.background = '#f8d7da';
+        badge.style.color      = '#721c24';
+        badge.style.border     = '1px solid #721c24';
+      }
+      badge.style.display = 'inline-block';
+      clearTimeout(_showFoundBadge._t);
+      _showFoundBadge._t = setTimeout(()=>{ badge.style.display = 'none'; }, 4000);
+    }
+
+    function _highlightChipByName(name){
+     
+      const want = String(name || '').trim().toLowerCase();
+      if(!want || !Array.isArray(window.allComponentsList)) return false;
+      let best = null;
+      for(const c of window.allComponentsList){
+        const n = String(c && c.component_name || '').trim().toLowerCase();
+        if(!n) continue;
+        if(n === want){ best = c; break; }
+        if(!best && n.includes(want)) best = c;
+      }
+      if(!best) return false;
+      const loc = parseComponentCoordinates(best.component_location);
+      if(!loc) return false;
+      if(typeof showChipPinNames === 'function'){
+        showChipPinNames(loc.x, loc.y, loc.width, loc.height);
+      }
+     
+      let chipOutlineEl = null;
+      try {
+        const svg = svgContainer.querySelector('svg');
+        if(svg){
+          const ns = "http://www.w3.org/2000/svg";
+          const rect = document.createElementNS(ns, "rect");
+          rect.setAttribute("x", loc.x);
+          rect.setAttribute("y", loc.y);
+          rect.setAttribute("width", loc.width);
+          rect.setAttribute("height", loc.height);
+          // v15 22-06-2026: rx scaled to chip size (5 % of shorter
+          // side, capped 0..3 userspace) so corners look slightly
+          // rounded like the client's sample, not heavily rounded.
+          const chipShort15 = Math.min(loc.width || 0, loc.height || 0);
+          const rx15 = Math.max(0, Math.min(3, chipShort15 * 0.05));
+          rect.setAttribute("rx", rx15);
+          rect.setAttribute("fill", "none");
+          rect.setAttribute("stroke", "#00bfff");
+        
+          rect.setAttribute("vector-effect", "non-scaling-stroke");
+          rect.style.strokeWidth = "2";
+          rect.setAttribute("pointer-events", "none");
+          rect.classList.add("highlighted-overlay");
+          rect.classList.add("chip-search-outline");
+          svg.appendChild(rect);
+          chipOutlineEl = rect; // v12 — scrollIntoView fallback
+        }
+      } catch(_){}
+     
+      try {
+        const svgEl = svgContainer.querySelector('svg');
+        if(svgEl
+           && typeof scheduleTransform === 'function'
+           && typeof translate !== 'undefined'
+           && typeof scale !== 'undefined'){
+          // Cache the SVG's original viewBox once so successive
+          // searches don't accumulate (we always derive new viewBox
+          // from the ORIGINAL, not the previously-zoomed one).
+          if (typeof window.__sbpm_svg_origViewBox === 'undefined'){
+            const vb0 = svgEl.viewBox && svgEl.viewBox.baseVal;
+            if (vb0){
+              window.__sbpm_svg_origViewBox = {
+                x: vb0.x, y: vb0.y, w: vb0.width, h: vb0.height
+              };
+            } else {
+              window.__sbpm_svg_origViewBox = null;
+            }
+          }
+          const orig = window.__sbpm_svg_origViewBox;
+          // ---- Step 1: reset CSS transform to known-good baseline ----
+          scale       = 1;
+          translate.x = 0;
+          translate.y = 0;
+          scheduleTransform();
+          // ---- Step 2: compute new viewBox centred on chip ----
+          if (orig && isFinite(loc.x) && isFinite(loc.y)
+              && isFinite(loc.width) && isFinite(loc.height)
+              && loc.width > 0 && loc.height > 0){
+            const parentRect0 = svgContainer.parentElement
+              ? svgContainer.parentElement.getBoundingClientRect()
+              : { width: window.innerWidth, height: window.innerHeight };
+            const paneW = Math.max(1, parentRect0.width);
+            const paneH = Math.max(1, parentRect0.height);
+            const paneAspect = paneW / paneH;
+            
+            const fitFrac = 0.12;
+            const chipMax = Math.max(loc.width, loc.height);
+            // base view size (in userspace) so chip = 25% of shorter pane side
+            const viewShort = chipMax / fitFrac; // shorter side of viewBox
+            let viewW, viewH;
+            if (paneAspect >= 1){
+            
+              viewH = viewShort;
+              viewW = viewH * paneAspect;
+            } else {
+              viewW = viewShort;
+              viewH = viewW / paneAspect;
+            }
+          
+            if (viewW > orig.w) viewW = orig.w;
+            if (viewH > orig.h) viewH = orig.h;
+            // Centre on chip
+            const cx = loc.x + loc.width  / 2;
+            const cy = loc.y + loc.height / 2;
+            let vbX = cx - viewW / 2;
+            let vbY = cy - viewH / 2;
+            // Don't pan past the original viewBox edges
+            if (vbX < orig.x) vbX = orig.x;
+            if (vbY < orig.y) vbY = orig.y;
+            if (vbX + viewW > orig.x + orig.w) vbX = orig.x + orig.w - viewW;
+            if (vbY + viewH > orig.y + orig.h) vbY = orig.y + orig.h - viewH;
+            svgEl.setAttribute('viewBox', `${vbX} ${vbY} ${viewW} ${viewH}`);
+            svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            
+            try { if (typeof applyZoomLineThickness === 'function') applyZoomLineThickness(); } catch(_){}
+            try { console.log(
+              '[BRAZILIAN-svg] zoom-to-chip (v13 viewBox) → chip@user=(%s,%s) size=(%s,%s) viewBox=(%s %s %s %s) origVB=(%s %s %s %s)',
+              cx.toFixed(0), cy.toFixed(0),
+              loc.width.toFixed(0), loc.height.toFixed(0),
+              vbX.toFixed(0), vbY.toFixed(0), viewW.toFixed(0), viewH.toFixed(0),
+              orig.x.toFixed(0), orig.y.toFixed(0), orig.w.toFixed(0), orig.h.toFixed(0)
+            ); } catch(_){}
+          } else {
+            try { console.warn('[BRAZILIAN-svg] v13 viewBox zoom skipped — no orig viewBox or bad loc', orig, loc); } catch(_){}
+          }
+        }
+      } catch(e){
+        try { console.warn('[BRAZILIAN-svg] zoom-to-chip failed:', e); } catch(_){}
+      }
+      // end search-trigger 28/05/2026 v13
+      return true;
+    }
+
+    function _zoomToLocation(loc){
+      try {
+        const svgEl = svgContainer.querySelector('svg');
+        if(!svgEl || !loc) return;
+        if (typeof window.__sbpm_svg_origViewBox === 'undefined'){
+          const vb0 = svgEl.viewBox && svgEl.viewBox.baseVal;
+          window.__sbpm_svg_origViewBox = vb0
+            ? {x: vb0.x, y: vb0.y, w: vb0.width, h: vb0.height}
+            : null;
+        }
+        const orig = window.__sbpm_svg_origViewBox;
+        if(!orig) return;
+        scale = 1;
+        translate.x = 0;
+        translate.y = 0;
+        scheduleTransform();
+
+        const parentRect = svgContainer.parentElement
+          ? svgContainer.parentElement.getBoundingClientRect()
+          : {width: window.innerWidth, height: window.innerHeight};
+        const paneAspect = Math.max(1, parentRect.width) / Math.max(1, parentRect.height);
+        const fitFrac = 0.12;
+        const itemMax = Math.max(loc.width, loc.height);
+        const viewShort = itemMax / fitFrac;
+        let viewW, viewH;
+        if(paneAspect >= 1){
+          viewH = viewShort;
+          viewW = viewH * paneAspect;
+        } else {
+          viewW = viewShort;
+          viewH = viewW / paneAspect;
+        }
+        if(viewW > orig.w) viewW = orig.w;
+        if(viewH > orig.h) viewH = orig.h;
+
+        const cx = loc.x + loc.width / 2;
+        const cy = loc.y + loc.height / 2;
+        let vbX = cx - viewW / 2;
+        let vbY = cy - viewH / 2;
+        if(vbX < orig.x) vbX = orig.x;
+        if(vbY < orig.y) vbY = orig.y;
+        if(vbX + viewW > orig.x + orig.w) vbX = orig.x + orig.w - viewW;
+        if(vbY + viewH > orig.y + orig.h) vbY = orig.y + orig.h - viewH;
+        svgEl.setAttribute('viewBox', `${vbX} ${vbY} ${viewW} ${viewH}`);
+        svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        try { applyZoomLineThickness(); } catch(_){}
+      } catch(_){}
+    }
+
+    function _highlightPinsByComponentName(name){
+      const want = String(name || '').trim().toLowerCase();
+      const list = Array.isArray(window.currentComponentData) ? window.currentComponentData : [];
+      if(!want || !list.length) return false;
+
+      let matches = list.filter(c=>{
+        const n = String((c && (c.name || c.component_name)) || '').trim().toLowerCase();
+        return n === want;
+      });
+      if(!matches.length){
+        matches = list.filter(c=>{
+          const n = String((c && (c.name || c.component_name)) || '').trim().toLowerCase();
+          return n.startsWith(want);
+        });
+      }
+      if(!matches.length) return false;
+
+      const svg = svgContainer.querySelector('svg');
+      if(!svg) return false;
+      svg.querySelectorAll('.highlighted-overlay,.link-line,.net-pin-label').forEach(el=>el.remove());
+
+      const ns = "http://www.w3.org/2000/svg";
+      const frag = document.createDocumentFragment();
+      let firstLoc = null;
+
+      matches.forEach(pin=>{
+        const loc = getPinCoordinates(pin);
+        if(!loc || !loc.width || !loc.height) return;
+        if(!firstLoc) firstLoc = loc;
+        const rect = document.createElementNS(ns, 'rect');
+        rect.setAttribute('x', loc.x);
+        rect.setAttribute('y', loc.y);
+        rect.setAttribute('width', loc.width);
+        rect.setAttribute('height', loc.height);
+        rect.setAttribute('rx', Math.min(8, Math.min(loc.width, loc.height) * 0.15));
+        rect.setAttribute('fill', 'rgba(255,0,0,0.45)');
+        rect.setAttribute('stroke', '#ff2b2b');
+        rect.style.strokeWidth = getZoomStroke('highlightedOverlay');
+        rect.setAttribute('pointer-events', 'none');
+        rect.classList.add('highlighted-overlay');
+        frag.appendChild(rect);
+      });
+
+      if(!firstLoc) return false;
+      svg.appendChild(frag);
+      _zoomToLocation(firstLoc);
+      return true;
+    }
+
+    function runSearchFromInput(){
+      const raw = String(searchInput.value || '').trim();
+      if(!raw){ return; }
+      const upper = raw.toUpperCase();
+      const lower = raw.toLowerCase();
+      // 1) exact net-name match
+      if(componentByNet.has(upper)){
+        window.currentNetName = upper;
+        applyNetSelection(upper, window.allComponentsList);
+        _showFoundBadge(true, 'found');
+        if(box) box.style.display = 'none';
+        return;
+      }
+      // 2) case-insensitive net-name match
+      let netHit = null;
+      for(const net of componentByNet.keys()){
+        if(String(net).toLowerCase() === lower){ netHit = net; break; }
+      }
+      if(netHit){
+        window.currentNetName = netHit;
+        applyNetSelection(netHit, window.allComponentsList);
+        _showFoundBadge(true, 'found');
+        if(box) box.style.display = 'none';
+        return;
+      }
+      // 3) pin/component name match from JSON
+      if(_highlightPinsByComponentName(raw)){
+        _showFoundBadge(true, 'component found');
+        if(box) box.style.display = 'none';
+        return;
+      }
+      // 4) net-name containment (first hit)
+      for(const net of componentByNet.keys()){
+        if(String(net).toLowerCase().includes(lower)){ netHit = net; break; }
+      }
+      if(netHit){
+        window.currentNetName = netHit;
+        applyNetSelection(netHit, window.allComponentsList);
+        _showFoundBadge(true, 'found ('+netHit+')');
+        if(box) box.style.display = 'none';
+        return;
+      }
+      // 5) main-component (chip) name match
+      if(_highlightChipByName(raw)){
+        _showFoundBadge(true, 'chip found');
+        if(box) box.style.display = 'none';
+        return;
+      }
+      // 6) nothing matched
+      _showFoundBadge(false);
+    }
+
+    // Enter triggers the search.
+    searchInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){ e.preventDefault(); runSearchFromInput(); }
+    });
+    // When the value is set programmatically (compare-search
+    // broadcast), 'change' fires — run the search then.
+    searchInput.addEventListener('change', runSearchFromInput);
+    // Also expose for external triggers.
+    window.__sbpm_runSearchFromInput = runSearchFromInput;
+    // end search-trigger 28/05/2026
+  }
+  setupSearchSuggestions();
+
+  
+  function loadProblemsFromJson(problems){
+    const sel = document.getElementById("problemSelect");
+    sel.innerHTML = `<option value="">-- Select Issue --</option>`;
+    if(!Array.isArray(problems) || !problems.length) return;
+
+    const frag = document.createDocumentFragment();
+    problems.forEach((p, i)=>{
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = p.problem_title || p.title || `Problem ${i+1}`;
+      frag.appendChild(opt);
+    });
+    sel.appendChild(frag);
+  }
+
+  document.getElementById("problemSelect").addEventListener("change", function(){
+    const titleCk = document.getElementById("enable-title-checkbox");
+    const ptSel = document.getElementById("pointSelect");
+    if(!titleCk.checked){
+      //Swal.fire({icon:'warning',title:'Checkbox not enabled',text:'Please enable "Show Titles" first!'});
+      if(typeof Swal !== 'undefined'){
+        Swal.fire({icon:'warning',title:'Checkbox not enabled',text:'Please enable "Show Titles" first!'});
+      } else {
+        alert('Please enable "Show Titles" first!');
+      }
+      this.value = "";
+      ptSel.innerHTML = `<option value="">-- Select Point --</option>`;
+      return;
+    }
+    const idx = this.value;
+    ptSel.innerHTML = `<option value="">-- Select Point --</option>`;
+    if(idx === "") return;
+
+    const problem = window.loadedProblems?.[idx];
+    if(!problem) return;
+
+    const solutionComponents = problem.components || problem.solutions || [];
+    window.loadedProblemComponents = solutionComponents;
+
+    const frag = document.createDocumentFragment();
+    solutionComponents.forEach((c,i)=>{
+      const title = c.component_name ?? `Point ${i+1}`;
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `${title} (Check: ${c.netName||''})`;
+      frag.appendChild(opt);
+    });
+    ptSel.appendChild(frag);
+  });
+
+  document.getElementById("pointSelect").addEventListener("change", function(){
+    const idx = this.value;
+    if(idx === ""){ highlightAllMatchingNet(""); return; }
+    const c = window.loadedProblemComponents?.[idx];
+    if(!c) return;
+    applyNetSelection(c.netName || "", window.allComponentsList);
+  });
+
+  /* =========================================================
+     LOCAL FILES + SINGLE FILE EXPORT
+     ========================================================= */
+  function readLocalFile(file, mode){
+    return new Promise((resolve, reject) => {
+      if(!file){ reject(new Error('No file selected.')); return; }
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error || new Error('Could not read file.'));
+      if(mode === 'text') reader.readAsText(file);
+      else reader.readAsArrayBuffer(file);
+    });
+  }
+
+  function showLoadError(message){
+    svgContainer.innerHTML = `<p style="color:red;padding:20px;">${message}</p>`;
+  }
+
+  async function tryLoadLocalPair(){
+    if(!localSvgFile || !localJsonFile) return;
+
+    try{
+      const [svgTxt, jsonTxt] = await Promise.all([
+        readLocalFile(localSvgFile, 'text'),
+        readLocalFile(localJsonFile, 'text')
+      ]);
+      const jsonData = JSON.parse(jsonTxt);
+      await loadSVGWithJSONData(svgTxt, jsonData);
+    }catch(err){
+      console.error('Error loading local SVG/JSON:', err);
+      showLoadError(`Error loading local SVG/JSON: ${err.message}`);
+    }
+  }
+
+  let exportNameModalResolve = null;
+
+  function normalizePcbeFileName(name){
+    const baseName = (name || '')
+      .trim()
+      .replace(/[\\/:*?"<>|]+/g, '-')
+      .replace(/\s+/g, ' ')
+      .replace(/(?:\.pcbe|\.[^/.\\]+)$/i, '')
+      .trim();
+
+    return baseName ? `${baseName}.pcbe` : null;
+  }
+
+  function closeExportNameModal(value){
+    const modal = document.getElementById('export-name-modal');
+    modal.hidden = true;
+    modal.setAttribute('aria-hidden', 'true');
+
+    if(exportNameModalResolve){
+      exportNameModalResolve(value);
+      exportNameModalResolve = null;
+    }
+  }
+
+  function requestExportFileName(){
+    const modal = document.getElementById('export-name-modal');
+    const input = document.getElementById('export-name-input');
+
+    return new Promise(resolve => {
+      exportNameModalResolve = resolve;
+      input.value = 'svg-json-bundle';
+      modal.hidden = false;
+      modal.setAttribute('aria-hidden', 'false');
+      window.setTimeout(() => {
+        input.focus();
+        input.select();
+      }, 0);
+    });
+  }
+
+  async function exportSingleFile(){
+    if(!currentSvgContent || !currentJsonData) return;
+
+    const requestedName = await requestExportFileName();
+    const fileName = normalizePcbeFileName(requestedName);
+    if(!fileName) return;
+
+    const payload = {
+      format: 'svgjson-edit-bundle',
+      version: 1,
+      createdAt: new Date().toISOString(),
+      svg: currentSvgContent,
+      json: currentJsonData
+    };
+    const blob = new Blob([JSON.stringify(payload)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function loadSingleFile(file){
+    try{
+      const txt = await readLocalFile(file, 'text');
+      const payload = JSON.parse(txt);
+      if(!payload || payload.format !== 'svgjson-edit-bundle' || typeof payload.svg !== 'string'){
+        throw new Error('Invalid single file. Please upload a file exported by this viewer.');
+      }
+      await loadSVGWithJSONData(payload.svg, payload.json);
+    }catch(err){
+      console.error('Error loading single file:', err);
+      showLoadError(`Error loading single file: ${err.message}`);
+    }
+  }
+
+  async function loadSingleFileFromUrl(fileUrl){
+    try{
+      const res = await fetch(fileUrl, {cache:'no-cache'});
+      if(!res.ok){
+        throw new Error(`Could not fetch PCBE file (${res.status} ${res.statusText})`);
+      }
+      const txt = await res.text();
+      const payload = JSON.parse(txt);
+      if(!payload || payload.format !== 'svgjson-edit-bundle' || typeof payload.svg !== 'string'){
+        throw new Error('Invalid PCBE file. Please provide a file exported by this viewer.');
+      }
+      await loadSVGWithJSONData(payload.svg, payload.json);
+    }catch(err){
+      console.error('Error loading PCBE URL:', err);
+      showLoadError(`Error loading PCBE URL: ${err.message}`);
+    }
+  }
+
+ 
+  const exportNameModal = document.getElementById('export-name-modal');
+  const exportNameInput = document.getElementById('export-name-input');
+
+  const loadSvgBtn = document.getElementById('load-svg-btn');
+  const loadJsonBtn = document.getElementById('load-json-btn');
+  
+  const centerContentBtn = document.getElementById('center-content-btn');
+  const zoomInBtn = document.getElementById('zoom-in-btn');
+  const zoomOutBtn = document.getElementById('zoom-out-btn');
+  const showVoltageBtn = document.getElementById('show-voltage-btn');
+  const showDiodeBtn = document.getElementById('show-diode-btn');
+  if(loadSvgBtn) loadSvgBtn.addEventListener('click', () => localSvgInput.click());
+  if(loadJsonBtn) loadJsonBtn.addEventListener('click', () => localJsonInput.click());
+ 
+  if(centerContentBtn) centerContentBtn.addEventListener('click', centerContent);
+  if(zoomInBtn) zoomInBtn.addEventListener('click', () => zoomFromCenter(1));
+  if(zoomOutBtn) zoomOutBtn.addEventListener('click', () => zoomFromCenter(-1));
+  if(showVoltageBtn) showVoltageBtn.addEventListener('click', () => togglePinValueLabels('voltage'));
+  if(showDiodeBtn) showDiodeBtn.addEventListener('click', () => togglePinValueLabels('diode'));
+  document.getElementById('export-name-cancel').addEventListener('click', () => closeExportNameModal(null));
+  document.getElementById('export-name-confirm').addEventListener('click', () => closeExportNameModal(exportNameInput.value));
+  exportNameModal.addEventListener('click', event => {
+    if(event.target === exportNameModal) closeExportNameModal(null);
+  });
+  exportNameInput.addEventListener('keydown', event => {
+    if(event.key === 'Enter') closeExportNameModal(exportNameInput.value);
+    if(event.key === 'Escape') closeExportNameModal(null);
+  });
+
+  localSvgInput.addEventListener('change', () => {
+    localSvgFile = localSvgInput.files && localSvgInput.files[0];
+    tryLoadLocalPair();
+  });
+
+  localJsonInput.addEventListener('change', () => {
+    localJsonFile = localJsonInput.files && localJsonInput.files[0];
+    tryLoadLocalPair();
+  });
+
+  localBundleInput.addEventListener('change', () => {
+    const file = localBundleInput.files && localBundleInput.files[0];
+    if(file) loadSingleFile(file);
+  });
+
+ 
+  const params = new URLSearchParams(window.location.search);
+  const fileUrl = params.get('file');
+  const jsonUrl = params.get('json');
+
+  if(fileUrl && jsonUrl){
+    fetchAndLoadSVGWithJSON(fileUrl, jsonUrl);
+  } else if(fileUrl){
+    loadSingleFileFromUrl(fileUrl);
+  } else {
+    document.getElementById('svg-container').innerText = "Upload a PCBE file or provide ?file=URL_DO_ARQUIVO.pcbe.";
+  }
+});
+</script>
+
+</body>
+</html>
