@@ -2885,7 +2885,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const zoomOutBtn = document.getElementById('zoom-out-btn');
   const showVoltageBtn = document.getElementById('show-voltage-btn');
   const showDiodeBtn = document.getElementById('show-diode-btn');
-  if(loadSvgBtn) loadSvgBtn.addEventListener('click', () => localSvgInput.click());
+  
   if(loadJsonBtn) loadJsonBtn.addEventListener('click', () => localJsonInput.click());
  
   if(centerContentBtn) centerContentBtn.addEventListener('click', centerContent);
@@ -2903,10 +2903,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if(event.key === 'Escape') closeExportNameModal(null);
   });
 
-  localSvgInput.addEventListener('change', () => {
-    localSvgFile = localSvgInput.files && localSvgInput.files[0];
-    tryLoadLocalPair();
-  });
 
   localJsonInput.addEventListener('change', () => {
     localJsonFile = localJsonInput.files && localJsonInput.files[0];
