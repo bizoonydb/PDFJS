@@ -278,27 +278,9 @@ html.light-background .toolbar-button.is-active .voltage-icon .voltage-bolt{
   justify-content:center;
   background:transparent;
 }
-#svg-container svg{
+#svg-container > svg{
   background:transparent !important;
-}
-body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  z-index:9997;
-  pointer-events:none;
-  background:
-    radial-gradient(ellipse 40% 36% at 0 0,rgba(0,0,0,0.34),transparent 100%),
-    radial-gradient(ellipse 40% 36% at 100% 0,rgba(0,0,0,0.34),transparent 100%),
-    radial-gradient(ellipse 40% 36% at 0 100%,rgba(0,0,0,0.34),transparent 100%),
-    radial-gradient(ellipse 40% 36% at 100% 100%,rgba(0,0,0,0.34),transparent 100%);
-}
-html.light-background body::after{
-  background:
-    radial-gradient(ellipse 40% 36% at 0 0,rgba(15,23,42,0.16),transparent 100%),
-    radial-gradient(ellipse 40% 36% at 100% 0,rgba(15,23,42,0.16),transparent 100%),
-    radial-gradient(ellipse 40% 36% at 0 100%,rgba(15,23,42,0.16),transparent 100%),
-    radial-gradient(ellipse 40% 36% at 100% 100%,rgba(15,23,42,0.16),transparent 100%);
+  filter:drop-shadow(4px 6px 10px rgba(0,0,0,0.55));
 }
 
 #component-info-bar{
@@ -662,47 +644,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return Boolean(match && (match[1] === undefined || Number(match[1]) > 0));
   }
 
-  function isYellowSvgColor(color){
-    const value = String(color || '').replace(/\s+/g, '').toLowerCase();
-    let red, green, blue;
-    if(value === 'yellow' || value === '#ff0' || value === '#ffff00'){
-      red = 255;
-      green = 255;
-      blue = 0;
-    } else {
-      const match = value.match(/^rgba?\((\d+),(\d+),(\d+)(?:,([\d.]+))?\)$/);
-      if(!match || (match[4] !== undefined && Number(match[4]) === 0)) return false;
-      red = Number(match[1]);
-      green = Number(match[2]);
-      blue = Number(match[3]);
-    }
-
-    red /= 255;
-    green /= 255;
-    blue /= 255;
-    const max = Math.max(red, green, blue);
-    const min = Math.min(red, green, blue);
-    const delta = max - min;
-    const lightness = (max + min) / 2;
-    if(delta === 0) return false;
-
-    let hue;
-    if(max === red) hue = 60 * (((green - blue) / delta) % 6);
-    else if(max === green) hue = 60 * ((blue - red) / delta + 2);
-    else hue = 60 * ((red - green) / delta + 4);
-    hue = (hue + 360) % 360;
-    const saturation = delta / (1 - Math.abs(2 * lightness - 1));
-    return hue >= 42 && hue <= 68
-      && saturation >= 0.58
-      && lightness >= 0.18 && lightness <= 0.96;
-  }
-
   function applySvgBackgroundTheme(useWhiteBackground){
     const svg = svgContainer.querySelector('svg');
     if(!svg) return;
 
     const updates = [];
-    svg.querySelectorAll('*').forEach(element=>{
+    [svg, ...svg.querySelectorAll('*')].forEach(element=>{
       const original = originalSvgBlackStyles.get(element);
       if(!useWhiteBackground){
         if(!original) return;
@@ -717,9 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const saved = original || {};
       ['fill', 'stroke'].forEach(property=>{
         const color = saved[property] ? saved[property].color : computedStyle[property];
-        const replacement = isBlackSvgColor(color)
-          ? '#1A4000'
-          : isYellowSvgColor(color) ? '#000000' : null;
+        const replacement = isBlackSvgColor(color) ? '#1A4000' : null;
         if(!replacement) return;
         if(!Object.prototype.hasOwnProperty.call(saved, property)){
           saved[property] = {
@@ -741,7 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
           element.style.removeProperty(property);
         }
       } else {
-        element.style.setProperty(property, replacement);
+        element.style.setProperty(property, replacement, 'important');
       }
     });
   }
