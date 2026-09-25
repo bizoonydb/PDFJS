@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light-background">
 <head>
 <meta charset="UTF-8">
 <title>PCBE</title>
@@ -441,12 +441,12 @@ html.light-background .component-info-value{color:#1e3a8a}
     <span>Center</span>
   </button>
 
-  <button type="button" class="toolbar-button" id="toggle-background-btn" title="Switch to white background" aria-label="Switch to white background" aria-pressed="false">
+  <button type="button" class="toolbar-button" id="toggle-background-btn" title="Switch to dark background" aria-label="Switch to dark background" aria-pressed="true">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true">
       <circle cx="12" cy="12" r="9"></circle>
       <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none"></path>
     </svg>
-    <span>White BG</span>
+    <span>Dark BG</span>
   </button>
 
   <button type="button" class="toolbar-button" id="show-voltage-btn" title="Show voltage values" aria-label="Show voltage values" aria-pressed="false">
@@ -530,6 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let isPanning = false;
   let panStart = {x:0, y:0};
   let mouseMoved = false;
+  const originalSvgBlackStyles = new WeakMap();
 
   const STROKE_BASE = {
    
@@ -653,6 +654,97 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   function updateTransform(){ scheduleTransform(); }
+
+  function isBlackSvgColor(color){
+    const value = String(color || '').replace(/\s+/g, '').toLowerCase();
+    if(value === 'black' || value === '#000' || value === '#000000') return true;
+    const match = value.match(/^rgba?\(0,0,0(?:,([\d.]+))?\)$/);
+    return Boolean(match && (match[1] === undefined || Number(match[1]) > 0));
+  }
+
+  function isYellowSvgColor(color){
+    const value = String(color || '').replace(/\s+/g, '').toLowerCase();
+    let red, green, blue;
+    if(value === 'yellow' || value === '#ff0' || value === '#ffff00'){
+      red = 255;
+      green = 255;
+      blue = 0;
+    } else {
+      const match = value.match(/^rgba?\((\d+),(\d+),(\d+)(?:,([\d.]+))?\)$/);
+      if(!match || (match[4] !== undefined && Number(match[4]) === 0)) return false;
+      red = Number(match[1]);
+      green = Number(match[2]);
+      blue = Number(match[3]);
+    }
+
+    red /= 255;
+    green /= 255;
+    blue /= 255;
+    const max = Math.max(red, green, blue);
+    const min = Math.min(red, green, blue);
+    const delta = max - min;
+    const lightness = (max + min) / 2;
+    if(delta === 0) return false;
+
+    let hue;
+    if(max === red) hue = 60 * (((green - blue) / delta) % 6);
+    else if(max === green) hue = 60 * ((blue - red) / delta + 2);
+    else hue = 60 * ((red - green) / delta + 4);
+    hue = (hue + 360) % 360;
+    const saturation = delta / (1 - Math.abs(2 * lightness - 1));
+    return hue >= 42 && hue <= 68
+      && saturation >= 0.58
+      && lightness >= 0.18 && lightness <= 0.96;
+  }
+
+  function applySvgBackgroundTheme(useWhiteBackground){
+    const svg = svgContainer.querySelector('svg');
+    if(!svg) return;
+
+    const updates = [];
+    svg.querySelectorAll('*').forEach(element=>{
+      const original = originalSvgBlackStyles.get(element);
+      if(!useWhiteBackground){
+        if(!original) return;
+        Object.entries(original).forEach(([property, value])=>{
+          updates.push({element, property, value, restore:true});
+        });
+        originalSvgBlackStyles.delete(element);
+        return;
+      }
+
+      const computedStyle = getComputedStyle(element);
+      const saved = original || {};
+      ['fill', 'stroke'].forEach(property=>{
+        const color = saved[property] ? saved[property].color : computedStyle[property];
+        const replacement = isBlackSvgColor(color)
+          ? '#1A4000'
+          : isYellowSvgColor(color) ? '#000000' : null;
+        if(!replacement) return;
+        if(!Object.prototype.hasOwnProperty.call(saved, property)){
+          saved[property] = {
+            value:element.style.getPropertyValue(property),
+            priority:element.style.getPropertyPriority(property),
+            color:computedStyle[property]
+          };
+        }
+        updates.push({element, property, replacement});
+      });
+      if(Object.keys(saved).length) originalSvgBlackStyles.set(element, saved);
+    });
+
+    updates.forEach(({element, property, value, replacement, restore})=>{
+      if(restore){
+        if(value.value){
+          element.style.setProperty(property, value.value, value.priority);
+        } else {
+          element.style.removeProperty(property);
+        }
+      } else {
+        element.style.setProperty(property, replacement);
+      }
+    });
+  }
 
   function getJsonComponentBounds(componentData, allComponents){
     let minX = Infinity, minY = Infinity;
@@ -1032,16 +1124,37 @@ document.addEventListener('DOMContentLoaded', () => {
     svg.appendChild(frag);
   }
 
+  const highlightedSvgStyles = new WeakMap();
+  let highlightedSvgElement = null;
   function highlightSelectedElement(target){
-    document.querySelectorAll('#svg-container svg *').forEach(el=>{
-      el.style.stroke='';
-      el.style.strokeWidth='';
-      el.style.fill='';
-      el.style.filter='';
-    });
-    target.style.stroke='#00bfff';
-    target.style.strokeWidth='8px';
-    target.style.filter='drop-shadow(0 0 4px #00bfff)';
+    if(highlightedSvgElement && highlightedSvgElement !== target){
+      const previousStyles = highlightedSvgStyles.get(highlightedSvgElement);
+      if(previousStyles){
+        Object.entries(previousStyles).forEach(([property, value])=>{
+          if(value.value){
+            highlightedSvgElement.style.setProperty(property, value.value, value.priority);
+          } else {
+            highlightedSvgElement.style.removeProperty(property);
+          }
+        });
+        highlightedSvgStyles.delete(highlightedSvgElement);
+      }
+    }
+    if(!highlightedSvgStyles.has(target)){
+      highlightedSvgStyles.set(target, Object.fromEntries(
+        ['stroke', 'stroke-width', 'filter'].map(property=>[
+          property,
+          {
+            value:target.style.getPropertyValue(property),
+            priority:target.style.getPropertyPriority(property)
+          }
+        ])
+      ));
+    }
+    target.style.setProperty('stroke', '#00bfff');
+    target.style.setProperty('stroke-width', '8px');
+    target.style.setProperty('filter', 'drop-shadow(0 0 4px #00bfff)');
+    highlightedSvgElement = target;
   }
 
  
@@ -1473,6 +1586,7 @@ document.addEventListener('DOMContentLoaded', () => {
       container.innerHTML = svgContent;
       const svg = container.querySelector('svg');
       if(!svg){ alert('SVG element not found.'); return; }
+      applySvgBackgroundTheme(document.documentElement.classList.contains('light-background'));
 
       let viewBox = svg.viewBox && svg.viewBox.baseVal;
       let bounds = null;
@@ -3096,6 +3210,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if(toggleBackgroundBtn) toggleBackgroundBtn.addEventListener('click', ()=>{
     const useWhiteBackground = !document.documentElement.classList.contains('light-background');
     document.documentElement.classList.toggle('light-background', useWhiteBackground);
+    applySvgBackgroundTheme(useWhiteBackground);
     toggleBackgroundBtn.setAttribute('aria-pressed', String(useWhiteBackground));
     toggleBackgroundBtn.querySelector('span').textContent = useWhiteBackground ? 'Dark BG' : 'White BG';
     toggleBackgroundBtn.title = useWhiteBackground ? 'Switch to dark background' : 'Switch to white background';
