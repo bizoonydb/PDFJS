@@ -85,6 +85,35 @@
 .msg-ok {
     color: #00a000;
 }
+
+.modalbci-content {
+    background: #080e19 !important;
+    color: #e6f7ff !important;
+    border-color: #00b7ff !important;
+    box-shadow: 0 0 24px rgba(0, 183, 255, 0.25);
+}
+
+.modalbci input {
+    background: #080e19 !important;
+    border-color: #00b7ff !important;
+    color: #e6f7ff !important;
+}
+
+.modalbci button {
+    background: #0879ad !important;
+}
+
+.modalbci button:hover {
+    background: #00b7ff !important;
+}
+
+.sidebar hr {
+    border-color: #00b7ff !important;
+}
+
+.sidebar p[style] {
+    color: #61d9ff !important;
+}
 </style>
 <body>
     <header>
@@ -569,62 +598,6 @@
   
   <div class="watermark" id="watermark">Usuário: Carregando...</div><!--NOME DE USUARIO EMAIL E SENHA -->
 
-        
-<div class="button-container">
-  <span class="close-btnn" onclick="ocultarContainer()">X</span>
-  <input type="text" id="ciInput" placeholder="Digite o CI..." oninput="buscarCI()"><!--BUSCAR CI  -->
-  
-<!-- Suporte Técnico (WhatsApp) -->
-<a href="#" data-url="https://wa.me/message/6X46IDVVWEIQM1" target="_blank" class="top-btn">
-    <i class="fa-brands fa-whatsapp fa-2x"></i>
-</a>
-
-<!-- Busca por CI -->
-<a href="#" data-url="https://bizoonydb.github.io/PDFJS/bci.html" target="_blank" class="top-btn">
-    <i class="fa-solid fa-magnifying-glass fa-2x"></i>
-</a>
-</div>
-<button id="openModalBtn">
-    <i class="fa-solid fa-user fa-2x"></i>
-</button>
-    
-
-    <!-- MODAL DE CONFIGURAÇOES-->
-    <div class="modal" id="userModal">
-        
-        <div class="modal-content">
-            <button class="close-btn" id="closeModalBtn">&times;</button>
-            <div class="modal-header"></div>
-            <div class="modal-header">
-               
-            </div>
-            <div class="profile-container">
-                <img src="https://irmaosfb.weebly.com/uploads/1/3/6/9/136931568/editor/picsart-24-05-22-17-02-16-964.jpg?1737867126" alt="Foto de Perfil" class="profile-image">
-                <h1>BEM VINDO</h1>
-                  
-        <hr>
-        
-                <div class="profile-name"><strong> OS USUARIOS CADASTRADOS NESTE PC ESTÃO, LISTADOS ABAIXO</strong></div>
-                <div class="user-list" id="userList">
-                  
-              </div>
-              <hr>
-            
-          
-                <div class="action-buttons">
-                    
-                    <a href="#" data-url="" class="link-button"><span style="font-weight: bold; color: rgb(255, 0, 0);">LOGOUT</span></a><a href="#" data-url="https://wa.me/message/6X46IDVVWEIQM1" class="link-button"><span style="font-weight: bold; color: rgb(57, 255, 8);">SUPORTE</span></a>
-                </div>
-            </div>
-        </div>
-        
-    </div>
-
-
-
-
-     
-   
 <!-- Modal de validação premium -->
 <div class="modalbci" id="modalbci">
     <div class="modalbci-content">
@@ -653,7 +626,7 @@
 
     <!-- AREA COM IMAGEM -->
   <div class="area-com-imagem">
-    <img src="https://bizoonydb.github.io/PDFJS/db/Picsart_25-09-18_10-20-54-846.jpg" alt="baner 1">
+    <img src="https://bizoonydb.github.io/new2/base2.jpeg" alt="baner 1">
     
   </div> 
 
@@ -661,7 +634,7 @@
 
     <!-- Imagem Fixa CABEÇALHO HENDER -->
   <div class="fixed-image">
-    <img src="https://bizoonydb.github.io/PDFJS/db/CABC.jpg" alt="Imagem Fixa">
+    <img src="https://bizoonydb.github.io/new2/CABC.jpeg" alt="Imagem Fixa">
   </div>
 
 
@@ -736,6 +709,107 @@ btnConfirmar.addEventListener("click", () => {
 
 <script src="scriptdb2.js"></script>
 
+<style>
+#clock-container {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 9999999;
+    padding: 10px 14px;
+    border: 1px solid rgba(0, 183, 255, 0.7);
+    border-radius: 10px;
+    background: rgba(3, 10, 20, 0.92);
+    box-shadow: 0 0 18px rgba(0, 183, 255, 0.2), inset 0 0 12px rgba(0, 183, 255, 0.08);
+    color: #61d9ff;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+#digital-time {
+    font-family: "Courier New", monospace;
+    font-size: 25px;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 3px;
+    line-height: 1.1;
+    color: #8cf0ff;
+    text-shadow: 0 0 6px #00b7ff, 0 0 14px rgba(0, 183, 255, 0.75);
+}
+
+#date {
+    margin-top: 5px;
+    color: #61d9ff;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+#clock-user {
+    margin-top: 7px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(0, 183, 255, 0.35);
+    color: #8cf0ff;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 0 7px rgba(0, 183, 255, 0.55);
+}
+
+@media (max-width: 600px) {
+    #clock-container {
+        right: 10px;
+        bottom: 10px;
+        padding: 8px 10px;
+    }
+
+    #digital-time {
+        font-size: 20px;
+    }
+}
+</style>
+
+<div id="clock-container" aria-label="Relógio digital">
+    <div id="digital-time"></div>
+    <div id="date"></div>
+    <div id="clock-user"></div>
+</div>
+
+<script>
+function updateClock() {
+    const now = new Date();
+    document.getElementById("digital-time").textContent =
+        now.toLocaleTimeString("pt-BR", { hour12: false });
+    document.getElementById("date").textContent =
+        now.toLocaleDateString("pt-BR", {
+            weekday: "short",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        });
+}
+
+function updateClockUser() {
+    const userElement = document.getElementById("clock-user");
+
+    try {
+        const users = JSON.parse(localStorage.getItem("usuariosCadastrados") || "[]");
+        const savedUser = Array.isArray(users) && users.length > 0
+            ? users[users.length - 1]
+            : null;
+        userElement.textContent = savedUser && savedUser.username
+            ? `USUÁRIO: ${savedUser.username}`
+            : "USUÁRIO NÃO IDENTIFICADO";
+    } catch (error) {
+        console.error("Não foi possível carregar o usuário salvo.", error);
+        userElement.textContent = "USUÁRIO INDISPONÍVEL";
+    }
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+updateClockUser();
+window.addEventListener("storage", updateClockUser);
+</script>
 
 </body>
 </html>

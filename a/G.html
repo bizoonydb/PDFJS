@@ -11,7 +11,7 @@
      <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
    
 
-  <link rel="stylesheet" href="https://bizoonydb.github.io/PDFJS/a/styledb.css">
+  <link rel="stylesheet" href="styledb.css">
 
 </head>
 <body>
@@ -12742,60 +12742,6 @@
   
   <div class="watermark" id="watermark">Usuário: Carregando...</div><!--NOME DE USUARIO EMAIL E SENHA -->
 
-        
-<div class="button-container">
-  <span class="close-btnn" onclick="ocultarContainer()">X</span>
-  <input type="text" id="ciInput" placeholder="Digite o CI..." oninput="buscarCI()"><!--BUSCAR CI  -->
-  
-<!-- Suporte Técnico (WhatsApp) -->
-<a href="https://wa.me/message/6X46IDVVWEIQM1" target="_blank" class="top-btn">
-    <i class="fa-brands fa-whatsapp fa-2x"></i>
-</a>
-
-<!-- Busca por CI -->
-<a href="https://bizoonydb.github.io/PDFJS/bci.html" target="_blank" class="top-btn">
-    <i class="fa-solid fa-magnifying-glass fa-2x"></i>
-</a>
-</div>
-<button id="openModalBtn">
-    <i class="fa-solid fa-user fa-2x"></i>
-</button>
-    
-
-    <!-- MODAL DE CONFIGURAÇOES-->
-    <div class="modal" id="userModal">
-        
-        <div class="modal-content">
-            <button class="close-btn" id="closeModalBtn">&times;</button>
-            <div class="modal-header"></div>
-            <div class="modal-header">
-               
-            </div>
-            <div class="profile-container">
-                <img src="https://irmaosfb.weebly.com/uploads/1/3/6/9/136931568/editor/picsart-24-05-22-17-02-16-964.jpg?1737867126" alt="Foto de Perfil" class="profile-image">
-                <h1>BEM VINDO</h1>
-                  
-        <hr>
-        
-                <div class="profile-name"><strong> OS USUARIOS CADASTRADOS NESTE PC ESTÃO, LISTADOS ABAIXO</strong></div>
-                <div class="user-list" id="userList">
-                  
-              </div>
-              <hr>
-            
-          
-                <div class="action-buttons">
-                    
-                    <a href="#" data-url="" class="link-button"><span style="font-weight: bold; color: rgb(255, 0, 0);">LOGOUT</span></a><a href="#" data-url="https://wa.me/message/6X46IDVVWEIQM1" class="link-button"><span style="font-weight: bold; color: rgb(57, 255, 8);">SUPORTE</span></a>
-                </div>
-            </div>
-        </div>
-        
-    </div>
-
-
-
-
      
    
 <!-- Modal VALIDAÇAO DRONE,,,, -->
@@ -12818,7 +12764,7 @@
 
     <!-- AREA COM IMAGEM -->
   <div class="area-com-imagem">
-    <img src="https://bizoonydb.github.io/PDFJS/db/XXX.jpg" alt="baner 1">
+    <img src="https://bizoonydb.github.io/new2/base2.jpeg" alt="baner 1">
     
   </div> 
 
@@ -12826,7 +12772,7 @@
 
     <!-- Imagem Fixa CABEÇALHO HENDER -->
   <div class="fixed-image">
-    <img src="https://bizoonydb.github.io/PDFJS/db/CABC.jpg" alt="Imagem Fixa">
+    <img src="https://bizoonydb.github.io/new2/CABC.jpeg" alt="Imagem Fixa">
   </div>
 
 
@@ -12846,136 +12792,76 @@
 <script src="scriptdb2.js"></script>
 
 
-</body>
-</html>
-
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Relógio Analógico</title>
-
 <style>
-/* CONTAINER FIXO */
 #clock-container {
     position: fixed;
-    bottom: 20px;
     right: 20px;
-    width: 160px;
-    text-align: center;
+    bottom: 20px;
     z-index: 9999999;
+    padding: 10px 14px;
+    border: 1px solid rgba(0, 183, 255, 0.7);
+    border-radius: 10px;
+    background: rgba(3, 10, 20, 0.92);
+    box-shadow: 0 0 18px rgba(0, 183, 255, 0.2), inset 0 0 12px rgba(0, 183, 255, 0.08);
+    color: #61d9ff;
+    text-align: center;
     font-family: Arial, sans-serif;
-    color: #eeff00;
 }
 
-/* RELÓGIO ANALÓGICO */
-.clock {
-    width: 100px;
-    height: 100px;
-    border: 4px solid #eeff07;
-    border-radius: 50%;
-    position: relative;
-    margin: 0 auto 8px;
-    background: radial-gradient(circle, #111 60%, #000);
-}
-
-/* CENTRO */
-.clock::after {
-    content: "";
-    width: 10px;
-    height: 10px;
-    background: red;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    z-index: 10;
-}
-
-/* PONTEIROS */
-.hand {
-    position: absolute;
-    width: 50%;
-    height: 2px;
-    background: #fffb00;
-    top: 50%;
-    left: 50%;
-    transform-origin: left center;
-    transform: rotate(90deg);
-}
-
-.hour {
-    width: 35%;
-     background: rgb(255, 238, 0);
-    height: 4px;
-}
-
-.minute {
-    width: 45%;
-    height: 3px;
-    background: rgb(255, 238, 0);
-}
-
-.second {
-    background: red;
-    height: 2px;
-}
-
-/* HORA DIGITAL */
 #digital-time {
-    font-size: 16px;
+    font-family: "Courier New", monospace;
+    font-size: 25px;
     font-weight: bold;
-    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 3px;
+    line-height: 1.1;
+    color: #8cf0ff;
+    text-shadow: 0 0 6px #00b7ff, 0 0 14px rgba(0, 183, 255, 0.75);
 }
 
-/* DATA */
 #date {
-    font-size: 13px;
-    opacity: 0.9;
+    margin-top: 5px;
+    color: #61d9ff;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+#clock-user {
+    margin-top: 7px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(0, 183, 255, 0.35);
+    color: #8cf0ff;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 0 7px rgba(0, 183, 255, 0.55);
+}
+
+@media (max-width: 600px) {
+    #clock-container {
+        right: 10px;
+        bottom: 10px;
+        padding: 8px 10px;
+    }
+
+    #digital-time {
+        font-size: 20px;
+    }
 }
 </style>
-</head>
 
-<body>
-
-<div id="clock-container">
-    <div class="clock">
-        <div class="hand hour" id="hour"></div>
-        <div class="hand minute" id="minute"></div>
-        <div class="hand second" id="second"></div>
-    </div>
-
+<div id="clock-container" aria-label="Relógio digital">
     <div id="digital-time"></div>
     <div id="date"></div>
+    <div id="clock-user"></div>
 </div>
 
 <script>
 function updateClock() {
     const now = new Date();
-
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const seconds = now.getSeconds();
-
-    // Ponteiros
-    const hourDeg = (hours % 12) * 30 + minutes * 0.5;
-    const minuteDeg = minutes * 6;
-    const secondDeg = seconds * 6;
-
-    document.getElementById("hour").style.transform =
-        `rotate(${hourDeg}deg)`;
-    document.getElementById("minute").style.transform =
-        `rotate(${minuteDeg}deg)`;
-    document.getElementById("second").style.transform =
-        `rotate(${secondDeg}deg)`;
-
-    // Hora digital
     document.getElementById("digital-time").textContent =
-        now.toLocaleTimeString("pt-BR");
-
-    // Data
+        now.toLocaleTimeString("pt-BR", { hour12: false });
     document.getElementById("date").textContent =
         now.toLocaleDateString("pt-BR", {
             weekday: "short",
@@ -12985,8 +12871,27 @@ function updateClock() {
         });
 }
 
+function updateClockUser() {
+    const userElement = document.getElementById("clock-user");
+
+    try {
+        const users = JSON.parse(localStorage.getItem("usuariosCadastrados") || "[]");
+        const savedUser = Array.isArray(users) && users.length > 0
+            ? users[users.length - 1]
+            : null;
+        userElement.textContent = savedUser && savedUser.username
+            ? `USUÁRIO: ${savedUser.username}`
+            : "USUÁRIO NÃO IDENTIFICADO";
+    } catch (error) {
+        console.error("Não foi possível carregar o usuário salvo.", error);
+        userElement.textContent = "USUÁRIO INDISPONÍVEL";
+    }
+}
+
 setInterval(updateClock, 1000);
 updateClock();
+updateClockUser();
+window.addEventListener("storage", updateClockUser);
 </script>
 
 </body>

@@ -182,29 +182,30 @@ document.addEventListener('click', function(event) {
         const closeModalBtn = document.getElementById('closeModalBtn');
         const modal = document.getElementById('userModal');
 
-        openModalBtn.addEventListener('click', () => {
-            modal.classList.add('active');
-        });
+        if (openModalBtn && closeModalBtn && modal) {
+            openModalBtn.addEventListener('click', () => {
+                modal.classList.add('active');
+            });
 
-        closeModalBtn.addEventListener('click', () => {
-            modal.classList.remove('active');
-        });
+            closeModalBtn.addEventListener('click', () => {
+                modal.classList.remove('active');
+            });
 
-        // Função para carregar os dados dos usuários
-        function loadUserData() {
-          const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
+            // Função para carregar os dados dos usuários
+            function loadUserData() {
+              const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
           
-          // Se não houver usuários cadastrados
-          if (usuariosCadastrados.length === 0) {
-              document.getElementById('userList').innerHTML = '<p>Nenhum usuário encontrado.</p>';
-              return;
-          }
+              // Se não houver usuários cadastrados
+              if (usuariosCadastrados.length === 0) {
+                  document.getElementById('userList').innerHTML = '<p>Nenhum usuário encontrado.</p>';
+                  return;
+              }
 
-          usuariosCadastrados.reverse(); // Exibe o mais recente primeiro
+              usuariosCadastrados.reverse(); // Exibe o mais recente primeiro
 
-          let userListHTML = '';
-          usuariosCadastrados.forEach((user, index) => {
-              userListHTML += `
+              let userListHTML = '';
+              usuariosCadastrados.forEach((user, index) => {
+                  userListHTML += `
                   <div class="user-item">
                       <strong>USER ${index + 1}:</strong><br>
                       <label>E-MAIL:</label><span>${user.email}</span><br> <!-- Exibindo o e-mail cadastrado -->
@@ -217,13 +218,14 @@ document.addEventListener('click', function(event) {
                      
                   </div>
               `;
-          });
+              });
 
-          document.getElementById('userList').innerHTML = userListHTML;
-      }
+              document.getElementById('userList').innerHTML = userListHTML;
+          }
 
-      // Carregar os dados assim que o modal for aberto
-      openModalBtn.addEventListener('click', loadUserData);
+          // Carregar os dados assim que o modal for aberto
+          openModalBtn.addEventListener('click', loadUserData);
+        }
       
  
   const linksBci = document.querySelectorAll('.link-bci');

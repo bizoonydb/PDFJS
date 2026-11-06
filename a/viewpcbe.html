@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="light-background">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>PCBE</title>
@@ -15,18 +15,13 @@
 html,body{
   margin:0;padding:0;
   width:100%;height:100%;overflow:hidden;
-  background-color:#050505;
-  background-image:
-    linear-gradient(rgba(255,214,10,0.06) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,214,10,0.06) 1px,transparent 1px);
-  background-size:40px 40px;
+  background-color:#000;
+  background-image:radial-gradient(ellipse at center,rgba(0,105,255,0.2) 0%,rgba(0,65,180,0.09) 38%,transparent 72%);
   font-family:'Segoe UI',Roboto,sans-serif;
 }
 html.light-background,html.light-background body{
   background-color:#fff;
-  background-image:
-    linear-gradient(rgba(37,99,235,0.14) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(37,99,235,0.14) 1px,transparent 1px);
+  background-image:none;
 }
 
 #topbar{
@@ -397,6 +392,130 @@ html.light-background .component-info-value{color:#1e3a8a}
   font-weight:800;
   pointer-events:none;
   user-select:none;
+}
+
+html,body{
+  background-color:#000;
+  background-image:radial-gradient(ellipse at center,rgba(0,105,255,0.2) 0%,rgba(0,65,180,0.09) 38%,transparent 72%);
+}
+#topbar{
+  background:linear-gradient(180deg,rgba(0,183,255,0.055),rgba(0,183,255,0.008)),#020202;
+  border-bottom-color:rgba(0,183,255,0.4);
+  box-shadow:0 12px 36px rgba(0,0,0,0.78),0 0 12px rgba(0,183,255,0.06);
+  color:#e6f7ff;
+}
+#topbar input[type="checkbox"]{accent-color:#00b7ff}
+#topbar select,#topbar input[type="text"]{
+  border-color:rgba(0,183,255,0.34);
+  background:#050505;
+  color:#e6f7ff;
+}
+#topbar select option{background:#050505;color:#e6f7ff}
+#topbar select:focus,#topbar input[type="text"]:focus{
+  border-color:#00e5ff;
+  box-shadow:0 0 0 3px rgba(0,229,255,0.2);
+}
+#search-input::placeholder{color:#79b9d8}
+.toolbar-button,.icon-toggle{
+  border-color:rgba(0,183,255,0.36);
+  background:#050505;
+  color:#61d9ff;
+}
+.toolbar-button:hover,.toolbar-button.is-active,.icon-toggle:hover,
+.icon-toggle:has(input:checked){
+  background:#0879ad;
+  border-color:#00e5ff;
+  color:#fff;
+  box-shadow:0 0 12px rgba(0,183,255,0.3);
+}
+.toolbar-button .voltage-icon .voltage-bolt,
+.toolbar-button .voltage-icon{fill:#00b7ff;stroke:#00b7ff}
+.toolbar-button.is-active .voltage-icon .voltage-bolt{fill:#fff;stroke:#fff}
+.topbar-divider{background:rgba(0,183,255,0.35)}
+.select-caption{
+  border-color:rgba(0,183,255,0.34);
+  color:#61d9ff;
+  background:#050505;
+}
+.export-modal{
+  border-color:rgba(0,183,255,0.36);
+  background:#030303;
+  color:#e6f7ff;
+}
+.export-name-row{border-color:rgba(0,183,255,0.34);background:#050505}
+.export-name-row:focus-within{border-color:#00e5ff;box-shadow:0 0 0 3px rgba(0,229,255,0.2)}
+#export-name-input{color:#e6f7ff}
+.export-extension{
+  border-left-color:rgba(0,183,255,0.32);
+  background:rgba(0,183,255,0.12);
+  color:#61d9ff;
+}
+#component-info-bar{
+  background:rgba(2,2,2,0.99);
+  border-top-color:rgba(0,183,255,0.4);
+  color:#e6f7ff;
+}
+.component-info-title{color:#61d9ff}
+.component-info-field{border-color:rgba(0,183,255,0.24);background:rgba(0,183,255,0.035)}
+.component-info-label{color:rgba(121,205,235,0.8)}
+.component-info-value{color:#fff}
+
+.toolbar-button,.icon-toggle{
+  min-width:44px;
+  height:42px;
+  border:1px solid #263b56;
+  border-radius:14px;
+  background:linear-gradient(180deg,#17283d 0%,#0d1929 100%);
+  color:#e4edf8;
+  box-shadow:0 4px 10px rgba(0,0,0,0.38),0 1px 0 rgba(255,255,255,0.06) inset;
+}
+.toolbar-button{
+  padding:0 12px;
+  gap:8px;
+}
+.icon-toggle{padding:0 12px}
+.toolbar-button svg,.icon-toggle svg{stroke:currentColor}
+.toolbar-button:hover,.icon-toggle:hover{
+  border-color:#3a5b84;
+  background:linear-gradient(180deg,#203752 0%,#12243a 100%);
+  color:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,0.42),0 0 10px rgba(57,139,255,0.12);
+}
+.toolbar-button.is-active,.icon-toggle:has(input:checked){
+  border-color:#4c85ef;
+  background:linear-gradient(180deg,#3978e8 0%,#2454b6 100%);
+  color:#fff;
+  box-shadow:0 4px 14px rgba(15,55,130,0.48),0 1px 0 rgba(255,255,255,0.18) inset;
+}
+.toolbar-button.is-active:hover,.icon-toggle:has(input:checked):hover{
+  border-color:#6b9cff;
+  background:linear-gradient(180deg,#4888f5 0%,#2d63cb 100%);
+}
+.toolbar-button:focus-visible,.icon-toggle:has(input:focus-visible){
+  outline:2px solid #67a1ff;
+  outline-offset:2px;
+}
+.toolbar-button .voltage-icon .voltage-bolt,
+.toolbar-button .voltage-icon{fill:currentColor;stroke:currentColor}
+
+html.light-background .toolbar-button,
+html.light-background .icon-toggle{
+  border-color:#2563eb;
+  background:#fff;
+  color:#1d4ed8;
+  box-shadow:0 2px 6px rgba(37,99,235,0.12);
+}
+html.light-background .toolbar-button:hover,
+html.light-background .icon-toggle:hover{
+  background:#eff6ff;
+}
+html.light-background .toolbar-button.is-active,
+html.light-background .icon-toggle:has(input:checked),
+html.light-background .toolbar-button.is-active:hover,
+html.light-background .icon-toggle:has(input:checked):hover{
+  border-color:#2563eb;
+  background:linear-gradient(180deg,#3978e8 0%,#2454b6 100%);
+  color:#fff;
 }
 </style>
 </head>
@@ -1804,7 +1923,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const label = document.createElementNS(ns, 'text');
     label.setAttribute('x', pc.x + pc.w / 2);
     label.setAttribute('y', pc.y - Math.max(pc.h * 0.35, 2));
-    label.setAttribute('fill', '#ffd60a');
+    label.setAttribute('fill', '#61d9ff');
     label.setAttribute('text-anchor', 'middle');
     label.setAttribute('dominant-baseline', 'auto');
     label.setAttribute('font-size', Math.max(Math.min(pc.w, pc.h) * 0.8, 4));
@@ -2584,11 +2703,11 @@ document.addEventListener('DOMContentLoaded', () => {
           Object.assign(item.style,{
             padding:"6px 10px",
             cursor:"pointer",
-            borderBottom:"1px solid rgba(255,214,10,0.12)"
+            borderBottom:"1px solid rgba(0,183,255,0.18)"
           });
           item.onmouseenter = ()=> {
-            item.style.background="#ffd60a";
-            item.style.color="#050505";
+            item.style.background="#0879ad";
+            item.style.color="#ffffff";
           };
           item.onmouseleave = ()=> item.style.background="transparent";
           item.onmouseleave = ()=> {
